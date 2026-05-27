@@ -1,0 +1,152 @@
+import React, { useMemo } from 'react';
+import { BarChart, Bar, Tooltip, ResponsiveContainer, XAxis, CartesianGrid } from 'recharts';
+import { formatCurrency } from '@/utils/calculations';
+import { motion } from 'framer-motion';
+import { useTheme } from '@/context/ThemeContext';
+
+const AssetLiabilityChart = ({
+  totalAssets,
+  totalLiabilities,
+  selectedPeriod,
+  filteredTransactions = [], 
+  showNetWorth = true
+}) => {
+  const { theme } = useTheme();
+  const isDark = theme === 'dark';
+
+  const data = useMemo(() => {
+    const safeTransactions = Array.isArray(filteredTransactions) ? filteredTransactions : [];
+    
+    // Group transactions by date
+    const txByDate = {};
+    safeTransactions.forEach(tx => {
+        if (!tx || !tx.date) return;
+        const d = tx.date;
+        if (!txByDate[d]) {
+           txByDate[d] = { name: d, assets: 0, liabilities: 0 };
+        }
+        
+        if (tx.type === 'entrada') {
+           txByDate[d].assets += Math.abs(tx.amount);
+        } else if (tx.type === 'saida') {
+           txByDate[d].liabilities += Math.abs(tx.amount);
+        }
+    });
+
+    let daysToShow = 30;
+    if (selectedPeriod === 'Semanal') daysToShow = 7;
+    else if (selectedPeriod === 'Quinzenal') daysToShow = 15;
+    else if (selectedPeriod === 'Trimestral') daysToShow = 90;
+    else if (selectedPeriod === 'Semestral') daysToShow = 180;
+    else if (selectedPeriod === 'Anual') daysToShow = 365;
+    
+    const today = new Date();
+    today.setHours(0,0,0,0);
+    const chartData = [];
+
+    // Generate array of dates backwards
+    for (let i = daysToShow - 1; i >= 0; i--) {
+        const d = new Date(today);
+        d.setDate(d.getDate() - i);
+        const dateStr = d.toISOString().slice(0, 10);
+        
+        const dayData = txByDate[dateStr] || { assets: 0, liabilities: 0 };
+        chartData.push({
+            name: d.toLocaleDateString('pt-BR', { day: '2-digit', month: '2-digit' }),
+            assets: dayData.assets,
+            liabilities: dayData.liabilities,
+            netWorth: dayData.assets - dayData.liabilities
+        });
+    }
+
+    return chartData;
+  }, [filteredTransactions, selectedPeriod]);
+
+  const CustomTooltip = ({ active, payload, label }) => {
+    if (active && payload && payload.length) {
+      return (
+        <div className="bg-white dark:bg-vindex-card p-3 border border-gray-200 dark:border-vindex-border rounded-lg shadow-lg">
+          <p className="text-xs text-gray-500 mb-2">{label}</p>
+          {payload.map((entry, index) => (
+             <div key={index} className="flex items-center justify-between gap-4 mb-1">
+                <span className="text-sm text-gray-600 dark:text-gray-300 capitalize">
+                    {entry.dataKey === 'assets' ? 'Ativos (Entradas)' : entry.dataKey === 'liabilities' ? 'Passivos (Saídas)' : 'Patrimônio'}
+                </span>
+                <span className="text-sm font-bold font-mono" style={{ color: entry.color }}>
+                    {formatCurrency(entry.value)}
+                </span>
+             </div>
+          ))}
+        </div>
+      );
+    }
+    return null;
+  };
+
+  return (
+    <motion.div 
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        className="bg-white dark:bg-vindex-card rounded-2xl p-6 border border-gray-200 dark:border-vindex-border shadow-sm mb-6 relative"
+    >
+        {/* Header Stats */}
+        <div className="flex flex-wrap justify-center gap-8 md:gap-24 mb-6 pt-2">
+            <div className="text-center">
+                <div className="flex items-center justify-center gap-2 mb-2">
+                    <div className="w-3 h-3 rounded bg-emerald-500"></div>
+                    <span className="text-gray-500 dark:text-gray-400 font-medium">Ativos Totais</span>
+                </div>
+                <div className="text-3xl font-bold text-gray-900 dark:text-white mb-2 tracking-tight">
+                    {formatCurrency(totalAssets || 0)}
+                </div>
+            </div>
+
+            <div className="text-center">
+                <div className="flex items-center justify-center gap-2 mb-2">
+                    <div className="w-3 h-3 rounded bg-red-500"></div>
+                    <span className="text-gray-500 dark:text-gray-400 font-medium">Passivos Totais</span>
+                </div>
+                <div className="text-3xl font-bold text-gray-900 dark:text-white mb-2 tracking-tight">
+                    {formatCurrency(totalLiabilities || 0)}
+                </div>
+            </div>
+        </div>
+
+        {/* Chart Area */}
+        <div className="h-[250px] w-full">
+            <ResponsiveContainer width="100%" height="100%">
+                <BarChart data={data} margin={{ top: 10, right: 10, left: 10, bottom: 0 }}>
+                    <CartesianGrid strokeDasharray="3 3" vertical={false} stroke={isDark ? '#374151' : '#e5e7eb'} />
+                    <Tooltip content={<CustomTooltip />} cursor={{ fill: isDark ? '#374151' : '#f3f4f6' }} />
+                    <XAxis 
+                        dataKey="name" 
+                        hide={data.length > 20} 
+                        tick={{ fontSize: 10, fill: isDark ? '#9ca3af' : '#6b7280' }} 
+                        axisLine={false}
+                        tickLine={false}
+                        dy={10}
+                    />
+                    
+                    {/* Assets Bar */}
+                    <Bar 
+                        dataKey="assets" 
+                        fill="#10b981" 
+                        radius={[4, 4, 0, 0]}
+                        maxBarSize={40}
+                    />
+                    
+                    {/* Liabilities Bar */}
+                    <Bar 
+                        dataKey="liabilities" 
+                        fill="#ef4444" 
+                        radius={[4, 4, 0, 0]}
+                        maxBarSize={40}
+                    />
+                </BarChart>
+            </ResponsiveContainer>
+        </div>
+    </motion.div>
+  );
+};
+
+export default AssetLiabilityChart;
