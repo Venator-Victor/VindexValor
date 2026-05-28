@@ -3,6 +3,7 @@ import { Helmet } from 'react-helmet';
 import { useNavigate } from 'react-router-dom';
 import { Plus, CreditCard, UploadCloud, Receipt, ArrowRight, ArrowUp, ArrowDown } from 'lucide-react';
 import { useFinance } from '@/context/FinanceContext';
+import { useAuth } from '@/contexts/SupabaseAuthContext';
 import { Button } from '@/components/ui/button';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger, DialogFooter } from '@/components/ui/dialog';
 import { Label } from '@/components/ui/label';
@@ -18,6 +19,7 @@ import { supabase } from '@/lib/customSupabaseClient';
 import InvoiceSelectionBar from '@/components/InvoiceSelectionBar';
 
 const FaturasPage = () => {
+  const { user } = useAuth();
   const { faturas, fetchFaturas, createFatura, accounts } = useFinance();
   const [isLoading, setIsLoading] = useState(true);
   const [isDialogOpen, setIsDialogOpen] = useState(false);
@@ -117,7 +119,7 @@ const FaturasPage = () => {
         data_fechamento: editFormData.data_fechamento,
         conta_id: editFormData.conta_id,
         status: editFormData.status
-      }).eq('id', editFormData.id);
+      }).eq('id', editFormData.id).eq('user_id', user.id);
       
       if (error) throw error;
       

@@ -89,7 +89,7 @@ const InvoiceSelectionBar = ({ selectedIds, faturas, faturaTotals = {}, onClearS
         if (txError) throw txError;
       }
 
-      const { error: statusError } = await supabase.from('faturas').update({ status: 'paga' }).in('id', selectedIds);
+      const { error: statusError } = await supabase.from('faturas').update({ status: 'paga' }).in('id', selectedIds).eq('user_id', user.id);
       if (statusError) throw statusError;
 
       toast({ title: "Sucesso", description: "Pagamento vinculado com sucesso às faturas!" });

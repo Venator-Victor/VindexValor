@@ -143,7 +143,7 @@ const FaturaDetailPage = () => {
       const newTotalPaid = currentTotalPaid + amountPaid;
       
       if (newTotalPaid >= Math.abs(calculatedTotal)) {
-        await supabase.from('faturas').update({ status: 'paga' }).eq('id', id);
+        await supabase.from('faturas').update({ status: 'paga' }).eq('id', id).eq('user_id', user.id);
       }
 
       toast({ title: "Pagamento vinculado com sucesso!" });
@@ -161,12 +161,13 @@ const FaturaDetailPage = () => {
       const { error } = await supabase
         .from('transacoes')
         .update({ fatura_id: null })
-        .eq('id', paymentId);
+        .eq('id', paymentId)
+        .eq('user_id', user.id);
 
       if (error) throw error;
-      
+
       // Update status back to 'aberta' if it was marked as paid but now it's unlinked
-      await supabase.from('faturas').update({ status: 'aberta' }).eq('id', id);
+      await supabase.from('faturas').update({ status: 'aberta' }).eq('id', id).eq('user_id', user.id);
 
       toast({ title: "Pagamento desvinculado com sucesso!" });
       loadData();

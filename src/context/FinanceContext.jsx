@@ -3,7 +3,6 @@ import { supabase } from '@/lib/customSupabaseClient';
 import { useAuth } from '@/contexts/SupabaseAuthContext';
 import { useToast } from '@/components/ui/use-toast';
 import { mockData } from '@/utils/mockData';
-import { sanitizeUserInput } from '@/utils/securityUtils';
 import { useExchangeRate } from '@/hooks/useExchangeRate';
 import { calculateAccountBalance, isCryptoCurrency } from '@/utils/calculations';
 import { validateCreditCardAccount } from '@/utils/accountValidation';
@@ -170,7 +169,8 @@ export const FinanceProvider = ({ children }) => {
 
   // Compras da Fatura Operations
   const fetchComprasFatura = async (faturaId) => {
-    const { data } = await supabase.from('compras_fatura').select('*, categorias(name, color)').eq('fatura_id', faturaId).order('data', { ascending: false });
+    if (!user || !user.id) return [];
+    const { data } = await supabase.from('compras_fatura').select('*, categorias(name, color)').eq('fatura_id', faturaId).eq('user_id', user.id).order('data', { ascending: false });
     return data || [];
   };
 

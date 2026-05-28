@@ -12,6 +12,7 @@ export const AuthProvider = ({ children }) => {
   const [user, setUser] = useState(null);
   const [session, setSession] = useState(null);
   const [loading, setLoading] = useState(true);
+  const [isRecoveryMode, setIsRecoveryMode] = useState(false);
 
   const handleSession = useCallback(async (session) => {
     setSession(session);
@@ -36,6 +37,9 @@ export const AuthProvider = ({ children }) => {
 
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
       async (event, session) => {
+        if (event === 'PASSWORD_RECOVERY') {
+          setIsRecoveryMode(true);
+        }
         handleSession(session);
       }
     );
@@ -78,6 +82,34 @@ export const AuthProvider = ({ children }) => {
     return { error };
   }, [toast]);
 
+  const resetPasswordForEmail = useCallback(async (email) => {
+    const { error } = await supabase.auth.resetPasswordForEmail(email, {
+      redirectTo: `${window.location.origin}/reset-password`,
+    });
+    if (error) {
+      toast({
+        variant: "destructive",
+        title: "Erro ao enviar email",
+        description: error.message || "Não foi possível enviar o link de recuperação.",
+      });
+    }
+    return { error };
+  }, [toast]);
+
+  const updatePassword = useCallback(async (password) => {
+    const { error } = await supabase.auth.updateUser({ password });
+    if (error) {
+      toast({
+        variant: "destructive",
+        title: "Erro ao atualizar senha",
+        description: error.message || "Não foi possível atualizar a senha.",
+      });
+    } else {
+      setIsRecoveryMode(false);
+    }
+    return { error };
+  }, [toast]);
+
   const signOut = useCallback(async () => {
     try {
       const { error } = await supabase.auth.signOut();
@@ -105,10 +137,13 @@ export const AuthProvider = ({ children }) => {
     user,
     session,
     loading,
+    isRecoveryMode,
     signUp,
     signIn,
     signOut,
-  }), [user, session, loading, signUp, signIn, signOut]);
+    resetPasswordForEmail,
+    updatePassword,
+  }), [user, session, loading, isRecoveryMode, signUp, signIn, signOut, resetPasswordForEmail, updatePassword]);
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
 };
