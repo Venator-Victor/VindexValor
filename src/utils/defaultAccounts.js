@@ -1,4 +1,4 @@
-export const defaultAccounts = [
+export const DEFAULT_ACCOUNTS = [
   { 
     id: 'cc-principal', 
     name: 'Conta Principal', 

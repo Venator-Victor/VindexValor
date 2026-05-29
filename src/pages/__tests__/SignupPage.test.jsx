@@ -11,7 +11,7 @@ const mockSignUp = vi.fn();
 const mockNavigate = vi.fn();
 const mockToast = vi.fn();
 
-vi.mock('@/contexts/SupabaseAuthContext', () => ({
+vi.mock('@/context/SupabaseAuthContext', () => ({
   useAuth: () => ({ signUp: mockSignUp, loading: false }),
 }));
 

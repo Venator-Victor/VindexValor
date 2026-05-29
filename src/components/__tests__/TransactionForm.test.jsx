@@ -20,7 +20,7 @@ const financeValue = {
 
 const mockToast = vi.fn();
 
-vi.mock('@/contexts/SupabaseAuthContext', () => ({
+vi.mock('@/context/SupabaseAuthContext', () => ({
   useAuth: () => ({ user: { id: 'uid-1', email: 'test@test.com' }, session: {}, loading: false }),
 }));
 

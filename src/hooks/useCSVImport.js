@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import Papa from 'papaparse';
 import { supabase } from '@/lib/customSupabaseClient';
-import { useAuth } from '@/contexts/SupabaseAuthContext';
+import { useAuth } from '@/context/SupabaseAuthContext';
 import { useFinance } from '@/context/FinanceContext';
 import { useCustomCategoryMappings } from './useCustomCategoryMappings';
 

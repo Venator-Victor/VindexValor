@@ -11,7 +11,7 @@ import { useCSVImport } from '../useCSVImport';
 
 // ─── Module-level mocks ───────────────────────────────────────────────────────
 
-vi.mock('@/contexts/SupabaseAuthContext', () => ({
+vi.mock('@/context/SupabaseAuthContext', () => ({
   useAuth: () => ({ user: { id: 'uid-1' } }),
 }));
 

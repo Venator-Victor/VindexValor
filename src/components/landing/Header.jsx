@@ -6,7 +6,7 @@ import {
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { useTheme } from '@/context/ThemeContext';
-import { useAuth } from '@/contexts/SupabaseAuthContext';
+import { useAuth } from '@/context/SupabaseAuthContext';
 import VindexLogo from '@/components/VindexLogo';
 import {
   DropdownMenu,

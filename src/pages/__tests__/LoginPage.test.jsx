@@ -10,7 +10,7 @@ import LoginPage from '../LoginPage';
 const mockSignIn = vi.fn();
 const mockNavigate = vi.fn();
 
-vi.mock('@/contexts/SupabaseAuthContext', () => ({
+vi.mock('@/context/SupabaseAuthContext', () => ({
   useAuth: () => ({ signIn: mockSignIn, loading: false }),
 }));
 

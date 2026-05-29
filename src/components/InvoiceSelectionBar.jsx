@@ -4,10 +4,10 @@ import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, 
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from '@/components/ui/dialog';
 import { Trash2, X, Eye, CreditCard } from 'lucide-react';
 import { supabase } from '@/lib/customSupabaseClient';
-import { useToast } from '@/hooks/use-toast';
+import { useToast } from '@/components/ui/use-toast';
 import { useNavigate } from 'react-router-dom';
 import { useFinance } from '@/context/FinanceContext';
-import { useAuth } from '@/contexts/SupabaseAuthContext';
+import { useAuth } from '@/context/SupabaseAuthContext';
 import SelectInput from '@/components/ui/SelectInput';
 import { formatCurrency } from '@/utils/calculations';
 

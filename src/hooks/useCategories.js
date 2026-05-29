@@ -1,5 +1,5 @@
 import { useFinance } from '@/context/FinanceContext';
-import { useAuth } from '@/contexts/SupabaseAuthContext';
+import { useAuth } from '@/context/SupabaseAuthContext';
 import { useToast } from '@/components/ui/use-toast';
 import { logSecurityEvent } from '@/utils/securityUtils';
 

@@ -12,7 +12,7 @@ const mockAuthValue = {
   loading: false,
 };
 
-vi.mock('@/contexts/SupabaseAuthContext', () => ({
+vi.mock('@/context/SupabaseAuthContext', () => ({
   useAuth: () => mockAuthValue,
 }));
 

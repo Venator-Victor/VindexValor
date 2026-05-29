@@ -1,7 +1,7 @@
 import { useState, useEffect, useCallback } from 'react';
 import { supabase } from '@/lib/customSupabaseClient';
-import { useAuth } from '@/contexts/SupabaseAuthContext';
-import { useToast } from '@/hooks/use-toast';
+import { useAuth } from '@/context/SupabaseAuthContext';
+import { useToast } from '@/components/ui/use-toast';
 
 export const useCustomCategoryMappings = () => {
   const { user } = useAuth();

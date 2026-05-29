@@ -35,7 +35,7 @@ vi.mock('@/lib/customSupabaseClient', () => ({
   customSupabaseClient: mockSupabase,
 }));
 
-vi.mock('@/contexts/SupabaseAuthContext', () => {
+vi.mock('@/context/SupabaseAuthContext', () => {
   // Provide user (so CRUD guards pass) but NO session.
   // FinanceProvider only calls fetchAllData when BOTH user AND session are truthy,
   // so omitting session prevents the initial data load from resetting state in tests.

@@ -1,7 +1,7 @@
 import React from 'react';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
-import { defaultAccounts } from '@/utils/defaultAccounts';
+import { DEFAULT_ACCOUNTS } from '@/utils/defaultAccounts';
 import { Plus } from 'lucide-react';
 
 const AccountSuggestionsModal = ({ isOpen, onClose, onSelect, onCreateCustom }) => {
@@ -16,7 +16,7 @@ const AccountSuggestionsModal = ({ isOpen, onClose, onSelect, onCreateCustom }) 
         </DialogHeader>
         
         <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4 py-4">
-          {defaultAccounts.map((account) => (
+          {DEFAULT_ACCOUNTS.map((account) => (
              <button
                key={account.id}
                onClick={() => onSelect(account)}

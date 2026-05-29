@@ -1,6 +1,6 @@
 import { useMemo } from 'react';
 import { useFinance } from '@/context/FinanceContext';
-import { useAuth } from '@/contexts/SupabaseAuthContext';
+import { useAuth } from '@/context/SupabaseAuthContext';
 
 export const useCategorySpending = (categoryId, period) => {
   const { transactions } = useFinance();

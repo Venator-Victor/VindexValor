@@ -1,5 +1,5 @@
 import { useState, useMemo } from 'react';
-import { useAuth } from '@/contexts/SupabaseAuthContext';
+import { useAuth } from '@/context/SupabaseAuthContext';
 
 export const useSortableList = (items, config = null) => {
   const [sortConfig, setSortConfig] = useState(config);

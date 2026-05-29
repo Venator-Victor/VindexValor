@@ -1,7 +1,7 @@
 import React, { useState, useMemo } from 'react';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
-import { defaultCategories } from '@/utils/defaultCategories';
+import { DEFAULT_CATEGORIES } from '@/utils/defaultCategories';
 import { useFinance } from '@/context/FinanceContext';
 import { useToast } from '@/components/ui/use-toast';
 import { Plus, Loader2 } from 'lucide-react';
@@ -12,7 +12,7 @@ const DefaultCategoriesModal = ({ isOpen, onClose, onCreateCustom, onSuccess }) 
   const [loadingId, setLoadingId] = useState(null);
 
   const sortedCategories = useMemo(() => {
-    return [...defaultCategories].sort((a, b) => a.name.localeCompare(b.name));
+    return [...DEFAULT_CATEGORIES].sort((a, b) => a.name.localeCompare(b.name));
   }, []);
 
   const handleSelect = async (category) => {

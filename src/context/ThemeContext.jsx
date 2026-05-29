@@ -1,6 +1,6 @@
 import React, { createContext, useContext, useEffect, useState } from 'react';
 import { supabase } from '@/lib/customSupabaseClient';
-import { useAuth } from '@/contexts/SupabaseAuthContext';
+import { useAuth } from '@/context/SupabaseAuthContext';
 import { PRIMARY, SUCCESS, DANGER, DANGER_DARK, WARNING, INFO } from '@/utils/colors';
 
 const ThemeContext = createContext();

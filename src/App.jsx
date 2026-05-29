@@ -25,7 +25,7 @@ import PrivacyPage from '@/pages/PrivacyPage';
 import ProtectedRoute from '@/components/ProtectedRoute';
 
 import { FinanceProvider } from '@/context/FinanceContext';
-import { AuthProvider } from '@/contexts/SupabaseAuthContext';
+import { AuthProvider } from '@/context/SupabaseAuthContext';
 import { ThemeProvider } from '@/context/ThemeContext';
 import { ConsentProvider } from '@/context/ConsentContext';
 import CookieConsentBanner from '@/components/CookieConsentBanner';

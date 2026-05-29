@@ -1,4 +1,4 @@
-export const defaultCategories = [
+export const DEFAULT_CATEGORIES = [
   { id: 'vestuario', name: 'Vestuário', icon: 'bx bx-closet', color: '#EC4899', description: 'Roupas e acessórios' },
   { id: 'moradia', name: 'Moradia', icon: 'bx bx-home', color: '#3B82F6', description: 'Custos de casa' },
   { id: 'impostos', name: 'Impostos', icon: 'bx bx-money', color: '#EF4444', description: 'Taxas e tributos' },

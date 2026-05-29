@@ -1,6 +1,6 @@
 import React, { createContext, useContext, useState, useEffect, useMemo } from 'react';
 import { supabase } from '@/lib/customSupabaseClient';
-import { useAuth } from '@/contexts/SupabaseAuthContext';
+import { useAuth } from '@/context/SupabaseAuthContext';
 import { useToast } from '@/components/ui/use-toast';
 import { mockData } from '@/utils/mockData';
 import { useExchangeRate } from '@/hooks/useExchangeRate';
