@@ -118,14 +118,14 @@ const HomePage = () => {
           
           <div className="container relative z-10 mx-auto px-4 md:px-6 text-center">
             <h2 className="text-3xl md:text-4xl font-bold mb-6">
-              Pronto para <span className="bg-[#0c4a6e] px-2 py-1 rounded-md text-white">transformar sua vida financeira</span>?
+              Pronto para controlar suas finanças?
             </h2>
             <p className="text-lg text-primary-foreground/80 max-w-2xl mx-auto mb-10">
-              Crie sua conta gratuitamente e experimente a melhor plataforma de gestão pessoal.
+              Crie sua conta e tenha uma maneira simples, moderna e segura de acompanhar suas finanças. Organize contas, registre transações e visualize seus gastos em um só lugar.
             </p>
             <Link to="/login">
               <Button size="lg" variant="secondary" className="h-14 px-10 text-lg font-bold shadow-xl hover:scale-105 transition-transform text-black bg-white hover:bg-gray-100">
-                Criar Conta Grátis
+                Criar Conta
               </Button>
             </Link>
           </div>
