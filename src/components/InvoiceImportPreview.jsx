@@ -8,7 +8,7 @@ const InvoiceImportPreview = ({ data, onUpdateRow }) => {
 
   const handleCategoryChange = (index, newCategoryId) => {
     const newData = [...data];
-    newData[index].categoria_id = newCategoryId;
+    newData[index].category_id = newCategoryId;
     onUpdateRow(newData);
   };
 
@@ -38,7 +38,7 @@ const InvoiceImportPreview = ({ data, onUpdateRow }) => {
           </thead>
           <tbody className="divide-y">
             {data.map((row, i) => {
-              const valColor = row.valor < 0 ? 'text-red-600 dark:text-red-400' : row.valor > 0 ? 'text-green-600 dark:text-green-400' : 'text-foreground';
+              const valColor = row.amount < 0 ? 'text-red-600 dark:text-red-400' : row.amount > 0 ? 'text-green-600 dark:text-green-400' : 'text-foreground';
               
               return (
                 <tr key={i} className="hover:bg-muted/30 transition-colors">
@@ -46,8 +46,8 @@ const InvoiceImportPreview = ({ data, onUpdateRow }) => {
                     {row.data}
                   </td>
                   <td className="px-4 py-3 text-foreground">
-                    <span className="truncate max-w-[200px] block" title={row.descricao}>
-                      {row.descricao || '-'}
+                    <span className="truncate max-w-[200px] block" title={row.description}>
+                      {row.description || '-'}
                     </span>
                   </td>
                   <td className="px-4 py-3 text-xs">
@@ -60,11 +60,11 @@ const InvoiceImportPreview = ({ data, onUpdateRow }) => {
                     )}
                   </td>
                   <td className={`px-4 py-3 text-right font-semibold whitespace-nowrap ${valColor}`}>
-                    {formatCurrency(row.valor)}
+                    {formatCurrency(row.amount)}
                   </td>
                   <td className="px-4 py-2 min-w-[180px]">
                     <CategorySelectorForImport 
-                      value={row.categoria_id}
+                      value={row.category_id}
                       onChange={(val) => handleCategoryChange(i, val)}
                     />
                   </td>

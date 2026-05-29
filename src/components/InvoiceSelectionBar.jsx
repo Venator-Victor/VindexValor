@@ -75,12 +75,12 @@ const InvoiceSelectionBar = ({ selectedIds, faturas, faturaTotals = {}, onClearS
         const total = faturaTotals[id] || 0;
         return {
           user_id: user.id,
-          description: `Pagamento Fatura ${fatura?.numero_fatura || ''}`,
+          description: `Pagamento Fatura ${fatura?.invoice_number || ''}`,
           amount: -Math.abs(total), 
           type: 'pagamento',
           date: new Date().toISOString().split('T')[0],
-          conta_id: selectedAccountId,
-          fatura_id: id
+          account_id: selectedAccountId,
+          invoice_id: id
         };
       });
 

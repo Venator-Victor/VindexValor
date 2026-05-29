@@ -19,11 +19,11 @@ const MetaForm = ({ initialData, initialName, onSubmit, onCancel }) => {
   // State for form fields
   const [formData, setFormData] = useState({
     name: '',
-    tipo_meta: 'valor_final', // 'valor_final' | 'valor_mensal'
+    goal_type: 'valor_final', // 'valor_final' | 'valor_mensal'
     targetAmount: '',
     contributionValue: '',
     periodFrequency: 'Mensal',
-    valor_acumulado: '',
+    accumulated_amount: '',
     deadline: '',
     description: '',
     color: '#3b82f6',
@@ -38,11 +38,11 @@ const MetaForm = ({ initialData, initialName, onSubmit, onCancel }) => {
     if (initialData) {
       setFormData({
         name: initialData.name || '',
-        tipo_meta: initialData.tipo_meta || 'valor_final',
+        goal_type: initialData.goal_type || 'valor_final',
         targetAmount: initialData.targetAmount || '',
         contributionValue: initialData.contributionValue || '',
         periodFrequency: initialData.periodFrequency || 'Mensal',
-        valor_acumulado: initialData.valor_acumulado || initialData.currentAmount || '',
+        accumulated_amount: initialData.accumulated_amount || initialData.currentAmount || '',
         deadline: initialData.deadline || '',
         description: initialData.description || '',
         color: initialData.color || '#3b82f6',
@@ -52,11 +52,11 @@ const MetaForm = ({ initialData, initialName, onSubmit, onCancel }) => {
       // Handle legacy single account or new multiple accounts
       if (initialData.accountReservations && initialData.accountReservations.length > 0) {
         setReservations(initialData.accountReservations);
-      } else if (initialData.conta_reservada_id) {
+      } else if (initialData.reserved_account_id) {
         // Legacy support conversion
         setReservations([{
-          account_id: initialData.conta_reservada_id,
-          amount: initialData.valor_reservado || 0
+          account_id: initialData.reserved_account_id,
+          amount: initialData.reserved_amount || 0
         }]);
       }
     } else if (initialName) {
@@ -125,9 +125,9 @@ const MetaForm = ({ initialData, initialName, onSubmit, onCancel }) => {
       <div className="bg-gray-50 dark:bg-vindex-bg/50 p-1 rounded-lg flex">
         <button
           type="button"
-          onClick={() => setFormData({ ...formData, tipo_meta: 'valor_final' })}
+          onClick={() => setFormData({ ...formData, goal_type: 'valor_final' })}
           className={`flex-1 py-2 text-sm font-medium rounded-md transition-all ${
-            formData.tipo_meta === 'valor_final' 
+            formData.goal_type === 'valor_final' 
               ? 'bg-white dark:bg-vindex-card text-gray-900 dark:text-gray-100 shadow-sm' 
               : 'text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-200'
           }`}
@@ -137,9 +137,9 @@ const MetaForm = ({ initialData, initialName, onSubmit, onCancel }) => {
         </button>
         <button
           type="button"
-          onClick={() => setFormData({ ...formData, tipo_meta: 'valor_mensal' })}
+          onClick={() => setFormData({ ...formData, goal_type: 'valor_mensal' })}
           className={`flex-1 py-2 text-sm font-medium rounded-md transition-all ${
-            formData.tipo_meta === 'valor_mensal' 
+            formData.goal_type === 'valor_mensal' 
               ? 'bg-white dark:bg-vindex-card text-gray-900 dark:text-gray-100 shadow-sm' 
               : 'text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-200'
           }`}
@@ -165,7 +165,7 @@ const MetaForm = ({ initialData, initialName, onSubmit, onCancel }) => {
 
       {/* 3. Dynamic Fields Based on Type */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4 animate-in fade-in slide-in-from-top-2">
-        {formData.tipo_meta === 'valor_final' ? (
+        {formData.goal_type === 'valor_final' ? (
           <div>
             <Label htmlFor="targetAmount">Valor Alvo (R$) <span className="text-red-500">*</span></Label>
             <NumberInput
@@ -173,7 +173,7 @@ const MetaForm = ({ initialData, initialName, onSubmit, onCancel }) => {
               value={formData.targetAmount}
               onChange={(e) => setFormData({ ...formData, targetAmount: e.target.value })}
               placeholder="0,00"
-              required={formData.tipo_meta === 'valor_final'}
+              required={formData.goal_type === 'valor_final'}
             />
           </div>
         ) : (
@@ -185,7 +185,7 @@ const MetaForm = ({ initialData, initialName, onSubmit, onCancel }) => {
                   value={formData.contributionValue}
                   onChange={(e) => setFormData({ ...formData, contributionValue: e.target.value })}
                   placeholder="0,00"
-                  required={formData.tipo_meta === 'valor_mensal'}
+                  required={formData.goal_type === 'valor_mensal'}
                 />
              </div>
              <div>
@@ -214,11 +214,11 @@ const MetaForm = ({ initialData, initialName, onSubmit, onCancel }) => {
       {/* 4. Total Accumulated (Common Field) */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           <div>
-            <Label htmlFor="valor_acumulado">Valor Total Acumulado (R$)</Label>
+            <Label htmlFor="accumulated_amount">Valor Total Acumulado (R$)</Label>
             <NumberInput
-              id="valor_acumulado"
-              value={formData.valor_acumulado}
-              onChange={(e) => setFormData({ ...formData, valor_acumulado: e.target.value })}
+              id="accumulated_amount"
+              value={formData.accumulated_amount}
+              onChange={(e) => setFormData({ ...formData, accumulated_amount: e.target.value })}
               placeholder="0,00"
             />
             <p className="text-xs text-gray-500 mt-1">Soma de reservas e outras economias.</p>

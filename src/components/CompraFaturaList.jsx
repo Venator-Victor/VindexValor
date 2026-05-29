@@ -6,7 +6,7 @@ import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, 
 
 const CompraFaturaList = ({ compras, onEdit, onDelete }) => {
   const [deleteId, setDeleteId] = useState(null);
-  const [sortConfig, setSortConfig] = useState({ key: 'data', direction: 'descending' });
+  const [sortConfig, setSortConfig] = useState({ key: 'date', direction: 'descending' });
 
   const handleDelete = () => {
     if (deleteId) {
@@ -39,21 +39,21 @@ const CompraFaturaList = ({ compras, onEdit, onDelete }) => {
     sorted.sort((a, b) => {
       let aValue, bValue;
 
-      if (sortConfig.key === 'data') {
-        aValue = new Date(a.data || 0).getTime();
-        bValue = new Date(b.data || 0).getTime();
+      if (sortConfig.key === 'date') {
+        aValue = new Date(a.date || 0).getTime();
+        bValue = new Date(b.date || 0).getTime();
       } else if (sortConfig.key === 'tipo') {
-        aValue = a.valor < 0 ? 'saida' : 'entrada';
-        bValue = b.valor < 0 ? 'saida' : 'entrada';
+        aValue = a.amount < 0 ? 'saida' : 'entrada';
+        bValue = b.amount < 0 ? 'saida' : 'entrada';
       } else if (sortConfig.key === 'categoria') {
         aValue = a.categorias?.name || '';
         bValue = b.categorias?.name || '';
-      } else if (sortConfig.key === 'valor') {
-        aValue = Number(a.valor || 0);
-        bValue = Number(b.valor || 0);
-      } else if (sortConfig.key === 'descricao') {
-        aValue = a.descricao || '';
-        bValue = b.descricao || '';
+      } else if (sortConfig.key === 'amount') {
+        aValue = Number(a.amount || 0);
+        bValue = Number(b.amount || 0);
+      } else if (sortConfig.key === 'description') {
+        aValue = a.description || '';
+        bValue = b.description || '';
       }
 
       if (aValue < bValue) return sortConfig.direction === 'ascending' ? -1 : 1;
@@ -63,7 +63,7 @@ const CompraFaturaList = ({ compras, onEdit, onDelete }) => {
     return sorted;
   }, [compras, sortConfig]);
 
-  const total = compras.reduce((sum, item) => sum + Number(item.valor || 0), 0);
+  const total = compras.reduce((sum, item) => sum + Number(item.amount || 0), 0);
 
   if (!compras || compras.length === 0) {
     return (
@@ -82,13 +82,13 @@ const CompraFaturaList = ({ compras, onEdit, onDelete }) => {
           <thead className="bg-muted/50 text-muted-foreground border-b">
             <tr>
               <th className="p-3 font-medium">
-                <button onClick={() => requestSort('data')} className="flex items-center gap-1.5 hover:text-foreground">
+                <button onClick={() => requestSort('date')} className="flex items-center gap-1.5 hover:text-foreground">
                   Data <SortIcon column="data" />
                 </button>
               </th>
               <th className="p-3 font-medium">
-                <button onClick={() => requestSort('descricao')} className="flex items-center gap-1.5 hover:text-foreground">
-                  Status (Descrição) <SortIcon column="descricao" />
+                <button onClick={() => requestSort('description')} className="flex items-center gap-1.5 hover:text-foreground">
+                  Status (Descrição) <SortIcon column="description" />
                 </button>
               </th>
               <th className="p-3 font-medium">
@@ -102,8 +102,8 @@ const CompraFaturaList = ({ compras, onEdit, onDelete }) => {
                 </button>
               </th>
               <th className="p-3 font-medium">
-                <button onClick={() => requestSort('valor')} className="flex items-center gap-1.5 justify-end w-full hover:text-foreground">
-                  Valor <SortIcon column="valor" />
+                <button onClick={() => requestSort('amount')} className="flex items-center gap-1.5 justify-end w-full hover:text-foreground">
+                  Valor <SortIcon column="amount" />
                 </button>
               </th>
               <th className="p-3 font-medium text-center w-20">Ações</th>
@@ -111,13 +111,13 @@ const CompraFaturaList = ({ compras, onEdit, onDelete }) => {
           </thead>
           <tbody className="divide-y">
             {sortedCompras.map(c => {
-              const isSaida = c.valor < 0;
-              const valColor = isSaida ? 'text-red-600 dark:text-red-400' : c.valor > 0 ? 'text-green-600 dark:text-green-400' : 'text-foreground';
+              const isSaida = c.amount < 0;
+              const valColor = isSaida ? 'text-red-600 dark:text-red-400' : c.amount > 0 ? 'text-green-600 dark:text-green-400' : 'text-foreground';
               
               return (
                 <tr key={c.id} className="hover:bg-muted/30 transition-colors">
-                  <td className="p-3 whitespace-nowrap text-muted-foreground">{formatDate(c.data)}</td>
-                  <td className="p-3 font-medium">{c.descricao}</td>
+                  <td className="p-3 whitespace-nowrap text-muted-foreground">{formatDate(c.date)}</td>
+                  <td className="p-3 font-medium">{c.description}</td>
                   <td className="p-3">
                     <div className={`flex items-center gap-1.5 text-xs px-2 py-1 rounded-full w-max ${isSaida ? 'bg-red-100 text-red-700 dark:bg-red-900/20 dark:text-red-400' : 'bg-green-100 text-green-700 dark:bg-green-900/20 dark:text-green-400'}`}>
                       {isSaida ? <ArrowDownRight className="w-3 h-3" /> : <ArrowUpRight className="w-3 h-3" />}
@@ -135,7 +135,7 @@ const CompraFaturaList = ({ compras, onEdit, onDelete }) => {
                     )}
                   </td>
                   <td className={`p-3 text-right font-semibold whitespace-nowrap ${valColor}`}>
-                    {c.valor > 0 && '+'}{formatCurrency(c.valor)}
+                    {c.amount > 0 && '+'}{formatCurrency(c.amount)}
                   </td>
                   <td className="p-3">
                     <div className="flex items-center justify-center gap-2">

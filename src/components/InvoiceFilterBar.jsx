@@ -12,9 +12,9 @@ const InvoiceFilterBar = ({ onFilterChange }) => {
   const [filters, setFilters] = useState({
     search: '',
     valorRange: '',
-    categoria_id: '',
+    category_id: '',
     parcelamento: 'todos',
-    conta_id: ''
+    account_id: ''
   });
 
   const handleChange = (key, value) => {
@@ -27,9 +27,9 @@ const InvoiceFilterBar = ({ onFilterChange }) => {
     const cleared = {
       search: '',
       valorRange: '',
-      categoria_id: '',
+      category_id: '',
       parcelamento: 'todos',
-      conta_id: ''
+      account_id: ''
     };
     setFilters(cleared);
     onFilterChange(cleared);
@@ -94,8 +94,8 @@ const InvoiceFilterBar = ({ onFilterChange }) => {
         {/* Category */}
         <div className="flex flex-col lg:col-span-1">
           <SelectInput
-            value={filters.categoria_id}
-            onChange={(e) => handleChange('categoria_id', e.target.value)}
+            value={filters.category_id}
+            onChange={(e) => handleChange('category_id', e.target.value)}
             options={[
               { label: "Todas categorias", value: "" },
               ...categories.map(c => ({ label: c.name, value: c.id }))
@@ -119,8 +119,8 @@ const InvoiceFilterBar = ({ onFilterChange }) => {
         {/* Account */}
         <div className="flex flex-col lg:col-span-1">
           <SelectInput
-            value={filters.conta_id}
-            onChange={(e) => handleChange('conta_id', e.target.value)}
+            value={filters.account_id}
+            onChange={(e) => handleChange('account_id', e.target.value)}
             options={[
               { label: "Todas contas", value: "" },
               ...accounts.map(a => ({ label: a.name, value: a.id }))

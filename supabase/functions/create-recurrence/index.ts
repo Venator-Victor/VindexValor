@@ -61,9 +61,9 @@ Deno.serve(async (req)=>{
       frequency: body.frequency,
       next_date: body.start_date,
       status: body.status,
-      categoria_id: body.categoria_id,
+      category_id: body.category_id,
       recurrence_type: body.recurrence_type || 'Assinatura',
-      numero_parcelas: body.numero_parcelas
+      installment_count: body.installment_count
     }).select().single();
     if (recError) throw recError;
     const today = new Date().toISOString().slice(0, 10);
@@ -75,7 +75,7 @@ Deno.serve(async (req)=>{
         amount: body.amount,
         type: body.amount < 0 ? 'saida' : 'entrada',
         date: body.start_date,
-        categoria_id: body.categoria_id,
+        category_id: body.category_id,
         is_recurring: true,
         recurring_id: recurrence.id,
         original_amount: body.amount

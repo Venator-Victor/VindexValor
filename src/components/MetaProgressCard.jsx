@@ -6,15 +6,15 @@ import { Button } from '@/components/ui/button';
 import { differenceInDays, isPast, parseISO } from 'date-fns';
 
 const MetaProgressCard = ({ goal, onEdit, onDelete, index = 0 }) => {
-  const isTargetMode = goal.tipo_meta === 'valor_final';
+  const isTargetMode = goal.goal_type === 'valor_final';
   
   // Calculate percentage
   let percentage = 0;
   if (isTargetMode && goal.targetAmount > 0) {
-      percentage = Math.min((goal.valor_acumulado / goal.targetAmount) * 100, 100);
+      percentage = Math.min((goal.accumulated_amount / goal.targetAmount) * 100, 100);
   } else if (!isTargetMode && goal.contributionValue > 0) {
       if (goal.targetAmount > 0) {
-          percentage = Math.min((goal.valor_acumulado / goal.targetAmount) * 100, 100);
+          percentage = Math.min((goal.accumulated_amount / goal.targetAmount) * 100, 100);
       } else {
           percentage = 0; 
       }
@@ -67,7 +67,7 @@ const MetaProgressCard = ({ goal, onEdit, onDelete, index = 0 }) => {
             </h3>
             <div className="flex flex-wrap items-center gap-2 mt-1">
                 <span className="text-[10px] uppercase tracking-wider px-1.5 py-0.5 rounded bg-gray-100 dark:bg-gray-800 text-gray-600 dark:text-gray-400 font-semibold border border-gray-200 dark:border-gray-700 whitespace-nowrap">
-                    {goal.tipo_meta === 'valor_mensal' ? 'Recorrente' : 'Alvo Fixo'}
+                    {goal.goal_type === 'valor_mensal' ? 'Recorrente' : 'Alvo Fixo'}
                 </span>
             </div>
             {goal.deadline && isTargetMode && (
@@ -118,8 +118,8 @@ const MetaProgressCard = ({ goal, onEdit, onDelete, index = 0 }) => {
            <p className="text-gray-500 dark:text-gray-400 text-[10px] uppercase tracking-wide font-semibold truncate">
              Acumulado
            </p>
-           <p className="font-bold text-emerald-600 dark:text-emerald-400 truncate" title={formatCurrency(goal.valor_acumulado)}>
-             {formatCurrency(goal.valor_acumulado)}
+           <p className="font-bold text-emerald-600 dark:text-emerald-400 truncate" title={formatCurrency(goal.accumulated_amount)}>
+             {formatCurrency(goal.accumulated_amount)}
            </p>
         </div>
         <div className="text-right overflow-hidden">

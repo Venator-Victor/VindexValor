@@ -28,7 +28,7 @@ const CSVImportFlow = ({ onSuccess, onCancel }) => {
           const suggestedId = getSuggestedCategory(row.description);
           return {
             ...row,
-            categoria_id: suggestedId || '',
+            category_id: suggestedId || '',
             autoMapped: !!suggestedId,
             manuallyMapped: false
           };
@@ -63,8 +63,8 @@ const CSVImportFlow = ({ onSuccess, onCancel }) => {
       
       // Save manual mappings in background
       parsedData.forEach(row => {
-        if (row.manuallyMapped && row.categoria_id && row.description) {
-          saveCategoryMapping(row.description, row.categoria_id);
+        if (row.manuallyMapped && row.category_id && row.description) {
+          saveCategoryMapping(row.description, row.category_id);
         }
       });
       

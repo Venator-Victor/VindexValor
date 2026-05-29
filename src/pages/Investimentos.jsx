@@ -55,10 +55,10 @@ const Investimentos = () => {
     purchaseDate: new Date().toISOString().slice(0, 10),
   });
 
-  const viewMode = settings.investimentos_view_preference || 'list';
+  const viewMode = settings.investments_view_preference || 'list';
 
   const setViewMode = (mode) => {
-    saveSettings({ investimentos_view_preference: mode });
+    saveSettings({ investments_view_preference: mode });
   };
   
   // Filter accounts suitable for funding investments

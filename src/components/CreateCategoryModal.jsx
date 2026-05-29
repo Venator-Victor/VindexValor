@@ -19,8 +19,8 @@ const CreateCategoryModal = ({ open, onOpenChange, onCategoryCreated }) => {
     name: '',
     color: '#10B981',
     icon: 'bx-purchase-tag',
-    limite_gasto: '',
-    periodo_limite: 'mensal'
+    spending_limit: '',
+    budget_period: 'mensal'
   });
 
   const periodoOptions = CHART_PERIOD_OPTIONS.slice(3); // Mensal → Anual (lowercase)
@@ -46,8 +46,8 @@ const CreateCategoryModal = ({ open, onOpenChange, onCategoryCreated }) => {
         name: formData.name,
         color: formData.color,
         icon: formData.icon,
-        limite_gasto: formData.limite_gasto ? parseFloat(formData.limite_gasto) : null,
-        periodo_limite: formData.limite_gasto ? formData.periodo_limite : null
+        spending_limit: formData.spending_limit ? parseFloat(formData.spending_limit) : null,
+        budget_period: formData.spending_limit ? formData.budget_period : null
       };
       
       const newCategory = await createCategory(dataToSubmit);
@@ -63,8 +63,8 @@ const CreateCategoryModal = ({ open, onOpenChange, onCategoryCreated }) => {
         name: '', 
         color: '#10B981', 
         icon: 'bx-purchase-tag',
-        limite_gasto: '',
-        periodo_limite: 'mensal'
+        spending_limit: '',
+        budget_period: 'mensal'
       });
     } catch (error) {
       // Error handled by context
@@ -96,13 +96,13 @@ const CreateCategoryModal = ({ open, onOpenChange, onCategoryCreated }) => {
           
           <div className="flex flex-col sm:flex-row gap-4">
             <div className="flex-1">
-              <Label htmlFor="limite_gasto">Orçamento (Opcional)</Label>
+              <Label htmlFor="spending_limit">Orçamento (Opcional)</Label>
               <div className="relative mt-1">
                 <span className="absolute left-3 top-2.5 text-gray-500 font-medium z-10">R$</span>
                 <NumberInput
-                  id="limite_gasto"
-                  value={formData.limite_gasto}
-                  onChange={(e) => setFormData({ ...formData, limite_gasto: e.target.value })}
+                  id="spending_limit"
+                  value={formData.spending_limit}
+                  onChange={(e) => setFormData({ ...formData, spending_limit: e.target.value })}
                   className="pl-10 w-full"
                   placeholder="0,00"
                 />
@@ -110,12 +110,12 @@ const CreateCategoryModal = ({ open, onOpenChange, onCategoryCreated }) => {
             </div>
             <div className="flex-1">
               <SelectInput
-                id="periodo_limite"
+                id="budget_period"
                 label="Período do Orçamento"
-                value={formData.periodo_limite}
-                onChange={(e) => setFormData({ ...formData, periodo_limite: e.target.value })}
+                value={formData.budget_period}
+                onChange={(e) => setFormData({ ...formData, budget_period: e.target.value })}
                 options={periodoOptions}
-                disabled={!formData.limite_gasto}
+                disabled={!formData.spending_limit}
               />
             </div>
           </div>

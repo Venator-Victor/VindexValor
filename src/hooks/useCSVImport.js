@@ -83,7 +83,7 @@ export const useCSVImport = () => {
             const existingMapping = mappings.find(m => descLower.includes(m.description));
             
             if (existingMapping) {
-              catId = existingMapping.categoria_id;
+              catId = existingMapping.category_id;
               catName = existingMapping.categorias?.name || "Desconhecida";
             } else if (categories && categories.length > 0) {
               for (let cat of categories) {
@@ -101,7 +101,7 @@ export const useCSVImport = () => {
               originalAmount: numValor,
               amount: numValor, // Preserves the exact negative/positive sign
               type: numValor >= 0 ? 'entrada' : 'saida',
-              categoria_id: catId,
+              category_id: catId,
               categoria_name: catName,
               identificador: rawId,
               _sourceFile: file.name
@@ -137,8 +137,8 @@ export const useCSVImport = () => {
           amount: t.amount, // Directly use parsed signed amount
           type: t.type,
           date: t.date,
-          categoria_id: t.categoria_id,
-          conta_id: accountId,
+          category_id: t.category_id,
+          account_id: accountId,
           is_recurring: false
         };
       });

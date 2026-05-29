@@ -9,7 +9,7 @@ const CategoryDetailModal = ({ isOpen, onClose, category, transactions, onEdit }
   const categoryTransactions = useMemo(() => {
     if (!category || !transactions) return [];
     return transactions
-      .filter(t => t.categoria_id === category.id || (t.categorias && t.categorias.name === category.name))
+      .filter(t => t.category_id === category.id || (t.categorias && t.categorias.name === category.name))
       .sort((a, b) => new Date(b.date) - new Date(a.date));
   }, [category, transactions]);
 
@@ -23,9 +23,9 @@ const CategoryDetailModal = ({ isOpen, onClose, category, transactions, onEdit }
 
   if (!category) return null;
 
-  const hasLimit = category.limite_gasto > 0;
+  const hasLimit = category.spending_limit > 0;
   const currentSpending = totalExpense; // Usually categories track expenses against a budget
-  const percentage = hasLimit ? Math.min((currentSpending / category.limite_gasto) * 100, 100).toFixed(0) : 0;
+  const percentage = hasLimit ? Math.min((currentSpending / category.spending_limit) * 100, 100).toFixed(0) : 0;
 
   return (
     <Dialog open={isOpen} onOpenChange={(open) => !open && onClose()}>
@@ -73,15 +73,15 @@ const CategoryDetailModal = ({ isOpen, onClose, category, transactions, onEdit }
           {hasLimit && (
             <div className="bg-muted/30 p-4 rounded-xl border border-border flex items-center justify-between gap-4">
               <div>
-                <p className="text-sm font-medium">Orçamento {category.periodo_limite}</p>
+                <p className="text-sm font-medium">Orçamento {category.budget_period}</p>
                 <p className="text-muted-foreground text-xs mt-1">
-                  {formatCurrency(currentSpending)} de {formatCurrency(category.limite_gasto)}
+                  {formatCurrency(currentSpending)} de {formatCurrency(category.spending_limit)}
                 </p>
               </div>
               <div className="flex items-center gap-3">
                 <CircularProgressBar 
                   current={currentSpending} 
-                  max={category.limite_gasto} 
+                  max={category.spending_limit} 
                   size={50} 
                   showBudget={false} 
                   strokeWidth={5} 

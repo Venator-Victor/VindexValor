@@ -36,12 +36,12 @@ export const useAutoMappingCategories = () => {
     try {
       const existing = mappings.find(m => m.description.toLowerCase() === normalizedDesc);
 
-      if (existing && existing.categoria_id === categoryId) return; // No change needed
+      if (existing && existing.category_id === categoryId) return; // No change needed
 
       if (existing) {
         await supabase
           .from('custom_category_mappings')
-          .update({ categoria_id: categoryId })
+          .update({ category_id: categoryId })
           .eq('id', existing.id)
           .eq('user_id', user.id);
       } else {
@@ -50,7 +50,7 @@ export const useAutoMappingCategories = () => {
           .insert({ 
             user_id: user.id, 
             description: normalizedDesc, 
-            categoria_id: categoryId 
+            category_id: categoryId 
           });
       }
       // Refresh mappings in background
@@ -66,7 +66,7 @@ export const useAutoMappingCategories = () => {
     
     // 1. Exact match
     let match = mappings.find(m => m.description.toLowerCase() === normalized);
-    if (match) return match.categoria_id;
+    if (match) return match.category_id;
     
     // 2. Contains match (fuzzy)
     match = mappings.find(m => 
@@ -74,7 +74,7 @@ export const useAutoMappingCategories = () => {
       m.description.toLowerCase().includes(normalized)
     );
     
-    return match ? match.categoria_id : null;
+    return match ? match.category_id : null;
   }, [mappings]);
 
   return { 

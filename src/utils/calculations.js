@@ -129,10 +129,10 @@ export const calculateAccountBalance = (transactions, accountId, initialBalance 
     let absAmount = Math.abs(Number(t.amount));
     
     if (t.type === 'transferencia') {
-      if (t.conta_id === accountId) {
+      if (t.account_id === accountId) {
         return acc - absAmount; 
       }
-      if (t.conta_destino_id === accountId) {
+      if (t.destination_account_id === accountId) {
          if (t.converted_amount != null && t.converted_amount !== '') {
            return acc + Math.abs(Number(t.converted_amount));
          }
@@ -140,13 +140,13 @@ export const calculateAccountBalance = (transactions, accountId, initialBalance 
       }
     }
 
-    if (t.type === 'entrada' && t.conta_id === accountId) {
+    if (t.type === 'entrada' && t.account_id === accountId) {
       return acc + absAmount;
     }
-    if (t.type === 'saida' && t.conta_id === accountId) {
+    if (t.type === 'saida' && t.account_id === accountId) {
       return acc - absAmount;
     }
-    if (t.type === 'pagamento' && t.conta_id === accountId) {
+    if (t.type === 'pagamento' && t.account_id === accountId) {
       return acc - absAmount;
     }
 
@@ -185,14 +185,14 @@ export const calculateAssetsLiabilities = (transactions = [], accounts = [], rec
 
 export const calculateFaturaTotal = (compras = []) => {
   // Only count actual purchases (negative/expense transactions)
-  return compras.filter(c => Number(c.valor) < 0).reduce((acc, c) => acc + Number(c.valor), 0);
+  return compras.filter(c => Number(c.amount) < 0).reduce((acc, c) => acc + Number(c.amount), 0);
 };
 
 export const calculateFaturaSaidas = (compras = []) => {
-  return compras.filter(c => Number(c.valor) < 0).reduce((acc, c) => acc + Number(c.valor), 0);
+  return compras.filter(c => Number(c.amount) < 0).reduce((acc, c) => acc + Number(c.amount), 0);
 };
 
 export const calculateFaturaEntradas = (compras = []) => {
   // Payments are excluded from fatura totals as requested, but if needed specifically for display, calculate here
-  return compras.filter(c => Number(c.valor) > 0 && !c.transacao_id).reduce((acc, c) => acc + Number(c.valor), 0);
+  return compras.filter(c => Number(c.amount) > 0 && !c.transaction_id).reduce((acc, c) => acc + Number(c.amount), 0);
 };

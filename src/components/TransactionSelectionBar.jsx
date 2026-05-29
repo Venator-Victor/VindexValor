@@ -57,7 +57,7 @@ const TransactionSelectionBar = ({ selectedIds, transactions, onClearSelection, 
     try {
       const { error } = await supabase
         .from('transactions')
-        .update({ categoria_id: selectedBulkCategory || null })
+        .update({ category_id: selectedBulkCategory || null })
         .in('id', selectedIds)
         .neq('type', 'pagamento')
         .neq('type', 'transferencia');
@@ -87,7 +87,7 @@ const TransactionSelectionBar = ({ selectedIds, transactions, onClearSelection, 
     try {
       const { error } = await supabase
         .from('transactions')
-        .update({ fatura_id: selectedBulkFatura || null })
+        .update({ invoice_id: selectedBulkFatura || null })
         .in('id', selectedIds)
         .eq('type', 'pagamento');
 
@@ -240,7 +240,7 @@ const TransactionSelectionBar = ({ selectedIds, transactions, onClearSelection, 
                 onChange={(e) => setSelectedBulkFatura(e.target.value)}
                 options={[
                   { label: 'Remover Vínculo de Fatura', value: '' },
-                  ...faturas.map(f => ({ label: `${f.numero_fatura || 'Sem nome'} - ${formatCurrency(f.valor_total)}`, value: f.id }))
+                  ...faturas.map(f => ({ label: `${f.invoice_number || 'Sem nome'} - ${formatCurrency(f.total_amount)}`, value: f.id }))
                 ]}
                 className="w-full"
               />

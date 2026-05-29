@@ -22,7 +22,7 @@ const BudgetConsumptionChart = ({ selectedPeriod, filteredTransactions }) => {
   // 1. Calculate Total Planned Budget proportional to the period
   const totalPeriodBudget = useMemo(() => {
     // Sum monthly limits
-    const monthlyTotal = categories.reduce((sum, cat) => sum + Number(cat.limite_gasto || 0), 0);
+    const monthlyTotal = categories.reduce((sum, cat) => sum + Number(cat.spending_limit || 0), 0);
     
     // Adjust based on period (approximation)
     switch(selectedPeriod) {

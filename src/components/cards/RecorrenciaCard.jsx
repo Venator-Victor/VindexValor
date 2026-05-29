@@ -10,11 +10,11 @@ const RecorrenciaCard = ({ item, onEdit, onDelete, onToggleStatus }) => {
   
   // Find related parcels for this recurring item
   const safeParcels = Array.isArray(parcels) ? parcels : [];
-  const itemParcels = safeParcels.filter(p => p.recorrencia_id === item.id).sort((a,b) => a.parcel_number - b.parcel_number);
+  const itemParcels = safeParcels.filter(p => p.recurring_item_id === item.id).sort((a,b) => a.parcel_number - b.parcel_number);
   
   // Calculate parcel progress
   const paidParcelsCount = itemParcels.filter(p => p.paid_date).length;
-  const totalParcelsCount = item.numero_parcelas || 0;
+  const totalParcelsCount = item.installment_count || 0;
   const nextPendingParcel = itemParcels.find(p => !p.paid_date);
 
   const handlePayNextParcel = () => {

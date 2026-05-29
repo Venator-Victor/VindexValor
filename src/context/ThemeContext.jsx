@@ -74,7 +74,7 @@ export const ThemeProvider = ({ children }) => {
 
       const { data, error } = await supabase
         .from('settings')
-        .select('theme, metas_view_preference')
+        .select('theme, goals_view_preference')
         .eq('user_id', user.id)
         .maybeSingle();
 
@@ -84,13 +84,13 @@ export const ThemeProvider = ({ children }) => {
         if (data.theme && data.theme !== theme) {
           setTheme(data.theme);
         }
-        if (data.metas_view_preference) {
-          setMetasViewMode(data.metas_view_preference);
+        if (data.goals_view_preference) {
+          setMetasViewMode(data.goals_view_preference);
         }
       } else {
         await supabase
           .from('settings')
-          .upsert({ user_id: user.id, theme: theme, metas_view_preference: 'card' }, { onConflict: 'user_id' });
+          .upsert({ user_id: user.id, theme: theme, goals_view_preference: 'card' }, { onConflict: 'user_id' });
       }
     };
 
@@ -122,7 +122,7 @@ export const ThemeProvider = ({ children }) => {
     if (user && user.id) {
       await supabase
         .from('settings')
-        .update({ metas_view_preference: mode })
+        .update({ goals_view_preference: mode })
         .eq('user_id', user.id);
     }
   };

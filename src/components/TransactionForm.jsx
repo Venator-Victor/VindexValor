@@ -15,64 +15,64 @@ const TransactionForm = ({ initialData, onSuccess, onCancel }) => {
   const { accounts, categories, faturas, createTransaction, updateTransaction } = useFinance();
   const { saveCategoryMapping, getSuggestedCategory } = useAutoMappingCategories();
   const { toast } = useToast();
-  
+
   const [isAutoMapped, setIsAutoMapped] = useState(false);
   const debounceRef = useRef(null);
 
   const [formData, setFormData] = useState({
-    tipo: 'saida',
-    recorrente: false,
-    tipoRecorrente: '',
-    valor: '',
+    type: 'saida',
+    is_recurring: false,
+    recurring_type: '',
+    amount: '',
     converted_amount: '',
-    descricao: '',
-    data: new Date().toISOString().slice(0, 10),
-    categoria_id: '',
-    conta_id: '',
-    conta_destino_id: '',
-    fatura_id: ''
+    description: '',
+    date: new Date().toISOString().slice(0, 10),
+    category_id: '',
+    account_id: '',
+    destination_account_id: '',
+    invoice_id: ''
   });
-  
+
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   useEffect(() => {
     if (initialData) {
       setFormData({
-        tipo: initialData.type || 'saida',
-        recorrente: initialData.is_recurring || false,
-        tipoRecorrente: initialData.tipo_recorrente || '',
-        valor: Math.abs(initialData.amount) || '',
+        type: initialData.type || 'saida',
+        is_recurring: initialData.is_recurring || false,
+        recurring_type: initialData.recurring_type || '',
+        amount: Math.abs(initialData.amount) || '',
         converted_amount: initialData.converted_amount || '',
-        descricao: initialData.description || '',
-        data: initialData.date || new Date().toISOString().slice(0, 10),
-        categoria_id: initialData.categoria_id || '',
-        conta_id: initialData.conta_id || '',
-        conta_destino_id: initialData.conta_destino_id || '',
-        fatura_id: initialData.fatura_id || ''
+        description: initialData.description || '',
+        date: initialData.date || new Date().toISOString().slice(0, 10),
+        category_id: initialData.category_id || '',
+        account_id: initialData.account_id || '',
+        destination_account_id: initialData.destination_account_id || '',
+        invoice_id: initialData.invoice_id || ''
       });
       setIsAutoMapped(false);
     }
   }, [initialData]);
 
-  const sourceAccount = useMemo(() => accounts.find(a => a.id === formData.conta_id), [accounts, formData.conta_id]);
-  const destAccount = useMemo(() => accounts.find(a => a.id === formData.conta_destino_id), [accounts, formData.conta_destino_id]);
+  const sourceAccount = useMemo(() => accounts.find(a => a.id === formData.account_id), [accounts, formData.account_id]);
+  const destAccount = useMemo(() => accounts.find(a => a.id === formData.destination_account_id), [accounts, formData.destination_account_id]);
 
-  const isCrossCurrencyTransfer = formData.tipo === 'transferencia' && 
-                                  sourceAccount && 
-                                  destAccount && 
+  const isCrossCurrencyTransfer = formData.type === 'transferencia' &&
+                                  sourceAccount &&
+                                  destAccount &&
                                   sourceAccount.currency !== destAccount.currency;
 
   const handleDescriptionChange = (e) => {
     const newDesc = e.target.value;
-    setFormData(prev => ({ ...prev, descricao: newDesc }));
-    
-    if (formData.tipo !== 'transferencia' && formData.tipo !== 'pagamento' && (!initialData || !initialData.categoria_id)) {
+    setFormData(prev => ({ ...prev, description: newDesc }));
+
+    if (formData.type !== 'transferencia' && formData.type !== 'pagamento' && (!initialData || !initialData.category_id)) {
       if (debounceRef.current) clearTimeout(debounceRef.current);
       debounceRef.current = setTimeout(() => {
         if (newDesc.trim().length > 2) {
           const suggestedId = getSuggestedCategory(newDesc);
           if (suggestedId) {
-            setFormData(prev => ({ ...prev, categoria_id: suggestedId }));
+            setFormData(prev => ({ ...prev, category_id: suggestedId }));
             setIsAutoMapped(true);
           }
         }
@@ -82,24 +82,24 @@ const TransactionForm = ({ initialData, onSuccess, onCancel }) => {
 
   const handleCategoryChange = (e) => {
     const value = e.target.value;
-    setFormData({ ...formData, categoria_id: value });
+    setFormData({ ...formData, category_id: value });
     setIsAutoMapped(false);
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     setIsSubmitting(true);
-    
+
     try {
-      if (formData.tipo !== 'pagamento' && formData.fatura_id) {
+      if (formData.type !== 'pagamento' && formData.invoice_id) {
         toast({ title: "Erro de Validação", description: "Apenas pagamentos podem ter faturas vinculadas.", variant: "destructive" });
         setIsSubmitting(false);
         return;
       }
 
-      const original_amount = Math.abs(Number(formData.valor));
-      let finalAmount = (formData.tipo === 'saida' || formData.tipo === 'transferencia' || formData.tipo === 'pagamento') ? -original_amount : original_amount;
-      
+      const original_amount = Math.abs(Number(formData.amount));
+      let finalAmount = (formData.type === 'saida' || formData.type === 'transferencia' || formData.type === 'pagamento') ? -original_amount : original_amount;
+
       let converted_amount = null;
       let exchange_rate = null;
 
@@ -112,12 +112,12 @@ const TransactionForm = ({ initialData, onSuccess, onCancel }) => {
 
       const payload = {
         ...formData,
-        valor: finalAmount,
-        original_amount: original_amount,
-        converted_amount: converted_amount,
-        exchange_rate: exchange_rate,
-        fatura_id: formData.tipo === 'pagamento' ? (formData.fatura_id || null) : null,
-        categoria_id: (formData.tipo === 'transferencia' || formData.tipo === 'pagamento') ? null : formData.categoria_id
+        amount: finalAmount,
+        original_amount,
+        converted_amount,
+        exchange_rate,
+        invoice_id: formData.type === 'pagamento' ? (formData.invoice_id || null) : null,
+        category_id: (formData.type === 'transferencia' || formData.type === 'pagamento') ? null : formData.category_id
       };
 
       if (initialData) {
@@ -126,8 +126,8 @@ const TransactionForm = ({ initialData, onSuccess, onCancel }) => {
         await createTransaction(payload);
       }
 
-      if (formData.descricao && formData.categoria_id && formData.tipo !== 'transferencia' && formData.tipo !== 'pagamento' && !isAutoMapped) {
-        await saveCategoryMapping(formData.descricao, formData.categoria_id);
+      if (formData.description && formData.category_id && formData.type !== 'transferencia' && formData.type !== 'pagamento' && !isAutoMapped) {
+        await saveCategoryMapping(formData.description, formData.category_id);
       }
       onSuccess?.();
     } catch (error) {
@@ -145,14 +145,14 @@ const TransactionForm = ({ initialData, onSuccess, onCancel }) => {
         <div className="grid grid-cols-2 gap-4">
           <div>
             <SelectInput
-              id="tipo"
+              id="type"
               label="Tipo de Transação"
-              value={formData.tipo}
+              value={formData.type}
               onChange={(e) => setFormData(prev => ({
                 ...prev,
-                tipo: e.target.value,
-                recorrente: (e.target.value === 'transferencia' || e.target.value === 'pagamento') ? false : prev.recorrente,
-                categoria_id: (e.target.value === 'transferencia' || e.target.value === 'pagamento') ? '' : prev.categoria_id
+                type: e.target.value,
+                is_recurring: (e.target.value === 'transferencia' || e.target.value === 'pagamento') ? false : prev.is_recurring,
+                category_id: (e.target.value === 'transferencia' || e.target.value === 'pagamento') ? '' : prev.category_id
               }))}
               options={[
                 { label: "Saída", value: "saida" },
@@ -163,20 +163,20 @@ const TransactionForm = ({ initialData, onSuccess, onCancel }) => {
             />
           </div>
           <div>
-            <DatePicker 
+            <DatePicker
               label="Data *"
-              value={formData.data}
-              onChange={(e) => setFormData({ ...formData, data: e.target.value })}
+              value={formData.date}
+              onChange={(e) => setFormData({ ...formData, date: e.target.value })}
               required
             />
           </div>
         </div>
 
         <div>
-          <Label htmlFor="descricao">Descrição</Label>
+          <Label htmlFor="description">Descrição</Label>
           <textarea
-            id="descricao"
-            value={formData.descricao}
+            id="description"
+            value={formData.description}
             onChange={handleDescriptionChange}
             placeholder="Ex: Compra, Recebimento, Transferência..."
             className={inputClasses}
@@ -186,14 +186,14 @@ const TransactionForm = ({ initialData, onSuccess, onCancel }) => {
 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           <div>
-            <Label htmlFor="conta_id">
-              {formData.tipo === 'transferencia' ? 'Conta Origem *' : 
-               formData.tipo === 'pagamento' ? 'Conta de Pagamento *' : 'Conta *'}
+            <Label htmlFor="account_id">
+              {formData.type === 'transferencia' ? 'Conta Origem *' :
+               formData.type === 'pagamento' ? 'Conta de Pagamento *' : 'Conta *'}
             </Label>
             <select
-              id="conta_id"
-              value={formData.conta_id}
-              onChange={(e) => setFormData({ ...formData, conta_id: e.target.value })}
+              id="account_id"
+              value={formData.account_id}
+              onChange={(e) => setFormData({ ...formData, account_id: e.target.value })}
               className={inputClasses}
               required
             >
@@ -209,13 +209,13 @@ const TransactionForm = ({ initialData, onSuccess, onCancel }) => {
             )}
           </div>
 
-          {formData.tipo === 'transferencia' && (
+          {formData.type === 'transferencia' && (
             <div>
-              <Label htmlFor="conta_destino_id">Conta Destino *</Label>
+              <Label htmlFor="destination_account_id">Conta Destino *</Label>
               <select
-                id="conta_destino_id"
-                value={formData.conta_destino_id}
-                onChange={(e) => setFormData({ ...formData, conta_destino_id: e.target.value })}
+                id="destination_account_id"
+                value={formData.destination_account_id}
+                onChange={(e) => setFormData({ ...formData, destination_account_id: e.target.value })}
                 className={inputClasses}
                 required
               >
@@ -232,20 +232,20 @@ const TransactionForm = ({ initialData, onSuccess, onCancel }) => {
             </div>
           )}
 
-          {formData.tipo === 'pagamento' && (
+          {formData.type === 'pagamento' && (
             <div>
-              <Label htmlFor="fatura_id">Fatura a Pagar *</Label>
+              <Label htmlFor="invoice_id">Fatura a Pagar *</Label>
               <select
-                id="fatura_id"
-                value={formData.fatura_id}
-                onChange={(e) => setFormData({ ...formData, fatura_id: e.target.value })}
+                id="invoice_id"
+                value={formData.invoice_id}
+                onChange={(e) => setFormData({ ...formData, invoice_id: e.target.value })}
                 className={inputClasses}
                 required
               >
                 <option value="">Selecione uma fatura...</option>
                 {faturas.map(fat => (
                   <option key={fat.id} value={fat.id}>
-                    {fat.numero_fatura || 'Sem número'} - {formatCurrencyWithSymbol(fat.valor_total, 'BRL')}
+                    {fat.invoice_number || 'Sem número'} - {formatCurrencyWithSymbol(fat.total_amount, 'BRL')}
                   </option>
                 ))}
               </select>
@@ -255,12 +255,12 @@ const TransactionForm = ({ initialData, onSuccess, onCancel }) => {
 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           <div>
-            <Label htmlFor="valor">Valor {sourceAccount ? `em ${sourceAccount.currency}` : ''} *</Label>
+            <Label htmlFor="amount">Valor {sourceAccount ? `em ${sourceAccount.currency}` : ''} *</Label>
             <div className="relative mt-1">
               <NumberInput
-                id="valor"
-                value={formData.valor}
-                onChange={(e) => setFormData({ ...formData, valor: e.target.value })}
+                id="amount"
+                value={formData.amount}
+                onChange={(e) => setFormData({ ...formData, amount: e.target.value })}
                 currencyCode={sourceAccount?.currency || 'BRL'}
                 required
               />
@@ -284,19 +284,19 @@ const TransactionForm = ({ initialData, onSuccess, onCancel }) => {
           )}
         </div>
 
-        {formData.tipo !== 'transferencia' && formData.tipo !== 'pagamento' && (
+        {formData.type !== 'transferencia' && formData.type !== 'pagamento' && (
           <div className="relative">
             <div className="flex justify-between items-center mb-1">
-              <Label htmlFor="categoria_id" className="mb-0">Categoria</Label>
-              {isAutoMapped && formData.categoria_id && (
+              <Label htmlFor="category_id" className="mb-0">Categoria</Label>
+              {isAutoMapped && formData.category_id && (
                 <Badge variant="secondary" className="h-5 text-[10px] gap-1 bg-blue-50 text-blue-600 border-none">
                   <Sparkles className="w-3 h-3" /> Sugerido
                 </Badge>
               )}
             </div>
             <select
-              id="categoria_id"
-              value={formData.categoria_id}
+              id="category_id"
+              value={formData.category_id}
               onChange={handleCategoryChange}
               className={`${inputClasses} mt-0`}
             >

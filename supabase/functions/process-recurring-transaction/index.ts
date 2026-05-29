@@ -20,7 +20,7 @@ Deno.serve(async (req)=>{
       amount: rule.amount,
       type: Number(rule.amount) < 0 ? 'saida' : 'entrada',
       date: rule.next_date,
-      categoria_id: rule.categoria_id,
+      category_id: rule.category_id,
       is_recurring: true,
       recurring_id: rule.id,
       created_at: new Date().toISOString()
@@ -59,7 +59,7 @@ Deno.serve(async (req)=>{
     }).eq('id', rule.id);
     if (updateError) throw updateError;
     // 5. Handle Parcels (if applicable)
-    if (rule.recurrence_type === 'Parcelas' && rule.numero_parcelas) {
+    if (rule.recurrence_type === 'Parcelas' && rule.installment_count) {
     // Decrement logic or mark parcel as paid? 
     // Logic in FinanceContext.jsx handles 'recorrencia_parcelas'.
     // If this edge function is replacing that logic, we should update 'recorrencia_parcelas' status.

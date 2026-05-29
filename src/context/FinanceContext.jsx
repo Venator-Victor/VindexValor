@@ -36,9 +36,9 @@ export const FinanceProvider = ({ children }) => {
     theme: 'dark',
     currency: 'BRL',
     language: 'pt-BR',
-    transacoes_view_preference: 'list',
-    categorias_period_preference: 'mensal',
-    contas_view_preference: 'card'
+    transactions_view_preference: 'list',
+    categories_period_preference: 'mensal',
+    accounts_view_preference: 'card'
   });
   
   const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(() => localStorage.getItem('sidebarCollapsed') === 'true');
@@ -63,10 +63,10 @@ export const FinanceProvider = ({ children }) => {
         { data: faturaData, error: faturaError },
         { data: settingsData, error: settingsError }
       ] = await Promise.all([
-        supabase.from('transactions').select(`*, categories ( id, name, color, icon ), contas:accounts!fk_transacoes_conta ( id, name, type, color, currency, crypto_symbol ), conta_destino:accounts!fk_transacoes_conta_destino ( id, name, type, currency, crypto_symbol ), invoices(id, numero_fatura)`).eq('user_id', user.id).order('date', { ascending: false }),
+        supabase.from('transactions').select(`*, categories ( id, name, color, icon ), contas:accounts!fk_transacoes_conta ( id, name, type, color, currency, crypto_symbol ), conta_destino:accounts!fk_transacoes_conta_destino ( id, name, type, currency, crypto_symbol ), invoices(id, invoice_number)`).eq('user_id', user.id).order('date', { ascending: false }),
         supabase.from('accounts').select('id, user_id, name, type, bank, balance, color, created_at, icon, account_subtype, credit_limit, closing_date, due_date, investment_type, expected_return, reload_value, reload_date, total_amount, interest_rate, term_months, amortization_type, holders, initial_balance, currency, crypto_symbol').eq('user_id', user.id),
         supabase.from('categories').select('*').eq('user_id', user.id),
-        supabase.from('invoices').select('*, accounts(name)').eq('user_id', user.id).order('data_abertura', { ascending: false }),
+        supabase.from('invoices').select('*, accounts(name)').eq('user_id', user.id).order('opening_date', { ascending: false }),
         supabase.from('settings').select('*').eq('user_id', user.id).maybeSingle()
       ]);
 
@@ -149,7 +149,7 @@ export const FinanceProvider = ({ children }) => {
   // Fatura Operations
   const fetchFaturas = async () => {
     if (!user || !user.id) return;
-    const { data } = await supabase.from('invoices').select('*, accounts(name)').eq('user_id', user.id).order('data_abertura', { ascending: false });
+    const { data } = await supabase.from('invoices').select('*, accounts(name)').eq('user_id', user.id).order('opening_date', { ascending: false });
     if (data) setFaturas(data);
   };
 
@@ -170,7 +170,7 @@ export const FinanceProvider = ({ children }) => {
   // Compras da Fatura Operations
   const fetchComprasFatura = async (faturaId) => {
     if (!user || !user.id) return [];
-    const { data } = await supabase.from('invoice_items').select('*, categories(name, color)').eq('fatura_id', faturaId).eq('user_id', user.id).order('data', { ascending: false });
+    const { data } = await supabase.from('invoice_items').select('*, categories(name, color)').eq('invoice_id', faturaId).eq('user_id', user.id).order('data', { ascending: false });
     return data || [];
   };
 
@@ -291,7 +291,7 @@ export const FinanceProvider = ({ children }) => {
   const createTransaction = async (formData) => {
     if (!user) throw new Error("Usuário não autenticado");
     const { data, error } = await supabase.from('transactions').insert({ ...formData, user_id: user.id })
-      .select('*, categories(*), contas:accounts!fk_transacoes_conta(*), conta_destino:accounts!fk_transacoes_conta_destino(*), invoices(id, numero_fatura)').single();
+      .select('*, categories(*), contas:accounts!fk_transacoes_conta(*), conta_destino:accounts!fk_transacoes_conta_destino(*), invoices(id, invoice_number)').single();
     if (error) throw error;
     setTransactions(prev => [data, ...prev]);
     return data;
@@ -300,7 +300,7 @@ export const FinanceProvider = ({ children }) => {
   const updateTransaction = async (id, formData) => {
     if (!user) throw new Error("Usuário não autenticado");
     const { data, error } = await supabase.from('transactions').update(formData).eq('id', id).eq('user_id', user.id)
-      .select('*, categories(*), contas:accounts!fk_transacoes_conta(*), conta_destino:accounts!fk_transacoes_conta_destino(*), invoices(id, numero_fatura)').single();
+      .select('*, categories(*), contas:accounts!fk_transacoes_conta(*), conta_destino:accounts!fk_transacoes_conta_destino(*), invoices(id, invoice_number)').single();
     if (error) throw error;
     setTransactions(prev => prev.map(t => t.id === id ? data : t));
     return data;

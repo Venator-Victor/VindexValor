@@ -16,7 +16,7 @@ const TopCategoriesSection = ({ transactions, categories, selectedPeriod }) => {
       const catName = t.categorias?.name || 'Outros';
       if (!stats[catName]) {
         stats[catName] = {
-          id: t.categoria_id,
+          id: t.category_id,
           amount: 0,
           color: t.categorias?.color || '#94a3b8',
           icon: t.categorias?.icon || 'bx-purchase-tag'

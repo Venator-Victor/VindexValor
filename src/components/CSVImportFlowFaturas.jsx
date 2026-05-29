@@ -97,10 +97,10 @@ const CSVImportFlowFaturas = ({ onSuccess, onCancel }) => {
         }
 
         const newFatura = await createFatura({
-          numero_fatura: autoFaturaName,
-          conta_id: selectedAccountForAuto,
-          data_abertura: minDateStr,
-          data_fechamento: maxDateStr,
+          invoice_number: autoFaturaName,
+          account_id: selectedAccountForAuto,
+          opening_date: minDateStr,
+          closing_date: maxDateStr,
           status: 'aberta'
         });
 

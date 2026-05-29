@@ -22,8 +22,8 @@ const DefaultCategoriesModal = ({ isOpen, onClose, onCreateCustom, onSuccess }) 
         name: category.name,
         color: category.color,
         icon: category.icon,
-        limite_gasto: null,
-        periodo_limite: 'mensal'
+        spending_limit: null,
+        budget_period: 'mensal'
       });
       
       toast({ title: "Categoria criada com sucesso!" });

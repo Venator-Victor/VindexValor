@@ -34,8 +34,8 @@ const Contas = () => {
   const [viewMode, setViewMode] = useState('card');
 
   useEffect(() => {
-    if (settings && settings.contas_view_preference) {
-      setViewMode(settings.contas_view_preference);
+    if (settings && settings.accounts_view_preference) {
+      setViewMode(settings.accounts_view_preference);
     }
   }, [settings]);
 
@@ -48,7 +48,7 @@ const Contas = () => {
     setViewMode(mode);
     try {
       if (saveSettings) {
-        await saveSettings({ contas_view_preference: mode });
+        await saveSettings({ accounts_view_preference: mode });
         toast({ title: "Visualização atualizada", description: "Sua preferência foi salva com sucesso." });
       } else {
         toast({ title: "Aviso", description: "Função de salvar não disponível no contexto.", variant: "destructive" });

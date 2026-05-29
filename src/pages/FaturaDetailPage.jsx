@@ -73,7 +73,7 @@ const FaturaDetailPage = () => {
         const { data: pagamentosData } = await supabase
           .from('transactions')
           .select('*, contas:accounts!fk_transacoes_conta(name, currency)')
-          .eq('fatura_id', id);
+          .eq('invoice_id', id);
         
         setPagamentos(pagamentosData || []);
       }
@@ -85,7 +85,7 @@ const FaturaDetailPage = () => {
   };
 
   // Only consider negative values (purchases/expenses) for fatura total
-  const totalSaidas = compras.filter(c => Number(c.valor) < 0).reduce((acc, c) => acc + Number(c.valor), 0);
+  const totalSaidas = compras.filter(c => Number(c.amount) < 0).reduce((acc, c) => acc + Number(c.amount), 0);
   const calculatedTotal = totalSaidas;
 
   const fetchEligiblePayments = async () => {
@@ -98,7 +98,7 @@ const FaturaDetailPage = () => {
         .select('*, contas:accounts!fk_transacoes_conta(name, currency)')
         .eq('user_id', user.id)
         .in('type', ['pagamento', 'transferencia', 'Pagamento', 'Transferência'])
-        .is('fatura_id', null)
+        .is('invoice_id', null)
         .order('date', { ascending: false });
 
       if (error) throw error;
@@ -130,7 +130,7 @@ const FaturaDetailPage = () => {
     try {
       const { error } = await supabase
         .from('transactions')
-        .update({ fatura_id: id })
+        .update({ invoice_id: id })
         .eq('id', paymentId);
 
       if (error) throw error;
@@ -160,7 +160,7 @@ const FaturaDetailPage = () => {
     try {
       const { error } = await supabase
         .from('transactions')
-        .update({ fatura_id: null })
+        .update({ invoice_id: null })
         .eq('id', paymentId)
         .eq('user_id', user.id);
 
@@ -235,7 +235,7 @@ const FaturaDetailPage = () => {
           <ArrowLeft className="w-5 h-5" />
         </Button>
         <div>
-          <h1 className="text-3xl font-bold">{fatura.numero_fatura || 'Detalhes da Fatura'}</h1>
+          <h1 className="text-3xl font-bold">{fatura.invoice_number || 'Detalhes da Fatura'}</h1>
           <p className="text-muted-foreground">{fatura.contas?.name}</p>
         </div>
       </div>
@@ -408,7 +408,7 @@ const FaturaDetailPage = () => {
           <AlertDialogHeader>
             <AlertDialogTitle>Valores Divergentes</AlertDialogTitle>
             <AlertDialogDescription>
-              Aviso: O valor da transação ({paymentToConfirm && formatCurrency(Math.abs(paymentToConfirm.amount))}) é diferente do total da fatura ({formatCurrency(Math.abs(calculatedTotal))}). Deseja continuar e vincular este pagamento mesmo assim?
+              Aviso: O amount da transação ({paymentToConfirm && formatCurrency(Math.abs(paymentToConfirm.amount))}) é diferente do total da fatura ({formatCurrency(Math.abs(calculatedTotal))}). Deseja continuar e vincular este pagamento mesmo assim?
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>

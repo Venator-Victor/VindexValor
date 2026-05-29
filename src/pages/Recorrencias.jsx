@@ -36,13 +36,13 @@ const Recorrencias = () => {
 
   const [formData, setFormData] = useState({
     description: '',
-    categoria_id: '',
+    category_id: '',
     amount: '',
     frequency: 'Mensal',
     nextDate: new Date().toISOString().slice(0, 10),
     status: 'Ativo',
     transaction_type_id: '',
-    numero_parcelas: ''
+    installment_count: ''
   });
 
   const [newCategoryData, setNewCategoryData] = useState({
@@ -51,11 +51,11 @@ const Recorrencias = () => {
     icon: 'bx bx-tag'
   });
 
-  const viewMode = settings.recorrencias_view_preference || 'list';
+  const viewMode = settings.recurring_items_view_preference || 'list';
   const currentPeriod = settings.recorrencias_period_preference || 'mensal';
 
   const setViewMode = (mode) => {
-    saveSettings({ recorrencias_view_preference: mode });
+    saveSettings({ recurring_items_view_preference: mode });
   };
 
   const handlePeriodChange = (e) => saveSettings({ recorrencias_period_preference: e.target.value });
@@ -111,13 +111,13 @@ const Recorrencias = () => {
 
     const recurringData = {
       description: formData.description,
-      categoria_id: formData.categoria_id,
+      category_id: formData.category_id,
       amount: finalAmount,
       frequency: formData.frequency,
       nextDate: formData.nextDate,
       status: isActive,
       recurrence_type: isParcelas ? 'Parcelas' : 'Assinatura',
-      numero_parcelas: isParcelas && formData.numero_parcelas ? parseInt(formData.numero_parcelas) : null
+      installment_count: isParcelas && formData.installment_count ? parseInt(formData.installment_count) : null
     };
 
     if (editingRecurring) {
@@ -135,13 +135,13 @@ const Recorrencias = () => {
   const resetForm = () => {
     setFormData({
       description: '',
-      categoria_id: '',
+      category_id: '',
       amount: '',
       frequency: 'Mensal',
       nextDate: new Date().toISOString().slice(0, 10),
       status: 'Ativo',
       transaction_type_id: '',
-      numero_parcelas: ''
+      installment_count: ''
     });
     setEditingRecurring(null);
   };
@@ -161,13 +161,13 @@ const Recorrencias = () => {
 
     setFormData({
       description: recurringItem.description,
-      categoria_id: recurringItem.categoria_id || '',
+      category_id: recurringItem.category_id || '',
       amount: Math.abs(recurringItem.amount).toString(),
       frequency: recurringItem.frequency,
       nextDate: recurringItem.date || recurringItem.next_date,
       status: recurringItem.status === true ? 'Ativo' : 'Inativo',
       transaction_type_id: guessedTypeId,
-      numero_parcelas: recurringItem.numero_parcelas || ''
+      installment_count: recurringItem.installment_count || ''
     });
     setIsDialogOpen(true);
   };
@@ -187,16 +187,16 @@ const Recorrencias = () => {
   const handleCategoryChange = (e) => {
     const value = e.target.value;
     if (value === '__create_new__') setIsDefaultModalOpen(true);
-    else setFormData(prev => ({ ...prev, categoria_id: value }));
+    else setFormData(prev => ({ ...prev, category_id: value }));
   };
 
   const handleDefaultCategorySuccess = (categoryName, newCategory) => {
       if (newCategory && newCategory.id) {
-          setFormData(prev => ({ ...prev, categoria_id: newCategory.id }));
+          setFormData(prev => ({ ...prev, category_id: newCategory.id }));
           return;
       }
       const cat = categories.find(c => c.name === categoryName);
-      if(cat) setFormData(prev => ({ ...prev, categoria_id: cat.id }));
+      if(cat) setFormData(prev => ({ ...prev, category_id: cat.id }));
       else toast({ title: "Categoria criada", description: "Por favor, selecione a nova categoria na lista." });
   };
   
@@ -204,7 +204,7 @@ const Recorrencias = () => {
     e.preventDefault();
     const newCat = await addCategory(newCategoryData);
     if (newCat) {
-      setFormData(prev => ({ ...prev, categoria_id: newCat.id }));
+      setFormData(prev => ({ ...prev, category_id: newCat.id }));
       setIsCategoryDialogOpen(false);
       setNewCategoryData({ name: '', color: '#283768', icon: 'bx bx-tag' });
       toast({ title: "Categoria criada com sucesso!" });
@@ -303,7 +303,7 @@ const Recorrencias = () => {
                         <SelectInput
                            label="Categoria"
                            id="category"
-                           value={formData.categoria_id}
+                           value={formData.category_id}
                            options={categoryOptions}
                            onChange={handleCategoryChange}
                         />
@@ -324,12 +324,12 @@ const Recorrencias = () => {
 
                     {formData.transaction_type_id && transactionTypes.find(t => t.id === formData.transaction_type_id)?.name === 'Parcelamento' && (
                         <div className="animate-in fade-in slide-in-from-top-2 duration-300">
-                             <Label htmlFor="numero_parcelas">Quantidade de Parcelas</Label>
+                             <Label htmlFor="installment_count">Quantidade de Parcelas</Label>
                              <input 
-                                id="numero_parcelas"
+                                id="installment_count"
                                 type="number"
-                                value={formData.numero_parcelas}
-                                onChange={(e) => setFormData({ ...formData, numero_parcelas: e.target.value })}
+                                value={formData.installment_count}
+                                onChange={(e) => setFormData({ ...formData, installment_count: e.target.value })}
                                 placeholder="Ex: 12"
                                 min={1}
                                 className="w-full px-3 py-2 bg-white dark:bg-vindex-bg border border-gray-200 dark:border-vindex-border rounded-lg text-gray-900 dark:text-gray-100 focus:ring-2 focus:ring-vindex-success/50 outline-none"

@@ -28,7 +28,7 @@ const Transacoes = () => {
   const [deleteId, setDeleteId] = useState(null);
   const [selectedIds, setSelectedIds] = useState([]);
   
-  const [filters, setFilters] = useState({ tipo: '', conta_id: '' });
+  const [filters, setFilters] = useState({ tipo: '', account_id: '' });
   const [searchTerm, setSearchTerm] = useState('');
   const [valueFilterStr, setValueFilterStr] = useState('');
   const [selectedCategoryId, setSelectedCategoryId] = useState('');
@@ -72,7 +72,7 @@ const Transacoes = () => {
     
     return transactions.filter(t => {
       const matchesType = !filters.tipo || t.type === filters.tipo;
-      const matchesAccount = !filters.conta_id || t.conta_id === filters.conta_id || t.conta_destino_id === filters.conta_id;
+      const matchesAccount = !filters.account_id || t.account_id === filters.account_id || t.destination_account_id === filters.account_id;
       
       const searchLower = searchTerm.toLowerCase();
       const matchesSearch = !searchTerm || (t.description && t.description.toLowerCase().includes(searchLower));
@@ -80,9 +80,9 @@ const Transacoes = () => {
       let matchesCategory = true;
       if (selectedCategoryId) {
         if (selectedCategoryId === 'null') {
-          matchesCategory = !t.categoria_id;
+          matchesCategory = !t.category_id;
         } else {
-          matchesCategory = t.categoria_id === selectedCategoryId;
+          matchesCategory = t.category_id === selectedCategoryId;
         }
       }
 
@@ -152,7 +152,7 @@ const Transacoes = () => {
     setValueFilterStr('');
     setSelectedCategoryId('');
     setDateFilterType('');
-    setFilters({ tipo: '', conta_id: '' });
+    setFilters({ tipo: '', account_id: '' });
   };
 
   const activeCount = [
@@ -160,7 +160,7 @@ const Transacoes = () => {
     valueFilterStr ? 1 : 0,
     selectedCategoryId ? 1 : 0,
     filters.tipo ? 1 : 0,
-    filters.conta_id ? 1 : 0
+    filters.account_id ? 1 : 0
   ].reduce((a, b) => a + b, 0);
 
   return (
@@ -308,8 +308,8 @@ const Transacoes = () => {
 
           <div className="flex flex-col lg:col-span-1">
             <SelectInput
-              value={filters.conta_id}
-              onChange={(e) => setFilters({ ...filters, conta_id: e.target.value })}
+              value={filters.account_id}
+              onChange={(e) => setFilters({ ...filters, account_id: e.target.value })}
               options={[
                 { label: "Todas Contas", value: "" },
                 ...accounts.map(a => ({ label: a.name, value: a.id }))

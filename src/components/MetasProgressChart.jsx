@@ -39,14 +39,14 @@ const MetasProgressChart = ({ goals, selectedPeriod, filterType }) => {
 
     // Filter Logic matches Metas.jsx
     const filteredGoals = goals.filter(g => {
-        if (filterType === 'valor_final') return g.tipo_meta === 'valor_final';
-        if (filterType === 'valor_mensal') return g.tipo_meta === 'valor_mensal';
+        if (filterType === 'valor_final') return g.goal_type === 'valor_final';
+        if (filterType === 'valor_mensal') return g.goal_type === 'valor_mensal';
         return true;
     });
 
     filteredGoals.forEach(goal => {
       // Planned
-      if (goal.tipo_meta === 'valor_mensal') {
+      if (goal.goal_type === 'valor_mensal') {
          // Use periodic calculation
          const monthlyBase = getMonthlyBaseContribution(goal.contributionValue, goal.periodFrequency);
          totalPlanned += scaleToPeriod(monthlyBase, selectedPeriod);
@@ -57,7 +57,7 @@ const MetasProgressChart = ({ goals, selectedPeriod, filterType }) => {
       }
 
       // Realized (Accumulated)
-      totalRealized += Number(goal.valor_acumulado) || 0;
+      totalRealized += Number(goal.accumulated_amount) || 0;
     });
 
     // Cap percentage at 100 for visual consistency if needed, but display real %

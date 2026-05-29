@@ -13,7 +13,7 @@ const RecentTransactionsSection = ({ transactions, categories, selectedPeriod })
 
   const getCategoryDetails = (t) => {
     if (t.categorias) return { icon: t.categorias.icon, color: t.categorias.color, name: t.categorias.name };
-    const cat = categories.find(c => c.id === t.categoria_id || c.name === t.category);
+    const cat = categories.find(c => c.id === t.category_id || c.name === t.category);
     return cat ? { icon: cat.icon, color: cat.color, name: cat.name } : { icon: 'bx bx-tag', color: '#94a3b8', name: 'Sem categoria' };
   };
 

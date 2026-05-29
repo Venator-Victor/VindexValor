@@ -33,25 +33,25 @@ const FaturasPage = () => {
 
   const [dateFilterType, setDateFilterType] = useState('');
   
-  const [sortConfig, setSortConfig] = useState({ key: 'data_abertura', direction: 'descending' });
+  const [sortConfig, setSortConfig] = useState({ key: 'opening_date', direction: 'descending' });
   
   const navigate = useNavigate();
   const { toast } = useToast();
 
   const [formData, setFormData] = useState({
-    numero_fatura: '',
-    data_abertura: '',
-    data_fechamento: '',
-    conta_id: '',
+    invoice_number: '',
+    opening_date: '',
+    closing_date: '',
+    account_id: '',
     status: 'aberta'
   });
 
   const [editFormData, setEditFormData] = useState({
     id: '',
-    numero_fatura: '',
-    data_abertura: '',
-    data_fechamento: '',
-    conta_id: '',
+    invoice_number: '',
+    opening_date: '',
+    closing_date: '',
+    account_id: '',
     status: 'aberta'
   });
 
@@ -66,17 +66,17 @@ const FaturasPage = () => {
     try {
       const { data, error } = await supabase
         .from('invoice_items')
-        .select('fatura_id, valor')
-        .in('fatura_id', ids);
+        .select('invoice_id, amount')
+        .in('invoice_id', ids);
 
       if (error) throw error;
 
       const totals = {};
       data.forEach(item => {
-        if (!totals[item.fatura_id]) totals[item.fatura_id] = 0;
+        if (!totals[item.invoice_id]) totals[item.invoice_id] = 0;
         // Only sum actual purchases (negative values)
-        if (Number(item.valor) < 0) {
-          totals[item.fatura_id] += Number(item.valor);
+        if (Number(item.amount) < 0) {
+          totals[item.invoice_id] += Number(item.amount);
         }
       });
       setFaturaTotals(totals);
@@ -103,7 +103,7 @@ const FaturasPage = () => {
       await createFatura(formData);
       toast({ title: "Fatura criada com sucesso!" });
       setIsDialogOpen(false);
-      setFormData({ numero_fatura: '', data_abertura: '', data_fechamento: '', conta_id: '', status: 'aberta' });
+      setFormData({ invoice_number: '', opening_date: '', closing_date: '', account_id: '', status: 'aberta' });
       loadFaturas();
     } catch (error) {
       toast({ title: "Erro ao criar fatura", description: error.message, variant: "destructive" });
@@ -114,10 +114,10 @@ const FaturasPage = () => {
     e.preventDefault();
     try {
       const { error } = await supabase.from('invoices').update({
-        numero_fatura: editFormData.numero_fatura,
-        data_abertura: editFormData.data_abertura,
-        data_fechamento: editFormData.data_fechamento,
-        conta_id: editFormData.conta_id,
+        invoice_number: editFormData.invoice_number,
+        opening_date: editFormData.opening_date,
+        closing_date: editFormData.closing_date,
+        account_id: editFormData.account_id,
         status: editFormData.status
       }).eq('id', editFormData.id).eq('user_id', user.id);
       
@@ -150,35 +150,35 @@ const FaturasPage = () => {
     const parsedValueFilter = filters.valorRange ? parseValueFilterString(filters.valorRange) : null;
     const hasActiveValueFilter = parsedValueFilter && parsedValueFilter.isValid && parsedValueFilter.conditions.length > 0;
     
-    const hasActiveFilters = filters.search || hasActiveValueFilter || filters.categoria_id || filters.conta_id || filters.parcelamento !== 'todos';
+    const hasActiveFilters = filters.search || hasActiveValueFilter || filters.category_id || filters.account_id || filters.parcelamento !== 'todos';
     setIsFiltering(hasActiveFilters);
     
     if (hasActiveFilters) {
-      let query = supabase.from('invoice_items').select('*, invoices(numero_fatura), categories(name, color)');
+      let query = supabase.from('invoice_items').select('*, invoices(invoice_number), categories(name, color)');
       
-      if (filters.search) query = query.ilike('descricao', `%${filters.search}%`);
+      if (filters.search) query = query.ilike('description', `%${filters.search}%`);
       
       if (hasActiveValueFilter) {
         parsedValueFilter.conditions.forEach(cond => {
-          if (cond.op === '>') query = query.gt('valor', cond.val);
-          else if (cond.op === '<') query = query.lt('valor', cond.val);
-          else if (cond.op === '>=') query = query.gte('valor', cond.val);
-          else if (cond.op === '<=') query = query.lte('valor', cond.val);
-          else query = query.eq('valor', cond.val);
+          if (cond.op === '>') query = query.gt('amount', cond.val);
+          else if (cond.op === '<') query = query.lt('amount', cond.val);
+          else if (cond.op === '>=') query = query.gte('amount', cond.val);
+          else if (cond.op === '<=') query = query.lte('amount', cond.val);
+          else query = query.eq('amount', cond.val);
         });
       }
       
-      if (filters.categoria_id) query = query.eq('categoria_id', filters.categoria_id);
+      if (filters.category_id) query = query.eq('category_id', filters.category_id);
       
       if (filters.parcelamento === 'parcelado') query = query.eq('is_parcelado', true);
       if (filters.parcelamento === 'nao_parcelado') query = query.eq('is_parcelado', false);
       
-      if (filters.conta_id) {
-        const matchedFaturas = faturas.filter(f => f.conta_id === filters.conta_id).map(f => f.id);
+      if (filters.account_id) {
+        const matchedFaturas = faturas.filter(f => f.account_id === filters.account_id).map(f => f.id);
         if (matchedFaturas.length > 0) {
-          query = query.in('fatura_id', matchedFaturas);
+          query = query.in('invoice_id', matchedFaturas);
         } else {
-          query = query.eq('fatura_id', '00000000-0000-0000-0000-000000000000');
+          query = query.eq('invoice_id', '00000000-0000-0000-0000-000000000000');
         }
       }
 
@@ -212,10 +212,10 @@ const FaturasPage = () => {
   const handleRowClick = (fatura) => {
     setEditFormData({
       id: fatura.id,
-      numero_fatura: fatura.numero_fatura || '',
-      data_abertura: fatura.data_abertura || '',
-      data_fechamento: fatura.data_fechamento || '',
-      conta_id: fatura.conta_id || '',
+      invoice_number: fatura.invoice_number || '',
+      opening_date: fatura.opening_date || '',
+      closing_date: fatura.closing_date || '',
+      account_id: fatura.account_id || '',
       status: fatura.status || 'aberta'
     });
     setIsEditOpen(true);
@@ -238,12 +238,12 @@ const FaturasPage = () => {
     const sorted = [...faturas].sort((a, b) => {
       let aValue, bValue;
 
-      if (sortConfig.key === 'valor') {
+      if (sortConfig.key === 'amount') {
          aValue = faturaTotals[a.id] || 0;
          bValue = faturaTotals[b.id] || 0;
-      } else if (sortConfig.key === 'data_abertura') {
-         aValue = new Date(a.data_abertura || 0).getTime();
-         bValue = new Date(b.data_abertura || 0).getTime();
+      } else if (sortConfig.key === 'opening_date') {
+         aValue = new Date(a.opening_date || 0).getTime();
+         bValue = new Date(b.opening_date || 0).getTime();
       } else if (sortConfig.key === 'status') {
          aValue = a.status || '';
          bValue = b.status || '';
@@ -268,7 +268,7 @@ const FaturasPage = () => {
 
     return sorted.filter(f => {
       let matchesDate = true;
-      const fDate = f.data_abertura;
+      const fDate = f.opening_date;
       
       if (dateFilterType && fDate) {
         if (dateFilterType === 'today') {
@@ -344,19 +344,19 @@ const FaturasPage = () => {
                   <input 
                     required
                     className="w-full px-3 py-2 border rounded-lg bg-background text-foreground mt-1 focus:ring-2 focus:ring-primary/50 outline-none"
-                    value={formData.numero_fatura}
-                    onChange={e => setFormData({...formData, numero_fatura: e.target.value})}
+                    value={formData.invoice_number}
+                    onChange={e => setFormData({...formData, invoice_number: e.target.value})}
                   />
                 </div>
                 <div className="grid grid-cols-2 gap-4">
-                  <DatePicker label="Abertura" value={formData.data_abertura} onChange={e => setFormData({...formData, data_abertura: e.target.value})} />
-                  <DatePicker label="Fechamento/Vencimento" value={formData.data_fechamento} onChange={e => setFormData({...formData, data_fechamento: e.target.value})} />
+                  <DatePicker label="Abertura" value={formData.opening_date} onChange={e => setFormData({...formData, opening_date: e.target.value})} />
+                  <DatePicker label="Fechamento/Vencimento" value={formData.closing_date} onChange={e => setFormData({...formData, closing_date: e.target.value})} />
                 </div>
                 <div>
                   <SelectInput 
                     label="Conta"
-                    value={formData.conta_id}
-                    onChange={e => setFormData({...formData, conta_id: e.target.value})}
+                    value={formData.account_id}
+                    onChange={e => setFormData({...formData, account_id: e.target.value})}
                     options={accounts.filter(a => a.type === 'Cartão de Crédito' || a.account_subtype === 'credit_card').map(a => ({ label: a.name, value: a.id }))}
                   />
                 </div>
@@ -409,12 +409,12 @@ const FaturasPage = () => {
                    <tbody className="divide-y">
                       {comprasFiltro.map(c => (
                          <tr key={c.id} className="hover:bg-muted/30">
-                            <td className="p-3 font-medium cursor-pointer text-primary hover:underline" onClick={() => navigate(`/faturas/${c.fatura_id}`)}>
-                              {c.faturas?.numero_fatura || 'Desconhecida'}
+                            <td className="p-3 font-medium cursor-pointer text-primary hover:underline" onClick={() => navigate(`/faturas/${c.invoice_id}`)}>
+                              {c.faturas?.invoice_number || 'Desconhecida'}
                             </td>
-                            <td className="p-3 text-muted-foreground whitespace-nowrap">{formatDate(c.data)}</td>
+                            <td className="p-3 text-muted-foreground whitespace-nowrap">{formatDate(c.date)}</td>
                             <td className="p-3">
-                              {c.descricao}
+                              {c.description}
                               {c.is_parcelado && <span className="ml-2 text-[10px] bg-blue-100 text-blue-800 px-2 py-0.5 rounded-full whitespace-nowrap">Parc {c.parcel_number}/{c.total_parcels}</span>}
                             </td>
                             <td className="p-3">
@@ -425,7 +425,7 @@ const FaturasPage = () => {
                                   </div>
                                ) : <span className="text-muted-foreground text-xs">Sem categoria</span>}
                             </td>
-                            <td className="p-3 text-right font-medium whitespace-nowrap">{formatCurrency(c.valor)}</td>
+                            <td className="p-3 text-right font-medium whitespace-nowrap">{formatCurrency(c.amount)}</td>
                          </tr>
                       ))}
                    </tbody>
@@ -466,13 +466,13 @@ const FaturasPage = () => {
                       <th className="p-3 text-left font-medium text-muted-foreground">Fatura</th>
                       <th className="p-3 text-left font-medium text-muted-foreground">Conta</th>
                       <th className="p-3 align-middle">
-                        <button onClick={() => requestSort('data_abertura')} className="table-header-sortable justify-start">
-                          Data Abertura <SortIcon column="data_abertura" />
+                        <button onClick={() => requestSort('opening_date')} className="table-header-sortable justify-start">
+                          Data Abertura <SortIcon column="opening_date" />
                         </button>
                       </th>
                       <th className="p-3 align-middle">
-                        <button onClick={() => requestSort('valor')} className="table-header-sortable justify-end pl-0 pr-0 ml-auto mr-0">
-                          Valor Total <SortIcon column="valor" />
+                        <button onClick={() => requestSort('amount')} className="table-header-sortable justify-end pl-0 pr-0 ml-auto mr-0">
+                          Valor Total <SortIcon column="amount" />
                         </button>
                       </th>
                       <th className="p-3 align-middle">
@@ -495,17 +495,17 @@ const FaturasPage = () => {
                             <Checkbox 
                               checked={selectedFaturas.includes(fatura.id)}
                               onCheckedChange={(checked) => handleSelectRow(fatura.id, checked)}
-                              aria-label={`Selecionar fatura ${fatura.numero_fatura}`}
+                              aria-label={`Selecionar fatura ${fatura.invoice_number}`}
                             />
                           </td>
                           <td className="p-3 font-medium text-foreground">
-                            {fatura.numero_fatura || 'Fatura Sem Nome'}
+                            {fatura.invoice_number || 'Fatura Sem Nome'}
                           </td>
                           <td className="p-3 text-muted-foreground">
                             {fatura.contas?.name || 'Conta Removida'}
                           </td>
                           <td className="p-3 text-muted-foreground whitespace-nowrap">
-                            {formatDate(fatura.data_abertura)}
+                            {formatDate(fatura.opening_date)}
                           </td>
                           <td className={`p-3 text-right font-medium whitespace-nowrap ${totalValue < 0 ? 'text-red-600 dark:text-red-400' : totalValue > 0 ? 'text-green-600 dark:text-green-400' : ''}`}>
                             {formatCurrency(totalValue)}
@@ -544,19 +544,19 @@ const FaturasPage = () => {
               <input 
                 required
                 className="w-full px-3 py-2 border rounded-lg bg-background text-foreground mt-1 focus:ring-2 focus:ring-primary/50 outline-none"
-                value={editFormData.numero_fatura}
-                onChange={e => setEditFormData({...editFormData, numero_fatura: e.target.value})}
+                value={editFormData.invoice_number}
+                onChange={e => setEditFormData({...editFormData, invoice_number: e.target.value})}
               />
             </div>
             <div className="grid grid-cols-2 gap-4">
-              <DatePicker label="Abertura" value={editFormData.data_abertura} onChange={e => setEditFormData({...editFormData, data_abertura: e.target.value})} />
-              <DatePicker label="Fechamento/Vencimento" value={editFormData.data_fechamento} onChange={e => setEditFormData({...editFormData, data_fechamento: e.target.value})} />
+              <DatePicker label="Abertura" value={editFormData.opening_date} onChange={e => setEditFormData({...editFormData, opening_date: e.target.value})} />
+              <DatePicker label="Fechamento/Vencimento" value={editFormData.closing_date} onChange={e => setEditFormData({...editFormData, closing_date: e.target.value})} />
             </div>
             <div>
               <SelectInput 
                 label="Conta"
-                value={editFormData.conta_id}
-                onChange={e => setEditFormData({...editFormData, conta_id: e.target.value})}
+                value={editFormData.account_id}
+                onChange={e => setEditFormData({...editFormData, account_id: e.target.value})}
                 options={accounts.filter(a => a.type === 'Cartão de Crédito' || a.account_subtype === 'credit_card').map(a => ({ label: a.name, value: a.id }))}
               />
             </div>

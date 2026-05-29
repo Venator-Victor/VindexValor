@@ -49,8 +49,8 @@ const Categorias = () => {
     name: '',
     color: '#283768',
     icon: 'bx bx-tag',
-    limite_gasto: '',
-    periodo_limite: 'Mensal'
+    spending_limit: '',
+    budget_period: 'Mensal'
   });
   
 
@@ -62,11 +62,11 @@ const Categorias = () => {
   const handlePeriodChange = e => {
     const newPeriod = e.target.value;
     if (saveSettings) {
-      saveSettings({ categorias_period_preference: newPeriod });
+      saveSettings({ categories_period_preference: newPeriod });
     }
   };
   
-  const currentPeriod = settings?.categorias_period_preference || 'mensal';
+  const currentPeriod = settings?.categories_period_preference || 'mensal';
 
   // Calculate dynamic spending based on global period preference
   const categoriesWithDynamicSpending = categories.map(cat => ({
@@ -82,16 +82,16 @@ const Categorias = () => {
   } = useSortableList(categoriesWithDynamicSpending);
 
   // Calculate totals for Chart
-  const activeCategories = sortedCategories.filter(cat => cat.limite_gasto && cat.limite_gasto > 0);
+  const activeCategories = sortedCategories.filter(cat => cat.spending_limit && cat.spending_limit > 0);
   const totalSpent = activeCategories.reduce((acc, cat) => acc + (cat.currentSpending || 0), 0);
-  const totalBudget = activeCategories.reduce((acc, cat) => acc + (cat.limite_gasto || 0), 0);
+  const totalBudget = activeCategories.reduce((acc, cat) => acc + (cat.spending_limit || 0), 0);
   
   const handleSubmit = e => {
     e.preventDefault();
     const categoryData = {
       ...formData,
-      limite_gasto: formData.limite_gasto ? Number(formData.limite_gasto) : null,
-      periodo_limite: formData.periodo_limite
+      spending_limit: formData.spending_limit ? Number(formData.spending_limit) : null,
+      budget_period: formData.budget_period
     };
     if (editingCategory && updateCategory) {
       updateCategory(editingCategory.id, categoryData);
@@ -109,8 +109,8 @@ const Categorias = () => {
       name: '',
       color: '#283768',
       icon: 'bx bx-tag',
-      limite_gasto: '',
-      periodo_limite: 'Mensal'
+      spending_limit: '',
+      budget_period: 'Mensal'
     });
     setEditingCategory(null);
   };
@@ -122,8 +122,8 @@ const Categorias = () => {
       name: category.name,
       color: category.color,
       icon: category.icon,
-      limite_gasto: category.limite_gasto || '',
-      periodo_limite: category.periodo_limite || 'Mensal'
+      spending_limit: category.spending_limit || '',
+      budget_period: category.budget_period || 'Mensal'
     });
     setIsDialogOpen(true);
   };
@@ -133,7 +133,7 @@ const Categorias = () => {
     const category = categories.find(c => c.id === id);
     if (!category) return;
     
-    const transactionCount = transactions.filter(t => t.categoria_id === category.id || t.categorias?.name === category.name || t.category === category.name).length;
+    const transactionCount = transactions.filter(t => t.category_id === category.id || t.categorias?.name === category.name || t.category === category.name).length;
     if (transactionCount > 0) {
       toast({
         title: "Não é possível excluir",
@@ -239,7 +239,7 @@ const Categorias = () => {
              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
                <AnimatePresence>
                  {sortedCategories.map((category, index) => {
-                    const transactionCount = transactions.filter(t => t.categoria_id === category.id || t.categorias?.name === category.name || t.category === category.name).length;
+                    const transactionCount = transactions.filter(t => t.category_id === category.id || t.categorias?.name === category.name || t.category === category.name).length;
                     
                     return (
                       <motion.div 
@@ -296,15 +296,15 @@ const Categorias = () => {
                             <SortableHeader label="Categoria" column="name" sortConfig={sortConfig} onSort={requestSort} />
                             <th className="px-6 py-3 text-left font-medium text-gray-700 dark:text-gray-300">Transações</th>
                             <th className="px-6 py-3 text-left font-medium text-gray-700 dark:text-gray-300">Utilização</th>
-                            <SortableHeader label="Orçamento" column="limite_gasto" sortConfig={sortConfig} onSort={requestSort} />
-                            <SortableHeader label="Período" column="periodo_limite" sortConfig={sortConfig} onSort={requestSort} />
+                            <SortableHeader label="Orçamento" column="spending_limit" sortConfig={sortConfig} onSort={requestSort} />
+                            <SortableHeader label="Período" column="budget_period" sortConfig={sortConfig} onSort={requestSort} />
                             <th className="px-6 py-3 text-right font-medium text-gray-700 dark:text-gray-300">Ações</th>
                          </tr>
                       </thead>
                       <tbody className="divide-y divide-gray-200 dark:divide-vindex-border">
                          {sortedCategories.map(category => {
-                            const transactionCount = transactions.filter(t => t.categoria_id === category.id || t.categorias?.name === category.name || t.category === category.name).length;
-                            const hasLimit = category.limite_gasto > 0;
+                            const transactionCount = transactions.filter(t => t.category_id === category.id || t.categorias?.name === category.name || t.category === category.name).length;
+                            const hasLimit = category.spending_limit > 0;
                             
                             return (
                                <tr key={category.id} onClick={() => handleCardClick(category)} className="hover:bg-blue-50/50 dark:hover:bg-blue-900/10 cursor-pointer transition-colors">
@@ -323,10 +323,10 @@ const Categorias = () => {
                                      {formatCurrency(category.currentSpending)}
                                   </td>
                                   <td className="px-6 py-4 text-gray-700 dark:text-gray-300">
-                                     {hasLimit ? <span>{formatCurrency(category.limite_gasto)}</span> : '-'}
+                                     {hasLimit ? <span>{formatCurrency(category.spending_limit)}</span> : '-'}
                                   </td>
                                   <td className="px-6 py-4 text-gray-700 dark:text-gray-300">
-                                     {hasLimit ? <span className="text-xs capitalize">{category.periodo_limite}</span> : '-'}
+                                     {hasLimit ? <span className="text-xs capitalize">{category.budget_period}</span> : '-'}
                                   </td>
                                   <td className="px-6 py-4 text-right">
                                      <div className="flex justify-end gap-2">
@@ -386,11 +386,11 @@ const Categorias = () => {
 
             <div className="flex flex-col sm:flex-row gap-4">
               <div className="flex-1">
-                <Label htmlFor="limite_gasto">Orçamento (Opcional)</Label>
-                <NumberInput id="limite_gasto" value={formData.limite_gasto} onChange={e => setFormData({ ...formData, limite_gasto: e.target.value })} />
+                <Label htmlFor="spending_limit">Orçamento (Opcional)</Label>
+                <NumberInput id="spending_limit" value={formData.spending_limit} onChange={e => setFormData({ ...formData, spending_limit: e.target.value })} />
               </div>
               <div className="flex-1">
-                <SelectInput label="Período do Orçamento" id="periodo_limite" value={formData.periodo_limite} options={PERIOD_OPTIONS} onChange={e => setFormData({ ...formData, periodo_limite: e.target.value })} />
+                <SelectInput label="Período do Orçamento" id="budget_period" value={formData.budget_period} options={PERIOD_OPTIONS} onChange={e => setFormData({ ...formData, budget_period: e.target.value })} />
               </div>
             </div>
             

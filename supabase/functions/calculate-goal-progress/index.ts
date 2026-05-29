@@ -18,7 +18,7 @@ Deno.serve(async (req)=>{
     if (error) throw error;
     const results = goals.map((goal)=>{
       const target = Number(goal.target_amount);
-      const current = Number(goal.current_amount || goal.valor_acumulado || 0);
+      const current = Number(goal.current_amount || goal.accumulated_amount || 0);
       const progressPercentage = target > 0 ? current / target * 100 : 0;
       let daysRemaining = null;
       let isOnTrack = true; // Simple logic

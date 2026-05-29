@@ -13,7 +13,7 @@ Deno.serve(async (req)=>{
     // Optimized: Use the View
     let query = supabaseClient.from('vw_expense_by_category_monthly').select('*').eq('user_id', userId).eq('month', month).eq('year', year);
     if (categoryId) {
-      query = query.eq('categoria_id', categoryId);
+      query = query.eq('category_id', categoryId);
     }
     const { data: viewData, error } = await query;
     if (error) throw error;
@@ -25,15 +25,15 @@ Deno.serve(async (req)=>{
     // The previous implementation returned `transactions: []`.
     // Let's keep it lightweight. If transactions are needed, frontend should use the raw transactions endpoint.
     // But to maintain contract, we return the totals.
-    // We also need category limit which is in 'categorias' table, but view includes category_id.
+    // We also need category limit which is in 'categories' table, but view includes category_id.
     // We can join or fetch limits. The view doesn't have 'limit'.
     // Let's fetch limits separately or join in code.
     // To minimize breaking changes, let's fetch categories for limits.
-    const { data: categories } = await supabaseClient.from('categories').select('id, limite_gasto').eq('user_id', userId);
+    const { data: categories } = await supabaseClient.from('categories').select('id, spending_limit').eq('user_id', userId);
     const limitMap = {};
-    categories?.forEach((c)=>limitMap[c.id] = Number(c.limite_gasto || 0));
+    categories?.forEach((c)=>limitMap[c.id] = Number(c.spending_limit || 0));
     const results = viewData.map((item)=>{
-      const limit = limitMap[item.categoria_id] || 0;
+      const limit = limitMap[item.category_id] || 0;
       return {
         categoryName: item.category_name,
         totalSpent: Number(item.total_amount),

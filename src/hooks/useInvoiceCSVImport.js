@@ -78,7 +78,7 @@ export const useInvoiceCSVImport = () => {
   const autoDetectMapping = (headers) => {
     const dateVars = ['date', 'data', 'data_transacao'];
     const valVars = ['amount', 'value', 'valor', 'preço', 'preco'];
-    const descVars = ['title', 'descricao', 'description', 'nome', 'produto'];
+    const descVars = ['title', 'description', 'description', 'nome', 'produto'];
 
     const findMatch = (vars) => headers.find(h => vars.includes(normalizeHeader(h))) || '';
     
@@ -112,9 +112,9 @@ export const useInvoiceCSVImport = () => {
 
       return {
         data: parsedDate,
-        descricao: rawDesc,
+        description: rawDesc,
         valor: finalValor,
-        categoria_id: '',
+        category_id: '',
         is_parcelado: isParcelado,
         parcel_number: current,
         total_parcels: total
@@ -130,11 +130,11 @@ export const useInvoiceCSVImport = () => {
     try {
       const dbData = transactions.map(t => ({
         user_id: user.id,
-        fatura_id: faturaId,
+        invoice_id: faturaId,
         data: t.data,
-        descricao: t.descricao,
+        description: t.description,
         valor: t.valor,
-        categoria_id: t.categoria_id || null,
+        category_id: t.category_id || null,
         is_parcelado: t.is_parcelado,
         parcel_number: t.parcel_number,
         total_parcels: t.total_parcels

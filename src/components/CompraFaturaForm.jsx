@@ -17,48 +17,48 @@ const CompraFaturaForm = ({ faturaId, initialData, onSuccess, onCancel }) => {
 
   const [formData, setFormData] = useState({
     data: new Date().toISOString().split('T')[0],
-    descricao: '',
-    categoria_id: '',
-    conta_id: '',
-    transacao_id: '',
-    valor: ''
+    description: '',
+    category_id: '',
+    account_id: '',
+    transaction_id: '',
+    amount: ''
   });
 
   useEffect(() => {
     if (initialData) {
-      const initialTipo = Number(initialData.valor) >= 0 ? 'entrada' : 'saida';
+      const initialTipo = Number(initialData.amount) >= 0 ? 'entrada' : 'saida';
       setTipo(initialTipo);
       setFormData({
-        data: initialData.data || new Date().toISOString().split('T')[0],
-        descricao: initialData.descricao || '',
-        categoria_id: initialData.categoria_id || '',
-        conta_id: initialData.conta_id || '',
-        transacao_id: initialData.transacao_id || '',
-        valor: Math.abs(Number(initialData.valor || 0))
+        date: initialData.date || new Date().toISOString().split('T')[0],
+        description: initialData.description || '',
+        category_id: initialData.category_id || '',
+        account_id: initialData.account_id || '',
+        transaction_id: initialData.transaction_id || '',
+        amount: Math.abs(Number(initialData.amount || 0))
       });
     }
   }, [initialData]);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    if (!formData.data || !formData.descricao || !formData.valor) {
+    if (!formData.date || !formData.description || !formData.amount) {
       toast({ title: "Erro", description: "Preencha todos os campos obrigatórios.", variant: "destructive" });
       return;
     }
 
     setIsSubmitting(true);
     try {
-      const numericValue = Number(formData.valor);
+      const numericValue = Number(formData.amount);
       const finalValor = tipo === 'saida' ? -Math.abs(numericValue) : Math.abs(numericValue);
 
       const payload = {
-        fatura_id: faturaId,
-        data: formData.data,
-        descricao: formData.descricao,
-        categoria_id: formData.categoria_id || null,
-        conta_id: formData.conta_id || null,
-        transacao_id: formData.transacao_id || null,
-        valor: finalValor
+        invoice_id: faturaId,
+        date: formData.date,
+        description: formData.description,
+        category_id: formData.category_id || null,
+        account_id: formData.account_id || null,
+        transaction_id: formData.transaction_id || null,
+        amount: finalValor
       };
 
       if (initialData) {
@@ -67,14 +67,14 @@ const CompraFaturaForm = ({ faturaId, initialData, onSuccess, onCancel }) => {
       } else {
         await createCompraFatura(payload);
         
-        // Auto-update fatura data_fechamento to the first day of the next month
-        const dataObj = new Date(formData.data);
+        // Auto-update fatura closing_date to the first day of the next month
+        const dataObj = new Date(formData.date);
         const nextMonth = new Date(dataObj.getUTCFullYear(), dataObj.getUTCMonth() + 1, 1);
         const nextMonthStr = nextMonth.toISOString().split('T')[0];
         
         await supabase
           .from('invoices')
-          .update({ data_fechamento: nextMonthStr })
+          .update({ closing_date: nextMonthStr })
           .eq('id', faturaId);
           
         toast({ title: "Compra adicionada com sucesso!" });
@@ -87,7 +87,7 @@ const CompraFaturaForm = ({ faturaId, initialData, onSuccess, onCancel }) => {
     }
   };
 
-  const eligibleTransactions = transactions.filter(t => t.date.startsWith(formData.data.substring(0, 7)));
+  const eligibleTransactions = transactions.filter(t => t.date.startsWith(formData.date.substring(0, 7)));
 
   return (
     <form onSubmit={handleSubmit} className="space-y-4">
@@ -118,18 +118,18 @@ const CompraFaturaForm = ({ faturaId, initialData, onSuccess, onCancel }) => {
       <div>
         <DatePicker
           label="Data da Movimentação *"
-          value={formData.data}
+          value={formData.date}
           onChange={(e) => setFormData({ ...formData, data: e.target.value })}
         />
       </div>
 
       <div>
-        <Label htmlFor="descricao">Descrição *</Label>
+        <Label htmlFor="description">Descrição *</Label>
         <input
-          id="descricao"
+          id="description"
           className="w-full px-3 py-2 border rounded-lg bg-background text-foreground mt-1 focus:ring-1 focus:ring-primary outline-none"
-          value={formData.descricao}
-          onChange={(e) => setFormData({ ...formData, descricao: e.target.value })}
+          value={formData.description}
+          onChange={(e) => setFormData({ ...formData, description: e.target.value })}
           placeholder="Ex: Supermercado, Estorno Uber..."
           required
         />
@@ -138,8 +138,8 @@ const CompraFaturaForm = ({ faturaId, initialData, onSuccess, onCancel }) => {
       <div className="grid grid-cols-2 gap-4">
         <SelectInput
           label="Categoria"
-          value={formData.categoria_id}
-          onChange={(e) => setFormData({ ...formData, categoria_id: e.target.value })}
+          value={formData.category_id}
+          onChange={(e) => setFormData({ ...formData, category_id: e.target.value })}
           options={[
             { label: "Selecione...", value: "" },
             ...categories.map(c => ({ label: c.name, value: c.id }))
@@ -147,8 +147,8 @@ const CompraFaturaForm = ({ faturaId, initialData, onSuccess, onCancel }) => {
         />
         <SelectInput
           label="Conta"
-          value={formData.conta_id}
-          onChange={(e) => setFormData({ ...formData, conta_id: e.target.value })}
+          value={formData.account_id}
+          onChange={(e) => setFormData({ ...formData, account_id: e.target.value })}
           options={[
             { label: "Selecione...", value: "" },
             ...accounts.map(a => ({ label: a.name, value: a.id }))
@@ -159,8 +159,8 @@ const CompraFaturaForm = ({ faturaId, initialData, onSuccess, onCancel }) => {
       <div>
         <SelectInput
           label="Vincular a Transação (Opcional)"
-          value={formData.transacao_id}
-          onChange={(e) => setFormData({ ...formData, transacao_id: e.target.value })}
+          value={formData.transaction_id}
+          onChange={(e) => setFormData({ ...formData, transaction_id: e.target.value })}
           options={[
             { label: "Nenhuma transação vinculada", value: "" },
             ...eligibleTransactions.map(t => ({ label: `${t.description} - R$ ${Math.abs(t.amount)}`, value: t.id }))
@@ -169,16 +169,16 @@ const CompraFaturaForm = ({ faturaId, initialData, onSuccess, onCancel }) => {
       </div>
 
       <div>
-        <Label htmlFor="valor">Valor *</Label>
+        <Label htmlFor="amount">Valor *</Label>
         <div className="mt-1 relative flex items-center">
           <div className={`absolute left-3 font-bold text-lg pointer-events-none z-10 ${tipo === 'saida' ? 'text-red-500' : 'text-green-500'}`}>
             {tipo === 'saida' ? '-' : '+'}
           </div>
           <div className="w-full pl-6">
             <NumberInput
-              id="valor"
-              value={formData.valor}
-              onChange={(e) => setFormData({ ...formData, valor: e.target.value })}
+              id="amount"
+              value={formData.amount}
+              onChange={(e) => setFormData({ ...formData, amount: e.target.value })}
               currencyCode="BRL"
             />
           </div>

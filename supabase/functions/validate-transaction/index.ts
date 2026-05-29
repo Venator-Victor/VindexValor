@@ -7,7 +7,7 @@ Deno.serve(async (req)=>{
   }
   try {
     const data = await req.json();
-    const { tipo, recorrente, tipoRecorrente, valor, conta_id, conta_destino_id } = data;
+    const { tipo, recorrente, tipoRecorrente, valor, account_id, destination_account_id } = data;
     const errors = [];
     if (tipo === 'transferencia' && recorrente === true) {
       errors.push("Transferências não podem ser recorrentes.");
@@ -27,7 +27,7 @@ Deno.serve(async (req)=>{
     if (valor <= 0) {
       errors.push("O valor deve ser maior que zero.");
     }
-    if (tipo === 'transferencia' && conta_id === conta_destino_id) {
+    if (tipo === 'transferencia' && account_id === destination_account_id) {
       errors.push("Conta de origem e destino devem ser diferentes para transferências.");
     }
     if (errors.length > 0) {

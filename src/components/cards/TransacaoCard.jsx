@@ -86,10 +86,10 @@ const TransacaoCard = ({ transaction, onEdit, onDelete }) => {
               {isTransfer && ` → ${destAccountName}`}
             </span>
          </div>
-         {transaction.titular_responsavel && (
+         {transaction.responsible_holder && (
             <div className="text-xs text-gray-500 dark:text-gray-400 mt-1 flex items-center gap-1">
                <i className='bx bx-user'></i>
-               <span>Resp: {transaction.titular_responsavel}</span>
+               <span>Resp: {transaction.responsible_holder}</span>
             </div>
          )}
       </div>

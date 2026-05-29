@@ -44,8 +44,8 @@ const Metas = () => {
       ...data,
       targetAmount: Number(data.targetAmount),
       contributionValue: Number(data.contributionValue),
-      valor_acumulado: Number(data.valor_acumulado) || 0,
-      valor_reservado: 0, 
+      accumulated_amount: Number(data.accumulated_amount) || 0,
+      reserved_amount: 0, 
       deadline: data.deadline && data.deadline.trim() !== '' ? data.deadline : null
     };
     addGoal(goalData);
@@ -59,7 +59,7 @@ const Metas = () => {
       ...data,
       targetAmount: Number(data.targetAmount),
       contributionValue: Number(data.contributionValue),
-      valor_acumulado: Number(data.valor_acumulado) || 0,
+      accumulated_amount: Number(data.accumulated_amount) || 0,
       deadline: data.deadline && data.deadline.trim() !== '' ? data.deadline : null
     };
     updateGoal(editingGoal.id, goalData);
@@ -101,11 +101,11 @@ const Metas = () => {
 
   // --- List View Helper ---
   const calculateProgress = (goal) => {
-      const isTargetMode = goal.tipo_meta === 'valor_final';
+      const isTargetMode = goal.goal_type === 'valor_final';
       if (isTargetMode && goal.targetAmount > 0) {
-          return Math.min((goal.valor_acumulado / goal.targetAmount) * 100, 100);
+          return Math.min((goal.accumulated_amount / goal.targetAmount) * 100, 100);
       } else if (!isTargetMode && goal.contributionValue > 0 && goal.targetAmount > 0) {
-          return Math.min((goal.valor_acumulado / goal.targetAmount) * 100, 100);
+          return Math.min((goal.accumulated_amount / goal.targetAmount) * 100, 100);
       }
       return 0; 
   };
@@ -136,13 +136,13 @@ const Metas = () => {
 
   // Filter Goals
   const filteredGoals = goals.filter(goal => {
-      if (filterType === 'valor_final') return goal.tipo_meta === 'valor_final';
-      if (filterType === 'valor_mensal') return goal.tipo_meta === 'valor_mensal';
+      if (filterType === 'valor_final') return goal.goal_type === 'valor_final';
+      if (filterType === 'valor_mensal') return goal.goal_type === 'valor_mensal';
       return true;
   });
 
   // Calculate totals for the main Gauge Chart
-  const totalAccumulated = filteredGoals.reduce((sum, goal) => sum + (Number(goal.valor_acumulado) || 0), 0);
+  const totalAccumulated = filteredGoals.reduce((sum, goal) => sum + (Number(goal.accumulated_amount) || 0), 0);
   const totalTarget = filteredGoals.reduce((sum, goal) => sum + (Number(goal.targetAmount) || 0), 0);
   const totalPercentage = totalTarget > 0 ? (totalAccumulated / totalTarget) * 100 : 0;
 
@@ -361,7 +361,7 @@ const Metas = () => {
                             <tbody className="divide-y divide-gray-100 dark:divide-vindex-border">
                                 {filteredGoals.map((goal) => {
                                     const progress = calculateProgress(goal);
-                                    const isTarget = goal.tipo_meta === 'valor_final';
+                                    const isTarget = goal.goal_type === 'valor_final';
                                     const daysLeft = goal.deadline ? differenceInDays(parseISO(goal.deadline), new Date()) : null;
                                     const isOverdue = goal.deadline && isPast(parseISO(goal.deadline));
 
@@ -393,7 +393,7 @@ const Metas = () => {
                                                 </div>
                                             </td>
                                             <td className="px-6 py-4 font-medium text-emerald-600 dark:text-emerald-400">
-                                                {formatCurrency(goal.valor_acumulado)}
+                                                {formatCurrency(goal.accumulated_amount)}
                                             </td>
                                             <td className="px-6 py-4 text-gray-600 dark:text-gray-300">
                                                 {isTarget 

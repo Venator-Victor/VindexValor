@@ -31,7 +31,7 @@ export const useCustomCategoryMappings = () => {
     fetchMappings();
   }, [fetchMappings]);
 
-  const saveMapping = async (description, categoria_id) => {
+  const saveMapping = async (description, category_id) => {
     if (!user?.id) return null;
     try {
       const descLower = description.toLowerCase().trim();
@@ -42,7 +42,7 @@ export const useCustomCategoryMappings = () => {
         .upsert({ 
           user_id: user.id, 
           description: descLower, 
-          categoria_id 
+          category_id 
         }, { onConflict: 'user_id, description' })
         .select()
         .single();

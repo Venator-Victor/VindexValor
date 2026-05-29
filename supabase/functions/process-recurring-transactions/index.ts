@@ -66,7 +66,7 @@ Deno.serve(async (req)=>{
         amount: rec.amount,
         type: rec.amount < 0 ? 'saida' : 'entrada',
         date: rec.next_date,
-        categoria_id: rec.categoria_id,
+        category_id: rec.category_id,
         is_recurring: true,
         recurring_id: rec.id,
         original_amount: rec.amount

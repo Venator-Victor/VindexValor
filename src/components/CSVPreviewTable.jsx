@@ -12,7 +12,7 @@ const CSVPreviewTable = ({ data, onUpdateRow }) => {
     
     onUpdateRow(index, {
       ...row,
-      categoria_id: newCategoryId,
+      category_id: newCategoryId,
       categoria_name: selectedCategory ? selectedCategory.name : 'Sem categoria'
     });
   };
@@ -59,7 +59,7 @@ const CSVPreviewTable = ({ data, onUpdateRow }) => {
                           row.autoMapped ? 'border-blue-300 dark:border-blue-700 bg-blue-50/50 dark:bg-blue-900/10' : 
                           row.manuallyMapped ? 'border-green-300 dark:border-green-700 bg-green-50/50 dark:bg-green-900/10' : ''
                         }`}
-                        value={row.categoria_id || ""}
+                        value={row.category_id || ""}
                         onChange={(e) => handleCategoryChange(i, e.target.value)}
                       >
                         <option value="">Sem categoria</option>

@@ -70,7 +70,7 @@ const MetaGaugeChart = () => {
       if (val > 0) {
           const monthlyBase = getMonthlyBaseContribution(val, goal.periodFrequency);
           totalPlanned += scaleToPeriod(monthlyBase, selectedPeriod);
-      } else if (goal.tipo_meta === 'valor_final' && goal.targetAmount > 0 && goal.deadline) {
+      } else if (goal.goal_type === 'valor_final' && goal.targetAmount > 0 && goal.deadline) {
           // Optional: Auto-calculate inferred contribution? 
           // Let's keep it simple and only count explicit contribution values to avoid confusion.
       }
@@ -85,7 +85,7 @@ const MetaGaugeChart = () => {
       // The Period selector will just filter the text or maybe be cosmetic if we can't filter data effectively?
       // No, let's stick to the Contribution Plan logic which was approved before.
       
-      totalRealized += Number(goal.valor_acumulado) || 0;
+      totalRealized += Number(goal.accumulated_amount) || 0;
     });
 
     // If totalPlanned is 0 (no periodic goals), avoid div by zero.

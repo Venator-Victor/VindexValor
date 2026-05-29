@@ -5,10 +5,10 @@ import { formatCurrency } from '@/utils/calculations';
 
 const BudgetOverviewChart = ({ categories, period }) => {
   // Filter only categories with a spending limit defined
-  const activeCategories = categories.filter(cat => cat.limite_gasto && cat.limite_gasto > 0);
+  const activeCategories = categories.filter(cat => cat.spending_limit && cat.spending_limit > 0);
 
   const totalSpent = activeCategories.reduce((acc, cat) => acc + (cat.currentSpending || 0), 0);
-  const totalBudget = activeCategories.reduce((acc, cat) => acc + (cat.limite_gasto || 0), 0);
+  const totalBudget = activeCategories.reduce((acc, cat) => acc + (cat.spending_limit || 0), 0);
   
   const chartData = [
     {
