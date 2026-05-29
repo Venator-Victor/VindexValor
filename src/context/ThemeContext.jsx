@@ -64,15 +64,21 @@ export const ThemeProvider = ({ children }) => {
 
   useEffect(() => {
     const fetchSettings = async () => {
-      // Only attempt to fetch if we have a valid user AND session
-      if (!user || !user.id || !session) return;
-      
+      if (!user || !user.id) return;
+
+      // Verify the Supabase client actually has an active session before any DB call.
+      // React state can be ahead of the client's internal auth state right after login.
+      const { data: { session: activeSession } } = await supabase.auth.getSession();
+      if (!activeSession?.access_token) return;
+
       const { data, error } = await supabase
         .from('configuracoes')
         .select('theme, metas_view_preference')
         .eq('user_id', user.id)
         .maybeSingle();
-        
+
+      if (error) return;
+
       if (data) {
         if (data.theme && data.theme !== theme) {
           setTheme(data.theme);
@@ -81,15 +87,12 @@ export const ThemeProvider = ({ children }) => {
           setMetasViewMode(data.metas_view_preference);
         }
       } else {
-        // Only upsert if we are sure we have a user
-        if (user && user.id) {
-          await supabase
-            .from('configuracoes')
-            .upsert({ user_id: user.id, theme: theme, metas_view_preference: 'card' }, { onConflict: 'user_id' });
-        }
+        await supabase
+          .from('configuracoes')
+          .upsert({ user_id: user.id, theme: theme, metas_view_preference: 'card' }, { onConflict: 'user_id' });
       }
     };
-    
+
     fetchSettings();
   }, [user, session]);
 
