@@ -19,6 +19,7 @@ import { formatCurrency } from '@/utils/calculations';
 import DefaultCategoriesModal from '@/components/DefaultCategoriesModal';
 import GaugeChart from '@/components/GaugeChart';
 import { useSortableList } from '@/hooks/useSortableList';
+import { PERIOD_OPTIONS } from '@/utils/periodOptions';
 import CategoryDetailModal from '@/components/CategoryDetailModal';
 
 const Categorias = () => {
@@ -52,15 +53,6 @@ const Categorias = () => {
     periodo_limite: 'Mensal'
   });
   
-  const periodOptions = [
-    { label: "Diário", value: "Diário" }, 
-    { label: "Semanal", value: "Semanal" }, 
-    { label: "Quinzenal", value: "Quinzenal" }, 
-    { label: "Mensal", value: "Mensal" }, 
-    { label: "Trimestral", value: "Trimestral" }, 
-    { label: "Semestral", value: "Semestral" }, 
-    { label: "Anual", value: "Anual" }
-  ];
 
   const handleLayoutChange = layout => {
     setDisplayLayout(layout);
@@ -398,7 +390,7 @@ const Categorias = () => {
                 <NumberInput id="limite_gasto" value={formData.limite_gasto} onChange={e => setFormData({ ...formData, limite_gasto: e.target.value })} />
               </div>
               <div className="flex-1">
-                <SelectInput label="Período do Orçamento" id="periodo_limite" value={formData.periodo_limite} options={periodOptions} onChange={e => setFormData({ ...formData, periodo_limite: e.target.value })} />
+                <SelectInput label="Período do Orçamento" id="periodo_limite" value={formData.periodo_limite} options={PERIOD_OPTIONS} onChange={e => setFormData({ ...formData, periodo_limite: e.target.value })} />
               </div>
             </div>
             

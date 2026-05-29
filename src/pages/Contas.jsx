@@ -15,6 +15,7 @@ import AssetLiabilityChart from '@/components/AssetLiabilityChart';
 import AccountSuggestionsModal from '@/components/AccountSuggestionsModal';
 import AccountModal from '@/components/AccountModal';
 import { useSortableList } from '@/hooks/useSortableList';
+import { PERIOD_OPTIONS } from '@/utils/periodOptions';
 
 const Contas = () => {
   const { accounts, transactions, removeAccount: deleteAccount, settings, saveSettings } = useFinance();
@@ -38,15 +39,6 @@ const Contas = () => {
     }
   }, [settings]);
 
-  const periodOptions = [
-    { label: "Diário", value: "Diário" },
-    { label: "Semanal", value: "Semanal" },
-    { label: "Quinzenal", value: "Quinzenal" },
-    { label: "Mensal", value: "Mensal" },
-    { label: "Trimestral", value: "Trimestral" },
-    { label: "Semestral", value: "Semestral" },
-    { label: "Anual", value: "Anual" }
-  ];
   
   const { assets: totalAssets, liabilities: totalLiabilities } = useMemo(() => {
      return calculateAssetsLiabilities(transactions, accounts);
@@ -114,7 +106,7 @@ const Contas = () => {
             <div className="w-full sm:w-40">
                 <SelectInput
                     value={period}
-                    options={periodOptions}
+                    options={PERIOD_OPTIONS}
                     onChange={(e) => setPeriod(e.target.value)}
                     className="bg-white dark:bg-vindex-card border-gray-200 dark:border-vindex-border text-gray-700 dark:text-gray-300"
                 />

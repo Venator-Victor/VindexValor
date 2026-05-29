@@ -8,6 +8,7 @@ import DatePicker from '@/components/ui/DatePicker';
 import ColorPicker from '@/components/ui/ColorPicker';
 import IconSelector from '@/components/IconSelector';
 import { formatCurrency } from '@/utils/calculations';
+import { PERIOD_OPTIONS } from '@/utils/periodOptions';
 import { Trash2, Plus, AlertCircle } from 'lucide-react';
 import { useToast } from '@/components/ui/use-toast';
 
@@ -116,16 +117,7 @@ const MetaForm = ({ initialData, initialName, onSubmit, onCancel }) => {
     ...availableAccounts.map(acc => ({ label: acc.name, value: acc.id }))
   ];
 
-  const periodOptions = [
-    { label: 'Diário', value: 'Diário' },
-    { label: 'Semanal', value: 'Semanal' },
-    { label: 'Quinzenal', value: 'Quinzenal' },
-    { label: 'Mensal', value: 'Mensal' },
-    { label: 'Trimestral', value: 'Trimestral' },
-    { label: 'Semestral', value: 'Semestral' },
-    { label: 'Anual', value: 'Anual' },
-  ];
-
+  
   return (
     <form onSubmit={handleSubmit} className="space-y-6">
       
@@ -202,7 +194,7 @@ const MetaForm = ({ initialData, initialName, onSubmit, onCancel }) => {
                     id="periodFrequency"
                     value={formData.periodFrequency}
                     onChange={(e) => setFormData({...formData, periodFrequency: e.target.value})}
-                    options={periodOptions}
+                    options={PERIOD_OPTIONS}
                  />
              </div>
           </>

@@ -19,6 +19,7 @@ import RecorrenciaCard from '@/components/cards/RecorrenciaCard';
 import GaugeChart from '@/components/GaugeChart';
 import DefaultCategoriesModal from '@/components/DefaultCategoriesModal';
 import { useSortableList } from '@/hooks/useSortableList';
+import { PERIOD_OPTIONS, CHART_PERIOD_OPTIONS } from '@/utils/periodOptions';
 import ColorPicker from '@/components/ui/ColorPicker';
 import IconSelector from '@/components/IconSelector';
 
@@ -57,24 +58,7 @@ const Recorrencias = () => {
     saveSettings({ recorrencias_view_preference: mode });
   };
 
-  const periodOptions = [
-    { label: "Diário", value: "diario" },
-    { label: "Semanal", value: "semanal" },
-    { label: "Quinzenal", value: "quinzenal" },
-    { label: "Mensal", value: "mensal" },
-  ];
-
   const handlePeriodChange = (e) => saveSettings({ recorrencias_period_preference: e.target.value });
-
-  const frequencyOptions = [
-    { label: "Diário", value: "Diário" },
-    { label: "Semanal", value: "Semanal" },
-    { label: "Quinzenal", value: "Quinzenal" },
-    { label: "Mensal", value: "Mensal" },
-    { label: "Trimestral", value: "Trimestral" },
-    { label: "Semestral", value: "Semestral" },
-    { label: "Anual", value: "Anual" }
-  ];
 
   const statusOptions = [
       { label: "Ativo", value: "Ativo" },
@@ -244,7 +228,7 @@ const Recorrencias = () => {
 
         <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-4 w-full md:w-auto">
             <div className="w-full sm:w-40">
-                <SelectInput value={currentPeriod} options={periodOptions} onChange={handlePeriodChange} className="bg-white dark:bg-vindex-card border-gray-200 dark:border-vindex-border text-gray-700 dark:text-gray-300" />
+                <SelectInput value={currentPeriod} options={CHART_PERIOD_OPTIONS} onChange={handlePeriodChange} className="bg-white dark:bg-vindex-card border-gray-200 dark:border-vindex-border text-gray-700 dark:text-gray-300" />
             </div>
 
             <div className="flex items-center gap-2">
@@ -332,7 +316,7 @@ const Recorrencias = () => {
                             label="Frequência"
                             id="frequency"
                             value={formData.frequency}
-                            options={frequencyOptions}
+                            options={PERIOD_OPTIONS}
                             onChange={(e) => setFormData({ ...formData, frequency: e.target.value })}
                          />
                        </div>

@@ -8,6 +8,7 @@ import ColorPicker from '@/components/ui/ColorPicker';
 import IconSelector from '@/components/IconSelector';
 import NumberInput from '@/components/ui/NumberInput';
 import SelectInput from '@/components/ui/SelectInput';
+import { CHART_PERIOD_OPTIONS } from '@/utils/periodOptions';
 
 const CreateCategoryModal = ({ open, onOpenChange, onCategoryCreated }) => {
   const { categories, createCategory } = useFinance();
@@ -22,12 +23,7 @@ const CreateCategoryModal = ({ open, onOpenChange, onCategoryCreated }) => {
     periodo_limite: 'mensal'
   });
 
-  const periodoOptions = [
-    { label: 'Mensal', value: 'mensal' },
-    { label: 'Trimestral', value: 'trimestral' },
-    { label: 'Semestral', value: 'semestral' },
-    { label: 'Anual', value: 'anual' }
-  ];
+  const periodoOptions = CHART_PERIOD_OPTIONS.slice(3); // Mensal → Anual (lowercase)
 
   const handleSubmit = async (e) => {
     e.preventDefault();
