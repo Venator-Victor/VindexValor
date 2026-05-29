@@ -1,3 +1,4 @@
+import { PRIMARY, PRIMARY_HOVER, SUCCESS, DANGER, DANGER_DARK, WARNING, INFO, successAlpha, dangerAlpha, infoAlpha, primaryAlpha, chartGrid, chartTooltipBg, chartTooltipBorder, chartText, chartCursor } from '@/utils/colors';
 import React, { useMemo } from 'react';
 import { ComposedChart, Line, Tooltip, ResponsiveContainer, XAxis, YAxis, ReferenceLine, CartesianGrid } from 'recharts';
 import { formatCurrency } from '@/utils/calculations';
@@ -125,15 +126,15 @@ const IncomeExpenseChart = ({
               if (entry.dataKey === 'receitas') {
                 labelName = 'Receita';
                 valueClass = 'text-gray-900 dark:text-gray-100';
-                bulletColor = '#10b981';
+                bulletColor = SUCCESS;
               } else if (entry.dataKey === 'despesas') {
                 labelName = 'Despesa';
                 valueClass = 'text-gray-900 dark:text-gray-100';
-                bulletColor = '#ef4444';
+                bulletColor = DANGER;
               } else if (entry.dataKey === 'saldo') {
                 labelName = 'Saldo';
                 valueClass = 'text-gray-900 dark:text-gray-100';
-                bulletColor = '#3b82f6';
+                bulletColor = INFO;
               }
               if (!labelName) return null;
               if (entry.dataKey === 'saldo' && !showBalance) return null;
@@ -229,11 +230,11 @@ const IncomeExpenseChart = ({
             <Line 
               type="monotone" 
               dataKey="receitas" 
-              stroke="#10b981" 
+              stroke={SUCCESS} 
               strokeWidth={3} 
               strokeDasharray="6 6" 
               dot={false} 
-              activeDot={{ r: 6, fill: '#10b981', strokeWidth: 4, stroke: 'rgba(16, 185, 129, 0.2)' }} 
+              activeDot={{ r: 6, fill: SUCCESS, strokeWidth: 4, stroke: successAlpha(0.2) }} 
               animationDuration={1500} 
             />
             
@@ -241,11 +242,11 @@ const IncomeExpenseChart = ({
             <Line 
               type="monotone" 
               dataKey="despesas" 
-              stroke="#ef4444" 
+              stroke={DANGER} 
               strokeWidth={3} 
               strokeDasharray="6 6" 
               dot={false} 
-              activeDot={{ r: 6, fill: '#ef4444', strokeWidth: 4, stroke: 'rgba(239, 68, 68, 0.2)' }} 
+              activeDot={{ r: 6, fill: DANGER, strokeWidth: 4, stroke: dangerAlpha(0.2) }} 
               animationDuration={1500} 
             />
 
@@ -254,11 +255,11 @@ const IncomeExpenseChart = ({
               <Line 
                 type="monotone" 
                 dataKey="saldo" 
-                stroke="#3b82f6" 
+                stroke={INFO} 
                 strokeWidth={3} 
                 strokeDasharray="6 6" 
                 dot={false} 
-                activeDot={{ r: 6, fill: '#3b82f6', strokeWidth: 4, stroke: 'rgba(59, 130, 246, 0.2)' }} 
+                activeDot={{ r: 6, fill: INFO, strokeWidth: 4, stroke: infoAlpha(0.2) }} 
                 animationDuration={1500} 
               />
             )}

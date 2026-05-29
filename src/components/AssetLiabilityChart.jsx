@@ -1,3 +1,4 @@
+import { PRIMARY, PRIMARY_HOVER, SUCCESS, DANGER, DANGER_DARK, WARNING, INFO, successAlpha, dangerAlpha, infoAlpha, primaryAlpha, chartGrid, chartTooltipBg, chartTooltipBorder, chartText, chartCursor } from '@/utils/colors';
 import React, { useMemo } from 'react';
 import { BarChart, Bar, Tooltip, ResponsiveContainer, XAxis, CartesianGrid } from 'recharts';
 import { formatCurrency } from '@/utils/calculations';
@@ -116,12 +117,12 @@ const AssetLiabilityChart = ({
         <div className="h-[250px] w-full">
             <ResponsiveContainer width="100%" height="100%">
                 <BarChart data={data} margin={{ top: 10, right: 10, left: 10, bottom: 0 }}>
-                    <CartesianGrid strokeDasharray="3 3" vertical={false} stroke={isDark ? '#374151' : '#e5e7eb'} />
-                    <Tooltip content={<CustomTooltip />} cursor={{ fill: isDark ? '#374151' : '#f3f4f6' }} />
+                    <CartesianGrid strokeDasharray="3 3" vertical={false} stroke={chartGrid(isDark)} />
+                    <Tooltip content={<CustomTooltip />} cursor={{ fill: chartCursor(isDark) }} />
                     <XAxis 
                         dataKey="name" 
                         hide={data.length > 20} 
-                        tick={{ fontSize: 10, fill: isDark ? '#9ca3af' : '#6b7280' }} 
+                        tick={{ fontSize: 10, fill: chartText(isDark) }} 
                         axisLine={false}
                         tickLine={false}
                         dy={10}
@@ -130,7 +131,7 @@ const AssetLiabilityChart = ({
                     {/* Assets Bar */}
                     <Bar 
                         dataKey="assets" 
-                        fill="#10b981" 
+                        fill={SUCCESS} 
                         radius={[4, 4, 0, 0]}
                         maxBarSize={40}
                     />
@@ -138,7 +139,7 @@ const AssetLiabilityChart = ({
                     {/* Liabilities Bar */}
                     <Bar 
                         dataKey="liabilities" 
-                        fill="#ef4444" 
+                        fill={DANGER} 
                         radius={[4, 4, 0, 0]}
                         maxBarSize={40}
                     />

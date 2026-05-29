@@ -1,3 +1,4 @@
+import { PRIMARY, PRIMARY_HOVER, SUCCESS, DANGER, DANGER_DARK, WARNING, INFO, successAlpha, dangerAlpha, infoAlpha, primaryAlpha, chartGrid, chartTooltipBg, chartTooltipBorder, chartText, chartCursor } from '@/utils/colors';
 import React from 'react';
 
 const GaugeChart = ({ value, max, label, size = 200, strokeWidth = 15, className = "my-4" }) => {
@@ -31,9 +32,9 @@ const GaugeChart = ({ value, max, label, size = 200, strokeWidth = 15, className
 
   // Determine color based on usage
   const getColor = (percent) => {
-    if (percent < 80) return '#10B981'; // Green
-    if (percent < 100) return '#EAB308'; // Yellow
-    return '#EF4444'; // Red
+    if (percent < 80) return SUCCESS; // Green
+    if (percent < 100) return WARNING; // Yellow
+    return DANGER; // Red
   };
 
   // Gauge spans 180 degrees (from 0 to 180)

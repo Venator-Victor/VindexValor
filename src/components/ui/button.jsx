@@ -8,15 +8,15 @@ const buttonVariants = cva(
 	{
 		variants: {
 			variant: {
-				default: 'bg-[#43CFEA] text-gray-900 hover:bg-[#32a8c4] shadow-md hover:shadow-lg dark:bg-[#43CFEA] dark:text-gray-900 dark:hover:bg-[#32a8c4]',
+				default: 'bg-primary text-gray-900 hover:bg-primary/85 shadow-md hover:shadow-lg',
 				destructive:
           'bg-red-600 text-white hover:bg-red-700 dark:bg-vindex-danger dark:text-white dark:hover:bg-[#c9254a] shadow-sm hover:shadow-md',
 				outline:
-          'border border-gray-200 bg-white hover:bg-gray-100 hover:text-gray-900 dark:border-vindex-border dark:bg-transparent dark:hover:bg-vindex-border/80 dark:hover:text-[#43CFEA]',
+          'border border-gray-200 bg-white hover:bg-gray-100 hover:text-gray-900 dark:border-vindex-border dark:bg-transparent dark:hover:bg-vindex-border/80 dark:hover:text-primary',
 				secondary:
           'bg-gray-100 text-gray-900 hover:bg-gray-200 dark:bg-vindex-border dark:text-vindex-text dark:hover:bg-vindex-border/80',
-				ghost: 'hover:bg-gray-100 hover:text-gray-900 dark:hover:bg-vindex-border/50 dark:hover:text-[#43CFEA]',
-				link: 'text-[#43CFEA] underline-offset-4 hover:underline dark:text-[#43CFEA]',
+				ghost: 'hover:bg-gray-100 hover:text-gray-900 dark:hover:bg-vindex-border/50 dark:hover:text-primary',
+				link: 'text-primary underline-offset-4 hover:underline',
 			},
 			size: {
 				default: 'h-10 px-4 py-2',

@@ -1,3 +1,4 @@
+import { PRIMARY, PRIMARY_HOVER, SUCCESS, DANGER, DANGER_DARK, WARNING, INFO, successAlpha, dangerAlpha, infoAlpha, primaryAlpha, chartGrid, chartTooltipBg, chartTooltipBorder, chartText, chartCursor } from '@/utils/colors';
 import React from 'react';
 import { AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
 import { formatCurrency } from '@/utils/calculations';
@@ -56,12 +57,12 @@ const InvestmentsChart = ({ data, displayMode }) => {
           >
             <defs>
               <linearGradient id="colorValue" x1="0" y1="0" x2="0" y2="1">
-                <stop offset="5%" stopColor="#43CFEA" stopOpacity={0.1}/>
-                <stop offset="95%" stopColor="#43CFEA" stopOpacity={0}/>
+                <stop offset="5%" stopColor={PRIMARY} stopOpacity={0.1}/>
+                <stop offset="95%" stopColor={PRIMARY} stopOpacity={0}/>
               </linearGradient>
               <linearGradient id="colorProfit" x1="0" y1="0" x2="0" y2="1">
-                <stop offset="5%" stopColor="#10b981" stopOpacity={0.1}/>
-                <stop offset="95%" stopColor="#10b981" stopOpacity={0}/>
+                <stop offset="5%" stopColor={SUCCESS} stopOpacity={0.1}/>
+                <stop offset="95%" stopColor={SUCCESS} stopOpacity={0}/>
               </linearGradient>
             </defs>
             <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#E5E7EB" className="dark:stroke-gray-700/30" />
@@ -81,7 +82,7 @@ const InvestmentsChart = ({ data, displayMode }) => {
             <Area 
               type="monotone" 
               dataKey="value" 
-              stroke={isProfitability ? "#10b981" : "#43CFEA"} 
+              stroke={isProfitability ? SUCCESS : PRIMARY} 
               strokeWidth={3}
               strokeDasharray="5 5" // Dashed line style
               fillOpacity={1} 

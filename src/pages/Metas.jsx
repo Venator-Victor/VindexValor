@@ -1,3 +1,4 @@
+import { PRIMARY, PRIMARY_HOVER, SUCCESS, DANGER, DANGER_DARK, WARNING, INFO, successAlpha, dangerAlpha, infoAlpha, primaryAlpha, chartGrid, chartTooltipBg, chartTooltipBorder, chartText, chartCursor } from '@/utils/colors';
 import React, { useState } from 'react';
 import { Helmet } from 'react-helmet';
 import { AnimatePresence, motion } from 'framer-motion';
@@ -95,8 +96,8 @@ const Metas = () => {
     setCreationStep('form');
   };
 
-  const CYAN_COLOR = '#43CFEA';
-  const CYAN_HOVER = '#2BA8C4';
+  const CYAN_COLOR = PRIMARY;
+  const CYAN_HOVER = PRIMARY_HOVER;
 
   // --- List View Helper ---
   const calculateProgress = (goal) => {
@@ -115,9 +116,9 @@ const Metas = () => {
     const circumference = 2 * Math.PI * radius;
     const strokeDashoffset = circumference - (Math.min(percentage, 100) / 100) * circumference;
     
-    let color = '#ef4444';
-    if (percentage >= 70) color = '#10b981';
-    else if (percentage >= 30) color = '#eab308';
+    let color = DANGER;
+    if (percentage >= 70) color = SUCCESS;
+    else if (percentage >= 30) color = WARNING;
 
     return (
       <div className="relative w-8 h-8 flex items-center justify-center">

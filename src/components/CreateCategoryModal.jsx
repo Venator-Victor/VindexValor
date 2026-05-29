@@ -92,7 +92,7 @@ const CreateCategoryModal = ({ open, onOpenChange, onCategoryCreated }) => {
               type="text"
               value={formData.name}
               onChange={(e) => setFormData({ ...formData, name: e.target.value })}
-              className="w-full px-3 py-2 mt-1 border rounded-lg bg-white dark:bg-vindex-bg border-gray-200 dark:border-vindex-border text-gray-900 dark:text-vindex-text outline-none focus:ring-2 focus:ring-[#43CFEA]/50"
+              className="w-full px-3 py-2 mt-1 border rounded-lg bg-white dark:bg-vindex-bg border-gray-200 dark:border-vindex-border text-gray-900 dark:text-vindex-text outline-none focus:ring-2 focus:ring-primary/50"
               placeholder="Ex: Alimentação, Lazer..."
               required
             />
@@ -153,7 +153,7 @@ const CreateCategoryModal = ({ open, onOpenChange, onCategoryCreated }) => {
             <Button 
               type="submit" 
               disabled={isSubmitting}
-              className="bg-[#43CFEA] hover:bg-[#2BA8C4] text-gray-900 font-medium border-none shadow-sm transition-colors"
+              className="bg-primary hover:bg-primary/85 text-gray-900 font-medium border-none shadow-sm transition-colors"
             >
               {isSubmitting ? 'Salvando...' : 'Criar Categoria'}
             </Button>

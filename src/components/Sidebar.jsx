@@ -45,7 +45,7 @@ const Sidebar = () => {
           flex items-center ${isSidebarCollapsed ? 'justify-center px-0' : 'justify-start px-6'} py-3 mx-2 rounded-lg mb-1
           transition-all duration-200 group relative
           ${isActive || (item.path === '/faturas' && location.pathname.startsWith('/faturas'))
-            ? 'bg-[#43CFEA] text-white shadow-[0_0_15px_rgba(67,207,234,0.3)]' 
+            ? 'bg-primary text-white shadow-[0_0_15px_rgba(67,207,234,0.3)]' 
             : 'text-gray-600 hover:bg-gray-100 hover:text-gray-900 dark:text-gray-400 dark:hover:bg-vindex-border/50 dark:hover:text-vindex-text'
           }
         `}

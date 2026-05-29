@@ -1,6 +1,7 @@
 import React, { createContext, useContext, useEffect, useState } from 'react';
 import { supabase } from '@/lib/customSupabaseClient';
 import { useAuth } from '@/contexts/SupabaseAuthContext';
+import { PRIMARY, SUCCESS, DANGER, DANGER_DARK, WARNING, INFO } from '@/utils/colors';
 
 const ThemeContext = createContext();
 
@@ -30,26 +31,26 @@ export const ThemeProvider = ({ children }) => {
     light: {
       background: '#f8f9fa',
       card: '#ffffff',
-      text: '#111827', // Gray 900
-      textSecondary: '#4b5563', // Gray 600
+      text: '#111827',
+      textSecondary: '#4b5563',
       border: '#e2e8f0',
-      primary: '#111827',
-      success: '#43CFEA', 
-      danger: '#dc2626',
-      warning: '#ca8a04',
-      info: '#2563eb',
+      primary: PRIMARY,
+      success: SUCCESS,
+      danger: DANGER,
+      warning: WARNING,
+      info: INFO,
     },
     dark: {
-      background: '#060916', 
-      card: '#0b122d', 
-      text: '#f3f4f6', // Gray 100
-      textSecondary: '#d1d5db', // Gray 300
-      border: '#283768', 
-      primary: '#43CFEA', 
-      success: '#43CFEA', 
-      danger: '#e3365e',
-      warning: '#f59e0b',
-      info: '#3b82f6',
+      background: '#060916',
+      card: '#0b122d',
+      text: '#f3f4f6',
+      textSecondary: '#d1d5db',
+      border: '#283768',
+      primary: PRIMARY,
+      success: SUCCESS,
+      danger: DANGER_DARK,
+      warning: WARNING,
+      info: INFO,
     }
   };
 

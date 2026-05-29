@@ -1,13 +1,16 @@
+import { PRIMARY, PRIMARY_HOVER } from '@/utils/colors';
 import React, { useState } from 'react';
 import { Helmet } from 'react-helmet';
 import { motion } from 'framer-motion';
-import { LayoutGrid, List as ListIcon, Repeat, Search, ArrowUp, ArrowDown } from 'lucide-react'; 
+import { LayoutGrid, List as ListIcon, Repeat, Search } from 'lucide-react';
 import { useFinance } from '@/context/FinanceContext';
 import { useCategories } from '@/hooks/useCategories';
 import { Button } from '@/components/ui/button';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
 import { Label } from '@/components/ui/label';
-import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from '@/components/ui/alert-dialog';
+import SortableHeader from '@/components/SortableHeader';
+import EmptyState from '@/components/EmptyState';
+import DeleteConfirmationDialog from '@/components/DeleteConfirmationDialog';
 import { useToast } from '@/components/ui/use-toast';
 import { formatCurrency } from '@/utils/calculations';
 import SelectInput from '@/components/ui/SelectInput';
@@ -224,25 +227,7 @@ const Recorrencias = () => {
     }
   };
 
-  const CYAN_COLOR = '#43CFEA';
-  const CYAN_HOVER = '#2BA8C4';
 
-  const SortIcon = ({ column }) => {
-    if (!sortConfig || sortConfig.key !== column) return <div className="w-4 h-4" />;
-    return sortConfig.direction === 'ascending' ? <ArrowUp className="w-4 h-4" /> : <ArrowDown className="w-4 h-4" />;
-  };
-
-  const SortableHeader = ({ label, column, className = "" }) => (
-    <th 
-      className={`px-6 py-3 text-left text-xs font-bold text-gray-700 dark:text-gray-300 uppercase cursor-pointer hover:bg-gray-100 dark:hover:bg-vindex-bg/50 transition-colors ${className}`}
-      onClick={() => requestSort(column)}
-    >
-      <div className="flex items-center gap-1">
-        {label}
-        <SortIcon column={column} />
-      </div>
-    </th>
-  );
   
   return (
     <div className="space-y-6 pb-20 md:pb-0">
@@ -277,9 +262,9 @@ const Recorrencias = () => {
                 <Button 
                     onClick={resetForm} 
                     className="text-gray-900 rounded-lg flex-1 sm:flex-none whitespace-nowrap border-none"
-                    style={{ backgroundColor: CYAN_COLOR }}
-                    onMouseEnter={(e) => e.currentTarget.style.backgroundColor = CYAN_HOVER}
-                    onMouseLeave={(e) => e.currentTarget.style.backgroundColor = CYAN_COLOR}
+                    style={{ backgroundColor: PRIMARY }}
+                    onMouseEnter={(e) => e.currentTarget.style.backgroundColor = PRIMARY_HOVER}
+                    onMouseLeave={(e) => e.currentTarget.style.backgroundColor = PRIMARY}
                 >
                     <i className='bx bx-plus mr-2 text-xl'></i>
                     <span className="hidden sm:inline">Nova Recorrência</span>
@@ -453,11 +438,7 @@ const Recorrencias = () => {
       </div>
 
       {sortedRecurring.length === 0 ? (
-         <div className="text-center py-12 bg-white dark:bg-vindex-card rounded-xl border border-gray-200 dark:border-vindex-border border-dashed">
-            <Repeat className="mx-auto h-12 w-12 text-gray-400 dark:text-gray-600 mb-4" />
-            <p className="text-gray-700 dark:text-gray-300 mb-4">Você ainda não tem recorrências cadastradas.</p>
-            <Button onClick={() => { resetForm(); setIsDialogOpen(true); }}>Criar Primeira Recorrência</Button>
-         </div>
+        <EmptyState icon={Repeat} message="Você ainda não tem recorrências cadastradas." buttonLabel="Criar Primeira Recorrência" onButtonClick={() => { resetForm(); setIsDialogOpen(true); }} />
       ) : (
         <>
           {viewMode === 'card' ? (
@@ -476,11 +457,11 @@ const Recorrencias = () => {
                 <table className="w-full">
                   <thead className="bg-gray-50 dark:bg-vindex-bg border-b border-gray-200 dark:border-vindex-border">
                     <tr>
-                      <SortableHeader label="Descrição" column="description" />
-                      <SortableHeader label="Tipo" column="recurrence_type" />
-                      <SortableHeader label="Valor" column="amount" />
-                      <SortableHeader label="Frequência" column="frequency" />
-                      <SortableHeader label="Próxima Cobrança" column="date" />
+                      <SortableHeader label="Descrição" column="description" sortConfig={sortConfig} onSort={requestSort} className="text-xs font-bold uppercase" />
+                      <SortableHeader label="Tipo" column="recurrence_type" sortConfig={sortConfig} onSort={requestSort} className="text-xs font-bold uppercase" />
+                      <SortableHeader label="Valor" column="amount" sortConfig={sortConfig} onSort={requestSort} className="text-xs font-bold uppercase" />
+                      <SortableHeader label="Frequência" column="frequency" sortConfig={sortConfig} onSort={requestSort} className="text-xs font-bold uppercase" />
+                      <SortableHeader label="Próxima Cobrança" column="date" sortConfig={sortConfig} onSort={requestSort} className="text-xs font-bold uppercase" />
                       <th className="px-6 py-3 text-left text-xs font-bold text-gray-700 dark:text-gray-300 uppercase">Status</th>
                       <th className="px-6 py-3 text-left text-xs font-bold text-gray-700 dark:text-gray-300 uppercase">Ações</th>
                     </tr>
@@ -544,20 +525,12 @@ const Recorrencias = () => {
         </>
       )}
 
-      <AlertDialog open={!!deleteId} onOpenChange={() => setDeleteId(null)}>
-        <AlertDialogContent className="bg-white dark:bg-vindex-card text-gray-900 dark:text-gray-100 border-gray-200 dark:border-vindex-border rounded-xl">
-          <AlertDialogHeader>
-            <AlertDialogTitle>Confirmar exclusão</AlertDialogTitle>
-            <AlertDialogDescription className="text-gray-700 dark:text-gray-300">
-              Tem certeza que deseja excluir esta recorrência? Esta ação não pode ser desfeita.
-            </AlertDialogDescription>
-          </AlertDialogHeader>
-          <AlertDialogFooter>
-            <AlertDialogCancel className="bg-gray-100 dark:bg-vindex-bg hover:bg-gray-200 dark:hover:bg-vindex-bg/80 border-gray-200 dark:border-vindex-border text-gray-900 dark:text-gray-100 rounded-lg">Cancelar</AlertDialogCancel>
-            <AlertDialogAction onClick={() => handleDelete(deleteId)} className="bg-red-600 hover:bg-red-700 dark:bg-vindex-danger dark:hover:bg-vindex-danger/90 text-white rounded-lg">Excluir</AlertDialogAction>
-          </AlertDialogFooter>
-        </AlertDialogContent>
-      </AlertDialog>
+      <DeleteConfirmationDialog
+        open={!!deleteId}
+        onOpenChange={() => setDeleteId(null)}
+        description="Tem certeza que deseja excluir esta recorrência? Esta ação não pode ser desfeita."
+        onConfirm={() => handleDelete(deleteId)}
+      />
     </div>
   );
 };

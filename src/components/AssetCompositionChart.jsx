@@ -1,3 +1,4 @@
+import { PRIMARY, PRIMARY_HOVER, SUCCESS, DANGER, DANGER_DARK, WARNING, INFO, successAlpha, dangerAlpha, infoAlpha, primaryAlpha, chartGrid, chartTooltipBg, chartTooltipBorder, chartText, chartCursor } from '@/utils/colors';
 import React, { useMemo } from 'react';
 import { PieChart, Pie, Cell, ResponsiveContainer, Tooltip, Legend } from 'recharts';
 import { formatCurrency, isCryptoCurrency } from '@/utils/calculations';
@@ -44,10 +45,10 @@ const AssetCompositionChart = ({ accounts = [], investments = [], recurring = []
     }, 0);
 
     const chartData = [
-      { name: 'Dinheiro / Saldo', value: liquidAssets, color: '#3b82f6' }, // Blue
+      { name: 'Dinheiro / Saldo', value: liquidAssets, color: INFO }, // Blue
       { name: 'Criptomoedas', value: cryptoAssets, color: '#f59e0b' }, // Amber/Gold
-      { name: 'Investimentos', value: totalInvestments, color: '#10b981' }, // Green
-      { name: 'Passivos / Dívidas', value: liabilities, color: '#ef4444' } // Red
+      { name: 'Investimentos', value: totalInvestments, color: SUCCESS }, // Green
+      { name: 'Passivos / Dívidas', value: liabilities, color: DANGER } // Red
     ].filter(item => item.value > 0);
 
     return { 

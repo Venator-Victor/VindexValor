@@ -1,3 +1,4 @@
+import { PRIMARY, PRIMARY_HOVER, SUCCESS, DANGER, DANGER_DARK, WARNING, INFO, successAlpha, dangerAlpha, infoAlpha, primaryAlpha, chartGrid, chartTooltipBg, chartTooltipBorder, chartText, chartCursor } from '@/utils/colors';
 import React, { useState, useEffect, useMemo } from 'react';
 import { 
   LineChart, 
@@ -295,11 +296,11 @@ const InflationBudgetChart = () => {
                 name="Orçamento Nominal"
                 type="monotone" 
                 dataKey="nominal" 
-                stroke="#3b82f6" 
+                stroke={INFO} 
                 strokeWidth={2}
                 strokeDasharray="5 5"
                 dot={false}
-                activeDot={{ r: 6, fill: '#3b82f6', strokeWidth: 0 }}
+                activeDot={{ r: 6, fill: INFO, strokeWidth: 0 }}
                 animationDuration={1500}
               />
               
@@ -308,11 +309,11 @@ const InflationBudgetChart = () => {
                 name="Orçamento Corrigido"
                 type="monotone" 
                 dataKey="corrected" 
-                stroke="#ef4444" 
+                stroke={DANGER} 
                 strokeWidth={2}
                 strokeDasharray="5 5"
                 dot={false}
-                activeDot={{ r: 6, fill: '#ef4444', strokeWidth: 0 }}
+                activeDot={{ r: 6, fill: DANGER, strokeWidth: 0 }}
                 animationDuration={1500}
               />
             </LineChart>

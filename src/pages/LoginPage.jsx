@@ -44,7 +44,7 @@ const LoginPage = () => {
               type="email"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
-              className="w-full px-3 py-2 bg-background border-[rgb(67,207,234)] rounded-lg text-foreground focus:ring-1 focus:ring-[rgb(67,207,234)] focus:border-[rgb(67,207,234)] outline-none hover:border-[rgb(67,207,234)] transition-all duration-200"
+              className="w-full px-3 py-2 bg-background border-primary rounded-lg text-foreground focus:ring-1 focus:ring-primary focus:border-primary outline-none hover:border-primary transition-all duration-200"
               required
             />
           </div>
@@ -61,14 +61,14 @@ const LoginPage = () => {
               type="password"
               value={password}
               onChange={(e) => setPassword(e.target.value)}
-              className="w-full px-3 py-2 bg-background border-[rgb(67,207,234)] rounded-lg text-foreground focus:ring-1 focus:ring-[rgb(67,207,234)] focus:border-[rgb(67,207,234)] outline-none hover:border-[rgb(67,207,234)] transition-all duration-200"
+              className="w-full px-3 py-2 bg-background border-primary rounded-lg text-foreground focus:ring-1 focus:ring-primary focus:border-primary outline-none hover:border-primary transition-all duration-200"
               required
             />
           </div>
           
           <Button 
             type="submit" 
-            className="w-full bg-[rgb(67,207,234)] hover:bg-[rgb(67,207,234)]/90 text-black font-bold h-11 transition-all"
+            className="w-full bg-primary hover:bg-primary/90 text-black font-bold h-11 transition-all"
             disabled={loading}
           >
             {loading ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : 'Entrar'}
@@ -77,7 +77,7 @@ const LoginPage = () => {
         
         <div className="mt-6 text-center text-sm text-muted-foreground">
           Não tem uma conta?{' '}
-          <Link to="/signup" className="text-[rgb(67,207,234)] hover:underline font-bold">
+          <Link to="/signup" className="text-primary hover:underline font-bold">
             Cadastre-se
           </Link>
         </div>

@@ -1,12 +1,15 @@
+import { PRIMARY, PRIMARY_HOVER } from '@/utils/colors';
 import React, { useState, useEffect } from 'react';
 import { Helmet } from 'react-helmet';
 import { motion } from 'framer-motion';
-import { LayoutGrid, List as ListIcon, TrendingUp, Calendar, ArrowUp, ArrowDown, AlertTriangle } from 'lucide-react'; 
+import { LayoutGrid, List as ListIcon, TrendingUp, Calendar, AlertTriangle } from 'lucide-react';
 import { useFinance } from '@/context/FinanceContext';
 import { Button } from '@/components/ui/button';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
 import { Label } from '@/components/ui/label';
-import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from '@/components/ui/alert-dialog';
+import SortableHeader from '@/components/SortableHeader';
+import EmptyState from '@/components/EmptyState';
+import DeleteConfirmationDialog from '@/components/DeleteConfirmationDialog';
 import { useToast } from '@/components/ui/use-toast';
 import { calculateInvestmentReturn, formatCurrency } from '@/utils/calculations';
 import SelectInput from '@/components/ui/SelectInput';
@@ -189,25 +192,7 @@ const Investimentos = () => {
     toast({ title: "Investimento excluído com sucesso!" });
   };
   
-  const CYAN_COLOR = '#43CFEA';
-  const CYAN_HOVER = '#2BA8C4';
 
-  const SortIcon = ({ column }) => {
-    if (!sortConfig || sortConfig.key !== column) return <div className="w-4 h-4" />;
-    return sortConfig.direction === 'ascending' ? <ArrowUp className="w-4 h-4" /> : <ArrowDown className="w-4 h-4" />;
-  };
-
-  const SortableHeader = ({ label, column, className = "" }) => (
-    <th 
-      className={`px-6 py-3 text-left text-xs font-bold text-gray-700 dark:text-gray-300 uppercase cursor-pointer hover:bg-gray-100 dark:hover:bg-vindex-bg/50 transition-colors ${className}`}
-      onClick={() => requestSort(column)}
-    >
-      <div className="flex items-center gap-1">
-        {label}
-        <SortIcon column={column} />
-      </div>
-    </th>
-  );
 
   return (
     <div className="space-y-6 pb-20 md:pb-0">
@@ -287,9 +272,9 @@ const Investimentos = () => {
               <Button 
                 onClick={resetForm} 
                 className="text-gray-900 rounded-lg flex-1 sm:flex-none whitespace-nowrap border-none font-semibold shadow-md"
-                style={{ backgroundColor: CYAN_COLOR }}
-                onMouseEnter={(e) => e.currentTarget.style.backgroundColor = CYAN_HOVER}
-                onMouseLeave={(e) => e.currentTarget.style.backgroundColor = CYAN_COLOR}
+                style={{ backgroundColor: PRIMARY }}
+                onMouseEnter={(e) => e.currentTarget.style.backgroundColor = PRIMARY_HOVER}
+                onMouseLeave={(e) => e.currentTarget.style.backgroundColor = PRIMARY}
               >
                 <i className='bx bx-plus mr-2 text-xl'></i>
                 <span className="hidden sm:inline">Novo Investimento</span>
@@ -403,11 +388,7 @@ const Investimentos = () => {
 
       {/* Content Area: Table or Card Grid */}
       {sortedInvestments.length === 0 ? (
-         <div className="text-center py-12 bg-white dark:bg-vindex-card rounded-xl border border-gray-200 dark:border-vindex-border border-dashed">
-            <TrendingUp className="mx-auto h-12 w-12 text-gray-400 dark:text-gray-600 mb-4" />
-            <p className="text-gray-700 dark:text-gray-300 mb-4">Você ainda não tem investimentos cadastrados.</p>
-            <Button onClick={() => { resetForm(); setIsDialogOpen(true); }}>Criar Primeiro Investimento</Button>
-         </div>
+        <EmptyState icon={TrendingUp} message="Você ainda não tem investimentos cadastrados." buttonLabel="Criar Primeiro Investimento" onButtonClick={() => { resetForm(); setIsDialogOpen(true); }} />
       ) : (
         <>
           {viewMode === 'card' ? (
@@ -438,13 +419,13 @@ const Investimentos = () => {
                 <table className="w-full">
                   <thead className="bg-gray-50 dark:bg-vindex-bg border-b border-gray-200 dark:border-vindex-border">
                     <tr>
-                      <SortableHeader label="Nome" column="name" />
-                      <SortableHeader label="Tipo" column="type" />
-                      <SortableHeader label="Subtipo" column="subtype" />
-                      <SortableHeader label="Investido" column="investedAmount" />
-                      <SortableHeader label="Atual" column="currentAmount" />
+                      <SortableHeader label="Nome" column="name" sortConfig={sortConfig} onSort={requestSort} className="text-xs font-bold uppercase" />
+                      <SortableHeader label="Tipo" column="type" sortConfig={sortConfig} onSort={requestSort} className="text-xs font-bold uppercase" />
+                      <SortableHeader label="Subtipo" column="subtype" sortConfig={sortConfig} onSort={requestSort} className="text-xs font-bold uppercase" />
+                      <SortableHeader label="Investido" column="investedAmount" sortConfig={sortConfig} onSort={requestSort} className="text-xs font-bold uppercase" />
+                      <SortableHeader label="Atual" column="currentAmount" sortConfig={sortConfig} onSort={requestSort} className="text-xs font-bold uppercase" />
                       <th className="px-6 py-3 text-left text-xs font-bold text-gray-700 dark:text-gray-300 uppercase">Rentabilidade</th>
-                      <SortableHeader label="Data Compra" column="purchaseDate" />
+                      <SortableHeader label="Data Compra" column="purchaseDate" sortConfig={sortConfig} onSort={requestSort} className="text-xs font-bold uppercase" />
                       <th className="px-6 py-3 text-left text-xs font-bold text-gray-700 dark:text-gray-300 uppercase">Ações</th>
                     </tr>
                   </thead>
@@ -503,22 +484,12 @@ const Investimentos = () => {
       )}
 
       {/* Delete Confirmation Dialog */}
-      <AlertDialog open={!!deleteId} onOpenChange={() => setDeleteId(null)}>
-        <AlertDialogContent className="bg-white dark:bg-vindex-card text-gray-900 dark:text-gray-100 border-gray-200 dark:border-vindex-border rounded-xl">
-          <AlertDialogHeader>
-            <AlertDialogTitle>Confirmar exclusão</AlertDialogTitle>
-            <AlertDialogDescription className="text-gray-700 dark:text-gray-300">
-              Tem certeza que deseja excluir este investimento? O valor investido será devolvido à conta de origem, se houver.
-            </AlertDialogDescription>
-          </AlertDialogHeader>
-          <AlertDialogFooter>
-            <AlertDialogCancel className="bg-gray-100 dark:bg-vindex-bg hover:bg-gray-200 dark:hover:bg-vindex-bg/80 border-gray-200 dark:border-vindex-border text-gray-900 dark:text-gray-100 rounded-lg">Cancelar</AlertDialogCancel>
-            <AlertDialogAction onClick={() => handleDelete(deleteId)} className="bg-red-600 hover:bg-red-700 dark:bg-vindex-danger dark:hover:bg-vindex-danger/90 text-white rounded-lg">
-              Excluir
-            </AlertDialogAction>
-          </AlertDialogFooter>
-        </AlertDialogContent>
-      </AlertDialog>
+      <DeleteConfirmationDialog
+        open={!!deleteId}
+        onOpenChange={() => setDeleteId(null)}
+        description="Tem certeza que deseja excluir este investimento? O valor investido será devolvido à conta de origem, se houver."
+        onConfirm={() => handleDelete(deleteId)}
+      />
     </div>
   );
 };

@@ -1,3 +1,4 @@
+import { PRIMARY, PRIMARY_HOVER, SUCCESS, DANGER, DANGER_DARK, WARNING, INFO, successAlpha, dangerAlpha, infoAlpha, primaryAlpha, chartGrid, chartTooltipBg, chartTooltipBorder, chartText, chartCursor } from '@/utils/colors';
 import React, { useState, useMemo, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
@@ -182,8 +183,8 @@ const InflationCard = ({ currentBalance }) => {
                <AreaChart data={chartData}>
                  <defs>
                    <linearGradient id="colorInflation" x1="0" y1="0" x2="0" y2="1">
-                     <stop offset="5%" stopColor="#e3365e" stopOpacity={0.8}/>
-                     <stop offset="95%" stopColor="#e3365e" stopOpacity={0}/>
+                     <stop offset="5%" stopColor={DANGER_DARK} stopOpacity={0.8}/>
+                     <stop offset="95%" stopColor={DANGER_DARK} stopOpacity={0}/>
                    </linearGradient>
                  </defs>
                  <CartesianGrid strokeDasharray="3 3" stroke={gridColor} vertical={false} />
@@ -194,7 +195,7 @@ const InflationCard = ({ currentBalance }) => {
                    itemStyle={{ color: textColor }}
                    formatter={(value) => [`${value.toFixed(2)}%`, 'Inflação Acumulada']}
                  />
-                 <Area type="monotone" dataKey="inflation" stroke="#e3365e" fillOpacity={1} fill="url(#colorInflation)" />
+                 <Area type="monotone" dataKey="inflation" stroke={DANGER_DARK} fillOpacity={1} fill="url(#colorInflation)" />
                </AreaChart>
              </ResponsiveContainer>
           </div>

@@ -1,3 +1,4 @@
+import { PRIMARY, PRIMARY_HOVER, SUCCESS, DANGER, DANGER_DARK, WARNING, INFO, successAlpha, dangerAlpha, infoAlpha, primaryAlpha, chartGrid, chartTooltipBg, chartTooltipBorder, chartText, chartCursor } from '@/utils/colors';
 import React, { useMemo } from 'react';
 import {
   ComposedChart,
@@ -99,13 +100,13 @@ const BudgetConsumptionChart = ({ selectedPeriod, filteredTransactions }) => {
   const currentConsumption = data.length > 0 ? data[data.length - 1].accumulated : 0;
   const remaining = totalPeriodBudget - currentConsumption;
 
-  let chartColor = "#3b82f6"; // Default Blue
+  let chartColor = INFO; // Default Blue
   if (totalPeriodBudget > 0) {
     const ratio = currentConsumption / totalPeriodBudget;
     if (ratio > 1) {
-      chartColor = "#ef4444"; // Red (Over budget)
+      chartColor = DANGER; // Red (Over budget)
     } else if (ratio >= 0.99) {
-      chartColor = "#eab308"; // Yellow (At budget)
+      chartColor = WARNING; // Yellow (At budget)
     } else {
       chartColor = "#22c55e"; // Green (Under budget)
     }

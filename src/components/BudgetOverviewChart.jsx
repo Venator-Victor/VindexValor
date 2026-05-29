@@ -1,3 +1,4 @@
+import { PRIMARY, PRIMARY_HOVER, SUCCESS, DANGER, DANGER_DARK, WARNING, INFO, successAlpha, dangerAlpha, infoAlpha, primaryAlpha, chartGrid, chartTooltipBg, chartTooltipBorder, chartText, chartCursor } from '@/utils/colors';
 import React from 'react';
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Cell } from 'recharts';
 import { formatCurrency } from '@/utils/calculations';
@@ -13,12 +14,12 @@ const BudgetOverviewChart = ({ categories, period }) => {
     {
       name: 'Utilização',
       amount: totalSpent,
-      fill: totalSpent > totalBudget ? '#EF4444' : '#10B981', // Red if over budget, else Green
+      fill: totalSpent > totalBudget ? DANGER : SUCCESS, // Red if over budget, else Green
     },
     {
       name: 'Orçamento',
       amount: totalBudget,
-      fill: '#3B82F6', // Blue
+      fill: INFO, // Blue
     }
   ];
 

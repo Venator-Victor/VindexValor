@@ -1,3 +1,4 @@
+import { PRIMARY, PRIMARY_HOVER, SUCCESS, DANGER, DANGER_DARK, WARNING, INFO, successAlpha, dangerAlpha, infoAlpha, primaryAlpha, chartGrid, chartTooltipBg, chartTooltipBorder, chartText, chartCursor } from '@/utils/colors';
 import React from 'react';
 import { formatCurrency } from '@/utils/calculations';
 
@@ -10,9 +11,9 @@ const CircularProgressBar = ({ current, max, size = 60, strokeWidth = 5, showBud
   const isOverLimit = max > 0 && current > max;
 
   const getColor = (percent) => {
-    if (percent < 50) return '#10B981'; // Green
-    if (percent < 80) return '#EAB308'; // Yellow
-    return '#EF4444'; // Red
+    if (percent < 50) return SUCCESS; // Green
+    if (percent < 80) return WARNING; // Yellow
+    return DANGER; // Red
   };
 
   const color = getColor((current / max) * 100);

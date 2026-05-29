@@ -1,10 +1,13 @@
+import { PRIMARY, PRIMARY_HOVER } from '@/utils/colors';
 import React, { useState, useMemo, useEffect } from 'react';
 import { Helmet } from 'react-helmet';
 import { motion } from 'framer-motion';
-import { LayoutGrid, List as ListIcon, WalletCards, Eye, EyeOff, ArrowUp, ArrowDown } from 'lucide-react';
+import { LayoutGrid, List as ListIcon, WalletCards, Eye, EyeOff } from 'lucide-react';
 import { useFinance } from '@/context/FinanceContext';
 import { Button } from '@/components/ui/button';
-import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from '@/components/ui/alert-dialog';
+import SortableHeader from '@/components/SortableHeader';
+import EmptyState from '@/components/EmptyState';
+import DeleteConfirmationDialog from '@/components/DeleteConfirmationDialog';
 import { useToast } from '@/components/ui/use-toast';
 import { calculateAssetsLiabilities, formatCurrencyWithSymbol } from '@/utils/calculations';
 import SelectInput from '@/components/ui/SelectInput';
@@ -93,25 +96,7 @@ const Contas = () => {
     setIsAccountModalOpen(true);
   };
   
-  const CYAN_COLOR = '#43CFEA';
-  const CYAN_HOVER = '#2BA8C4';
 
-  const SortIcon = ({ column }) => {
-    if (!sortConfig || sortConfig.key !== column) return <div className="w-4 h-4" />;
-    return sortConfig.direction === 'ascending' ? <ArrowUp className="w-4 h-4" /> : <ArrowDown className="w-4 h-4" />;
-  };
-
-  const SortableHeader = ({ label, column, className = "" }) => (
-    <th 
-      className={`px-6 py-3 text-left font-medium text-gray-700 dark:text-gray-300 cursor-pointer hover:bg-gray-100 dark:hover:bg-vindex-bg/50 transition-colors ${className}`}
-      onClick={() => requestSort(column)}
-    >
-      <div className="flex items-center gap-1">
-        {label}
-        <SortIcon column={column} />
-      </div>
-    </th>
-  );
 
   return (
     <div className="space-y-6 pb-20 md:pb-0">
@@ -168,9 +153,9 @@ const Contas = () => {
                 <Button 
                     onClick={handleOpenSuggestions} 
                     className="border-none text-gray-900 rounded-lg whitespace-nowrap"
-                    style={{ backgroundColor: CYAN_COLOR }}
-                    onMouseEnter={(e) => e.currentTarget.style.backgroundColor = CYAN_HOVER}
-                    onMouseLeave={(e) => e.currentTarget.style.backgroundColor = CYAN_COLOR}
+                    style={{ backgroundColor: PRIMARY }}
+                    onMouseEnter={(e) => e.currentTarget.style.backgroundColor = PRIMARY_HOVER}
+                    onMouseLeave={(e) => e.currentTarget.style.backgroundColor = PRIMARY}
                 >
                     <i className='bx bx-plus mr-2 text-xl'></i>
                     <span className="hidden sm:inline">Nova Conta</span>
@@ -203,11 +188,7 @@ const Contas = () => {
       />
 
       {sortedAccounts.length === 0 ? (
-         <div className="text-center py-12 bg-white dark:bg-vindex-card rounded-xl border border-gray-200 dark:border-vindex-border border-dashed">
-            <WalletCards className="mx-auto h-12 w-12 text-gray-400 dark:text-gray-600 mb-4" />
-            <p className="text-gray-700 dark:text-gray-300 mb-4">Você ainda não tem contas cadastradas.</p>
-            <Button onClick={handleOpenSuggestions}>Criar Primeira Conta</Button>
-         </div>
+        <EmptyState icon={WalletCards} message="Você ainda não tem contas cadastradas." buttonLabel="Criar Primeira Conta" onButtonClick={handleOpenSuggestions} />
       ) : (
         <>
           {viewMode === 'card' ? (
@@ -305,8 +286,8 @@ const Contas = () => {
                    <table className="w-full text-sm">
                       <thead className="bg-gray-50 dark:bg-vindex-bg border-b border-gray-200 dark:border-vindex-border">
                          <tr>
-                            <SortableHeader label="Conta" column="name" />
-                            <SortableHeader label="Tipo" column="type" />
+                            <SortableHeader label="Conta" column="name" sortConfig={sortConfig} onSort={requestSort} />
+                            <SortableHeader label="Tipo" column="type" sortConfig={sortConfig} onSort={requestSort} />
                             <th className="px-6 py-3 text-left font-medium text-gray-700 dark:text-gray-300">Banco</th>
                             <th className="px-6 py-3 text-left font-medium text-gray-700 dark:text-gray-300">Saldo/Fatura Atual</th>
                             <th className="px-6 py-3 text-left font-medium text-gray-700 dark:text-gray-300">Inicial/Limite Disp.</th>
@@ -383,22 +364,12 @@ const Contas = () => {
         </>
       )}
 
-      <AlertDialog open={!!deleteId} onOpenChange={() => setDeleteId(null)}>
-        <AlertDialogContent>
-          <AlertDialogHeader>
-            <AlertDialogTitle>Confirmar exclusão</AlertDialogTitle>
-            <AlertDialogDescription>
-              Tem certeza que deseja excluir esta conta?
-            </AlertDialogDescription>
-          </AlertDialogHeader>
-          <AlertDialogFooter>
-            <AlertDialogCancel>Cancelar</AlertDialogCancel>
-            <AlertDialogAction onClick={() => handleDelete(deleteId)} className="bg-red-600 hover:bg-red-700 text-white">
-              Excluir
-            </AlertDialogAction>
-          </AlertDialogFooter>
-        </AlertDialogContent>
-      </AlertDialog>
+      <DeleteConfirmationDialog
+        open={!!deleteId}
+        onOpenChange={() => setDeleteId(null)}
+        description="Tem certeza que deseja excluir esta conta?"
+        onConfirm={() => handleDelete(deleteId)}
+      />
     </div>
   );
 };

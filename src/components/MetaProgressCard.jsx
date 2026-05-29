@@ -1,3 +1,4 @@
+import { PRIMARY, PRIMARY_HOVER, SUCCESS, DANGER, DANGER_DARK, WARNING, INFO, successAlpha, dangerAlpha, infoAlpha, primaryAlpha, chartGrid, chartTooltipBg, chartTooltipBorder, chartText, chartCursor } from '@/utils/colors';
 import React from 'react';
 import { motion } from 'framer-motion';
 import { formatCurrency } from '@/utils/calculations';
@@ -25,9 +26,9 @@ const MetaProgressCard = ({ goal, onEdit, onDelete, index = 0 }) => {
 
   // Colors for gauge
   const getGaugeColor = (pct) => {
-    if (pct < 30) return '#ef4444'; // Red
-    if (pct < 70) return '#eab308'; // Yellow
-    return '#10b981'; // Green
+    if (pct < 30) return DANGER; // Red
+    if (pct < 70) return WARNING; // Yellow
+    return SUCCESS; // Green
   };
 
   const color = getGaugeColor(percentage);

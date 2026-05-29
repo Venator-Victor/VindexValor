@@ -35,6 +35,10 @@
   --color-card: hsl(var(--card));
   --color-card-foreground: hsl(var(--card-foreground));
 
+  --color-success: #10b981;
+  --color-warning: #eab308;
+  --color-info: #3b82f6;
+
   /* Legacy vindex aliases */
   --color-vindex-bg: hsl(var(--background));
   --color-vindex-text: hsl(var(--foreground));

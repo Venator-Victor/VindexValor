@@ -109,7 +109,7 @@ const Dashboard = () => {
       value: formatCurrencyWithSymbol(totalBalanceBRL, 'BRL'),
       iconClass: 'bx bx-wallet',
       textColor: 'text-gray-900 dark:text-gray-50',
-      iconColor: 'text-[#43CFEA]',
+      iconColor: 'text-primary',
       borderColor: 'border-gray-200 dark:border-vindex-border',
       tooltip: 'Soma dos saldos atuais convertidos para BRL. Não é afetado pelo filtro de período.'
     },
@@ -127,7 +127,7 @@ const Dashboard = () => {
       value: formatCurrencyWithSymbol(filteredIncomeBRL, 'BRL'),
       iconClass: 'bx bx-trending-up',
       textColor: 'text-gray-900 dark:text-gray-50',
-      iconColor: 'text-[#43CFEA]',
+      iconColor: 'text-primary',
       borderColor: 'border-green-200 dark:border-vindex-success/30',
       tooltip: `Total de receitas convertidas para BRL no período selecionado (${selectedPeriod}).`
     },

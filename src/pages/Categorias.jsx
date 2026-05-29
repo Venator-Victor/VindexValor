@@ -1,12 +1,15 @@
+import { PRIMARY, PRIMARY_HOVER } from '@/utils/colors';
 import React, { useState, useMemo } from 'react';
 import { Helmet } from 'react-helmet';
 import { motion, AnimatePresence } from 'framer-motion';
-import { LayoutGrid, List as ListIcon, Plus, Folder, Trash2, Edit2, ArrowUp, ArrowDown } from 'lucide-react';
+import { LayoutGrid, List as ListIcon, Plus, Folder, Trash2, Edit2 } from 'lucide-react';
 import { useFinance } from '@/context/FinanceContext';
 import { Button } from '@/components/ui/button';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Label } from '@/components/ui/label';
-import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from '@/components/ui/alert-dialog';
+import SortableHeader from '@/components/SortableHeader';
+import EmptyState from '@/components/EmptyState';
+import DeleteConfirmationDialog from '@/components/DeleteConfirmationDialog';
 import { useToast } from '@/components/ui/use-toast';
 import ColorPicker from '@/components/ui/ColorPicker';
 import IconSelector from '@/components/IconSelector';
@@ -159,22 +162,7 @@ const Categorias = () => {
     setSelectedDetailCategory(category);
   };
   
-  const CYAN_COLOR = '#43CFEA';
-  const CYAN_HOVER = '#2BA8C4';
   
-  const SortIcon = ({ column }) => {
-    if (!sortConfig || sortConfig.key !== column) return <div className="w-4 h-4" />;
-    return sortConfig.direction === 'ascending' ? <ArrowUp className="w-4 h-4" /> : <ArrowDown className="w-4 h-4" />;
-  };
-  
-  const SortableHeader = ({ label, column, className = "" }) => (
-    <th className={`px-6 py-3 text-left font-medium text-gray-700 dark:text-gray-300 cursor-pointer hover:bg-gray-100 dark:hover:bg-vindex-bg/50 transition-colors ${className}`} onClick={() => requestSort(column)}>
-      <div className="flex items-center gap-1">
-        {label}
-        <SortIcon column={column} />
-      </div>
-    </th>
-  );
   
   return (
     <div className="space-y-6 pb-20 md:pb-0">
@@ -218,7 +206,7 @@ const Categorias = () => {
               </button>
             </div>
             
-            <Button onClick={() => setIsDefaultModalOpen(true)} className="border-none text-gray-900 rounded-lg flex-1 sm:flex-none whitespace-nowrap transition-colors" style={{ backgroundColor: CYAN_COLOR }} onMouseEnter={e => e.currentTarget.style.backgroundColor = CYAN_HOVER} onMouseLeave={e => e.currentTarget.style.backgroundColor = CYAN_COLOR}>
+            <Button onClick={() => setIsDefaultModalOpen(true)} className="border-none text-gray-900 rounded-lg flex-1 sm:flex-none whitespace-nowrap transition-colors" style={{ backgroundColor: PRIMARY }} onMouseEnter={e => e.currentTarget.style.backgroundColor = PRIMARY_HOVER} onMouseLeave={e => e.currentTarget.style.backgroundColor = PRIMARY}>
               <Plus className="mr-2 h-5 w-5" />
               <span className="hidden sm:inline">Nova Categoria</span>
               <span className="sm:hidden">Nova</span>
@@ -238,7 +226,7 @@ const Categorias = () => {
 
          <div className="text-center">
             <p className="text-sm font-medium text-gray-700 dark:text-gray-300">Orçamento Total</p>
-            <p className="text-2xl font-bold" style={{ color: CYAN_COLOR }}>{formatCurrency(totalBudget)}</p>
+            <p className="text-2xl font-bold" style={{ color: PRIMARY }}>{formatCurrency(totalBudget)}</p>
          </div>
       </div>
 
@@ -251,11 +239,7 @@ const Categorias = () => {
       </div>
       
       {sortedCategories.length === 0 ? (
-        <div className="text-center py-12 bg-white dark:bg-vindex-card rounded-xl border border-gray-200 dark:border-vindex-border border-dashed">
-            <Folder className="mx-auto h-12 w-12 text-gray-400 dark:text-gray-500 mb-4" />
-            <p className="text-gray-700 dark:text-gray-300 mb-4">Você ainda não tem categorias cadastradas.</p>
-            <Button onClick={() => setIsDefaultModalOpen(true)} className="text-gray-900" style={{ backgroundColor: CYAN_COLOR }}>Criar Primeira Categoria</Button>
-         </div>
+        <EmptyState icon={Folder} message="Você ainda não tem categorias cadastradas." buttonLabel="Criar Primeira Categoria" onButtonClick={() => setIsDefaultModalOpen(true)} />
       ) : (
         <>
            {/* Grid View */}
@@ -294,11 +278,11 @@ const Categorias = () => {
                         </div>
 
                        <div className="flex gap-2 w-full mt-4">
-                         <Button size="sm" onClick={(e) => handleEdit(category, e)} className="flex-1 h-8 text-xs font-medium border-none hover:opacity-90 transition-opacity text-gray-900" style={{ backgroundColor: CYAN_COLOR }}>
+                         <Button size="sm" onClick={(e) => handleEdit(category, e)} className="flex-1 h-8 text-xs font-medium border-none hover:opacity-90 transition-opacity text-gray-900" style={{ backgroundColor: PRIMARY }}>
                            <Edit2 className="w-3 h-3 mr-1" />
                            Editar
                          </Button>
-                         <Button size="sm" variant="outline" onClick={(e) => setDeleteId(category.id, e)} className="flex-1 h-8 text-xs font-medium bg-transparent hover:text-black transition-colors" style={{ borderColor: CYAN_COLOR, color: CYAN_COLOR }} onMouseEnter={e => { e.currentTarget.style.backgroundColor = CYAN_COLOR; e.currentTarget.style.color = '#000'; }} onMouseLeave={e => { e.currentTarget.style.backgroundColor = 'transparent'; e.currentTarget.style.color = CYAN_COLOR; }}>
+                         <Button size="sm" variant="outline" onClick={(e) => setDeleteId(category.id, e)} className="flex-1 h-8 text-xs font-medium bg-transparent hover:text-black transition-colors" style={{ borderColor: PRIMARY, color: PRIMARY }} onMouseEnter={e => { e.currentTarget.style.backgroundColor = PRIMARY; e.currentTarget.style.color = '#000'; }} onMouseLeave={e => { e.currentTarget.style.backgroundColor = 'transparent'; e.currentTarget.style.color = PRIMARY; }}>
                            <Trash2 className="w-3 h-3 mr-1" />
                            Excluir
                          </Button>
@@ -317,11 +301,11 @@ const Categorias = () => {
                    <table className="w-full text-sm">
                       <thead className="bg-gray-50 dark:bg-vindex-bg border-b border-gray-200 dark:border-vindex-border">
                          <tr>
-                            <SortableHeader label="Categoria" column="name" />
+                            <SortableHeader label="Categoria" column="name" sortConfig={sortConfig} onSort={requestSort} />
                             <th className="px-6 py-3 text-left font-medium text-gray-700 dark:text-gray-300">Transações</th>
                             <th className="px-6 py-3 text-left font-medium text-gray-700 dark:text-gray-300">Utilização</th>
-                            <SortableHeader label="Orçamento" column="limite_gasto" />
-                            <SortableHeader label="Período" column="periodo_limite" />
+                            <SortableHeader label="Orçamento" column="limite_gasto" sortConfig={sortConfig} onSort={requestSort} />
+                            <SortableHeader label="Período" column="periodo_limite" sortConfig={sortConfig} onSort={requestSort} />
                             <th className="px-6 py-3 text-right font-medium text-gray-700 dark:text-gray-300">Ações</th>
                          </tr>
                       </thead>
@@ -354,10 +338,10 @@ const Categorias = () => {
                                   </td>
                                   <td className="px-6 py-4 text-right">
                                      <div className="flex justify-end gap-2">
-                                        <Button size="sm" onClick={(e) => handleEdit(category, e)} className="h-8 w-8 p-0 rounded-lg text-gray-900" style={{ backgroundColor: CYAN_COLOR }}>
+                                        <Button size="sm" onClick={(e) => handleEdit(category, e)} className="h-8 w-8 p-0 rounded-lg text-gray-900" style={{ backgroundColor: PRIMARY }}>
                                            <Edit2 className="h-4 w-4" />
                                         </Button>
-                                        <Button size="sm" variant="outline" onClick={(e) => setDeleteId(category.id, e)} className="h-8 w-8 p-0 rounded-lg hover:text-black transition-colors" style={{ borderColor: CYAN_COLOR, color: CYAN_COLOR }} onMouseEnter={e => { e.currentTarget.style.backgroundColor = CYAN_COLOR; e.currentTarget.style.color = '#000'; }} onMouseLeave={e => { e.currentTarget.style.backgroundColor = 'transparent'; e.currentTarget.style.color = CYAN_COLOR; }}>
+                                        <Button size="sm" variant="outline" onClick={(e) => setDeleteId(category.id, e)} className="h-8 w-8 p-0 rounded-lg hover:text-black transition-colors" style={{ borderColor: PRIMARY, color: PRIMARY }} onMouseEnter={e => { e.currentTarget.style.backgroundColor = PRIMARY; e.currentTarget.style.color = '#000'; }} onMouseLeave={e => { e.currentTarget.style.backgroundColor = 'transparent'; e.currentTarget.style.color = PRIMARY; }}>
                                            <Trash2 className="h-4 w-4" />
                                         </Button>
                                      </div>
@@ -422,10 +406,10 @@ const Categorias = () => {
             <IconSelector selectedIcon={formData.icon} onSelect={icon => setFormData({ ...formData, icon })} />
 
             <div className="flex gap-2 pt-4">
-              <Button type="submit" className="flex-1 font-medium rounded-lg border-none hover:text-white transition-colors text-black" style={{ backgroundColor: CYAN_COLOR }}>
+              <Button type="submit" className="flex-1 font-medium rounded-lg border-none hover:text-white transition-colors text-black" style={{ backgroundColor: PRIMARY }}>
                 {editingCategory ? 'Atualizar' : 'Criar'}
               </Button>
-              <Button type="button" variant="outline" onClick={() => setIsDialogOpen(false)} className="flex-1 rounded-lg transition-colors bg-transparent hover:text-black" style={{ borderColor: CYAN_COLOR, color: CYAN_COLOR }} onMouseEnter={e => { e.currentTarget.style.backgroundColor = CYAN_COLOR; e.currentTarget.style.color = '#000'; }} onMouseLeave={e => { e.currentTarget.style.backgroundColor = 'transparent'; e.currentTarget.style.color = CYAN_COLOR; }}>
+              <Button type="button" variant="outline" onClick={() => setIsDialogOpen(false)} className="flex-1 rounded-lg transition-colors bg-transparent hover:text-black" style={{ borderColor: PRIMARY, color: PRIMARY }} onMouseEnter={e => { e.currentTarget.style.backgroundColor = PRIMARY; e.currentTarget.style.color = '#000'; }} onMouseLeave={e => { e.currentTarget.style.backgroundColor = 'transparent'; e.currentTarget.style.color = PRIMARY; }}>
                 Cancelar
               </Button>
             </div>
@@ -433,23 +417,12 @@ const Categorias = () => {
         </DialogContent>
       </Dialog>
 
-      {/* Delete Confirmation Dialog */}
-      <AlertDialog open={!!deleteId} onOpenChange={() => setDeleteId(null)}>
-        <AlertDialogContent className="bg-white dark:bg-vindex-card text-gray-900 dark:text-gray-100 border-gray-200 dark:border-vindex-border rounded-xl">
-          <AlertDialogHeader>
-            <AlertDialogTitle>Confirmar exclusão</AlertDialogTitle>
-            <AlertDialogDescription className="text-gray-700 dark:text-gray-300">
-              Tem certeza que deseja excluir esta categoria? Esta ação não pode ser desfeita.
-            </AlertDialogDescription>
-          </AlertDialogHeader>
-          <AlertDialogFooter>
-            <AlertDialogCancel className="bg-gray-100 dark:bg-vindex-bg hover:bg-gray-200 dark:hover:bg-vindex-bg/80 border-gray-200 dark:border-vindex-border text-gray-900 dark:text-gray-100 rounded-lg">Cancelar</AlertDialogCancel>
-            <AlertDialogAction onClick={(e) => handleDelete(deleteId, e)} className="bg-vindex-danger hover:bg-vindex-danger/90 rounded-lg text-white">
-              Excluir
-            </AlertDialogAction>
-          </AlertDialogFooter>
-        </AlertDialogContent>
-      </AlertDialog>
+      <DeleteConfirmationDialog
+        open={!!deleteId}
+        onOpenChange={() => setDeleteId(null)}
+        description="Tem certeza que deseja excluir esta categoria? Esta ação não pode ser desfeita."
+        onConfirm={(e) => handleDelete(deleteId, e)}
+      />
     </div>
   );
 };

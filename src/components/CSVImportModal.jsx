@@ -23,7 +23,7 @@ const CSVImportModal = ({ onFileSelected, isParsing, error }) => {
             }
           }}
           disabled={isParsing}
-          className="block w-full text-sm text-gray-500 file:mr-4 file:py-2.5 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-semibold file:bg-[#43CFEA] file:text-gray-900 hover:file:bg-[#2BA8C4] cursor-pointer transition-colors"
+          className="block w-full text-sm text-gray-500 file:mr-4 file:py-2.5 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-semibold file:bg-primary file:text-gray-900 hover:file:bg-primary/85 cursor-pointer transition-colors"
         />
       </div>
       
@@ -34,7 +34,7 @@ const CSVImportModal = ({ onFileSelected, isParsing, error }) => {
       )}
       
       {isParsing && (
-        <p className="mt-4 text-[#43CFEA] font-medium text-sm animate-pulse">
+        <p className="mt-4 text-primary font-medium text-sm animate-pulse">
           Processando arquivo CSV...
         </p>
       )}

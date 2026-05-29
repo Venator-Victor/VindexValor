@@ -23,21 +23,21 @@ const HomePage = () => {
         {/* HERO SECTION */}
         <section id="home" className="relative min-h-[90vh] flex items-center justify-center pt-20 overflow-hidden">
           <div className="absolute inset-0 z-0">
-            <img src="https://images.unsplash.com/photo-1516383274235-5f42d6c6426d" alt="Finanças e Planejamento" className="w-full h-full object-cover object-center" />
+            <img src="/hero.jpg" alt="Finanças e Planejamento" className="w-full h-full object-cover object-center" />
             <div className="absolute inset-0 bg-black/60 backdrop-blur-[2px]"></div>
           </div>
           
           <div className="container relative z-10 mx-auto px-4 md:px-6 text-center text-white">
             <motion.div initial={{ opacity: 0, y: 30 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.8 }} className="max-w-4xl mx-auto">
               <h1 className="text-5xl md:text-7xl font-extrabold tracking-tight mb-6 leading-tight">
-                Vindex<span className="text-[rgb(67,207,234)]">Valor</span>
+                Vindex<span className="text-primary">Valor</span>
               </h1>
               <p className="text-xl md:text-2xl text-gray-200 mb-10 font-medium max-w-2xl mx-auto leading-relaxed">
                 Gestão Financeira Pessoal Inteligente. Assuma o controle do seu dinheiro, acompanhe investimentos e alcance seus objetivos.
               </p>
               <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
                 <Link to="/login">
-                  <Button size="lg" className="h-14 px-8 text-lg font-bold gap-2 shadow-lg hover:scale-105 transition-transform bg-[rgb(67,207,234)] text-black hover:bg-[rgb(67,207,234)]/90">
+                  <Button size="lg" className="h-14 px-8 text-lg font-bold gap-2 shadow-lg hover:scale-105 transition-transform bg-primary text-black hover:bg-primary/90">
                     Começar Agora <ArrowRight size={20} />
                   </Button>
                 </Link>
@@ -57,7 +57,7 @@ const HomePage = () => {
             <div className="max-w-3xl mx-auto text-center">
               <motion.div initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ duration: 0.6 }}>
                 <h2 className="text-3xl md:text-4xl font-bold mb-6">Sobre o Projeto</h2>
-                <div className="w-20 h-1 bg-[rgb(67,207,234)] mx-auto mb-8 rounded-full"></div>
+                <div className="w-20 h-1 bg-primary mx-auto mb-8 rounded-full"></div>
                 <p className="text-lg text-muted-foreground leading-relaxed mb-6">
                   O VindexValor é um web app dedicado à gestão financeira pessoal. Desenvolvido como 
                   <strong className="text-foreground"> Trabalho de Conclusão de Curso (TCC)</strong> para a Pós-Graduação 
