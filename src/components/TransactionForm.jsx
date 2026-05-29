@@ -145,6 +145,7 @@ const TransactionForm = ({ initialData, onSuccess, onCancel }) => {
         <div className="grid grid-cols-2 gap-4">
           <div>
             <SelectInput
+              id="tipo"
               label="Tipo de Transação"
               value={formData.tipo}
               onChange={(e) => setFormData(prev => ({

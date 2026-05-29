@@ -14,7 +14,7 @@ import AccountModal from '@/components/AccountModal';
 import { useSortableList } from '@/hooks/useSortableList';
 
 const Contas = () => {
-  const { accounts, transactions, deleteAccount, settings, saveSettings } = useFinance();
+  const { accounts, transactions, removeAccount: deleteAccount, settings, saveSettings } = useFinance();
   const { toast } = useToast();
   
   const { items: sortedAccounts, requestSort, sortConfig } = useSortableList(accounts);

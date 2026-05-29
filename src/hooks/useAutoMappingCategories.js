@@ -15,7 +15,7 @@ export const useAutoMappingCategories = () => {
         .from('custom_category_mappings')
         .select('*')
         .eq('user_id', user.id);
-      
+
       if (error) throw error;
       if (data) setMappings(data);
     } catch (error) {
@@ -23,7 +23,7 @@ export const useAutoMappingCategories = () => {
     } finally {
       setIsLoading(false);
     }
-  }, [user]);
+  }, [user?.id]);
 
   useEffect(() => {
     fetchMappings();

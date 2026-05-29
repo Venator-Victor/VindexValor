@@ -40,9 +40,12 @@ const Configuracoes = () => {
   };
 
   const handleResetPassword = async () => {
-     if (user?.email) {
-        await resetPasswordForEmail(user.email);
-     }
+    if (!user?.email) return;
+    try {
+      await resetPasswordForEmail(user.email);
+    } catch (err) {
+      toast({ title: "Erro ao redefinir senha", description: err?.message, variant: "destructive" });
+    }
   };
 
   const handleFeatureClick = (feature) => {

@@ -326,6 +326,7 @@ export const FinanceProvider = ({ children }) => {
     inflationHistory,
     faturas,
     settings,
+    setSettings,
     isLoading,
     isSidebarCollapsed,
     setIsSidebarCollapsed,
