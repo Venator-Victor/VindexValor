@@ -29,7 +29,7 @@ Deno.serve(async (req)=>{
     // We can join or fetch limits. The view doesn't have 'limit'.
     // Let's fetch limits separately or join in code.
     // To minimize breaking changes, let's fetch categories for limits.
-    const { data: categories } = await supabaseClient.from('categorias').select('id, limite_gasto').eq('user_id', userId);
+    const { data: categories } = await supabaseClient.from('categories').select('id, limite_gasto').eq('user_id', userId);
     const limitMap = {};
     categories?.forEach((c)=>limitMap[c.id] = Number(c.limite_gasto || 0));
     const results = viewData.map((item)=>{

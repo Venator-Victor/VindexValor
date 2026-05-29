@@ -15,7 +15,7 @@ export const useCustomCategoryMappings = () => {
     try {
       const { data, error } = await supabase
         .from('custom_category_mappings')
-        .select(`*, categorias(name, color, icon)`)
+        .select(`*, categories(name, color, icon)`)
         .eq('user_id', user.id);
       
       if (error) throw error;

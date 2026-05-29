@@ -140,7 +140,7 @@ export const useInvoiceCSVImport = () => {
         total_parcels: t.total_parcels
       }));
 
-      const { data, error } = await supabase.from('compras_fatura').insert(dbData).select();
+      const { data, error } = await supabase.from('invoice_items').insert(dbData).select();
       if (error) throw error;
       
       return { success: true, count: data ? data.length : 0 };

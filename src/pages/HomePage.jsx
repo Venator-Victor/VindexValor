@@ -82,7 +82,7 @@ const HomePage = () => {
             </div>
 
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-              <FeatureCard icon={Wallet} title="Gestão de Contas Bancárias" description="Cadastre e gerencie múltiplas contas (Corrente, Poupança, Cartão de Crédito) com visão unificada de saldos e limites." />
+              <FeatureCard icon={Wallet} title="Gestão de Contas Bancárias" description="Cadastre e gerencie múltiplas accounts (Corrente, Poupança, Cartão de Crédito) com visão unificada de saldos e limites." />
               <FeatureCard icon={ArrowRightLeft} title="Registro de Transações" description="Controle total sobre Entradas e Saídas, transferências entre contas e categorização flexível." />
               <FeatureCard icon={Repeat} title="Transações Recorrentes" description="Gerencie contas fixas, parcelamentos e salários com o motor inteligente de recorrências automáticas." />
               <FeatureCard icon={PieChart} title="Análise de Gastos" description="Visualize seus hábitos de consumo por categoria com gráficos interativos e limites de orçamento (budgets)." />

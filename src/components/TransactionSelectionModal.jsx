@@ -42,7 +42,7 @@ const TransactionSelectionModal = ({ selectedIds, transactions, onClearSelection
     setIsDeleting(true);
     try {
       const { error } = await supabase
-        .from('transacoes')
+        .from('transactions')
         .delete()
         .in('id', selectedIds);
 
@@ -70,7 +70,7 @@ const TransactionSelectionModal = ({ selectedIds, transactions, onClearSelection
     setIsUpdating(true);
     try {
       const { error } = await supabase
-        .from('transacoes')
+        .from('transactions')
         .update({ categoria_id: selectedBulkCategory || null })
         .in('id', selectedIds)
         .neq('type', 'pagamento')

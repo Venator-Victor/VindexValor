@@ -34,7 +34,7 @@ const InvoiceSelectionBar = ({ selectedIds, faturas, faturaTotals = {}, onClearS
     setIsDeleting(true);
     try {
       const { error } = await supabase
-        .from('faturas')
+        .from('invoices')
         .delete()
         .in('id', selectedIds);
 
@@ -85,11 +85,11 @@ const InvoiceSelectionBar = ({ selectedIds, faturas, faturaTotals = {}, onClearS
       });
 
       if (transactionsToInsert.length > 0) {
-        const { error: txError } = await supabase.from('transacoes').insert(transactionsToInsert);
+        const { error: txError } = await supabase.from('transactions').insert(transactionsToInsert);
         if (txError) throw txError;
       }
 
-      const { error: statusError } = await supabase.from('faturas').update({ status: 'paga' }).in('id', selectedIds).eq('user_id', user.id);
+      const { error: statusError } = await supabase.from('invoices').update({ status: 'paga' }).in('id', selectedIds).eq('user_id', user.id);
       if (statusError) throw statusError;
 
       toast({ title: "Sucesso", description: "Pagamento vinculado com sucesso às faturas!" });

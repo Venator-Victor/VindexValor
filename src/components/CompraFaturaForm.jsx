@@ -73,7 +73,7 @@ const CompraFaturaForm = ({ faturaId, initialData, onSuccess, onCancel }) => {
         const nextMonthStr = nextMonth.toISOString().split('T')[0];
         
         await supabase
-          .from('faturas')
+          .from('invoices')
           .update({ data_fechamento: nextMonthStr })
           .eq('id', faturaId);
           

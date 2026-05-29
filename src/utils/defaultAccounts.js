@@ -25,7 +25,7 @@ export const DEFAULT_ACCOUNTS = [
     credit_limit: '0'
   },
   { 
-    id: 'investimentos', 
+    id: 'investments', 
     name: 'Carteira de Investimentos', 
     type: 'Investimentos', 
     icon: 'bx-trending-up', 

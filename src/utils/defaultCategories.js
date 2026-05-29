@@ -20,7 +20,7 @@ export const DEFAULT_CATEGORIES = [
   { id: 'cuidados_pessoais', name: 'Cuidados Pessoais', icon: 'bx bx-face', color: '#FF7043', description: 'Produtos de higiene e beleza' },
   { id: 'educacao', name: 'Educação', icon: 'bx bx-book-open', color: '#9C27B0', description: 'Cursos, livros e mensalidades' },
   { id: 'familia_filhos', name: 'Família e Filhos', icon: 'bx bx-child', color: '#00BCD4', description: 'Despesas com a família e crianças' },
-  { id: 'investimentos', name: 'Investimentos', icon: 'bx bx-trending-up', color: '#4CAF50', description: 'Aplicações financeiras' },
+  { id: 'investments', name: 'Investimentos', icon: 'bx bx-trending-up', color: '#4CAF50', description: 'Aplicações financeiras' },
   { id: 'lazer_hobbies', name: 'Lazer e Hobbies', icon: 'bx bx-game', color: '#E91E63', description: 'Entretenimento e passatempos' },
   { id: 'animais_estimacao', name: 'Animais de Estimação', icon: 'bx bx-paw', color: '#8D6E63', description: 'Despesas com pets' },
   { id: 'presentes_doacoes', name: 'Presentes e Doações', icon: 'bx bx-gift', color: '#607D8B', description: 'Presentes e contribuições' },

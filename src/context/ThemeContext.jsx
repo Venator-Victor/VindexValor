@@ -73,7 +73,7 @@ export const ThemeProvider = ({ children }) => {
       if (!activeSession?.access_token) return;
 
       const { data, error } = await supabase
-        .from('configuracoes')
+        .from('settings')
         .select('theme, metas_view_preference')
         .eq('user_id', user.id)
         .maybeSingle();
@@ -89,7 +89,7 @@ export const ThemeProvider = ({ children }) => {
         }
       } else {
         await supabase
-          .from('configuracoes')
+          .from('settings')
           .upsert({ user_id: user.id, theme: theme, metas_view_preference: 'card' }, { onConflict: 'user_id' });
       }
     };
@@ -103,7 +103,7 @@ export const ThemeProvider = ({ children }) => {
     
     if (user && user.id) {
       await supabase
-        .from('configuracoes')
+        .from('settings')
         .upsert({ user_id: user.id, theme: newTheme }, { onConflict: 'user_id' });
     }
   };
@@ -112,7 +112,7 @@ export const ThemeProvider = ({ children }) => {
     setTheme(newTheme);
     if (user && user.id) {
       await supabase
-        .from('configuracoes')
+        .from('settings')
         .upsert({ user_id: user.id, theme: newTheme }, { onConflict: 'user_id' });
     }
   };
@@ -121,7 +121,7 @@ export const ThemeProvider = ({ children }) => {
     setMetasViewMode(mode);
     if (user && user.id) {
       await supabase
-        .from('configuracoes')
+        .from('settings')
         .update({ metas_view_preference: mode })
         .eq('user_id', user.id);
     }

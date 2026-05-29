@@ -65,7 +65,7 @@ const FaturasPage = () => {
     
     try {
       const { data, error } = await supabase
-        .from('compras_fatura')
+        .from('invoice_items')
         .select('fatura_id, valor')
         .in('fatura_id', ids);
 
@@ -113,7 +113,7 @@ const FaturasPage = () => {
   const handleEditSubmit = async (e) => {
     e.preventDefault();
     try {
-      const { error } = await supabase.from('faturas').update({
+      const { error } = await supabase.from('invoices').update({
         numero_fatura: editFormData.numero_fatura,
         data_abertura: editFormData.data_abertura,
         data_fechamento: editFormData.data_fechamento,
@@ -154,7 +154,7 @@ const FaturasPage = () => {
     setIsFiltering(hasActiveFilters);
     
     if (hasActiveFilters) {
-      let query = supabase.from('compras_fatura').select('*, faturas(numero_fatura), categorias(name, color)');
+      let query = supabase.from('invoice_items').select('*, invoices(numero_fatura), categories(name, color)');
       
       if (filters.search) query = query.ilike('descricao', `%${filters.search}%`);
       

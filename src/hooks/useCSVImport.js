@@ -143,7 +143,7 @@ export const useCSVImport = () => {
         };
       });
 
-      const { data, error } = await supabase.from('transacoes').insert(dbData).select();
+      const { data, error } = await supabase.from('transactions').insert(dbData).select();
       if (error) throw error;
       
       return data ? data.length : 0;

@@ -26,10 +26,10 @@ export async function testConnection() {
     }
 
     // 2. Test Basic Database Access
-    // Will attempt to read 1 row from 'configuracoes' (usually has wide access or RLS for users)
+    // Will attempt to read 1 row from 'settings' (usually has wide access or RLS for users)
     console.log('Testing Database Read Access...');
     const { error: dbError } = await supabase
-      .from('configuracoes')
+      .from('settings')
       .select('id')
       .limit(1);
 
