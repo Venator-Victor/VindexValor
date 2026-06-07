@@ -19,7 +19,7 @@ import { formatCurrency } from '@/utils/calculations';
 import DefaultCategoriesModal from '@/components/DefaultCategoriesModal';
 import GaugeChart from '@/components/GaugeChart';
 import { useSortableList } from '@/hooks/useSortableList';
-import { PERIOD_OPTIONS } from '@/utils/periodOptions';
+import { PERIOD_OPTIONS, CHART_PERIOD_OPTIONS } from '@/utils/periodOptions';
 import CategoryDetailModal from '@/components/CategoryDetailModal';
 
 const Categorias = () => {
@@ -174,15 +174,7 @@ const Categorias = () => {
           <div className="w-full sm:w-40">
             <SelectInput 
               value={currentPeriod} 
-              options={[
-                { label: "Diário", value: "diario" }, 
-                { label: "Semanal", value: "semanal" }, 
-                { label: "Quinzenal", value: "quinzenal" }, 
-                { label: "Mensal", value: "mensal" }, 
-                { label: "Trimestral", value: "trimestral" }, 
-                { label: "Semestral", value: "semestral" }, 
-                { label: "Anual", value: "anual" }
-              ]} 
+              options={CHART_PERIOD_OPTIONS}
               onChange={handlePeriodChange} 
               className="bg-white dark:bg-vindex-card border-gray-200 dark:border-vindex-border text-gray-700 dark:text-gray-300" 
             />

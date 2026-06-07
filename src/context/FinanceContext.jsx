@@ -9,6 +9,30 @@ import { validateCreditCardAccount } from '@/utils/accountValidation';
 
 const FinanceContext = createContext();
 
+const mapInvestment = (row) => ({
+  ...row,
+  investedAmount: row.invested_amount,
+  currentAmount: row.current_amount,
+  purchaseDate: row.purchase_date,
+  accountId: row.account_id,
+});
+
+const calculateNextDate = (dateStr, frequency, steps = 1) => {
+  const d = new Date(dateStr + 'T12:00:00');
+  for (let i = 0; i < steps; i++) {
+    switch (frequency) {
+      case 'Diário':     d.setDate(d.getDate() + 1); break;
+      case 'Semanal':    d.setDate(d.getDate() + 7); break;
+      case 'Quinzenal':  d.setDate(d.getDate() + 15); break;
+      case 'Mensal':     d.setMonth(d.getMonth() + 1); break;
+      case 'Trimestral': d.setMonth(d.getMonth() + 3); break;
+      case 'Semestral':  d.setMonth(d.getMonth() + 6); break;
+      case 'Anual':      d.setFullYear(d.getFullYear() + 1); break;
+    }
+  }
+  return d.toISOString().slice(0, 10);
+};
+
 export const useFinance = () => {
   const context = useContext(FinanceContext);
   if (!context) {
@@ -54,20 +78,28 @@ export const FinanceProvider = ({ children }) => {
   const fetchAllData = async () => {
     if (!user || !user.id) return;
     setIsLoading(true);
-    
+
     try {
       const [
         { data: transData, error: transError },
         { data: accData, error: accError },
         { data: catData, error: catError },
         { data: faturaData, error: faturaError },
-        { data: settingsData, error: settingsError }
+        { data: settingsData, error: settingsError },
+        { data: recurringData, error: recurringError },
+        { data: parcelsData, error: parcelsError },
+        { data: txTypesData },
+        { data: invData, error: invError }
       ] = await Promise.all([
         supabase.from('transactions').select(`*, categories ( id, name, color, icon ), contas:accounts!fk_transacoes_conta ( id, name, type, color, currency, crypto_symbol ), conta_destino:accounts!fk_transacoes_conta_destino ( id, name, type, currency, crypto_symbol ), invoices(id, invoice_number)`).eq('user_id', user.id).order('date', { ascending: false }),
         supabase.from('accounts').select('id, user_id, name, type, bank, balance, color, created_at, icon, account_subtype, credit_limit, closing_date, due_date, investment_type, expected_return, reload_value, reload_date, total_amount, interest_rate, term_months, amortization_type, holders, initial_balance, currency, crypto_symbol').eq('user_id', user.id),
         supabase.from('categories').select('*').eq('user_id', user.id),
         supabase.from('invoices').select('*, accounts(name)').eq('user_id', user.id).order('opening_date', { ascending: false }),
-        supabase.from('settings').select('*').eq('user_id', user.id).maybeSingle()
+        supabase.from('settings').select('*').eq('user_id', user.id).maybeSingle(),
+        supabase.from('recurring_items').select('*, categories(name, color)').eq('user_id', user.id).order('next_date', { ascending: true }),
+        supabase.from('recurring_installments').select('*').eq('user_id', user.id),
+        supabase.from('transaction_types').select('*'),
+        supabase.from('investments').select('*').eq('user_id', user.id).order('purchase_date', { ascending: false })
       ]);
 
       if (transError) console.error("Error fetching transactions:", transError);
@@ -75,12 +107,19 @@ export const FinanceProvider = ({ children }) => {
       if (catError) console.error("Error fetching categories:", catError);
       if (faturaError) console.error("Error fetching faturas:", faturaError);
       if (settingsError && settingsError.code !== 'PGRST116') console.error("Error fetching settings:", settingsError);
+      if (recurringError) console.error("Error fetching recurring:", recurringError);
+      if (parcelsError) console.error("Error fetching parcels:", parcelsError);
+      if (invError) console.error("Error fetching investments:", invError);
 
       setTransactions(transData || []);
       setAccounts(accData || []);
       setCategories(catData || []);
       setFaturas(faturaData || []);
-      
+      setRecurring(recurringData || []);
+      setParcels(parcelsData || []);
+      setTransactionTypes(txTypesData || []);
+      setInvestments((invData || []).map(mapInvestment));
+
       if (settingsData) {
         setSettings(prev => ({ ...prev, ...settingsData }));
       }
@@ -95,6 +134,18 @@ export const FinanceProvider = ({ children }) => {
     } finally {
       setIsLoading(false);
     }
+  };
+
+  const fetchRecurring = async () => {
+    if (!user) return;
+    const { data } = await supabase.from('recurring_items').select('*, categories(name, color)').eq('user_id', user.id).order('next_date', { ascending: true });
+    if (data) setRecurring(data);
+  };
+
+  const fetchParcels = async () => {
+    if (!user) return;
+    const { data } = await supabase.from('recurring_installments').select('*').eq('user_id', user.id);
+    if (data) setParcels(data);
   };
 
   const saveSettings = async (newSettings) => {
@@ -287,12 +338,185 @@ export const FinanceProvider = ({ children }) => {
     return true;
   };
 
+  // Recurring Operations
+  const addRecurring = async (data) => {
+    if (!user) throw new Error("Usuário não autenticado");
+    const statusStr = typeof data.status === 'boolean'
+      ? (data.status ? 'Ativo' : 'Inativo')
+      : (data.status || 'Ativo');
+    const { data: result, error } = await supabase.functions.invoke('create-recurrence', {
+      body: {
+        description: data.description,
+        amount: data.amount,
+        frequency: data.frequency,
+        start_date: data.nextDate,
+        status: statusStr,
+        category_id: data.category_id || null,
+        recurrence_type: data.recurrence_type,
+        installment_count: data.installment_count || null,
+        user_id: user.id
+      }
+    });
+    if (error) throw error;
+    if (result?.error) throw new Error(result.error);
+    await fetchRecurring();
+    if (result?.firstTransaction) setTransactions(prev => [result.firstTransaction, ...prev]);
+    if (data.recurrence_type === 'Parcelas') await fetchParcels();
+    return result;
+  };
+
+  const updateRecurring = async (id, data) => {
+    if (!user) throw new Error("Usuário não autenticado");
+    const statusStr = typeof data.status === 'boolean'
+      ? (data.status ? 'Ativo' : 'Inativo')
+      : (data.status || 'Ativo');
+    const payload = {
+      description: data.description,
+      amount: data.amount,
+      frequency: data.frequency,
+      next_date: data.nextDate || data.next_date,
+      status: statusStr,
+      category_id: data.category_id || null,
+      recurrence_type: data.recurrence_type,
+      installment_count: data.installment_count || null
+    };
+    const { data: updated, error } = await supabase.from('recurring_items').update(payload).eq('id', id).eq('user_id', user.id).select().single();
+    if (error) throw error;
+    setRecurring(prev => prev.map(r => r.id === id ? updated : r));
+    return updated;
+  };
+
+  const deleteRecurring = async (id) => {
+    if (!user) throw new Error("Usuário não autenticado");
+    const { error } = await supabase.from('recurring_items').delete().eq('id', id).eq('user_id', user.id);
+    if (error) throw error;
+    setRecurring(prev => prev.filter(r => r.id !== id));
+    setParcels(prev => prev.filter(p => p.recurring_item_id !== id));
+    return true;
+  };
+
+  const payParcel = async (parcelId) => {
+    if (!user) throw new Error("Usuário não autenticado");
+    const parcel = parcels.find(p => p.id === parcelId);
+    if (!parcel) throw new Error("Parcela não encontrada");
+    const today = new Date().toISOString().slice(0, 10);
+    const { data: updated, error } = await supabase.from('recurring_installments').update({ status: 'paid', paid_date: today }).eq('id', parcelId).eq('user_id', user.id).select().single();
+    if (error) throw error;
+    const updatedParcels = parcels.map(p => p.id === parcelId ? updated : p);
+    setParcels(updatedParcels);
+    const remaining = updatedParcels.filter(p => p.recurring_item_id === parcel.recurring_item_id && !p.paid_date).sort((a, b) => a.parcel_number - b.parcel_number);
+    if (remaining.length === 0) {
+      await supabase.from('recurring_items').update({ status: 'Inativo' }).eq('id', parcel.recurring_item_id).eq('user_id', user.id);
+      setRecurring(prev => prev.map(r => r.id === parcel.recurring_item_id ? { ...r, status: 'Inativo' } : r));
+    } else {
+      await supabase.from('recurring_items').update({ next_date: remaining[0].due_date }).eq('id', parcel.recurring_item_id).eq('user_id', user.id);
+      setRecurring(prev => prev.map(r => r.id === parcel.recurring_item_id ? { ...r, next_date: remaining[0].due_date } : r));
+    }
+    return updated;
+  };
+
+  const processRecurring = async (recurringItemId) => {
+    if (!user) throw new Error("Usuário não autenticado");
+    const { data: result, error } = await supabase.functions.invoke('process-recurring-transaction', {
+      body: { recurringId: recurringItemId }
+    });
+    if (error) throw error;
+    if (result?.error) throw new Error(result.error);
+    setRecurring(prev => prev.map(r => r.id === recurringItemId ? { ...r, next_date: result.nextDate } : r));
+    if (result?.transaction) {
+      const { data: tx } = await supabase.from('transactions')
+        .select('*, categories(*), contas:accounts!fk_transacoes_conta(*), conta_destino:accounts!fk_transacoes_conta_destino(*), invoices(id, invoice_number)')
+        .eq('id', result.transactionId)
+        .single();
+      if (tx) setTransactions(prev => [tx, ...prev]);
+    }
+    return result;
+  };
+
+  // Investment Operations
+  const addInvestment = async (data) => {
+    if (!user) throw new Error("Usuário não autenticado");
+    const { data: row, error } = await supabase.from('investments').insert({
+      user_id: user.id,
+      name: data.name,
+      type: data.type,
+      subtype: data.subtype || null,
+      account_id: data.accountId || null,
+      invested_amount: data.investedAmount,
+      current_amount: data.currentAmount,
+      purchase_date: data.purchaseDate,
+    }).select().single();
+    if (error) throw error;
+    setInvestments(prev => [mapInvestment(row), ...prev]);
+    return mapInvestment(row);
+  };
+
+  const updateInvestment = async (id, data) => {
+    if (!user) throw new Error("Usuário não autenticado");
+    const { data: row, error } = await supabase.from('investments').update({
+      name: data.name,
+      type: data.type,
+      subtype: data.subtype || null,
+      account_id: data.accountId || null,
+      invested_amount: data.investedAmount,
+      current_amount: data.currentAmount,
+      purchase_date: data.purchaseDate,
+    }).eq('id', id).eq('user_id', user.id).select().single();
+    if (error) throw error;
+    setInvestments(prev => prev.map(inv => inv.id === id ? mapInvestment(row) : inv));
+    return mapInvestment(row);
+  };
+
+  const deleteInvestment = async (id) => {
+    if (!user) throw new Error("Usuário não autenticado");
+    const { error } = await supabase.from('investments').delete().eq('id', id).eq('user_id', user.id);
+    if (error) throw error;
+    setInvestments(prev => prev.filter(inv => inv.id !== id));
+    return true;
+  };
+
   // Transaction Operations
   const createTransaction = async (formData) => {
     if (!user) throw new Error("Usuário não autenticado");
-    const { data, error } = await supabase.from('transactions').insert({ ...formData, user_id: user.id })
+    const { frequency, recurring_installment_count, ...txPayload } = formData;
+    const { data, error } = await supabase.from('transactions').insert({ ...txPayload, user_id: user.id })
       .select('*, categories(*), contas:accounts!fk_transacoes_conta(*), conta_destino:accounts!fk_transacoes_conta_destino(*), invoices(id, invoice_number)').single();
     if (error) throw error;
+
+    if (txPayload.is_recurring && frequency) {
+      const nextDate = calculateNextDate(data.date, frequency);
+      const recurringType = txPayload.recurring_type || 'Assinatura';
+      const count = recurring_installment_count ? parseInt(recurring_installment_count) : null;
+      const { data: ri } = await supabase.from('recurring_items').insert({
+        user_id: user.id,
+        description: data.description,
+        amount: data.amount,
+        frequency,
+        next_date: nextDate,
+        status: 'Ativo',
+        category_id: data.category_id || null,
+        recurrence_type: recurringType,
+        installment_count: count
+      }).select().single();
+      if (ri) {
+        await supabase.from('transactions').update({ recurring_id: ri.id }).eq('id', data.id);
+        setRecurring(prev => [...prev, ri]);
+        if (recurringType === 'Parcelas' && count) {
+          const installments = Array.from({ length: count }, (_, i) => ({
+            user_id: user.id,
+            recurring_item_id: ri.id,
+            parcel_number: i + 1,
+            amount: Math.abs(data.amount),
+            due_date: calculateNextDate(data.date, frequency, i),
+            status: i === 0 ? 'paid' : 'pending',
+            paid_date: i === 0 ? data.date : null
+          }));
+          await supabase.from('recurring_installments').insert(installments);
+          await fetchParcels();
+        }
+      }
+    }
+
     setTransactions(prev => [data, ...prev]);
     return data;
   };
@@ -351,7 +575,17 @@ export const FinanceProvider = ({ children }) => {
     createTransaction,
     updateTransaction,
     deleteTransaction,
-    saveSettings
+    saveSettings,
+    addRecurring,
+    updateRecurring,
+    deleteRecurring,
+    payParcel,
+    processRecurring,
+    fetchRecurring,
+    fetchParcels,
+    addInvestment,
+    updateInvestment,
+    deleteInvestment
   };
 
   return <FinanceContext.Provider value={value}>{children}</FinanceContext.Provider>;

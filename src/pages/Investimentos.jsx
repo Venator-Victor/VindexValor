@@ -18,6 +18,7 @@ import NumberInput from '@/components/ui/NumberInput';
 import InvestmentsChart from '@/components/InvestmentsChart';
 import { useSortableList } from '@/hooks/useSortableList';
 import InvestmentTypeSelector from '@/components/InvestmentTypeSelector';
+import { CHART_PERIOD_OPTIONS } from '@/utils/periodOptions';
 import InvestmentSubtypeSelector from '@/components/InvestmentSubtypeSelector';
 import InvestimentoCard from '@/components/cards/InvestimentoCard';
 import {
@@ -220,13 +221,9 @@ const Investimentos = () => {
                          </div>
                     </SelectTrigger>
                     <SelectContent>
-                        <SelectItem value="diario">Diário</SelectItem>
-                        <SelectItem value="semanal">Semanal</SelectItem>
-                        <SelectItem value="quinzenal">Quinzenal</SelectItem>
-                        <SelectItem value="mensal">Mensal</SelectItem>
-                        <SelectItem value="trimestral">Trimestral</SelectItem>
-                        <SelectItem value="semestral">Semestral</SelectItem>
-                        <SelectItem value="anual">Anual</SelectItem>
+                        {CHART_PERIOD_OPTIONS.map(opt => (
+                            <SelectItem key={opt.value} value={opt.value}>{opt.label}</SelectItem>
+                        ))}
                     </SelectContent>
                 </Select>
             </div>

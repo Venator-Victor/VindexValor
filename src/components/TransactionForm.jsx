@@ -10,6 +10,7 @@ import DatePicker from '@/components/ui/DatePicker';
 import NumberInput from '@/components/ui/NumberInput';
 import { useAutoMappingCategories } from '@/hooks/useAutoMappingCategories';
 import { formatCurrencyWithSymbol } from '@/utils/calculations';
+import { PERIOD_OPTIONS } from '@/utils/periodOptions';
 
 const TransactionForm = ({ initialData, onSuccess, onCancel }) => {
   const { accounts, categories, faturas, createTransaction, updateTransaction } = useFinance();
@@ -22,7 +23,9 @@ const TransactionForm = ({ initialData, onSuccess, onCancel }) => {
   const [formData, setFormData] = useState({
     type: 'saida',
     is_recurring: false,
-    recurring_type: '',
+    recurring_type: 'Assinatura',
+    frequency: 'Mensal',
+    recurring_installment_count: '',
     amount: '',
     converted_amount: '',
     description: '',
@@ -40,7 +43,9 @@ const TransactionForm = ({ initialData, onSuccess, onCancel }) => {
       setFormData({
         type: initialData.type || 'saida',
         is_recurring: initialData.is_recurring || false,
-        recurring_type: initialData.recurring_type || '',
+        recurring_type: initialData.recurring_type || 'Assinatura',
+        frequency: 'Mensal',
+        recurring_installment_count: '',
         amount: Math.abs(initialData.amount) || '',
         converted_amount: initialData.converted_amount || '',
         description: initialData.description || '',
@@ -305,6 +310,57 @@ const TransactionForm = ({ initialData, onSuccess, onCancel }) => {
                 <option key={cat.id} value={cat.id}>{cat.name}</option>
               ))}
             </select>
+          </div>
+        )}
+
+        {formData.type !== 'transferencia' && formData.type !== 'pagamento' && !initialData && (
+          <div className="border border-gray-200 dark:border-vindex-border rounded-lg p-3 space-y-3">
+            <label className="flex items-center gap-2 cursor-pointer select-none">
+              <input
+                type="checkbox"
+                checked={formData.is_recurring}
+                onChange={(e) => setFormData(prev => ({ ...prev, is_recurring: e.target.checked }))}
+                className="w-4 h-4 accent-green-600"
+              />
+              <span className="text-sm font-medium text-gray-700 dark:text-gray-300">Repetir automaticamente</span>
+            </label>
+            {formData.is_recurring && (
+              <div className="space-y-3 animate-in fade-in slide-in-from-top-2 duration-200">
+                <div className="grid grid-cols-2 gap-3">
+                  <SelectInput
+                    label="Frequência"
+                    id="frequency"
+                    value={formData.frequency}
+                    options={PERIOD_OPTIONS}
+                    onChange={(e) => setFormData(prev => ({ ...prev, frequency: e.target.value }))}
+                  />
+                  <SelectInput
+                    label="Tipo"
+                    id="recurring_type"
+                    value={formData.recurring_type}
+                    options={[
+                      { label: 'Assinatura', value: 'Assinatura' },
+                      { label: 'Parcelamento', value: 'Parcelas' }
+                    ]}
+                    onChange={(e) => setFormData(prev => ({ ...prev, recurring_type: e.target.value }))}
+                  />
+                </div>
+                {formData.recurring_type === 'Parcelas' && (
+                  <div>
+                    <Label htmlFor="recurring_installment_count">Número de parcelas</Label>
+                    <input
+                      id="recurring_installment_count"
+                      type="number"
+                      min={2}
+                      value={formData.recurring_installment_count}
+                      onChange={(e) => setFormData(prev => ({ ...prev, recurring_installment_count: e.target.value }))}
+                      placeholder="Ex: 12"
+                      className={inputClasses}
+                    />
+                  </div>
+                )}
+              </div>
+            )}
           </div>
         )}
 

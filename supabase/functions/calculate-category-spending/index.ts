@@ -1,4 +1,4 @@
-import { createClient } from 'https://esm.sh/@supabase/supabase-js@2';
+import { createClient } from '@supabase/supabase-js';
 import { corsHeaders } from "./cors.ts";
 Deno.serve(async (req)=>{
   if (req.method === 'OPTIONS') {
@@ -7,9 +7,27 @@ Deno.serve(async (req)=>{
     });
   }
   try {
+    const authHeader = req.headers.get('Authorization');
+    if (!authHeader) {
+      return new Response(JSON.stringify({ error: 'Unauthorized' }), {
+        status: 401,
+        headers: { ...corsHeaders, 'Content-Type': 'application/json' }
+      });
+    }
+    const supabaseAuth = createClient(Deno.env.get('SUPABASE_URL') ?? '', Deno.env.get('SUPABASE_ANON_KEY') ?? '', {
+      global: { headers: { Authorization: authHeader } }
+    });
+    const { data: { user }, error: authError } = await supabaseAuth.auth.getUser();
+    if (authError || !user) {
+      return new Response(JSON.stringify({ error: 'Unauthorized: Invalid token' }), {
+        status: 401,
+        headers: { ...corsHeaders, 'Content-Type': 'application/json' }
+      });
+    }
+    const userId = user.id;
     const supabaseClient = createClient(Deno.env.get('SUPABASE_URL') ?? '', Deno.env.get('SUPABASE_SERVICE_ROLE_KEY') ?? '');
-    const { userId, month, year, categoryId } = await req.json();
-    if (!userId || !month || !year) throw new Error("Missing params");
+    const { month, year, categoryId } = await req.json();
+    if (!month || !year) throw new Error("Missing params");
     // Optimized: Use the View
     let query = supabaseClient.from('vw_expense_by_category_monthly').select('*').eq('user_id', userId).eq('month', month).eq('year', year);
     if (categoryId) {

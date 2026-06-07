@@ -88,7 +88,7 @@ const Recorrencias = () => {
             else totalPending += Number(p.amount);
         });
      }
-     recurring.filter(r => r.status === true).forEach(r => {
+     recurring.filter(r => r.status === 'Ativo').forEach(r => {
          totalPending += Math.abs(Number(r.amount));
      });
      return { totalPaid, totalPending };
@@ -115,7 +115,7 @@ const Recorrencias = () => {
       amount: finalAmount,
       frequency: formData.frequency,
       nextDate: formData.nextDate,
-      status: isActive,
+      status: formData.status,
       recurrence_type: isParcelas ? 'Parcelas' : 'Assinatura',
       installment_count: isParcelas && formData.installment_count ? parseInt(formData.installment_count) : null
     };
@@ -165,7 +165,7 @@ const Recorrencias = () => {
       amount: Math.abs(recurringItem.amount).toString(),
       frequency: recurringItem.frequency,
       nextDate: recurringItem.date || recurringItem.next_date,
-      status: recurringItem.status === true ? 'Ativo' : 'Inativo',
+      status: recurringItem.status === 'Ativo' ? 'Ativo' : 'Inativo',
       transaction_type_id: guessedTypeId,
       installment_count: recurringItem.installment_count || ''
     });
@@ -179,9 +179,9 @@ const Recorrencias = () => {
   };
 
   const toggleStatus = (recurringItem) => {
-    const newStatus = !recurringItem.status;
-    updateRecurring(recurringItem.id, { ...recurringItem, status: newStatus });
-    toast({ title: `Recorrência ${newStatus ? 'ativada' : 'desativada'} com sucesso!` });
+    const newStatus = recurringItem.status === 'Ativo' ? 'Inativo' : 'Ativo';
+    updateRecurring(recurringItem.id, { status: newStatus });
+    toast({ title: `Recorrência ${newStatus === 'Ativo' ? 'ativada' : 'desativada'} com sucesso!` });
   };
   
   const handleCategoryChange = (e) => {

@@ -1,91 +1,88 @@
-import { createClient } from 'https://esm.sh/@supabase/supabase-js@2';
+import { createClient } from '@supabase/supabase-js';
 import { corsHeaders } from "./cors.ts";
-Deno.serve(async (req)=>{
+
+Deno.serve(async (req) => {
   if (req.method === 'OPTIONS') {
-    return new Response('ok', {
-      headers: corsHeaders
-    });
+    return new Response('ok', { headers: corsHeaders });
   }
   try {
+    const authHeader = req.headers.get('Authorization');
+    if (!authHeader) {
+      return new Response(JSON.stringify({ error: 'Unauthorized' }), {
+        status: 401,
+        headers: { ...corsHeaders, 'Content-Type': 'application/json' }
+      });
+    }
+
+    const supabaseAuth = createClient(Deno.env.get('SUPABASE_URL') ?? '', Deno.env.get('SUPABASE_ANON_KEY') ?? '', {
+      global: { headers: { Authorization: authHeader } }
+    });
+    const { data: { user }, error: authError } = await supabaseAuth.auth.getUser();
+    if (authError || !user) {
+      return new Response(JSON.stringify({ error: 'Unauthorized: Invalid token' }), {
+        status: 401,
+        headers: { ...corsHeaders, 'Content-Type': 'application/json' }
+      });
+    }
+
+    const userId = user.id;
     const supabaseClient = createClient(Deno.env.get('SUPABASE_URL') ?? '', Deno.env.get('SUPABASE_SERVICE_ROLE_KEY') ?? '');
-    const { recorrenciaId, userId } = await req.json();
-    if (!recorrenciaId || !userId) throw new Error("Missing parameters");
-    // 1. Fetch Recorrencia
-    const { data: rule, error: fetchError } = await supabaseClient.from('recorrencias').select('*').eq('id', recorrenciaId).eq('user_id', userId).single();
+
+    const { recurringId } = await req.json();
+    if (!recurringId) throw new Error("Missing parameters");
+
+    const { data: rule, error: fetchError } = await supabaseClient
+      .from('recurring_items')
+      .select('*')
+      .eq('id', recurringId)
+      .eq('user_id', userId)
+      .single();
     if (fetchError || !rule) throw new Error("Recurrence not found");
-    // 2. Create Transaction
-    const newTx = {
-      user_id: userId,
-      description: rule.description,
-      amount: rule.amount,
-      type: Number(rule.amount) < 0 ? 'saida' : 'entrada',
-      date: rule.next_date,
-      category_id: rule.category_id,
-      is_recurring: true,
-      recurring_id: rule.id,
-      created_at: new Date().toISOString()
-    };
-    const { data: txData, error: txError } = await supabaseClient.from('transacoes').insert(newTx).select().single();
+
+    const { data: txData, error: txError } = await supabaseClient
+      .from('transactions')
+      .insert({
+        user_id: userId,
+        description: rule.description,
+        amount: rule.amount,
+        type: Number(rule.amount) < 0 ? 'saida' : 'entrada',
+        date: rule.next_date,
+        category_id: rule.category_id,
+        is_recurring: true,
+        recurring_id: rule.id,
+        original_amount: Math.abs(Number(rule.amount)),
+        created_at: new Date().toISOString()
+      })
+      .select()
+      .single();
     if (txError) throw txError;
-    // 3. Calculate Next Date
-    const currentNext = new Date(rule.next_date);
-    let nextDateObj = new Date(currentNext);
-    switch(rule.frequency){
-      case 'Semanal':
-        nextDateObj.setDate(nextDateObj.getDate() + 7);
-        break;
-      case 'Quinzenal':
-        nextDateObj.setDate(nextDateObj.getDate() + 15);
-        break;
-      case 'Mensal':
-        nextDateObj.setMonth(nextDateObj.getMonth() + 1);
-        break;
-      case 'Trimestral':
-        nextDateObj.setMonth(nextDateObj.getMonth() + 3);
-        break;
-      case 'Semestral':
-        nextDateObj.setMonth(nextDateObj.getMonth() + 6);
-        break;
-      case 'Anual':
-        nextDateObj.setFullYear(nextDateObj.getFullYear() + 1);
-        break;
-      default:
-        nextDateObj.setMonth(nextDateObj.getMonth() + 1);
+
+    const nextDate = new Date(rule.next_date + 'T12:00:00');
+    switch (rule.frequency) {
+      case 'Diário':     nextDate.setDate(nextDate.getDate() + 1); break;
+      case 'Semanal':    nextDate.setDate(nextDate.getDate() + 7); break;
+      case 'Quinzenal':  nextDate.setDate(nextDate.getDate() + 15); break;
+      case 'Mensal':     nextDate.setMonth(nextDate.getMonth() + 1); break;
+      case 'Trimestral': nextDate.setMonth(nextDate.getMonth() + 3); break;
+      case 'Semestral':  nextDate.setMonth(nextDate.getMonth() + 6); break;
+      case 'Anual':      nextDate.setFullYear(nextDate.getFullYear() + 1); break;
+      default:           nextDate.setMonth(nextDate.getMonth() + 1);
     }
-    const nextDateStr = nextDateObj.toISOString().split('T')[0];
-    // 4. Update Recurrence
-    const { error: updateError } = await supabaseClient.from('recorrencias').update({
-      next_date: nextDateStr
-    }).eq('id', rule.id);
+    const nextDateStr = nextDate.toISOString().slice(0, 10);
+
+    const { error: updateError } = await supabaseClient
+      .from('recurring_items')
+      .update({ next_date: nextDateStr })
+      .eq('id', rule.id);
     if (updateError) throw updateError;
-    // 5. Handle Parcels (if applicable)
-    if (rule.recurrence_type === 'Parcelas' && rule.installment_count) {
-    // Decrement logic or mark parcel as paid? 
-    // Logic in FinanceContext.jsx handles 'recorrencia_parcelas'.
-    // If this edge function is replacing that logic, we should update 'recorrencia_parcelas' status.
-    // Assuming we just mark the relevant parcel as paid if exists?
-    // Or simple counter?
-    // For now, basic implementation just updates date.
-    }
-    return new Response(JSON.stringify({
-      success: true,
-      transactionId: txData.id,
-      nextDate: nextDateStr
-    }), {
-      headers: {
-        ...corsHeaders,
-        "Content-Type": "application/json"
-      }
+
+    return new Response(JSON.stringify({ success: true, transactionId: txData.id, nextDate: nextDateStr, transaction: txData }), {
+      headers: { ...corsHeaders, 'Content-Type': 'application/json' }
     });
   } catch (error) {
-    return new Response(JSON.stringify({
-      error: error.message
-    }), {
+    return new Response(JSON.stringify({ error: error.message }), {
       status: 400,
-      headers: {
-        ...corsHeaders,
-        "Content-Type": "application/json"
-      }
+      headers: { ...corsHeaders, 'Content-Type': 'application/json' }
     });
   }
 });

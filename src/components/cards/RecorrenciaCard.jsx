@@ -1,10 +1,13 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { formatCurrency } from '@/utils/calculations';
 import { Button } from '@/components/ui/button';
 import { useFinance } from '@/context/FinanceContext';
+import { useToast } from '@/components/ui/use-toast';
 
 const RecorrenciaCard = ({ item, onEdit, onDelete, onToggleStatus }) => {
-  const { parcels, payParcel } = useFinance();
+  const { parcels, payParcel, processRecurring } = useFinance();
+  const { toast } = useToast();
+  const [isProcessing, setIsProcessing] = useState(false);
   const isActive = item.status === 'Ativo';
   const isParceled = item.recurrence_type === 'Parcelas';
   
@@ -20,6 +23,18 @@ const RecorrenciaCard = ({ item, onEdit, onDelete, onToggleStatus }) => {
   const handlePayNextParcel = () => {
     if (nextPendingParcel) {
       payParcel(nextPendingParcel.id);
+    }
+  };
+
+  const handleProcessPayment = async () => {
+    setIsProcessing(true);
+    try {
+      await processRecurring(item.id);
+      toast({ title: "Pagamento registrado!", description: `Próxima cobrança atualizada.` });
+    } catch (err) {
+      toast({ title: "Erro ao registrar pagamento", description: err.message, variant: "destructive" });
+    } finally {
+      setIsProcessing(false);
     }
   };
 
@@ -97,23 +112,36 @@ const RecorrenciaCard = ({ item, onEdit, onDelete, onToggleStatus }) => {
             )}
          </div>
       ) : (
-          <div className="flex items-center justify-between pl-2 pt-3 border-t border-gray-100 dark:border-vindex-border/50 mt-auto">
-             <div className="flex flex-col">
-                <span className="text-[10px] text-gray-400 uppercase tracking-wider font-semibold">Próxima</span>
-                <span className="text-sm font-bold text-gray-700 dark:text-gray-200">
-                   {new Date(item.next_date).toLocaleDateString('pt-BR')}
-                </span>
+          <div className="pl-2 pt-3 border-t border-gray-100 dark:border-vindex-border/50 mt-auto space-y-2">
+             <div className="flex items-center justify-between">
+                <div className="flex flex-col">
+                   <span className="text-[10px] text-gray-400 uppercase tracking-wider font-semibold">Próxima</span>
+                   <span className="text-sm font-bold text-gray-700 dark:text-gray-200">
+                      {item.next_date ? new Date(item.next_date).toLocaleDateString('pt-BR') : '—'}
+                   </span>
+                </div>
+                <button
+                   onClick={() => onToggleStatus(item)}
+                   className={`px-3 py-1.5 rounded-full text-xs font-bold transition-colors ${
+                     isActive
+                       ? 'bg-green-100 text-green-700 dark:bg-vindex-success/20 dark:text-vindex-success hover:bg-green-200 dark:hover:bg-vindex-success/30'
+                       : 'bg-gray-100 text-gray-500 dark:bg-vindex-bg dark:text-gray-400 hover:bg-gray-200 dark:hover:bg-vindex-border'
+                   }`}
+                >
+                   {item.status}
+                </button>
              </div>
-             <button
-                onClick={() => onToggleStatus(item)}
-                className={`px-3 py-1.5 rounded-full text-xs font-bold transition-colors ${
-                  isActive 
-                    ? 'bg-green-100 text-green-700 dark:bg-vindex-success/20 dark:text-vindex-success hover:bg-green-200 dark:hover:bg-vindex-success/30' 
-                    : 'bg-gray-100 text-gray-500 dark:bg-vindex-bg dark:text-gray-400 hover:bg-gray-200 dark:hover:bg-vindex-border'
-                }`}
-             >
-                {item.status}
-             </button>
+             {isActive && (
+               <Button
+                 size="sm"
+                 onClick={handleProcessPayment}
+                 disabled={isProcessing}
+                 className="w-full bg-purple-50 hover:bg-purple-100 text-purple-700 dark:bg-purple-900/20 dark:text-purple-300 dark:hover:bg-purple-900/30 border border-purple-200 dark:border-purple-800 h-9"
+               >
+                 <i className='bx bx-check mr-1.5'></i>
+                 {isProcessing ? 'Registrando...' : 'Registrar pagamento'}
+               </Button>
+             )}
           </div>
       )}
     </div>
