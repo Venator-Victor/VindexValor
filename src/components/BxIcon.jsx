@@ -1,0 +1,190 @@
+import React from 'react';
+import {
+  Wallet, TrendingDown, TrendingUp, PieChartAlt2, BarChart, Check, Plus,
+  DoughnutChart, History, Pencil, Trash, CalendarCheck, User, Cog, Bell,
+  InfoCircle, Share, Lock, Moon, Sun, Dashboard, Receipt, File, Target,
+  Tag, HelpCircle, ChevronLeft, ChevronRight, ChevronDown, Door, ListUl,
+  Ghost, CalendarStar, ArrowCross, Clock5, Checks, Menu, Envelope, Phone,
+  MessageDots,
+  // Icon selector icons
+  Trophy, Home, Car, Plane, Book, Briefcase, Gift, Heart, Star, Diamond,
+  Mobile, Laptop, Camera, Music, Video, Joystick, Dumbbell, Building,
+  Store, Cart, CreditCard, Dollar, Euro, Bitcoin, PieChart, Cloud,
+  Water, LightBulb, Coffee, Bed, ForkKnife,
+  // Category / account icons from DB defaults
+  Shield, BuildingHouse, Group, Wifi, Bolt, Station, Hanger,
+  ShoppingBag, Face, BookOpen, Child, PawPrint, Hospital, Bus, PlaneAlt,
+  // UI icons
+  X, ArrowUp, ArrowDown, ArrowRight, ArrowLeft,
+  ArrowUpRight, ArrowDownRight, ArrowDownUp,
+  ChevronUp, Filter, Search,
+  Eye, EyeSlash,
+  CheckCircle, XCircle, AlertCircle, AlertTriangle,
+  AlertShield, ShieldAlt,
+  Pulse, Edit, TrashAlt,
+  Calendar, Folder, FolderOpen,
+  Repeat, Sigma, Sparkle, RefreshCw, ArrowToBottom,
+  Link, Cookie, Database,
+  UserCheck, Grid, Window,
+  // shadcn ui primitives
+  Circle, Minus, DotsHorizontalRounded, DotsVerticalRounded, Sidebar,
+} from '@boxicons/react';
+
+const iconMap = {
+  // Core app icons
+  'bx-wallet': Wallet,
+  'bx-trending-down': TrendingDown,
+  'bx-trending-up': TrendingUp,
+  'bx-pie-chart-alt-2': PieChartAlt2,
+  'bx-bar-chart-alt-2': BarChart,
+  'bx-check': Check,
+  'bx-plus': Plus,
+  'bx-doughnut-chart': DoughnutChart,
+  'bx-revision': History,
+  'bx-pencil': Pencil,
+  'bx-trash': Trash,
+  'bx-calendar-check': CalendarCheck,
+  'bx-user': User,
+  'bx-cog': Cog,
+  'bx-bell': Bell,
+  'bx-info-circle': InfoCircle,
+  'bx-export': Share,
+  'bx-lock-alt': Lock,
+  'bx-moon': Moon,
+  'bx-sun': Sun,
+  'bxs-dashboard': Dashboard,
+  'bx-receipt': Receipt,
+  'bx-file-blank': File,
+  'bx-stats': BarChart,
+  'bx-target-lock': Target,
+  'bx-tag': Tag,
+  'bx-help-circle': HelpCircle,
+  'bx-chevron-left': ChevronLeft,
+  'bx-chevron-right': ChevronRight,
+  'bx-chevron-down': ChevronDown,
+  'bx-log-out': Door,
+  'bx-list-ul': ListUl,
+  'bx-ghost': Ghost,
+  'bx-calendar-star': CalendarStar,
+  'bx-question-mark': HelpCircle,
+  'bx-transfer': ArrowCross,
+  'bx-time-five': Clock5,
+  'bx-check-double': Checks,
+  'bx-money-withdraw': TrendingDown,
+  'bx-menu': Menu,
+  'bx-envelope': Envelope,
+  'bx-phone': Phone,
+  'bx-message-rounded-dots': MessageDots,
+  'bx-purchase-tag': Tag,
+  // Icon selector / user-facing icons
+  'bx-trophy': Trophy,
+  'bx-home': Home,
+  'bx-car': Car,
+  'bx-plane': Plane,
+  'bx-plane-alt': PlaneAlt,
+  'bx-book': Book,
+  'bx-graduation': Book,
+  'bx-briefcase': Briefcase,
+  'bx-gift': Gift,
+  'bx-heart': Heart,
+  'bx-star': Star,
+  'bx-diamond': Diamond,
+  'bx-mobile': Mobile,
+  'bx-laptop': Laptop,
+  'bx-camera': Camera,
+  'bx-music': Music,
+  'bx-video': Video,
+  'bx-joystick': Joystick,
+  'bx-game': Joystick,
+  'bx-dumbbell': Dumbbell,
+  'bx-first-aid': Hospital,
+  'bx-plus-medical': Hospital,
+  'bx-building': Building,
+  'bx-building-house': BuildingHouse,
+  'bx-store': Store,
+  'bx-cart': Cart,
+  'bx-credit-card': CreditCard,
+  'bx-dollar': Dollar,
+  'bx-dollar-circle': Dollar,
+  'bx-euro': Euro,
+  'bx-bitcoin': Bitcoin,
+  'bx-pie-chart': PieChart,
+  'bx-bar-chart': BarChart,
+  'bx-line-chart': BarChart,
+  'bx-cloud': Cloud,
+  'bx-water': Water,
+  'bx-bulb': LightBulb,
+  'bx-restaurant': ForkKnife,
+  'bx-coffee': Coffee,
+  'bx-bed': Bed,
+  'bx-money': Dollar,
+  'bx-pulse': Heart,
+  // Category defaults not in icon selector
+  'bx-shield': Shield,
+  'bx-shield-quarter': Shield,
+  'bx-group': Group,
+  'bx-wifi': Wifi,
+  'bx-plug': Bolt,
+  'bx-gas-pump': Station,
+  'bx-closet': Hanger,
+  'bx-hanger': Hanger,
+  'bx-shopping-bag': ShoppingBag,
+  'bx-face': Face,
+  'bx-book-open': BookOpen,
+  'bx-child': Child,
+  'bx-paw': PawPrint,
+  'bx-bus': Bus,
+  // MetaCategorySelector icons
+  'bx-user-voice': User,
+  'bx-calendar-event': CalendarCheck,
+};
+
+const BxIcon = ({ iconClass = '', className = '', size = 20, style, ...props }) => {
+  const parts = iconClass.trim().split(/\s+/);
+  const iconKey = parts.find(p => p.startsWith('bx-') || p.startsWith('bxs-'));
+  const isFilled = iconKey?.startsWith('bxs-');
+  const Icon = iconMap[iconKey];
+
+  if (!Icon) return null;
+
+  return (
+    <Icon
+      size={size}
+      pack={isFilled ? 'filled' : 'basic'}
+      className={className}
+      style={style}
+      {...props}
+    />
+  );
+};
+
+export default BxIcon;
+export {
+  Wallet, TrendingDown, TrendingUp, PieChartAlt2, BarChart, Check, Plus,
+  DoughnutChart, History, Pencil, Trash, CalendarCheck, User, Cog, Bell,
+  InfoCircle, Share, Lock, Moon, Sun, Dashboard, Receipt, File, Target,
+  Tag, HelpCircle, ChevronLeft, ChevronRight, ChevronDown, Door, ListUl,
+  Ghost, CalendarStar, ArrowCross, Clock5, Checks, Menu, Envelope, Phone,
+  MessageDots,
+  // UI icons
+  X, ArrowUp, ArrowDown, ArrowRight, ArrowLeft,
+  ArrowUpRight, ArrowDownRight, ArrowDownUp,
+  ChevronUp, Filter, Search,
+  Eye, EyeSlash,
+  CheckCircle, XCircle, AlertCircle, AlertTriangle,
+  AlertShield, ShieldAlt,
+  Pulse, Edit, TrashAlt,
+  Calendar, Folder, FolderOpen,
+  Repeat, Sigma, Sparkle, RefreshCw, ArrowToBottom,
+  Link, Cookie, Database,
+  UserCheck, Grid, Window,
+  Circle, Minus, DotsHorizontalRounded, DotsVerticalRounded, Sidebar,
+  // icon selector icons
+  PieChart, CreditCard, Trophy, Home, Car, Plane, Book, Briefcase,
+  Gift, Heart, Star, Diamond, Mobile, Laptop, Camera, Music, Video,
+  Joystick, Dumbbell, Building, Store, Cart, Dollar, Euro, Bitcoin,
+  Cloud, Water, LightBulb, Coffee, Bed, ForkKnife,
+  // category / account icons
+  Shield, BuildingHouse, Group, Wifi, Bolt, Station, Hanger,
+  ShoppingBag, Face, BookOpen, Child, PawPrint, Hospital, Bus, PlaneAlt,
+};
