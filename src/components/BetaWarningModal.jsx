@@ -1,6 +1,6 @@
 import React from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { AlertCircle, Target, TrendingUp, BarChart3, X } from 'lucide-react';
+import { AlertCircle, Target, TrendingUp, BarChart as BarChart3, X } from '@/components/BxIcon';
 import { Button } from '@/components/ui/button';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter } from '@/components/ui/dialog';
 

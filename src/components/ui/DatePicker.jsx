@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { ChevronLeft, ChevronRight, Calendar as CalendarIcon } from 'lucide-react';
+import { ChevronLeft, ChevronRight, Calendar as CalendarIcon } from '@/components/BxIcon';
 import { cn } from '@/lib/utils';
 import { Button } from '@/components/ui/button';
 
@@ -86,10 +86,10 @@ const DatePicker = ({ value, onChange, label, className }) => {
           type="button"
           className={cn(
             "h-8 w-8 rounded-full text-sm flex items-center justify-center transition-all hover:scale-110",
-            isSelected 
-              ? "bg-green-600 text-white font-bold shadow-md" 
-              : isToday 
-                ? "bg-green-100 text-green-700 dark:bg-vindex-success/20 dark:text-vindex-success font-semibold"
+            isSelected
+              ? "bg-primary text-primary-foreground font-bold shadow-md"
+              : isToday
+                ? "bg-primary/20 text-primary dark:bg-primary/20 dark:text-primary font-semibold"
                 : "hover:bg-gray-100 dark:hover:bg-vindex-bg text-gray-700 dark:text-vindex-text"
           )}
         >

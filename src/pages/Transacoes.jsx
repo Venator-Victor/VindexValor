@@ -1,7 +1,7 @@
 import React, { useState, useMemo, useEffect } from 'react';
 import { Helmet } from 'react-helmet';
 import { useLocation, useNavigate } from 'react-router-dom';
-import { WrapText as ReceiptText, UploadCloud, Plus, Search, X, Filter } from 'lucide-react'; 
+import { Receipt as ReceiptText, Share as UploadCloud, Plus, Search, X, Filter } from '@/components/BxIcon';
 import { useFinance } from '@/context/FinanceContext';
 import { Button } from '@/components/ui/button';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';

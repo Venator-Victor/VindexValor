@@ -8,6 +8,7 @@ import { useToast } from '@/components/ui/use-toast';
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from '@/components/ui/alert-dialog';
 import { useAuth } from '@/context/SupabaseAuthContext';
 import { useTheme } from '@/context/ThemeContext';
+import BxIcon, { User, Cog, Bell, InfoCircle, Share, Lock, Moon, Sun } from '@/components/BxIcon';
 
 const Configuracoes = () => {
   const { settings, setSettings, saveSettings, transactions, accounts, categories, investments, recurring } = useFinance();
@@ -17,10 +18,10 @@ const Configuracoes = () => {
   const [activeTab, setActiveTab] = useState('conta');
 
   const tabs = [
-    { id: 'conta', label: 'Conta', iconClass: 'bx bx-user' },
-    { id: 'preferencias', label: 'Preferências', iconClass: 'bx bx-cog' },
-    { id: 'notificacoes', label: 'Notificações', iconClass: 'bx bx-bell' },
-    { id: 'sobre', label: 'Sobre', iconClass: 'bx bx-info-circle' },
+    { id: 'conta', label: 'Conta', Icon: User },
+    { id: 'preferencias', label: 'Preferências', Icon: Cog },
+    { id: 'notificacoes', label: 'Notificações', Icon: Bell },
+    { id: 'sobre', label: 'Sobre', Icon: InfoCircle },
   ];
 
   const handleSave = async () => {
@@ -110,7 +111,7 @@ const Configuracoes = () => {
                     : 'bg-transparent text-gray-500 dark:text-vindex-text/60 hover:bg-gray-100 dark:hover:bg-vindex-border/50 hover:text-gray-900 dark:hover:text-vindex-text'
                 }`}
               >
-                <i className={`${tab.iconClass} text-xl`}></i>
+                <tab.Icon size={20} />
                 <span className="font-medium">{tab.label}</span>
               </button>
             );
@@ -140,13 +141,13 @@ const Configuracoes = () => {
                  
                  <div className="flex flex-col md:flex-row gap-4">
                     <Button onClick={handleExportData} className="flex-1 bg-white dark:bg-vindex-border hover:bg-gray-100 dark:hover:bg-vindex-border/80 text-gray-900 dark:text-vindex-text border border-gray-200 dark:border-vindex-border/50 rounded-lg shadow-sm">
-                      <i className='bx bx-export mr-2'></i> Exportar Dados
+                      <Share size={16} className="mr-2" /> Exportar Dados
                     </Button>
 
                     <AlertDialog>
                       <AlertDialogTrigger asChild>
                          <Button variant="destructive" className="flex-1 bg-red-50 dark:bg-vindex-danger/20 hover:bg-red-100 dark:hover:bg-vindex-danger/30 text-vindex-danger border border-red-200 dark:border-vindex-danger/50 rounded-lg">
-                            <i className='bx bx-lock-alt mr-2'></i> Redefinir Senha
+                            <Lock size={16} className="mr-2" /> Redefinir Senha
                          </Button>
                       </AlertDialogTrigger>
                       <AlertDialogContent className="bg-white dark:bg-vindex-card text-gray-900 dark:text-vindex-text border-gray-200 dark:border-vindex-border rounded-xl">
@@ -183,7 +184,7 @@ const Configuracoes = () => {
                         : 'bg-gray-100 dark:bg-vindex-bg text-gray-500 dark:text-vindex-text/60 hover:bg-gray-200 dark:hover:bg-vindex-border/50'
                     }`}
                   >
-                    <i className='bx bx-moon'></i>
+                    <Moon size={16} />
                     Escuro
                   </button>
                   <button
@@ -194,7 +195,7 @@ const Configuracoes = () => {
                         : 'bg-gray-100 dark:bg-vindex-bg text-gray-500 dark:text-vindex-text/60 hover:bg-gray-200 dark:hover:bg-vindex-border/50'
                     }`}
                   >
-                    <i className='bx bx-sun'></i>
+                    <Sun size={16} />
                     Claro
                   </button>
                 </div>

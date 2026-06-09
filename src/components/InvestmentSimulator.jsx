@@ -1,8 +1,7 @@
 import React, { useState, useMemo } from 'react';
 import { motion } from 'framer-motion';
 import { formatCurrency } from '@/utils/calculations';
-import { TrendingUp } from 'lucide-react';
-
+import { TrendingUp } from '@/components/BxIcon';
 const InvestmentSimulator = () => {
   const [monthlyAmount, setMonthlyAmount] = useState(500);
   const [period, setPeriod] = useState(10); // Default 10 years

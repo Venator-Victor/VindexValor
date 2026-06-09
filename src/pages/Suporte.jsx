@@ -4,6 +4,7 @@ import { motion } from 'framer-motion';
 import { Button } from '@/components/ui/button';
 import { Label } from '@/components/ui/label';
 import { useToast } from '@/components/ui/use-toast';
+import { ChevronDown, Envelope, Phone, MessageDots } from '@/components/BxIcon';
 
 const Suporte = () => {
   const { toast } = useToast();
@@ -82,9 +83,7 @@ const Suporte = () => {
                   className="w-full px-4 py-3 flex items-center justify-between text-left hover:bg-gray-100 dark:hover:bg-vindex-border/30 transition-colors"
                 >
                   <span className="text-gray-900 dark:text-vindex-text font-medium">{faq.question}</span>
-                  <i className={`bx bx-chevron-down text-gray-500 dark:text-vindex-text/60 transition-transform text-xl ${
-                      openFaq === index ? 'rotate-180' : ''
-                    }`}></i>
+                  <ChevronDown size={20} className={`text-gray-500 dark:text-vindex-text/60 transition-transform ${openFaq === index ? 'rotate-180' : ''}`} />
                 </button>
                 {openFaq === index && (
                   <motion.div
@@ -170,7 +169,7 @@ const Suporte = () => {
       >
         <div className="bg-white dark:bg-vindex-card rounded-xl p-6 border border-gray-200 dark:border-vindex-border flex items-center gap-4 shadow-sm hover:shadow-md transition-shadow">
           <div className="w-12 h-12 rounded-lg bg-blue-50 dark:bg-blue-500/10 flex items-center justify-center">
-            <i className='bx bx-envelope text-blue-500 dark:text-blue-400 text-2xl'></i>
+            <Envelope size={24} className="text-blue-500 dark:text-blue-400" />
           </div>
           <div>
             <p className="text-sm text-gray-500 dark:text-vindex-text/60">Email</p>
@@ -180,7 +179,7 @@ const Suporte = () => {
 
         <div className="bg-white dark:bg-vindex-card rounded-xl p-6 border border-gray-200 dark:border-vindex-border flex items-center gap-4 shadow-sm hover:shadow-md transition-shadow">
           <div className="w-12 h-12 rounded-lg bg-green-50 dark:bg-vindex-success/10 flex items-center justify-center">
-            <i className='bx bx-phone text-green-600 dark:text-vindex-success text-2xl'></i>
+            <Phone size={24} className="text-green-600 dark:text-vindex-success" />
           </div>
           <div>
             <p className="text-sm text-gray-500 dark:text-vindex-text/60">Telefone</p>
@@ -190,7 +189,7 @@ const Suporte = () => {
 
         <div className="bg-white dark:bg-vindex-card rounded-xl p-6 border border-gray-200 dark:border-vindex-border flex items-center gap-4 shadow-sm hover:shadow-md transition-shadow">
           <div className="w-12 h-12 rounded-lg bg-indigo-50 dark:bg-indigo-500/10 flex items-center justify-center">
-            <i className='bx bx-message-rounded-dots text-indigo-500 dark:text-indigo-400 text-2xl'></i>
+            <MessageDots size={24} className="text-indigo-500 dark:text-indigo-400" />
           </div>
           <div>
             <p className="text-sm text-gray-500 dark:text-vindex-text/60">Chat Online</p>

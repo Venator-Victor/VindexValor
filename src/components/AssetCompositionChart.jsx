@@ -4,6 +4,7 @@ import { PieChart, Pie, Cell, ResponsiveContainer, Tooltip, Legend } from 'recha
 import { formatCurrency, isCryptoCurrency } from '@/utils/calculations';
 import { motion } from 'framer-motion';
 import { useTheme } from '@/context/ThemeContext';
+import { DoughnutChart } from '@/components/BxIcon';
 
 const AssetCompositionChart = ({ accounts = [], investments = [], recurring = [], exchangeRates = {}, selectedPeriod }) => {
   const { theme } = useTheme();
@@ -90,7 +91,7 @@ const AssetCompositionChart = ({ accounts = [], investments = [], recurring = []
       <div className="flex items-center justify-between mb-2">
         <div>
            <h3 className="text-lg font-bold text-gray-900 dark:text-gray-50 flex items-center gap-2">
-            <i className='bx bx-doughnut-chart text-purple-500'></i>
+            <DoughnutChart size={20} className="text-purple-500" />
             Composição Patrimonial
           </h3>
           <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">

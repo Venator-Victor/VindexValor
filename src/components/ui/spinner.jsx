@@ -1,5 +1,4 @@
-import { Loader2Icon } from "lucide-react"
-
+import { RefreshCw as Loader2Icon } from '@/components/BxIcon';
 import { cn } from "@/lib/utils"
 
 function Spinner({

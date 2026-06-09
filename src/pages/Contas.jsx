@@ -2,7 +2,8 @@ import { PRIMARY, PRIMARY_HOVER } from '@/utils/colors';
 import React, { useState, useMemo, useEffect } from 'react';
 import { Helmet } from 'react-helmet';
 import { motion } from 'framer-motion';
-import { LayoutGrid, List as ListIcon, WalletCards, Eye, EyeOff } from 'lucide-react';
+import { Grid as LayoutGrid, ListUl as ListIcon, Wallet as WalletCards, Eye, EyeSlash as EyeOff } from '@/components/BxIcon';
+import BxIcon, { Plus, Pencil, Trash } from '@/components/BxIcon';
 import { useFinance } from '@/context/FinanceContext';
 import { Button } from '@/components/ui/button';
 import SortableHeader from '@/components/SortableHeader';
@@ -149,7 +150,7 @@ const Contas = () => {
                     onMouseEnter={(e) => e.currentTarget.style.backgroundColor = PRIMARY_HOVER}
                     onMouseLeave={(e) => e.currentTarget.style.backgroundColor = PRIMARY}
                 >
-                    <i className='bx bx-plus mr-2 text-xl'></i>
+                    <Plus size={20} className="mr-2" />
                     <span className="hidden sm:inline">Nova Conta</span>
                     <span className="sm:hidden">Nova</span>
                 </Button>
@@ -199,7 +200,7 @@ const Contas = () => {
                         className="w-12 h-12 rounded-lg flex items-center justify-center text-xl shrink-0"
                         style={{ backgroundColor: account.color + '22', border: `1px solid ${account.color}` }}
                       >
-                        <i className={`bx ${account.icon || 'bx-wallet'}`} style={{ color: account.color }}></i>
+                        <BxIcon iconClass={`bx ${account.icon || 'bx-wallet'}`} size={20} style={{ color: account.color }} />
                       </div>
                       <div>
                         <h3 className="text-lg font-bold text-gray-900 dark:text-gray-50 line-clamp-1" title={account.name}>
@@ -256,7 +257,7 @@ const Contas = () => {
                       onClick={() => handleEdit(account)}
                       className="flex-1 hover:bg-gray-100 dark:hover:bg-vindex-border text-gray-700 dark:text-gray-300 border-gray-200 dark:border-vindex-border rounded-lg"
                     >
-                      <i className='bx bx-pencil mr-1'></i>
+                      <Pencil size={14} className="mr-1" />
                       Editar
                     </Button>
                     <Button
@@ -265,7 +266,7 @@ const Contas = () => {
                       onClick={() => setDeleteId(account.id)}
                       className="flex-1 hover:bg-red-50 dark:hover:bg-vindex-danger/20 hover:text-red-600 dark:hover:text-vindex-danger text-gray-700 dark:text-gray-300 border-gray-200 dark:border-vindex-border hover:border-red-200 dark:hover:border-vindex-danger/50 rounded-lg"
                     >
-                      <i className='bx bx-trash mr-1'></i>
+                      <Trash size={14} className="mr-1" />
                       Excluir
                     </Button>
                   </div>
@@ -293,7 +294,7 @@ const Contas = () => {
                                   <div className="flex items-center gap-3">
                                      <div className="w-8 h-8 rounded-lg flex items-center justify-center text-sm" 
                                           style={{ backgroundColor: account.color + '22', border: `1px solid ${account.color}` }}>
-                                        <i className={`bx ${account.icon || 'bx-wallet'}`} style={{ color: account.color }}></i>
+                                        <BxIcon iconClass={`bx ${account.icon || 'bx-wallet'}`} size={20} style={{ color: account.color }} />
                                      </div>
                                      <div className='flex flex-col'>
                                         <span className="font-medium text-gray-900 dark:text-gray-50">
@@ -334,7 +335,7 @@ const Contas = () => {
                                         onClick={() => handleEdit(account)}
                                         className="h-8 w-8 p-0 hover:bg-gray-100 dark:hover:bg-vindex-border text-gray-700 hover:text-gray-900 dark:text-gray-400 dark:hover:text-gray-100 rounded-lg"
                                      >
-                                        <i className='bx bx-pencil text-lg'></i>
+                                        <Pencil size={18} />
                                      </Button>
                                      <Button
                                         size="sm"
@@ -342,7 +343,7 @@ const Contas = () => {
                                         onClick={() => setDeleteId(account.id)}
                                         className="h-8 w-8 p-0 hover:bg-red-50 dark:hover:bg-vindex-danger/20 text-gray-700 hover:text-red-600 dark:text-gray-400 dark:hover:text-vindex-danger rounded-lg"
                                      >
-                                        <i className='bx bx-trash text-lg'></i>
+                                        <Trash size={18} />
                                      </Button>
                                   </div>
                                </td>

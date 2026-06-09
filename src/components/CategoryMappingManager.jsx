@@ -2,8 +2,9 @@ import React, { useState } from 'react';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { Trash2, Link as LinkIcon, Search } from 'lucide-react';
+import { TrashAlt as Trash2, Link as LinkIcon, Search } from '@/components/BxIcon';
 import { useCustomCategoryMappings } from '@/hooks/useCustomCategoryMappings';
+import BxIcon from '@/components/BxIcon';
 
 const CategoryMappingManager = () => {
   const { mappings, loading, deleteMapping } = useCustomCategoryMappings();
@@ -59,7 +60,7 @@ const CategoryMappingManager = () => {
                       <td className="px-4 py-3 font-medium">{mapping.description}</td>
                       <td className="px-4 py-3">
                         <span className="inline-flex items-center gap-1.5 px-2 py-1 rounded bg-secondary/10 text-secondary-foreground text-xs">
-                          {mapping.categorias?.icon && <i className={mapping.categorias.icon}></i>}
+                          {mapping.categorias?.icon && <BxIcon iconClass={mapping.categorias.icon} size={14} />}
                           {mapping.categorias?.name || 'Categoria Removida'}
                         </span>
                       </td>

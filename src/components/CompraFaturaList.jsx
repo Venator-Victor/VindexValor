@@ -1,6 +1,6 @@
 import React, { useState, useMemo } from 'react';
 import { formatCurrency } from '@/utils/calculations';
-import { Edit, Trash, ArrowDownRight, ArrowUpRight, ArrowUp, ArrowDown } from 'lucide-react';
+import { Edit, Trash, ArrowDownRight, ArrowUpRight, ArrowUp, ArrowDown } from '@/components/BxIcon';
 import { Button } from '@/components/ui/button';
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from '@/components/ui/alert-dialog';
 

@@ -4,7 +4,11 @@ import { motion } from 'framer-motion';
 import { useFinance } from '@/context/FinanceContext';
 import { useAuth } from '@/context/SupabaseAuthContext';
 import VindexLogo from './VindexLogo';
-import { ShieldAlert } from 'lucide-react';
+import { AlertShield as ShieldAlert } from '@/components/BxIcon';
+import BxIcon, {
+  Dashboard, Receipt, File, Wallet, TrendingUp, BarChart, Target, Tag,
+  History, HelpCircle, Cog, ChevronLeft, ChevronRight, Door,
+} from './BxIcon';
 
 const Sidebar = () => {
   const location = useLocation();
@@ -18,20 +22,20 @@ const Sidebar = () => {
   };
 
   const mainNavItems = [
-    { path: '/dashboard', iconClass: 'bx bxs-dashboard', label: 'Dashboard' },
-    { path: '/transacoes', iconClass: 'bx bx-receipt', label: 'Transações' },
-    { path: '/faturas', iconClass: 'bx bx-file-blank', label: 'Faturas' },
-    { path: '/contas', iconClass: 'bx bx-wallet', label: 'Contas' },
-    { path: '/investimentos', iconClass: 'bx bx-trending-up', label: 'Investimentos' },
-    { path: '/analises', iconClass: 'bx bx-stats', label: 'Análises' },
-    { path: '/metas', iconClass: 'bx bx-target-lock', label: 'Metas' },
-    { path: '/categorias', iconClass: 'bx bx-tag', label: 'Categorias' },
-    { path: '/recorrencias', iconClass: 'bx bx-revision', label: 'Recorrências' },
+    { path: '/dashboard', Icon: Dashboard, pack: 'filled', label: 'Dashboard' },
+    { path: '/transacoes', Icon: Receipt, label: 'Transações' },
+    { path: '/faturas', Icon: File, label: 'Faturas' },
+    { path: '/contas', Icon: Wallet, label: 'Contas' },
+    { path: '/investimentos', Icon: TrendingUp, label: 'Investimentos' },
+    { path: '/analises', Icon: BarChart, label: 'Análises' },
+    { path: '/metas', Icon: Target, label: 'Metas' },
+    { path: '/categorias', Icon: Tag, label: 'Categorias' },
+    { path: '/recorrencias', Icon: History, label: 'Recorrências' },
   ];
 
   const bottomNavItems = [
-    { path: '/suporte', iconClass: 'bx bx-help-circle', label: 'Suporte' },
-    { path: '/configuracoes', iconClass: 'bx bx-cog', label: 'Configurações' },
+    { path: '/suporte', Icon: HelpCircle, label: 'Suporte' },
+    { path: '/configuracoes', Icon: Cog, label: 'Configurações' },
   ];
 
   const sidebarWidth = isSidebarCollapsed ? 'w-20' : 'w-72';
@@ -41,27 +45,28 @@ const Sidebar = () => {
       <motion.div
         whileHover={{ x: isSidebarCollapsed ? 0 : 4 }}
         whileTap={{ scale: 0.98 }}
+        transition={{ duration: 0.08 }}
         className={`
           flex items-center ${isSidebarCollapsed ? 'justify-center px-0' : 'justify-start px-6'} py-3 mx-2 rounded-lg mb-1
-          transition-all duration-200 group relative
+          transition-all duration-75 group relative
           ${isActive || (item.path === '/faturas' && location.pathname.startsWith('/faturas'))
-            ? 'bg-primary text-white shadow-[0_0_15px_rgba(67,207,234,0.3)]' 
+            ? 'bg-primary text-white shadow-[0_0_15px_rgba(67,207,234,0.3)]'
             : 'text-gray-600 hover:bg-gray-100 hover:text-gray-900 dark:text-gray-400 dark:hover:bg-vindex-border/50 dark:hover:text-vindex-text'
           }
         `}
       >
         {isLucide ? (
           <ShieldAlert size={20} className="flex-shrink-0" />
-        ) : (
-          <i className={`${item.iconClass} text-xl flex-shrink-0`}></i>
-        )}
+        ) : item.Icon ? (
+          <item.Icon size={20} pack={item.pack || 'basic'} className="flex-shrink-0" />
+        ) : null}
         
         {!isSidebarCollapsed && (
           <span className="font-medium ml-3 whitespace-nowrap overflow-hidden">{item.label}</span>
         )}
 
         {isSidebarCollapsed && (
-          <div className="absolute left-full ml-2 px-2 py-1 bg-white dark:bg-vindex-card border border-gray-200 dark:border-vindex-border text-gray-900 dark:text-vindex-text text-sm rounded opacity-0 group-hover:opacity-100 pointer-events-none whitespace-nowrap z-50 transition-opacity shadow-md">
+          <div className="absolute left-full ml-2 px-2 py-1 bg-white dark:bg-vindex-card border border-gray-200 dark:border-vindex-border text-gray-900 dark:text-vindex-text text-sm rounded opacity-0 group-hover:opacity-100 pointer-events-none whitespace-nowrap z-50 transition-opacity duration-75 shadow-md">
             {item.label}
           </div>
         )}
@@ -96,7 +101,7 @@ const Sidebar = () => {
               onClick={toggleSidebar}
               className="p-1 rounded-lg hover:bg-gray-100 dark:hover:bg-vindex-border/50 text-gray-500 dark:text-gray-400 hover:text-gray-900 dark:hover:text-vindex-text transition-colors hidden md:block flex-shrink-0 ml-2"
             >
-              <i className='bx bx-chevron-left text-2xl'></i>
+              <ChevronLeft size={24} />
             </button>
           )}
         </div>
@@ -107,7 +112,7 @@ const Sidebar = () => {
               onClick={toggleSidebar}
               className="p-1 rounded-lg hover:bg-gray-100 dark:hover:bg-vindex-border/50 text-gray-500 dark:text-gray-400 hover:text-gray-900 dark:hover:text-vindex-text transition-colors"
             >
-              <i className='bx bx-chevron-right text-2xl'></i>
+              <ChevronRight size={24} />
             </button>
           </div>
         )}
@@ -134,19 +139,20 @@ const Sidebar = () => {
             <motion.div
               whileHover={{ x: isSidebarCollapsed ? 0 : 4 }}
               whileTap={{ scale: 0.98 }}
+              transition={{ duration: 0.08 }}
               className={`
                 flex items-center ${isSidebarCollapsed ? 'justify-center px-0' : 'justify-start px-6'} py-3 mx-2 rounded-lg
-                transition-all duration-200 group relative
+                transition-all duration-75 group relative
                 text-red-600 dark:text-vindex-danger hover:bg-red-50 dark:hover:bg-vindex-danger/10
               `}
             >
-              <i className='bx bx-log-out text-xl flex-shrink-0'></i>
+              <Door size={20} className="flex-shrink-0" />
               {!isSidebarCollapsed && (
                 <span className="font-medium ml-3 whitespace-nowrap overflow-hidden">Sair</span>
               )}
               
               {isSidebarCollapsed && (
-                <div className="absolute left-full ml-2 px-2 py-1 bg-white dark:bg-vindex-card border border-gray-200 dark:border-vindex-border text-gray-900 dark:text-vindex-text text-sm rounded opacity-0 group-hover:opacity-100 pointer-events-none whitespace-nowrap z-50 transition-opacity shadow-md">
+                <div className="absolute left-full ml-2 px-2 py-1 bg-white dark:bg-vindex-card border border-gray-200 dark:border-vindex-border text-gray-900 dark:text-vindex-text text-sm rounded opacity-0 group-hover:opacity-100 pointer-events-none whitespace-nowrap z-50 transition-opacity duration-75 shadow-md">
                   Sair
                 </div>
               )}

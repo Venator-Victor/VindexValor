@@ -5,9 +5,10 @@ import { AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContai
 import { formatCurrency } from '@/utils/calculations';
 import { useFinance } from '@/context/FinanceContext';
 import { useTheme } from '@/context/ThemeContext';
-import { Info, AlertCircle, RefreshCw, Loader2 } from 'lucide-react';
+import { InfoCircle as Info, AlertCircle, RefreshCw, TrendingDown } from '@/components/BxIcon';
 import { supabase } from '@/lib/customSupabaseClient';
 import { Button } from '@/components/ui/button';
+const Loader2 = RefreshCw;
 import {
   Tooltip as UiTooltip,
   TooltipContent,
@@ -142,12 +143,12 @@ const InflationCard = ({ currentBalance }) => {
       className="bg-white dark:bg-vindex-card rounded-xl p-6 border border-red-200 dark:border-vindex-danger/30 shadow-lg relative overflow-hidden group transition-colors duration-300"
     >
       <div className="absolute top-0 right-0 p-4 opacity-5 dark:opacity-10 group-hover:opacity-10 dark:group-hover:opacity-20 transition-opacity">
-        <i className='bx bx-trending-down text-9xl text-vindex-danger'></i>
+        <TrendingDown size={144} className="text-vindex-danger" />
       </div>
 
       <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-6 relative z-10 gap-4">
         <h2 className="text-xl font-bold text-gray-900 dark:text-vindex-text flex items-center gap-2">
-          <i className='bx bx-money-withdraw text-vindex-danger'></i>
+          <TrendingDown size={20} className="text-vindex-danger" />
           Impacto Histórico da Inflação
           <UiTooltip>
              <TooltipTrigger>

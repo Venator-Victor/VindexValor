@@ -1,6 +1,6 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { ChevronDown, Check, Plus } from 'lucide-react';
+import { ChevronDown, Check, Plus } from '@/components/BxIcon';
 import { cn } from '@/lib/utils';
 import { Label } from '@/components/ui/label';
 

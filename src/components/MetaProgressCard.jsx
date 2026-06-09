@@ -4,6 +4,7 @@ import { motion } from 'framer-motion';
 import { formatCurrency } from '@/utils/calculations';
 import { Button } from '@/components/ui/button';
 import { differenceInDays, isPast, parseISO } from 'date-fns';
+import BxIcon, { Pencil, Trash } from '@/components/BxIcon';
 
 const MetaProgressCard = ({ goal, onEdit, onDelete, index = 0 }) => {
   const isTargetMode = goal.goal_type === 'valor_final';
@@ -59,7 +60,7 @@ const MetaProgressCard = ({ goal, onEdit, onDelete, index = 0 }) => {
                 borderColor: goal.color + '44'
             }}
           >
-            <i className={`bx ${goal.icon || 'bx-target-lock'}`}></i>
+            <BxIcon iconClass={`bx ${goal.icon || 'bx-target-lock'}`} size={20} />
           </div>
           <div className="min-w-0 flex-1">
             <h3 className="text-base font-bold text-gray-900 dark:text-gray-50 leading-tight truncate pr-1" title={goal.name}>
@@ -140,7 +141,7 @@ const MetaProgressCard = ({ goal, onEdit, onDelete, index = 0 }) => {
             onClick={() => onEdit(goal)} 
             className="h-7 w-7 hover:bg-gray-100 dark:hover:bg-vindex-border text-gray-500 hover:text-gray-900 dark:text-gray-400 dark:hover:text-gray-100"
           >
-            <i className='bx bx-pencil'></i>
+            <Pencil size={14} />
           </Button>
           <Button 
             size="icon" 
@@ -148,7 +149,7 @@ const MetaProgressCard = ({ goal, onEdit, onDelete, index = 0 }) => {
             onClick={() => onDelete(goal.id)} 
             className="h-7 w-7 hover:bg-red-50 dark:hover:bg-red-900/20 text-gray-500 hover:text-red-600 dark:text-gray-400 dark:hover:text-red-400"
           >
-            <i className='bx bx-trash'></i>
+            <Trash size={14} />
           </Button>
       </div>
 

@@ -3,8 +3,7 @@ import { useConsent } from '@/context/ConsentContext';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Button } from '@/components/ui/button';
 import { Link } from 'react-router-dom';
-import { Cookie } from 'lucide-react';
-
+import { Cookie } from '@/components/BxIcon';
 const CookieConsentBanner = () => {
   const { hasConsented, acceptAll, rejectNonEssential, setIsModalOpen } = useConsent();
 

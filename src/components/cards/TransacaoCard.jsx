@@ -1,6 +1,7 @@
 import React from 'react';
 import { formatCurrency } from '@/utils/calculations';
 import { Button } from '@/components/ui/button';
+import BxIcon, { ArrowCross, Pencil, Trash, User } from '@/components/BxIcon';
 
 const TransacaoCard = ({ transaction, onEdit, onDelete }) => {
   const isTransfer = transaction.type === 'transferencia';
@@ -27,12 +28,12 @@ const TransacaoCard = ({ transaction, onEdit, onDelete }) => {
               className="w-10 h-10 rounded-lg flex items-center justify-center text-xl"
               style={{ backgroundColor: categoryColor + '22', color: categoryColor }}
             >
-              <i className={categoryIcon}></i>
+              <BxIcon iconClass={categoryIcon} size={20} />
             </div>
           )}
           {isTransfer && (
             <div className="w-10 h-10 rounded-lg flex items-center justify-center text-xl bg-gray-200 dark:bg-vindex-text/10 text-gray-600 dark:text-gray-300">
-              <i className='bx bx-transfer'></i>
+              <ArrowCross size={20} />
             </div>
           )}
           <div>
@@ -60,10 +61,10 @@ const TransacaoCard = ({ transaction, onEdit, onDelete }) => {
         </div>
         <div className="flex gap-1">
           <Button size="sm" variant="ghost" onClick={() => onEdit(transaction)} className="h-8 w-8 p-0">
-            <i className='bx bx-pencil'></i>
+            <Pencil size={14} />
           </Button>
           <Button size="sm" variant="ghost" onClick={() => onDelete(transaction.id)} className="h-8 w-8 p-0 text-red-500 hover:text-red-700">
-            <i className='bx bx-trash'></i>
+            <Trash size={14} />
           </Button>
         </div>
       </div>
@@ -88,7 +89,7 @@ const TransacaoCard = ({ transaction, onEdit, onDelete }) => {
          </div>
          {transaction.responsible_holder && (
             <div className="text-xs text-gray-500 dark:text-gray-400 mt-1 flex items-center gap-1">
-               <i className='bx bx-user'></i>
+               <User size={12} />
                <span>Resp: {transaction.responsible_holder}</span>
             </div>
          )}

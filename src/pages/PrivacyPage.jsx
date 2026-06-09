@@ -1,10 +1,11 @@
 import React, { useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { Helmet } from 'react-helmet';
-import { ArrowLeft, ShieldCheck, Database, Lock, UserCheck, Mail, Cookie, Settings2 } from 'lucide-react';
+import { ArrowLeft, ShieldAlt as ShieldCheck, Database, Lock, UserCheck, Envelope as Mail, Cookie, Cog as Settings2 } from '@/components/BxIcon';
 import { Button } from '@/components/ui/button';
 import { motion } from 'framer-motion';
 import { useConsent } from '@/context/ConsentContext';
+import VindexLogo from '@/components/VindexLogo';
 
 const PrivacyPage = () => {
   const { setIsModalOpen } = useConsent();
@@ -23,13 +24,8 @@ const PrivacyPage = () => {
       {/* Header Minimal */}
       <header className="border-b border-border bg-card">
         <div className="container mx-auto px-4 md:px-6 h-16 flex items-center justify-between">
-          <Link to="/" className="flex items-center gap-2 group">
-            <div className="w-8 h-8 rounded-lg bg-primary flex items-center justify-center text-primary-foreground font-bold text-lg shadow-md group-hover:scale-105 transition-transform">
-              V
-            </div>
-            <span className="text-xl font-bold tracking-tight text-foreground">
-              Vindex<span className="text-primary">Valor</span>
-            </span>
+          <Link to="/">
+            <VindexLogo textColor="text-foreground" />
           </Link>
           <Link to="/">
             <Button variant="ghost" size="sm" className="gap-2">

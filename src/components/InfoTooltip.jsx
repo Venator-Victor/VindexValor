@@ -5,8 +5,7 @@ import {
   TooltipProvider,
   TooltipTrigger,
 } from "@/components/ui/tooltip";
-import { Info } from 'lucide-react';
-
+import { InfoCircle as Info } from '@/components/BxIcon';
 const InfoTooltip = ({ content }) => {
   return (
     <TooltipProvider delayDuration={0}>

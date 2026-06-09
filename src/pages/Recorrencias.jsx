@@ -2,7 +2,8 @@ import { PRIMARY, PRIMARY_HOVER } from '@/utils/colors';
 import React, { useState } from 'react';
 import { Helmet } from 'react-helmet';
 import { motion } from 'framer-motion';
-import { LayoutGrid, List as ListIcon, Repeat, Search } from 'lucide-react';
+import { Grid as LayoutGrid, ListUl as ListIcon, Repeat, Search } from '@/components/BxIcon';
+import { Plus, Pencil, Trash } from '@/components/BxIcon';
 import { useFinance } from '@/context/FinanceContext';
 import { useCategories } from '@/hooks/useCategories';
 import { Button } from '@/components/ui/button';
@@ -250,7 +251,7 @@ const Recorrencias = () => {
                     onMouseEnter={(e) => e.currentTarget.style.backgroundColor = PRIMARY_HOVER}
                     onMouseLeave={(e) => e.currentTarget.style.backgroundColor = PRIMARY}
                 >
-                    <i className='bx bx-plus mr-2 text-xl'></i>
+                    <Plus size={20} className="mr-2" />
                     <span className="hidden sm:inline">Nova Recorrência</span>
                     <span className="sm:hidden">Nova</span>
                 </Button>
@@ -398,7 +399,7 @@ const Recorrencias = () => {
                       <ColorPicker value={newCategoryData.color} onChange={(color) => setNewCategoryData({...newCategoryData, color})} />
                       <IconSelector selectedIcon={newCategoryData.icon} onSelect={(icon) => setNewCategoryData({...newCategoryData, icon})} />
                       <div className="flex gap-2 pt-2">
-                        <Button type="submit" className="flex-1 bg-green-600 text-white hover:bg-green-700">Criar</Button>
+                        <Button type="submit" className="flex-1 bg-primary text-primary-foreground hover:bg-primary/90">Criar</Button>
                         <Button type="button" variant="outline" onClick={() => setIsCategoryDialogOpen(false)} className="flex-1">Cancelar</Button>
                       </div>
                   </form>
@@ -492,10 +493,10 @@ const Recorrencias = () => {
                         <td className="px-6 py-4">
                           <div className="flex gap-2">
                             <Button size="sm" variant="outline" onClick={() => handleEdit(item)} className="hover:bg-gray-100 dark:hover:bg-vindex-border text-gray-700 dark:text-gray-300 border-gray-200 dark:border-vindex-border h-8 w-8 p-0 rounded-lg">
-                              <i className='bx bx-pencil'></i>
+                              <Pencil size={14} />
                             </Button>
                             <Button size="sm" variant="outline" onClick={() => setDeleteId(item.id)} className="hover:bg-red-50 dark:hover:bg-vindex-danger/20 hover:text-red-600 dark:hover:text-vindex-danger hover:border-red-200 dark:hover:border-vindex-danger/50 text-gray-500 dark:text-gray-400 border-gray-200 dark:border-vindex-border h-8 w-8 p-0 rounded-lg">
-                              <i className='bx bx-trash'></i>
+                              <Trash size={14} />
                             </Button>
                           </div>
                         </td>

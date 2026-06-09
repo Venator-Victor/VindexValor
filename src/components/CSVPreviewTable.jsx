@@ -1,8 +1,7 @@
 import React from 'react';
 import { formatCurrency } from '@/utils/calculations';
 import { useFinance } from '@/context/FinanceContext';
-import { Sparkles, Edit2 } from 'lucide-react';
-
+import { Sparkle as Sparkles, Edit as Edit2 } from '@/components/BxIcon';
 const CSVPreviewTable = ({ data, onUpdateRow }) => {
   const { categories } = useFinance();
 

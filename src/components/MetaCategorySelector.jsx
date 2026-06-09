@@ -1,6 +1,7 @@
 import React from 'react';
 import { motion } from 'framer-motion';
 import { Button } from '@/components/ui/button';
+import BxIcon, { Plus } from '@/components/BxIcon';
 
 const CATEGORIES = [
   { id: 'emergency', name: 'Fundo de Emergência', icon: 'bx-shield-quarter', color: 'text-red-500', bg: 'bg-red-50 dark:bg-red-900/20' },
@@ -35,7 +36,7 @@ const MetaCategorySelector = ({ onSelect, onCustomSelect }) => {
             `}
           >
             <div className={`text-3xl ${cat.color} group-hover:scale-110 transition-transform duration-300`}>
-              <i className={`bx ${cat.icon}`}></i>
+              <BxIcon iconClass={`bx ${cat.icon}`} size={28} />
             </div>
             <span className="text-xs font-medium text-gray-700 dark:text-gray-200 leading-tight">
               {cat.name}
@@ -50,7 +51,7 @@ const MetaCategorySelector = ({ onSelect, onCustomSelect }) => {
           onClick={onCustomSelect}
           className="w-full h-12 border-dashed border-2 hover:bg-gray-50 dark:hover:bg-gray-800/50 text-gray-600 dark:text-gray-300 gap-2"
         >
-          <i className='bx bx-plus text-lg'></i>
+          <Plus size={18} />
           Crie uma nova meta personalizada
         </Button>
       </div>

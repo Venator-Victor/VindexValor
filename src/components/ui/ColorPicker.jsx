@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { Label } from '@/components/ui/label';
 import { cn } from '@/lib/utils';
-import { Check, Plus } from 'lucide-react';
+import { Check, Plus } from '@/components/BxIcon';
 import { motion } from 'framer-motion';
 
 const ColorPicker = ({ value, onChange, label = "Cor de Identificação", className }) => {

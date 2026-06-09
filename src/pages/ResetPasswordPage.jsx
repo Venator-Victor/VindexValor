@@ -5,7 +5,7 @@ import { useAuth } from '@/context/SupabaseAuthContext';
 import { Button } from '@/components/ui/button';
 import { Label } from '@/components/ui/label';
 import { useToast } from '@/components/ui/use-toast';
-import { Loader2, MailCheck } from 'lucide-react';
+import { RefreshCw as Loader2, Envelope as MailCheck } from '@/components/BxIcon';
 import VindexLogo from '@/components/VindexLogo';
 
 const ResetPasswordPage = () => {

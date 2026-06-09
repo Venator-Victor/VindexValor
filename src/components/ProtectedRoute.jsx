@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { Navigate, useLocation } from 'react-router-dom';
 import { useAuth } from '@/context/SupabaseAuthContext';
-import { Loader2 } from 'lucide-react';
+import { RefreshCw as Loader2 } from '@/components/BxIcon';
 import { logSecurityEvent } from '@/utils/securityUtils';
 
 const ProtectedRoute = ({ children }) => {

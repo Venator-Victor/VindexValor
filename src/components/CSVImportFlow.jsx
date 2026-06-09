@@ -4,7 +4,7 @@ import SelectInput from '@/components/ui/SelectInput';
 import { useFinance } from '@/context/FinanceContext';
 import { useCSVImport } from '@/hooks/useCSVImport';
 import CSVPreviewTable from './CSVPreviewTable';
-import { UploadCloud } from 'lucide-react';
+import { Share as UploadCloud } from '@/components/BxIcon';
 import { useAutoMappingCategories } from '@/hooks/useAutoMappingCategories';
 
 const CSVImportFlow = ({ onSuccess, onCancel }) => {

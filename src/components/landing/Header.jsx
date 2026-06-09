@@ -1,9 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
-import { 
-  Menu, X, ArrowRight, Sun, Moon, LogOut, 
-  Settings, LayoutDashboard, HelpCircle, User, AppWindow 
-} from 'lucide-react';
+import { Menu, X, ArrowRight, Sun, Moon, Door as LogOut, Cog as Settings, Dashboard as LayoutDashboard, HelpCircle, User, Window as AppWindow } from '@/components/BxIcon';
 import { Button } from '@/components/ui/button';
 import { useTheme } from '@/context/ThemeContext';
 import { useAuth } from '@/context/SupabaseAuthContext';

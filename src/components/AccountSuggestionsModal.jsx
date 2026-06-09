@@ -2,7 +2,8 @@ import React from 'react';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
 import { DEFAULT_ACCOUNTS } from '@/utils/defaultAccounts';
-import { Plus } from 'lucide-react';
+import { Plus } from '@/components/BxIcon';
+import BxIcon from '@/components/BxIcon';
 
 const AccountSuggestionsModal = ({ isOpen, onClose, onSelect, onCreateCustom }) => {
   
@@ -26,7 +27,7 @@ const AccountSuggestionsModal = ({ isOpen, onClose, onSelect, onCreateCustom }) 
                    className="w-12 h-12 rounded-full flex items-center justify-center text-2xl mb-3 shadow-sm transition-transform group-hover:scale-110 shrink-0"
                    style={{ backgroundColor: account.color + '22', color: account.color }}
                 >
-                   <i className={`bx ${account.icon}`}></i>
+                   <BxIcon iconClass={`bx ${account.icon}`} size={24} />
                 </div>
                 <span className="font-semibold text-gray-900 dark:text-gray-100 text-sm sm:text-base text-center break-words leading-tight flex-grow">{account.name}</span>
                 <span className="text-xs text-gray-500 dark:text-gray-400 mt-1 text-center break-words leading-tight">{account.type}</span>

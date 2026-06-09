@@ -2,6 +2,7 @@ import React from 'react';
 import { formatCurrency } from '@/utils/calculations';
 import { motion } from 'framer-motion';
 import { useNavigate } from 'react-router-dom';
+import BxIcon, { ListUl, Ghost } from '@/components/BxIcon';
 
 const RecentTransactionsSection = ({ transactions, categories, selectedPeriod }) => {
   const navigate = useNavigate();
@@ -26,7 +27,7 @@ const RecentTransactionsSection = ({ transactions, categories, selectedPeriod })
     <div className="bg-white dark:bg-vindex-card rounded-xl p-6 border border-gray-200 dark:border-vindex-border shadow-sm h-full flex flex-col">
       <div className="flex items-center justify-between mb-4 flex-shrink-0">
         <h3 className="text-lg font-bold text-gray-900 dark:text-gray-50 flex items-center gap-2">
-            <i className='bx bx-list-ul text-purple-500'></i>
+            <ListUl size={20} className="text-purple-500" />
             Transações
         </h3>
         <span className="text-xs font-medium px-2 py-1 bg-gray-100 dark:bg-gray-800 rounded-md text-gray-500 dark:text-gray-400">
@@ -52,7 +53,7 @@ const RecentTransactionsSection = ({ transactions, categories, selectedPeriod })
                     className="w-9 h-9 rounded-full flex items-center justify-center shrink-0 border"
                     style={{ backgroundColor: catDetails.color + '22', color: catDetails.color, borderColor: catDetails.color + '44' }}
                   >
-                    <i className={`${catDetails.icon} text-lg`}></i>
+                    <BxIcon iconClass={catDetails.icon} size={18} />
                   </div>
                   <div className="min-w-0 flex-1">
                     <p className="font-medium text-gray-900 dark:text-gray-100 text-sm truncate max-w-[140px] sm:max-w-[180px]">
@@ -83,7 +84,7 @@ const RecentTransactionsSection = ({ transactions, categories, selectedPeriod })
           })
         ) : (
           <div className="flex flex-col items-center justify-center h-full text-gray-400 pb-8">
-            <i className='bx bx-ghost text-4xl mb-2'></i>
+            <Ghost size={40} className="mb-2" />
             <p className="text-sm">Nenhuma transação</p>
           </div>
         )}

@@ -1,6 +1,6 @@
 import React from 'react';
 import { formatCurrency } from '@/utils/calculations';
-import { CreditCard, Calendar, FileText } from 'lucide-react';
+import { CreditCard, Calendar, File as FileText } from '@/components/BxIcon';
 import CategorySelectorForImport from './CategorySelectorForImport';
 
 const InvoiceImportPreview = ({ data, onUpdateRow }) => {

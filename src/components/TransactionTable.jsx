@@ -1,8 +1,9 @@
 import React, { useState, useMemo } from 'react';
 import { formatCurrencyWithSymbol } from '@/utils/calculations';
-import { Edit, Trash, ArrowUpDown, ArrowUp, ArrowDown } from 'lucide-react';
+import { Edit, Trash, ArrowDownUp as ArrowUpDown, ArrowUp, ArrowDown } from '@/components/BxIcon';
 import { Checkbox } from '@/components/ui/checkbox';
 import TransactionSelectionSummary from '@/components/TransactionSelectionSummary';
+import { History } from '@/components/BxIcon';
 
 const TransactionTable = ({ transactions, onEdit, onDelete, selectedIds, onSelectionChange }) => {
   const [sortConfig, setSortConfig] = useState({ key: 'date', direction: 'desc' });
@@ -125,7 +126,7 @@ const TransactionTable = ({ transactions, onEdit, onDelete, selectedIds, onSelec
                     <td className="p-3 whitespace-nowrap text-muted-foreground">{formatDate(t.date)}</td>
                     <td className="p-3 font-medium truncate max-w-[150px]" title={t.description || t.name}>
                       {t.description || t.name}
-                      {t.is_recurring && <i className='bx bx-revision ml-2 text-primary' title="Transação Recorrente"></i>}
+                      {t.is_recurring && <History size={16} className="ml-2 text-primary" title="Transação Recorrente" />}
                       {t.type === 'pagamento' && <span className="ml-2 text-[10px] bg-purple-100 text-purple-800 px-2 py-0.5 rounded-full whitespace-nowrap">Pagamento</span>}
                     </td>
                     <td className="p-3">

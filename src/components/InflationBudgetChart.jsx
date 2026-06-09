@@ -12,7 +12,8 @@ import { useFinance } from '@/context/FinanceContext';
 import { supabase } from '@/lib/customSupabaseClient';
 import { formatCurrency } from '@/utils/calculations';
 import { useTheme } from '@/context/ThemeContext';
-import { Loader2, AlertCircle, RefreshCw } from 'lucide-react';
+import { RefreshCw, AlertCircle } from '@/components/BxIcon';
+const Loader2 = RefreshCw;
 import { motion } from 'framer-motion';
 import { Button } from '@/components/ui/button';
 

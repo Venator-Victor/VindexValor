@@ -2,7 +2,8 @@ import { PRIMARY, PRIMARY_HOVER } from '@/utils/colors';
 import React, { useState, useEffect } from 'react';
 import { Helmet } from 'react-helmet';
 import { motion } from 'framer-motion';
-import { LayoutGrid, List as ListIcon, TrendingUp, Calendar, AlertTriangle } from 'lucide-react';
+import { Grid as LayoutGrid, ListUl as ListIcon, Calendar, AlertTriangle } from '@/components/BxIcon';
+import { Plus, Pencil, Trash, TrendingUp, TrendingDown } from '@/components/BxIcon';
 import { useFinance } from '@/context/FinanceContext';
 import { Button } from '@/components/ui/button';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
@@ -273,7 +274,7 @@ const Investimentos = () => {
                 onMouseEnter={(e) => e.currentTarget.style.backgroundColor = PRIMARY_HOVER}
                 onMouseLeave={(e) => e.currentTarget.style.backgroundColor = PRIMARY}
               >
-                <i className='bx bx-plus mr-2 text-xl'></i>
+                <Plus size={20} className="mr-2" />
                 <span className="hidden sm:inline">Novo Investimento</span>
                 <span className="sm:hidden">Nova</span>
               </Button>
@@ -440,7 +441,7 @@ const Investimentos = () => {
                           <td className="px-6 py-4 text-sm text-gray-900 dark:text-gray-100 font-medium">{formatCurrency(investment.currentAmount)}</td>
                           <td className="px-6 py-4">
                             <div className="flex items-center gap-1">
-                              <i className={`bx ${isProfit ? 'bx-trending-up' : 'bx-trending-down'} ${isProfit ? 'text-green-600 dark:text-vindex-success' : 'text-red-600 dark:text-vindex-danger'}`}></i>
+                              {isProfit ? <TrendingUp size={16} className="text-green-600 dark:text-vindex-success" /> : <TrendingDown size={16} className="text-red-600 dark:text-vindex-danger" />}
                               <span className={`text-sm font-bold ${isProfit ? 'text-green-600 dark:text-vindex-success' : 'text-red-600 dark:text-vindex-danger'}`}>
                                 {isProfit ? '+' : ''}{returnPercent.toFixed(2)}%
                               </span>
@@ -457,7 +458,7 @@ const Investimentos = () => {
                                 onClick={() => handleEdit(investment)}
                                 className="hover:bg-gray-100 dark:hover:bg-vindex-border text-gray-700 dark:text-gray-300 border-gray-200 dark:border-vindex-border h-8 w-8 p-0 rounded-lg"
                               >
-                                <i className='bx bx-pencil'></i>
+                                <Pencil size={14} />
                               </Button>
                               <Button
                                 size="sm"
@@ -465,7 +466,7 @@ const Investimentos = () => {
                                 onClick={() => setDeleteId(investment.id)}
                                 className="hover:bg-red-50 dark:hover:bg-vindex-danger/20 hover:text-red-600 dark:hover:text-vindex-danger hover:border-red-200 dark:hover:border-vindex-danger/50 text-gray-500 dark:text-gray-400 border-gray-200 dark:border-vindex-border h-8 w-8 p-0 rounded-lg"
                               >
-                                <i className='bx bx-trash'></i>
+                                <Trash size={14} />
                               </Button>
                             </div>
                           </td>

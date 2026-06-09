@@ -1,6 +1,5 @@
 import React from 'react';
-import { UploadCloud } from 'lucide-react';
-
+import { Share as UploadCloud } from '@/components/BxIcon';
 const CSVImportModal = ({ onFileSelected, isParsing, error }) => {
   return (
     <div className="border-2 border-dashed border-gray-300 dark:border-vindex-border rounded-xl p-8 text-center flex flex-col items-center justify-center bg-gray-50 dark:bg-vindex-bg/50">

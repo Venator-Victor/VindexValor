@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Search, Filter, X } from 'lucide-react';
+import { Search, Filter, X } from '@/components/BxIcon';
 import { Button } from '@/components/ui/button';
 import SelectInput from '@/components/ui/SelectInput';
 import FilterRangeInput from './FilterRangeInput';

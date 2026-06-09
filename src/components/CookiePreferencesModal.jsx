@@ -3,8 +3,7 @@ import { useConsent } from '@/context/ConsentContext';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
 import { Switch } from '@/components/ui/switch';
-import { ShieldCheck, Activity, Target, Settings2 } from 'lucide-react';
-
+import { ShieldAlt as ShieldCheck, Pulse as Activity, Target, Cog as Settings2 } from '@/components/BxIcon';
 const CookiePreferencesModal = () => {
   const { preferences, isModalOpen, setIsModalOpen, saveConsent, acceptAll, rejectNonEssential } = useConsent();
   

@@ -1,8 +1,7 @@
 "use client";
 import * as React from "react";
 import { Command as CommandPrimitive } from "cmdk";
-import { Search } from "lucide-react";
-
+import { Search } from '@/components/BxIcon';
 import { cn } from "@/lib/utils";
 import { Dialog, DialogContent } from "@/components/ui/dialog";
 

@@ -2,7 +2,8 @@ import React from 'react';
 import { Helmet } from 'react-helmet';
 import { Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
-import { ArrowRight, Wallet, ArrowRightLeft, Repeat, PieChart, TrendingUp, Target, Database, Layout as LayoutIcon, Code, Server } from 'lucide-react';
+import { ArrowRight, Wallet, ArrowCross as ArrowRightLeft, Repeat, PieChart, TrendingUp, Target } from '@/components/BxIcon';
+import { ViteJs, ReactIcon, Nodejs, Supabase as SupabaseIcon, TailwindCss, Landmark } from '@boxicons/react';
 import Header from '@/components/landing/Header';
 import Footer from '@/components/landing/Footer';
 import FeatureCard from '@/components/landing/FeatureCard';
@@ -100,13 +101,37 @@ const HomePage = () => {
               Construído com tecnologias modernas para garantir performance, segurança e a melhor experiência de usuário.
             </p>
             
-            {/* Task 1: Updated technologies section with requested tech stack */}
             <div className="flex flex-wrap justify-center gap-4 max-w-4xl mx-auto">
-              <TechBadge name="Node.js" icon={Server} className="bg-white/10 text-white border-white/20 hover:bg-white/20" />
-              <TechBadge name="React" icon={Code} className="bg-white/10 text-white border-white/20 hover:bg-white/20" />
-              <TechBadge name="Vite" icon={Code} className="bg-white/10 text-white border-white/20 hover:bg-white/20" />
-              <TechBadge name="Supabase" icon={Database} className="bg-white/10 text-white border-white/20 hover:bg-white/20" />
-              <TechBadge name="API do Banco Central (para inflação/IPCA)" icon={TrendingUp} className="bg-white/10 text-white border-white/20 hover:bg-white/20" />
+              <TechBadge
+                name="Node.js"
+                icon={Nodejs}
+                className="bg-green-50 text-green-700 border-green-200 dark:bg-green-900/20 dark:text-green-400 dark:border-green-800"
+              />
+              <TechBadge
+                name="React"
+                icon={ReactIcon}
+                className="bg-cyan-50 text-cyan-600 border-cyan-200 dark:bg-cyan-900/20 dark:text-cyan-400 dark:border-cyan-800"
+              />
+              <TechBadge
+                name="Vite"
+                icon={ViteJs}
+                className="bg-violet-50 text-violet-600 border-violet-200 dark:bg-violet-900/20 dark:text-violet-400 dark:border-violet-800"
+              />
+              <TechBadge
+                name="Supabase"
+                icon={SupabaseIcon}
+                className="bg-emerald-50 text-emerald-600 border-emerald-200 dark:bg-emerald-900/20 dark:text-emerald-400 dark:border-emerald-800"
+              />
+              <TechBadge
+                name="Tailwind CSS"
+                icon={TailwindCss}
+                className="bg-sky-50 text-sky-600 border-sky-200 dark:bg-sky-900/20 dark:text-sky-400 dark:border-sky-800"
+              />
+              <TechBadge
+                name="API do Banco Central"
+                icon={Landmark}
+                className="bg-slate-50 text-slate-600 border-slate-200 dark:bg-slate-800/40 dark:text-slate-400 dark:border-slate-700"
+              />
             </div>
           </div>
         </section>

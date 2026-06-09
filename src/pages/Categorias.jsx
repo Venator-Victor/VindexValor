@@ -2,7 +2,7 @@ import { PRIMARY, PRIMARY_HOVER } from '@/utils/colors';
 import React, { useState, useMemo } from 'react';
 import { Helmet } from 'react-helmet';
 import { motion, AnimatePresence } from 'framer-motion';
-import { LayoutGrid, List as ListIcon, Plus, Folder, Trash2, Edit2 } from 'lucide-react';
+import { Grid as LayoutGrid, ListUl as ListIcon, Plus, Folder, TrashAlt as Trash2, Edit as Edit2 } from '@/components/BxIcon';
 import { useFinance } from '@/context/FinanceContext';
 import { Button } from '@/components/ui/button';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';

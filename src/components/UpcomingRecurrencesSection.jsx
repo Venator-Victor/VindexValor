@@ -1,7 +1,8 @@
 import React, { useMemo } from 'react';
 import { formatCurrency } from '@/utils/calculations';
 import { motion } from 'framer-motion';
-import { CalendarClock } from 'lucide-react';
+import { Calendar as CalendarClock } from '@/components/BxIcon';
+import { CalendarCheck } from '@/components/BxIcon';
 
 const UpcomingRecurrencesSection = ({ recurrences, selectedPeriod }) => {
   
@@ -118,7 +119,7 @@ const UpcomingRecurrencesSection = ({ recurrences, selectedPeriod }) => {
           })
         ) : (
           <div className="flex flex-col items-center justify-center h-48 text-gray-400">
-            <i className='bx bx-calendar-check text-4xl mb-2'></i>
+            <CalendarCheck size={40} className="mb-2" />
             <p className="text-sm">Sem recorrências previstas</p>
           </div>
         )}

@@ -1,5 +1,6 @@
 import React from 'react';
 import { Label } from '@/components/ui/label';
+import { Check, Plus } from '@/components/BxIcon';
 
 const ColorSelector = ({ selectedColor, onSelect }) => {
   // Organized from Warm to Cool, ending with Neutrals
@@ -39,7 +40,7 @@ const ColorSelector = ({ selectedColor, onSelect }) => {
             title={color}
           >
             {selectedColor === color && (
-              <i className='bx bx-check text-white text-xs absolute inset-0 flex items-center justify-center font-bold'></i>
+              <Check size={12} className="text-white absolute inset-0 m-auto font-bold" />
             )}
           </button>
         ))}
@@ -61,10 +62,10 @@ const ColorSelector = ({ selectedColor, onSelect }) => {
            <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
               {!colors.includes(selectedColor) ? (
                  <div className="w-full h-full" style={{ backgroundColor: selectedColor }}>
-                    <i className='bx bx-check text-white text-xs absolute inset-0 flex items-center justify-center font-bold'></i>
+                    <Check size={12} className="text-white absolute inset-0 m-auto font-bold" />
                  </div>
               ) : (
-                 <i className='bx bx-plus text-white text-xs font-bold drop-shadow-md'></i>
+                 <Plus size={12} className="text-white font-bold drop-shadow-md" />
               )}
            </div>
         </div>

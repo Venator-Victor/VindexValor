@@ -3,7 +3,7 @@ import { Button } from '@/components/ui/button';
 import SelectInput from '@/components/ui/SelectInput';
 import { useFinance } from '@/context/FinanceContext';
 import { useInvoiceCSVImport } from '@/hooks/useInvoiceCSVImport';
-import { UploadCloud, AlertCircle, FileText, Loader2, X } from 'lucide-react';
+import { Share as UploadCloud, AlertCircle, File as FileText, RefreshCw as Loader2, X } from '@/components/BxIcon';
 import { useToast } from '@/components/ui/use-toast';
 import MultiFileImportResults from './MultiFileImportResults';
 

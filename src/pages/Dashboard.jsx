@@ -10,6 +10,7 @@ import {
 } from '@/utils/calculations';
 
 import InfoTooltip from '@/components/InfoTooltip';
+import { Wallet, TrendingDown, TrendingUp } from '@/components/BxIcon';
 import BudgetConsumptionChart from '@/components/BudgetConsumptionChart';
 import AssetLiabilityChart from '@/components/AssetLiabilityChart';
 import AssetCompositionChart from '@/components/AssetCompositionChart';
@@ -107,7 +108,7 @@ const Dashboard = () => {
     {
       title: 'Saldo Total (em BRL)',
       value: formatCurrencyWithSymbol(totalBalanceBRL, 'BRL'),
-      iconClass: 'bx bx-wallet',
+      Icon: Wallet,
       textColor: 'text-gray-900 dark:text-gray-50',
       iconColor: 'text-primary',
       borderColor: 'border-gray-200 dark:border-vindex-border',
@@ -116,7 +117,7 @@ const Dashboard = () => {
     {
       title: 'Despesas (em BRL)',
       value: formatCurrencyWithSymbol(filteredExpensesBRL, 'BRL'),
-      iconClass: 'bx bx-trending-down',
+      Icon: TrendingDown,
       textColor: 'text-gray-900 dark:text-gray-50',
       iconColor: 'text-vindex-danger',
       borderColor: 'border-red-200 dark:border-vindex-danger/30',
@@ -125,7 +126,7 @@ const Dashboard = () => {
     {
       title: 'Receitas (em BRL)',
       value: formatCurrencyWithSymbol(filteredIncomeBRL, 'BRL'),
-      iconClass: 'bx bx-trending-up',
+      Icon: TrendingUp,
       textColor: 'text-gray-900 dark:text-gray-50',
       iconColor: 'text-primary',
       borderColor: 'border-green-200 dark:border-vindex-success/30',
@@ -169,7 +170,7 @@ const Dashboard = () => {
                 <p className={`text-2xl font-bold crypto-symbol ${metric.textColor}`}>{metric.value}</p>
               </div>
               <div className={`p-3 rounded-lg bg-gray-50 dark:bg-gray-800/50`}>
-                <i className={`${metric.iconClass} ${metric.iconColor} text-2xl`}></i>
+                <metric.Icon size={24} className={metric.iconColor} />
               </div>
             </div>
           </motion.div>
@@ -198,7 +199,7 @@ const Dashboard = () => {
 
       <div className="grid grid-cols-1 gap-6">
         <div className="h-[400px]">
-          <AssetCompositionChart accounts={dynamicAccounts} investments={filteredInvestments} recurring={recurring} exchangeRates={exchangeRates} selectedPeriod={selectedPeriod} />
+          <AssetCompositionChart accounts={dynamicAccounts} investments={investments} recurring={recurring} exchangeRates={exchangeRates} selectedPeriod={selectedPeriod} />
         </div>
       </div>
       

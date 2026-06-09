@@ -12,8 +12,7 @@ import {
 import { useFinance } from '@/context/FinanceContext';
 import { useTheme } from '@/context/ThemeContext';
 import { formatCurrency } from '@/utils/calculations';
-import { Loader2 } from 'lucide-react';
-
+import { RefreshCw as Loader2 } from '@/components/BxIcon';
 const BudgetConsumptionChart = ({ selectedPeriod, filteredTransactions }) => {
   const { categories, isLoading } = useFinance();
   const { theme } = useTheme();
@@ -70,7 +69,7 @@ const BudgetConsumptionChart = ({ selectedPeriod, filteredTransactions }) => {
     sortedTx.forEach(tx => {
         const dateKey = tx.date; // YYYY-MM-DD
         if (!grouped[dateKey]) grouped[dateKey] = 0;
-        grouped[dateKey] += Number(tx.amount);
+        grouped[dateKey] += Math.abs(Number(tx.amount));
     });
 
     const dates = Object.keys(grouped).sort();

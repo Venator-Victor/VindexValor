@@ -1,13 +1,19 @@
 import React from 'react';
 import { motion } from 'framer-motion';
 
-const TechBadge = ({ name, icon: Icon, className = "bg-secondary/10 text-secondary-foreground border-secondary/20" }) => {
+const TechBadge = ({ name, icon: Icon, iconClass, nfChar, className = "bg-muted text-foreground border-border" }) => {
   return (
-    <motion.div 
-      whileHover={{ scale: 1.1 }}
-      className={`flex items-center gap-2 px-4 py-2 border rounded-full shadow-sm ${className}`}
+    <motion.div
+      whileHover={{ scale: 1.08 }}
+      className={`flex items-center gap-2 px-4 py-2 border rounded-full shadow-sm cursor-default ${className}`}
     >
-      {Icon && <Icon size={18} className="opacity-80" />}
+      {nfChar ? (
+        <span style={{ fontSize: 20, lineHeight: 1 }}>{nfChar}</span>
+      ) : iconClass ? (
+        <i className={iconClass} style={{ fontSize: 20 }} />
+      ) : Icon ? (
+        <Icon size={18} />
+      ) : null}
       <span className="font-semibold text-sm">{name}</span>
     </motion.div>
   );

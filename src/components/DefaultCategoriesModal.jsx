@@ -4,7 +4,8 @@ import { Button } from '@/components/ui/button';
 import { DEFAULT_CATEGORIES } from '@/utils/defaultCategories';
 import { useFinance } from '@/context/FinanceContext';
 import { useToast } from '@/components/ui/use-toast';
-import { Plus, Loader2 } from 'lucide-react';
+import { Plus, RefreshCw as Loader2 } from '@/components/BxIcon';
+import BxIcon from '@/components/BxIcon';
 
 const DefaultCategoriesModal = ({ isOpen, onClose, onCreateCustom, onSuccess }) => {
   const { addCategory } = useFinance();
@@ -65,7 +66,7 @@ const DefaultCategoriesModal = ({ isOpen, onClose, onCreateCustom, onSuccess }) 
                    {loadingId === cat.id ? (
                      <Loader2 className="h-6 w-6 animate-spin" />
                    ) : (
-                     <i className={cat.icon}></i>
+                     <BxIcon iconClass={cat.icon} size={24} />
                    )}
                 </div>
                 <span className="font-semibold text-gray-900 dark:text-vindex-text text-sm sm:text-base text-center line-clamp-2 leading-tight h-[40px] flex items-center justify-center">{cat.name}</span>

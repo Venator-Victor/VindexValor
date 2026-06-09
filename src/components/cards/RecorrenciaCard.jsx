@@ -3,6 +3,7 @@ import { formatCurrency } from '@/utils/calculations';
 import { Button } from '@/components/ui/button';
 import { useFinance } from '@/context/FinanceContext';
 import { useToast } from '@/components/ui/use-toast';
+import { Pencil, Trash, Clock5, Check, Checks } from '@/components/BxIcon';
 
 const RecorrenciaCard = ({ item, onEdit, onDelete, onToggleStatus }) => {
   const { parcels, payParcel, processRecurring } = useFinance();
@@ -45,7 +46,7 @@ const RecorrenciaCard = ({ item, onEdit, onDelete, onToggleStatus }) => {
     <div className={`bg-white dark:bg-vindex-card rounded-xl p-5 border shadow-sm hover:shadow-md transition-all relative overflow-hidden flex flex-col justify-between ${isActive ? 'border-gray-200 dark:border-vindex-border' : 'border-gray-100 dark:border-vindex-border/30 opacity-80'}`}>
       
       {/* Status Indicator */}
-      <div className={`absolute top-0 left-0 w-1 h-full ${isActive ? 'bg-green-500' : 'bg-gray-300'}`}></div>
+      <div className={`absolute top-0 left-0 w-1 h-full ${isActive ? 'bg-primary' : 'bg-gray-300'}`}></div>
 
       <div>
         <div className="flex justify-between items-start mb-3 pl-2">
@@ -60,10 +61,10 @@ const RecorrenciaCard = ({ item, onEdit, onDelete, onToggleStatus }) => {
             </div>
             <div className="flex gap-1 shrink-0">
             <Button size="sm" variant="ghost" onClick={() => onEdit(item)} className="h-8 w-8 p-0 text-gray-500 hover:text-gray-900 dark:text-gray-400 dark:hover:text-gray-100">
-                <i className='bx bx-pencil'></i>
+                <Pencil size={14} />
             </Button>
             <Button size="sm" variant="ghost" onClick={() => onDelete(item.id)} className="h-8 w-8 p-0 text-red-400 hover:text-red-600 hover:bg-red-50 dark:hover:bg-red-900/20">
-                <i className='bx bx-trash'></i>
+                <Trash size={14} />
             </Button>
             </div>
         </div>
@@ -72,7 +73,7 @@ const RecorrenciaCard = ({ item, onEdit, onDelete, onToggleStatus }) => {
             <div className="flex flex-col">
                 <span className="text-2xl font-bold text-red-600 dark:text-vindex-danger">{formatCurrency(item.amount)}</span>
                 <span className="text-xs text-gray-500 dark:text-gray-400 flex items-center gap-1">
-                <i className='bx bx-time-five'></i> {item.frequency}
+                <Clock5 size={12} /> {item.frequency}
                 </span>
             </div>
         </div>
@@ -101,13 +102,13 @@ const RecorrenciaCard = ({ item, onEdit, onDelete, onToggleStatus }) => {
                    onClick={handlePayNextParcel}
                    className="w-full bg-blue-50 hover:bg-blue-100 text-blue-700 dark:bg-blue-900/20 dark:text-blue-300 dark:hover:bg-blue-900/30 border border-blue-200 dark:border-blue-800 h-9"
                 >
-                   <i className='bx bx-check mr-1.5'></i> Pagar parc. {nextPendingParcel.parcel_number}
+                   <Check size={14} className="mr-1.5" /> Pagar parc. {nextPendingParcel.parcel_number}
                 </Button>
             )}
             
             {!nextPendingParcel && paidParcelsCount === totalParcelsCount && totalParcelsCount > 0 && (
                 <div className="w-full text-center text-xs font-bold text-green-600 dark:text-green-400 py-2 bg-green-50 dark:bg-green-900/20 rounded-md border border-green-100 dark:border-green-900/30">
-                    <i className='bx bx-check-double mr-1'></i> Quitado
+                    <Checks size={14} className="mr-1 inline" /> Quitado
                 </div>
             )}
          </div>
@@ -138,7 +139,7 @@ const RecorrenciaCard = ({ item, onEdit, onDelete, onToggleStatus }) => {
                  disabled={isProcessing}
                  className="w-full bg-purple-50 hover:bg-purple-100 text-purple-700 dark:bg-purple-900/20 dark:text-purple-300 dark:hover:bg-purple-900/30 border border-purple-200 dark:border-purple-800 h-9"
                >
-                 <i className='bx bx-check mr-1.5'></i>
+                 <Check size={14} className="mr-1.5" />
                  {isProcessing ? 'Registrando...' : 'Registrar pagamento'}
                </Button>
              )}

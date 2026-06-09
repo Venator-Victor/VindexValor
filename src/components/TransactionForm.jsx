@@ -4,7 +4,7 @@ import { useToast } from '@/components/ui/use-toast';
 import { Button } from '@/components/ui/button';
 import { Label } from '@/components/ui/label';
 import { Badge } from '@/components/ui/badge';
-import { Sparkles } from 'lucide-react';
+import { Sparkle as Sparkles } from '@/components/BxIcon';
 import SelectInput from '@/components/ui/SelectInput';
 import DatePicker from '@/components/ui/DatePicker';
 import NumberInput from '@/components/ui/NumberInput';
@@ -320,7 +320,7 @@ const TransactionForm = ({ initialData, onSuccess, onCancel }) => {
                 type="checkbox"
                 checked={formData.is_recurring}
                 onChange={(e) => setFormData(prev => ({ ...prev, is_recurring: e.target.checked }))}
-                className="w-4 h-4 accent-green-600"
+                className="w-4 h-4 accent-[#43CFEA]"
               />
               <span className="text-sm font-medium text-gray-700 dark:text-gray-300">Repetir automaticamente</span>
             </label>
@@ -365,7 +365,7 @@ const TransactionForm = ({ initialData, onSuccess, onCancel }) => {
         )}
 
         <div className="flex gap-2 pt-4">
-          <Button type="submit" disabled={isSubmitting} className="flex-1 bg-green-600 hover:bg-green-700 text-white">
+          <Button type="submit" disabled={isSubmitting} className="flex-1 bg-primary text-primary-foreground hover:bg-primary/90">
             {isSubmitting ? 'Salvando...' : (initialData ? 'Atualizar' : 'Criar')}
           </Button>
           <Button type="button" variant="outline" onClick={onCancel} disabled={isSubmitting} className="flex-1">

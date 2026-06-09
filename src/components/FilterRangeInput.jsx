@@ -1,6 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Search } from 'lucide-react';
-
+import { Search } from '@/components/BxIcon';
 export const parseValueFilterString = (input) => {
   if (!input || typeof input !== 'string' || !input.trim()) {
     return { isValid: true, conditions: [] };

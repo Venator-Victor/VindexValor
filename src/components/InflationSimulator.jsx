@@ -1,8 +1,7 @@
 import React, { useState, useMemo } from 'react';
 import { motion } from 'framer-motion';
 import { formatCurrency } from '@/utils/calculations';
-import { TrendingDown, ArrowRight, AlertCircle } from 'lucide-react';
-
+import { TrendingDown, ArrowRight, AlertCircle } from '@/components/BxIcon';
 const InflationSimulator = () => {
   const [currentValue, setCurrentValue] = useState(1000);
   const [inflationRate, setInflationRate] = useState(4.50);

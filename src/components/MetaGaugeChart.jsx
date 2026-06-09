@@ -2,7 +2,7 @@ import React, { useState, useMemo } from 'react';
 import { motion } from 'framer-motion';
 import { useFinance } from '@/context/FinanceContext';
 import GaugeChart from '@/components/GaugeChart';
-import { Calendar } from 'lucide-react';
+import { Calendar } from '@/components/BxIcon';
 import {
   Select,
   SelectContent,

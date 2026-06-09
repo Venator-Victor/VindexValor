@@ -1,5 +1,5 @@
 import React from 'react';
-import { ArrowUp, ArrowDown } from 'lucide-react';
+import { ArrowUp, ArrowDown } from '@/components/BxIcon';
 import { cn } from '@/lib/utils';
 
 const SortableHeader = ({ label, column, sortConfig, onSort, className = "" }) => (

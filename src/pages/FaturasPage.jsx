@@ -1,7 +1,7 @@
 import React, { useEffect, useState, useMemo } from 'react';
 import { Helmet } from 'react-helmet';
 import { useNavigate } from 'react-router-dom';
-import { Plus, CreditCard, UploadCloud, Receipt, ArrowRight, ArrowUp, ArrowDown } from 'lucide-react';
+import { Plus, CreditCard, Share as UploadCloud, Receipt, ArrowRight, ArrowUp, ArrowDown } from '@/components/BxIcon';
 import { useFinance } from '@/context/FinanceContext';
 import { useAuth } from '@/context/SupabaseAuthContext';
 import { Button } from '@/components/ui/button';

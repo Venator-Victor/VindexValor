@@ -2,7 +2,8 @@ import { PRIMARY, PRIMARY_HOVER, SUCCESS, DANGER, DANGER_DARK, WARNING, INFO, su
 import React, { useState } from 'react';
 import { Helmet } from 'react-helmet';
 import { AnimatePresence, motion } from 'framer-motion';
-import { Target, LayoutGrid, List, Calendar } from 'lucide-react';
+import { Target, Grid as LayoutGrid, ListUl as List, Calendar } from '@/components/BxIcon';
+import BxIcon, { Plus, Pencil, Trash } from '@/components/BxIcon';
 import { useFinance } from '@/context/FinanceContext';
 import { useTheme } from '@/context/ThemeContext';
 import { Button } from '@/components/ui/button';
@@ -230,7 +231,7 @@ const Metas = () => {
                     onMouseEnter={(e) => e.currentTarget.style.backgroundColor = CYAN_HOVER}
                     onMouseLeave={(e) => e.currentTarget.style.backgroundColor = CYAN_COLOR}
                 >
-                    <i className='bx bx-plus sm:mr-2 text-xl'></i>
+                    <Plus size={20} className="sm:mr-2" />
                     <span className="hidden sm:inline">Nova</span>
                 </Button>
             </div>
@@ -376,7 +377,7 @@ const Metas = () => {
                                                             color: goal.color
                                                         }}
                                                     >
-                                                        <i className={`bx ${goal.icon || 'bx-target-lock'}`}></i>
+                                                        <BxIcon iconClass={`bx ${goal.icon || 'bx-target-lock'}`} size={18} />
                                                     </div>
                                                     <span className="font-semibold text-gray-900 dark:text-gray-100">{goal.name}</span>
                                                 </div>
@@ -423,7 +424,7 @@ const Metas = () => {
                                                         onClick={() => openEditModal(goal)}
                                                         className="h-8 w-8 text-gray-500 hover:text-gray-900 dark:text-gray-400 dark:hover:text-gray-100"
                                                     >
-                                                        <i className='bx bx-pencil'></i>
+                                                        <Pencil size={14} />
                                                     </Button>
                                                     <Button 
                                                         size="icon" 
@@ -431,7 +432,7 @@ const Metas = () => {
                                                         onClick={() => setDeleteId(goal.id)}
                                                         className="h-8 w-8 text-gray-500 hover:text-red-600 dark:text-gray-400 dark:hover:text-red-400"
                                                     >
-                                                        <i className='bx bx-trash'></i>
+                                                        <Trash size={14} />
                                                     </Button>
                                                 </div>
                                             </td>

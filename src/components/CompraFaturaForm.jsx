@@ -6,7 +6,7 @@ import { useToast } from '@/components/ui/use-toast';
 import DatePicker from '@/components/ui/DatePicker';
 import SelectInput from '@/components/ui/SelectInput';
 import NumberInput from '@/components/ui/NumberInput';
-import { ArrowDownRight, ArrowUpRight } from 'lucide-react';
+import { ArrowDownRight, ArrowUpRight } from '@/components/BxIcon';
 import { supabase } from '@/lib/customSupabaseClient';
 
 const CompraFaturaForm = ({ faturaId, initialData, onSuccess, onCancel }) => {

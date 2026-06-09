@@ -1,7 +1,6 @@
 import React from 'react';
 import { formatCurrency } from '@/utils/calculations';
-import { TrendingUp, TrendingDown } from 'lucide-react';
-
+import { TrendingUp, TrendingDown } from '@/components/BxIcon';
 const IncomeExpenseHeader = ({ totalIncome, totalExpenses }) => {
   return (
     <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">

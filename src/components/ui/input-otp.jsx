@@ -1,7 +1,6 @@
 import * as React from "react"
 import { OTPInput, OTPInputContext } from "input-otp"
-import { Minus } from "lucide-react"
-
+import { Minus } from '@/components/BxIcon';
 import { cn } from "@/lib/utils"
 
 const InputOTP = React.forwardRef(({ className, containerClassName, ...props }, ref) => (

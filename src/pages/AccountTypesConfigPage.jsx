@@ -1,6 +1,6 @@
 import React from 'react';
 import { Helmet } from 'react-helmet';
-import { Settings, Info } from 'lucide-react';
+import { Cog as Settings, InfoCircle as Info } from '@/components/BxIcon';
 import { ACCOUNT_SUBTYPE_MAP } from '@/utils/accountMappings';
 
 const AccountTypesConfigPage = () => {

@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { CheckCircle2, XCircle, ChevronDown, ChevronUp, Download } from 'lucide-react';
+import { CheckCircle as CheckCircle2, XCircle, ChevronDown, ChevronUp, ArrowToBottom as Download } from '@/components/BxIcon';
 import { Button } from '@/components/ui/button';
 import { formatCurrency } from '@/utils/calculations';
 

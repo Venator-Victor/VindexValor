@@ -3,7 +3,8 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/u
 import { Button } from '@/components/ui/button';
 import { formatCurrency } from '@/utils/calculations';
 import CircularProgressBar from '@/components/CircularProgressBar';
-import { ArrowDownRight, ArrowUpRight, Edit2 } from 'lucide-react';
+import { ArrowDownRight, ArrowUpRight, Edit as Edit2 } from '@/components/BxIcon';
+import BxIcon from '@/components/BxIcon';
 
 const CategoryDetailModal = ({ isOpen, onClose, category, transactions, onEdit }) => {
   const categoryTransactions = useMemo(() => {
@@ -37,7 +38,7 @@ const CategoryDetailModal = ({ isOpen, onClose, category, transactions, onEdit }
                 className="w-12 h-12 rounded-xl flex items-center justify-center border"
                 style={{ backgroundColor: category.color + '22', borderColor: category.color + '44' }}
               >
-                <i className={`${category.icon} text-2xl`} style={{ color: category.color }}></i>
+                <BxIcon iconClass={category.icon} size={24} style={{ color: category.color }} />
               </div>
               <div>
                 <DialogTitle className="text-xl font-bold">{category.name}</DialogTitle>

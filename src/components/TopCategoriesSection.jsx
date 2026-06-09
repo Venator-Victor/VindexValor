@@ -2,6 +2,7 @@ import React, { useMemo } from 'react';
 import { formatCurrency } from '@/utils/calculations';
 import { motion } from 'framer-motion';
 import { useNavigate } from 'react-router-dom';
+import BxIcon, { PieChartAlt2, BarChart } from '@/components/BxIcon';
 
 const TopCategoriesSection = ({ transactions, categories, selectedPeriod }) => {
   const navigate = useNavigate();
@@ -42,7 +43,7 @@ const TopCategoriesSection = ({ transactions, categories, selectedPeriod }) => {
     <div className="bg-white dark:bg-vindex-card rounded-xl p-6 border border-gray-200 dark:border-vindex-border shadow-sm h-full flex flex-col">
       <div className="flex items-center justify-between mb-6 shrink-0">
         <h3 className="text-lg font-bold text-gray-900 dark:text-gray-50 flex items-center gap-2">
-            <i className='bx bx-pie-chart-alt-2 text-blue-500'></i>
+            <PieChartAlt2 size={20} className="text-blue-500" />
             Categorias
         </h3>
         <span className="text-xs font-medium px-2 py-1 bg-gray-100 dark:bg-gray-800 rounded-md text-gray-500 dark:text-gray-400">
@@ -67,7 +68,7 @@ const TopCategoriesSection = ({ transactions, categories, selectedPeriod }) => {
                     className="w-8 h-8 rounded-full flex items-center justify-center text-white text-xs shadow-sm shrink-0"
                     style={{ backgroundColor: cat.color }}
                   >
-                    <i className={`bx ${cat.icon}`}></i>
+                    <BxIcon iconClass={cat.icon} size={14} />
                   </div>
                   <span className="font-medium text-gray-700 dark:text-gray-300 text-sm truncate max-w-[120px]" title={cat.name}>
                     {cat.name}
@@ -95,7 +96,7 @@ const TopCategoriesSection = ({ transactions, categories, selectedPeriod }) => {
           ))
         ) : (
           <div className="flex flex-col items-center justify-center h-48 text-gray-400">
-            <i className='bx bx-bar-chart-alt-2 text-4xl mb-2'></i>
+            <BarChart size={40} className="mb-2" />
             <p className="text-sm">Sem dados neste período</p>
           </div>
         )}

@@ -6,8 +6,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { CalendarDays } from 'lucide-react';
-
+import { Calendar as CalendarDays } from '@/components/BxIcon';
 const DashboardPeriodSelector = ({ value, onChange }) => {
   return (
     <div className="flex items-center gap-2">

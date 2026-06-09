@@ -2,6 +2,7 @@ import React from 'react';
 import Sidebar from './Sidebar';
 import { useFinance } from '@/context/FinanceContext';
 import VindexLogo from './VindexLogo';
+import { Menu } from '@/components/BxIcon';
 
 const Layout = ({ children }) => {
   const { isSidebarCollapsed, toggleMobileMenu } = useFinance();
@@ -23,7 +24,7 @@ const Layout = ({ children }) => {
               onClick={toggleMobileMenu}
               className="p-2 rounded-lg hover:bg-gray-100 dark:hover:bg-vindex-border/50 text-gray-900 dark:text-vindex-text mr-4"
             >
-              <i className='bx bx-menu text-2xl'></i>
+              <Menu size={24} />
             </button>
              <div className="flex items-center gap-2">
               <VindexLogo collapsed={false} /> 

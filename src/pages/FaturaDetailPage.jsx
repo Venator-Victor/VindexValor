@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { Helmet } from 'react-helmet';
-import { ArrowLeft, Plus, AlertCircle, Wallet, Link2, Trash2, ArrowDownRight, ArrowUpRight, Sigma } from 'lucide-react';
+import { ArrowLeft, Plus, AlertCircle, Wallet, Link as Link2, TrashAlt as Trash2, ArrowDownRight, ArrowUpRight, Sigma } from '@/components/BxIcon';
 import { useFinance } from '@/context/FinanceContext';
 import { useAuth } from '@/context/SupabaseAuthContext';
 import { Button } from '@/components/ui/button';

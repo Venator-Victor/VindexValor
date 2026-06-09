@@ -1,6 +1,7 @@
 import React from 'react';
 import { formatCurrency, calculateInvestmentReturn } from '@/utils/calculations';
 import { Button } from '@/components/ui/button';
+import { Pencil, Trash, TrendingUp, TrendingDown } from '@/components/BxIcon';
 
 const InvestimentoCard = ({ investment, onEdit, onDelete }) => {
   const returnPercent = calculateInvestmentReturn(investment.investedAmount, investment.currentAmount);
@@ -27,10 +28,10 @@ const InvestimentoCard = ({ investment, onEdit, onDelete }) => {
         </div>
         <div className="flex gap-1">
            <Button size="sm" variant="ghost" onClick={() => onEdit(investment)} className="h-8 w-8 p-0">
-             <i className='bx bx-pencil'></i>
+             <Pencil size={14} />
            </Button>
            <Button size="sm" variant="ghost" onClick={() => onDelete(investment.id)} className="h-8 w-8 p-0 text-red-500 hover:text-red-700">
-             <i className='bx bx-trash'></i>
+             <Trash size={14} />
            </Button>
         </div>
       </div>
@@ -49,7 +50,7 @@ const InvestimentoCard = ({ investment, onEdit, onDelete }) => {
       <div className={`flex items-center justify-between p-3 rounded-lg ${isProfit ? 'bg-green-50 dark:bg-vindex-success/10' : 'bg-red-50 dark:bg-vindex-danger/10'}`}>
          <span className="text-xs font-medium text-gray-700 dark:text-gray-300">Rentabilidade</span>
          <div className="flex items-center gap-1">
-            <i className={`bx ${isProfit ? 'bx-trending-up' : 'bx-trending-down'} ${isProfit ? 'text-green-600 dark:text-vindex-success' : 'text-red-600 dark:text-vindex-danger'}`}></i>
+            {isProfit ? <TrendingUp size={16} className="text-green-600 dark:text-vindex-success" /> : <TrendingDown size={16} className="text-red-600 dark:text-vindex-danger" />}
             <span className={`font-bold ${isProfit ? 'text-green-600 dark:text-vindex-success' : 'text-red-600 dark:text-vindex-danger'}`}>
                {isProfit ? '+' : ''}{returnPercent.toFixed(2)}%
             </span>

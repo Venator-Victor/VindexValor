@@ -8,8 +8,9 @@ import DatePicker from '@/components/ui/DatePicker';
 import ColorPicker from '@/components/ui/ColorPicker';
 import IconSelector from '@/components/IconSelector';
 import { formatCurrency } from '@/utils/calculations';
+import { Target, CalendarStar } from '@/components/BxIcon';
 import { PERIOD_OPTIONS } from '@/utils/periodOptions';
-import { Trash2, Plus, AlertCircle } from 'lucide-react';
+import { TrashAlt as Trash2, Plus, AlertCircle } from '@/components/BxIcon';
 import { useToast } from '@/components/ui/use-toast';
 
 const MetaForm = ({ initialData, initialName, onSubmit, onCancel }) => {
@@ -132,7 +133,7 @@ const MetaForm = ({ initialData, initialName, onSubmit, onCancel }) => {
               : 'text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-200'
           }`}
         >
-          <i className='bx bx-target-lock mr-2'></i>
+          <Target size={16} className="mr-2" />
           Valor Final
         </button>
         <button
@@ -144,7 +145,7 @@ const MetaForm = ({ initialData, initialName, onSubmit, onCancel }) => {
               : 'text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-200'
           }`}
         >
-          <i className='bx bx-calendar-star mr-2'></i>
+          <CalendarStar size={16} className="mr-2" />
           Recorrência
         </button>
       </div>
@@ -157,7 +158,7 @@ const MetaForm = ({ initialData, initialName, onSubmit, onCancel }) => {
             type="text"
             value={formData.name}
             onChange={(e) => setFormData({ ...formData, name: e.target.value })}
-            className="w-full px-3 py-2 mt-1 bg-white dark:bg-vindex-bg border border-gray-200 dark:border-vindex-border rounded-lg text-gray-900 dark:text-gray-100 focus:ring-2 focus:ring-green-500/20 focus:border-green-500 transition-all outline-none"
+            className="w-full px-3 py-2 mt-1 bg-white dark:bg-vindex-bg border border-gray-200 dark:border-vindex-border rounded-lg text-gray-900 dark:text-gray-100 focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all outline-none"
             required
             placeholder="Ex: Minha Casa Nova"
         />
@@ -327,7 +328,7 @@ const MetaForm = ({ initialData, initialName, onSubmit, onCancel }) => {
 
       {/* Actions */}
       <div className="flex gap-3 pt-4 border-t border-gray-100 dark:border-gray-800 mt-6">
-        <Button type="submit" className="flex-1 bg-green-600 hover:bg-green-700 text-white rounded-lg h-11 font-medium shadow-sm transition-all hover:shadow-md">
+        <Button type="submit" className="flex-1 bg-primary text-primary-foreground hover:bg-primary/90 rounded-lg h-11 font-medium shadow-sm transition-all hover:shadow-md">
           {initialData ? 'Salvar Alterações' : 'Criar Meta'}
         </Button>
         <Button type="button" variant="outline" onClick={onCancel} className="h-11 px-6 border-gray-200 dark:border-vindex-border text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-800 rounded-lg">
