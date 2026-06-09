@@ -4,12 +4,13 @@ import { Helmet } from 'react-helmet';
 import { useAuth } from '@/context/SupabaseAuthContext';
 import { Button } from '@/components/ui/button';
 import { Label } from '@/components/ui/label';
-import { Loader2 } from 'lucide-react';
+import { RefreshCw as Loader2, Eye, EyeSlash as EyeOff } from '@/components/BxIcon';
 import VindexLogo from '@/components/VindexLogo';
 
 const LoginPage = () => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [showPassword, setShowPassword] = useState(false);
   const { signIn, loading } = useAuth();
   const navigate = useNavigate();
 
@@ -38,32 +39,39 @@ const LoginPage = () => {
         <form onSubmit={handleSubmit} className="space-y-4">
           <div>
             <Label htmlFor="email" className="text-foreground">Email</Label>
-            {/* Task 5: Cyan borders and interactive states */}
             <input
               id="email"
               type="email"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
-              className="w-full px-3 py-2 bg-background border-primary rounded-lg text-foreground focus:ring-1 focus:ring-primary focus:border-primary outline-none hover:border-primary transition-all duration-200"
+              className="w-full px-3 py-2 bg-background border border-border rounded-lg text-foreground focus:ring-1 focus:ring-primary focus:border-primary outline-none hover:border-primary transition-all duration-200"
               required
             />
           </div>
-          
+
           <div>
             <div className="flex justify-between items-center mb-1">
                <Label htmlFor="password" className="text-foreground">Senha</Label>
-               {/* Task 5: Cyan link text */}
-               <Link to="/reset-password" style={{ color: "rgb(67, 207, 234)" }} className="text-xs hover:underline font-medium">Esqueceu a senha?</Link>
+               <Link to="/reset-password" className="text-xs text-primary hover:underline font-medium">Esqueceu a senha?</Link>
             </div>
-            {/* Task 5: Cyan borders and interactive states */}
-            <input
-              id="password"
-              type="password"
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              className="w-full px-3 py-2 bg-background border-primary rounded-lg text-foreground focus:ring-1 focus:ring-primary focus:border-primary outline-none hover:border-primary transition-all duration-200"
-              required
-            />
+            <div className="relative">
+              <input
+                id="password"
+                type={showPassword ? 'text' : 'password'}
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                className="w-full px-3 py-2 pr-10 bg-background border border-border rounded-lg text-foreground focus:ring-1 focus:ring-primary focus:border-primary outline-none hover:border-primary transition-all duration-200"
+                required
+              />
+              <button
+                type="button"
+                onClick={() => setShowPassword(v => !v)}
+                className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground transition-colors"
+                tabIndex={-1}
+              >
+                {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+              </button>
+            </div>
           </div>
           
           <Button 
