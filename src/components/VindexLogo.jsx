@@ -5,7 +5,7 @@ const VindexLogo = ({ className, collapsed, textColor = "text-white" }) => {
     <div className={`flex items-center gap-3 ${className}`}>
       {/* Task 2: Proper VindexValor branding logo */}
       <img 
-        src="https://horizons-cdn.hostinger.com/2a249bc4-344a-46af-9dec-bb8c9e46ed73/5249fd8daaf81ca40360b2d3e3ff3ab7.png" 
+        src="/VindexValor.svg"
         alt="VindexValor Logo" 
         className="w-10 h-10 object-contain drop-shadow-sm"
       />

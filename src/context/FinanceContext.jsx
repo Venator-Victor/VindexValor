@@ -314,7 +314,7 @@ export const FinanceProvider = ({ children }) => {
   };
 
   // Category Operations
-  const createCategory = async (categoryData) => {
+  const addCategory = async (categoryData) => {
     if (!user) throw new Error("Usuário não autenticado");
     const { data, error } = await supabase.from('categories').insert({ ...categoryData, user_id: user.id }).select().single();
     if (error) throw error;
@@ -330,7 +330,7 @@ export const FinanceProvider = ({ children }) => {
     return data;
   };
   
-  const removeCategory = async (id) => {
+  const deleteCategory = async (id) => {
     if (!user) throw new Error("Usuário não autenticado");
     const { error } = await supabase.from('categories').delete().eq('id', id).eq('user_id', user.id);
     if (error) throw error;
@@ -569,9 +569,9 @@ export const FinanceProvider = ({ children }) => {
     createAccount,
     updateAccount,
     removeAccount,
-    createCategory,
+    addCategory,
     updateCategory,
-    removeCategory,
+    deleteCategory,
     createTransaction,
     updateTransaction,
     deleteTransaction,

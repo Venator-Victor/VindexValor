@@ -2,7 +2,7 @@ import { PRIMARY, PRIMARY_HOVER } from '@/utils/colors';
 import React, { useState, useMemo } from 'react';
 import { Helmet } from 'react-helmet';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Grid as LayoutGrid, ListUl as ListIcon, Plus, Folder, TrashAlt as Trash2, Edit as Edit2 } from '@/components/BxIcon';
+import BxIcon, { Grid as LayoutGrid, ListUl as ListIcon, Plus, Folder, TrashAlt as Trash2, Edit as Edit2 } from '@/components/BxIcon';
 import { useFinance } from '@/context/FinanceContext';
 import { Button } from '@/components/ui/button';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
@@ -148,6 +148,7 @@ const Categorias = () => {
       toast({ title: "Categoria excluída com sucesso!" });
     }
     setDeleteId(null);
+    setSelectedDetailCategory(null);
   };
 
   const handleCardClick = (category) => {
@@ -241,11 +242,13 @@ const Categorias = () => {
                         exit={{ opacity: 0, scale: 0.9 }} 
                         transition={{ delay: index * 0.05 }} 
                         onClick={() => handleCardClick(category)}
-                        className="bg-white dark:bg-vindex-card rounded-xl p-4 border border-gray-200 dark:border-vindex-border hover:border-blue-400 dark:hover:border-blue-500/50 transition-all shadow-sm hover:shadow-md flex flex-col justify-between cursor-pointer"
+                        className="bg-white dark:bg-vindex-card rounded-xl p-4 border border-gray-200 dark:border-vindex-border transition-all shadow-sm hover:shadow-md flex flex-col justify-between cursor-pointer"
+                        onMouseEnter={e => e.currentTarget.style.borderColor = PRIMARY}
+                        onMouseLeave={e => e.currentTarget.style.borderColor = ''}
                       >
                         <div className="flex items-center gap-3 w-full border-b border-gray-100 dark:border-vindex-border pb-3">
                             <div className="w-10 h-10 rounded-lg flex items-center justify-center shadow-sm border shrink-0" style={{ backgroundColor: category.color + '22', borderColor: category.color + '44' }}>
-                              <i className={`${category.icon} text-xl`} style={{ color: category.color }}></i>
+                              <BxIcon iconClass={category.icon} size={20} style={{ color: category.color }} />
                             </div>
                             
                             <div className="text-left flex-grow overflow-hidden">
@@ -266,7 +269,7 @@ const Categorias = () => {
                            <Edit2 className="w-3 h-3 mr-1" />
                            Editar
                          </Button>
-                         <Button size="sm" variant="outline" onClick={(e) => setDeleteId(category.id, e)} className="flex-1 h-8 text-xs font-medium bg-transparent hover:text-black transition-colors" style={{ borderColor: PRIMARY, color: PRIMARY }} onMouseEnter={e => { e.currentTarget.style.backgroundColor = PRIMARY; e.currentTarget.style.color = '#000'; }} onMouseLeave={e => { e.currentTarget.style.backgroundColor = 'transparent'; e.currentTarget.style.color = PRIMARY; }}>
+                         <Button size="sm" variant="outline" onClick={(e) => { e.stopPropagation(); setDeleteId(category.id); }} className="flex-1 h-8 text-xs font-medium bg-transparent hover:text-black transition-colors" style={{ borderColor: PRIMARY, color: PRIMARY }} onMouseEnter={e => { e.currentTarget.style.backgroundColor = PRIMARY; e.currentTarget.style.color = '#000'; }} onMouseLeave={e => { e.currentTarget.style.backgroundColor = 'transparent'; e.currentTarget.style.color = PRIMARY; }}>
                            <Trash2 className="w-3 h-3 mr-1" />
                            Excluir
                          </Button>
@@ -299,11 +302,11 @@ const Categorias = () => {
                             const hasLimit = category.spending_limit > 0;
                             
                             return (
-                               <tr key={category.id} onClick={() => handleCardClick(category)} className="hover:bg-blue-50/50 dark:hover:bg-blue-900/10 cursor-pointer transition-colors">
+                               <tr key={category.id} onClick={() => handleCardClick(category)} className="cursor-pointer transition-colors" onMouseEnter={e => e.currentTarget.style.backgroundColor = PRIMARY + '18'} onMouseLeave={e => e.currentTarget.style.backgroundColor = ''}>
                                   <td className="px-6 py-4">
                                      <div className="flex items-center gap-3">
                                         <div className="w-8 h-8 rounded-full flex items-center justify-center text-sm" style={{ backgroundColor: category.color + '22', color: category.color }}>
-                                           <i className={`${category.icon} text-lg`}></i>
+                                           <BxIcon iconClass={category.icon} size={18} style={{ color: category.color }} />
                                         </div>
                                         <span className="font-medium text-gray-900 dark:text-gray-50">{category.name}</span>
                                      </div>
@@ -325,7 +328,7 @@ const Categorias = () => {
                                         <Button size="sm" onClick={(e) => handleEdit(category, e)} className="h-8 w-8 p-0 rounded-lg text-gray-900" style={{ backgroundColor: PRIMARY }}>
                                            <Edit2 className="h-4 w-4" />
                                         </Button>
-                                        <Button size="sm" variant="outline" onClick={(e) => setDeleteId(category.id, e)} className="h-8 w-8 p-0 rounded-lg hover:text-black transition-colors" style={{ borderColor: PRIMARY, color: PRIMARY }} onMouseEnter={e => { e.currentTarget.style.backgroundColor = PRIMARY; e.currentTarget.style.color = '#000'; }} onMouseLeave={e => { e.currentTarget.style.backgroundColor = 'transparent'; e.currentTarget.style.color = PRIMARY; }}>
+                                        <Button size="sm" variant="outline" onClick={(e) => { e.stopPropagation(); setDeleteId(category.id); }} className="h-8 w-8 p-0 rounded-lg hover:text-black transition-colors" style={{ borderColor: PRIMARY, color: PRIMARY }} onMouseEnter={e => { e.currentTarget.style.backgroundColor = PRIMARY; e.currentTarget.style.color = '#000'; }} onMouseLeave={e => { e.currentTarget.style.backgroundColor = 'transparent'; e.currentTarget.style.color = PRIMARY; }}>
                                            <Trash2 className="h-4 w-4" />
                                         </Button>
                                      </div>
@@ -342,12 +345,13 @@ const Categorias = () => {
       )}
 
       {/* Category Details Modal */}
-      <CategoryDetailModal 
+      <CategoryDetailModal
         isOpen={!!selectedDetailCategory}
         onClose={() => setSelectedDetailCategory(null)}
         category={selectedDetailCategory}
         transactions={transactions}
         onEdit={(cat) => handleEdit(cat, null)}
+        onDelete={(id) => { setSelectedDetailCategory(null); setDeleteId(id); }}
       />
 
       {/* Default Categories Modal */}

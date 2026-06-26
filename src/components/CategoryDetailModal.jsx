@@ -3,10 +3,11 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/u
 import { Button } from '@/components/ui/button';
 import { formatCurrency } from '@/utils/calculations';
 import CircularProgressBar from '@/components/CircularProgressBar';
-import { ArrowDownRight, ArrowUpRight, Edit as Edit2 } from '@/components/BxIcon';
+import { ArrowDownRight, ArrowUpRight, Edit as Edit2, TrashAlt as Trash2 } from '@/components/BxIcon';
 import BxIcon from '@/components/BxIcon';
+import { PRIMARY } from '@/utils/colors';
 
-const CategoryDetailModal = ({ isOpen, onClose, category, transactions, onEdit }) => {
+const CategoryDetailModal = ({ isOpen, onClose, category, transactions, onEdit, onDelete }) => {
   const categoryTransactions = useMemo(() => {
     if (!category || !transactions) return [];
     return transactions
@@ -45,15 +46,31 @@ const CategoryDetailModal = ({ isOpen, onClose, category, transactions, onEdit }
                 <p className="text-sm text-muted-foreground">{categoryTransactions.length} transações</p>
               </div>
             </div>
-            <Button 
-              size="sm" 
-              variant="outline" 
-              onClick={() => { onClose(); onEdit(category); }}
-              className="gap-1"
-            >
-              <Edit2 className="w-3.5 h-3.5" />
-              Editar
-            </Button>
+            <div className="flex gap-2">
+              <Button
+                size="sm"
+                variant="outline"
+                onClick={() => { onClose(); onEdit(category); }}
+                className="gap-1"
+                style={{ borderColor: PRIMARY, color: PRIMARY }}
+                onMouseEnter={e => { e.currentTarget.style.backgroundColor = PRIMARY; e.currentTarget.style.color = '#000'; }}
+                onMouseLeave={e => { e.currentTarget.style.backgroundColor = 'transparent'; e.currentTarget.style.color = PRIMARY; }}
+              >
+                <Edit2 className="w-3.5 h-3.5" />
+                Editar
+              </Button>
+              {onDelete && (
+                <Button
+                  size="sm"
+                  variant="outline"
+                  onClick={() => onDelete(category.id)}
+                  className="gap-1 text-destructive border-destructive hover:bg-destructive hover:text-destructive-foreground"
+                >
+                  <Trash2 className="w-3.5 h-3.5" />
+                  Excluir
+                </Button>
+              )}
+            </div>
           </div>
 
           <div className="grid grid-cols-2 gap-4 mb-4">
@@ -112,10 +129,10 @@ const CategoryDetailModal = ({ isOpen, onClose, category, transactions, onEdit }
                       {new Date(t.date).toLocaleDateString('pt-BR', { timeZone: 'UTC' })}
                     </p>
                   </div>
-                  <div className={`font-bold text-sm whitespace-nowrap pl-2 ${
-                    t.type === 'entrada' ? 'text-green-600 dark:text-green-400' : 
-                    t.type === 'saida' ? 'text-red-600 dark:text-red-400' : 'text-blue-600 dark:text-blue-400'
-                  }`}>
+                  <div
+                    className="font-bold text-sm whitespace-nowrap pl-2"
+                    style={{ color: t.type === 'entrada' ? '#10b981' : t.type === 'saida' ? '#ef4444' : PRIMARY }}
+                  >
                     {t.type === 'entrada' ? '+' : '-'}{formatCurrency(t.amount)}
                   </div>
                 </div>
