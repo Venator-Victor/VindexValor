@@ -2,6 +2,7 @@ import React from 'react';
 import { Helmet } from 'react-helmet';
 import InflationSimulator from '@/components/InflationSimulator';
 import InvestmentSimulator from '@/components/InvestmentSimulator';
+import InflationCard from '@/components/InflationCard';
 
 const Analises = () => {
   return (
@@ -18,12 +19,17 @@ const Analises = () => {
         </p>
       </div>
 
-      {/* Section 1: Inflation Simulator */}
+      {/* Section 1: Accumulated Inflation Chart */}
+      <section className="py-2">
+        <InflationCard />
+      </section>
+
+      {/* Section 2: Inflation Simulator */}
       <section className="py-2">
         <InflationSimulator />
       </section>
 
-      {/* Section 2: Investment Simulator */}
+      {/* Section 3: Investment Simulator */}
       <section className="py-2">
         <InvestmentSimulator />
       </section>
