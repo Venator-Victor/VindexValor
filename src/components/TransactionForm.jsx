@@ -122,7 +122,8 @@ const TransactionForm = ({ initialData, onSuccess, onCancel }) => {
         converted_amount,
         exchange_rate,
         invoice_id: formData.type === 'pagamento' ? (formData.invoice_id || null) : null,
-        category_id: (formData.type === 'transferencia' || formData.type === 'pagamento') ? null : formData.category_id
+        category_id: (formData.type === 'transferencia' || formData.type === 'pagamento') ? null : (formData.category_id || null),
+        destination_account_id: formData.destination_account_id || null,
       };
 
       if (initialData) {
