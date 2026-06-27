@@ -1,5 +1,5 @@
 import React, { useEffect } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { Helmet } from 'react-helmet';
 import { ArrowLeft, ShieldAlt as ShieldCheck, Database, Lock, UserCheck, Envelope as Mail, Cookie, Cog as Settings2 } from '@/components/BxIcon';
 import { Button } from '@/components/ui/button';
@@ -9,6 +9,7 @@ import VindexLogo from '@/components/VindexLogo';
 
 const PrivacyPage = () => {
   const { setIsModalOpen } = useConsent();
+  const navigate = useNavigate();
 
   useEffect(() => {
     window.scrollTo(0, 0);
@@ -27,11 +28,9 @@ const PrivacyPage = () => {
           <Link to="/">
             <VindexLogo textColor="text-foreground" />
           </Link>
-          <Link to="/">
-            <Button variant="ghost" size="sm" className="gap-2">
-              <ArrowLeft size={16} /> Voltar
-            </Button>
-          </Link>
+          <Button variant="ghost" size="sm" className="gap-2" onClick={() => navigate(-1)}>
+            <ArrowLeft size={16} /> Voltar
+          </Button>
         </div>
       </header>
 
@@ -185,11 +184,9 @@ const PrivacyPage = () => {
           </div>
           
           <div className="mt-8 text-center flex flex-col sm:flex-row justify-center gap-4">
-            <Link to="/">
-              <Button size="lg" className="w-full sm:w-auto px-8 font-semibold shadow-md">
-                Voltar para a Página Inicial
-              </Button>
-            </Link>
+            <Button size="lg" className="w-full sm:w-auto px-8 font-semibold shadow-md" onClick={() => navigate(-1)}>
+              Voltar
+            </Button>
           </div>
         </motion.div>
       </main>
