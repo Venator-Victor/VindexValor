@@ -6,38 +6,65 @@ import { ChevronDown } from '@/components/BxIcon';
 const Suporte = () => {
   const [openFaq, setOpenFaq] = useState(null);
 
-  const faqs = [
+  const faqGroups = [
     {
-      question: 'Como importar um extrato CSV?',
-      answer: 'Vá em Transações → Importar CSV. O app aceita extratos no formato padrão dos principais bancos brasileiros. Na tela de importação você pode revisar e categorizar cada linha antes de confirmar.',
+      group: 'Primeiros Passos',
+      items: [
+        {
+          question: 'Por onde começo?',
+          answer: 'O fluxo recomendado é: (1) crie suas contas em Contas — bancária, carteira, cartão de crédito; (2) importe ou lance suas transações em Transações; (3) organize as categorias de gasto em Categorias; (4) defina suas metas em Metas. Com isso o Dashboard já mostra um panorama completo da sua saúde financeira.',
+        },
+        {
+          question: 'Como adicionar uma conta bancária?',
+          answer: 'Vá em Contas → Nova Conta. Escolha o tipo (Corrente, Poupança, Cartão de Crédito, Investimento, etc.), informe o saldo inicial e salve. Todas as transações lançadas nessa conta são consideradas no cálculo do saldo automaticamente.',
+        },
+        {
+          question: 'Como importar um extrato CSV?',
+          answer: 'Vá em Transações → Importar CSV. O app aceita extratos no formato padrão dos principais bancos brasileiros. Na tela de importação você pode revisar e categorizar cada linha antes de confirmar.',
+        },
+        {
+          question: 'Como funciona a fatura do cartão de crédito?',
+          answer: 'Crie uma conta do tipo "Cartão de Crédito". As compras lançadas nela ficam associadas à fatura do mês. Em Faturas você acompanha os gastos do período, fecha a fatura e registra o pagamento — zerando o saldo devedor.',
+        },
+        {
+          question: 'Como organizar meus gastos com categorias?',
+          answer: 'Em Categorias você cria e personaliza categorias (Alimentação, Transporte, Lazer…) com ícone e cor. Ao lançar uma transação, associe a categoria correspondente. Com isso o Dashboard e as Análises mostram exatamente onde seu dinheiro está indo.',
+        },
+        {
+          question: 'Como definir uma meta financeira?',
+          answer: 'Vá em Metas → Nova Meta. Defina o nome, o valor-alvo e a data desejada. O app calcula o progresso com base no saldo das contas associadas à meta — ideal para reserva de emergência, viagem, ou qualquer objetivo.',
+        },
+      ],
     },
     {
-      question: 'Como funciona a fatura do cartão de crédito?',
-      answer: 'Crie uma conta do tipo "Cartão de Crédito" e as compras lançadas nela ficam associadas à fatura do mês. Em Faturas você pode fechar a fatura e registrar o pagamento, zerando o saldo devedor.',
+      group: 'Transações & Contas',
+      items: [
+        {
+          question: 'Como registrar uma transferência entre contas?',
+          answer: 'Em Transações, use o botão "Transferência". Selecione a conta de origem e a conta de destino — o app cria automaticamente uma saída na origem e uma entrada no destino sem duplicar no relatório de receitas/despesas.',
+        },
+        {
+          question: 'Por que meu saldo está diferente do esperado?',
+          answer: 'O saldo é calculado em tempo real somando o saldo inicial da conta com todas as transações cadastradas. Verifique se o saldo inicial está correto em Contas → Editar, e se não há transações duplicadas ou com data futura que ainda não entraram no período visualizado.',
+        },
+        {
+          question: 'Como funcionam as transações recorrentes?',
+          answer: 'Em Recorrências você cadastra despesas ou receitas fixas (aluguel, assinatura, salário) com frequência e data de vencimento. O app gera as parcelas automaticamente — você confirma, edita ou pula cada ocorrência conforme ela vence.',
+        },
+      ],
     },
     {
-      question: 'Como registrar uma transferência entre contas?',
-      answer: 'Em Transações, use o botão "Transferência". Selecione a conta de origem e a conta de destino — o app cria automaticamente uma saída na origem e uma entrada no destino sem duplicar no relatório de receitas/despesas.',
-    },
-    {
-      question: 'Por que meu saldo está diferente do esperado?',
-      answer: 'O saldo de cada conta é calculado em tempo real a partir das transações cadastradas. Verifique se todas as entradas e saídas estão registradas corretamente e se não há transações duplicadas ou com data futura.',
-    },
-    {
-      question: 'Como funcionam as transações recorrentes?',
-      answer: 'Em Recorrências você cadastra despesas fixas (aluguel, assinatura, salário) com frequência e data de vencimento. O app gera as parcelas automaticamente, e você pode confirmar ou editar cada ocorrência.',
-    },
-    {
-      question: 'O que é Patrimônio Líquido?',
-      answer: 'É o resultado da subtração dos seus Passivos (o que você deve) dos seus Ativos (o que você tem). No VindexValor ele é calculado automaticamente somando os saldos de todas as suas contas ativas.',
-    },
-    {
-      question: 'Quanto devo guardar na Reserva de Emergência?',
-      answer: 'Especialistas recomendam entre 3 e 6 meses do seu custo de vida mensal. Crie uma Meta no app com esse valor-alvo e associe uma conta de fácil resgate (como CDB com liquidez diária) para acompanhar o progresso.',
-    },
-    {
-      question: 'Como funcionam os juros compostos no Simulador?',
-      answer: 'O Simulador de Investimentos projeta seu patrimônio mês a mês aplicando a taxa de retorno anual convertida para mensal. Você vê separadamente o capital que você aportou e os juros gerados — e o ponto onde os juros superam o capital investido.',
+      group: 'Simuladores',
+      items: [
+        {
+          question: 'Como funcionam os juros compostos no Simulador?',
+          answer: 'O Simulador de Investimentos projeta seu patrimônio mês a mês com aporte inicial + aportes mensais, aplicando a taxa anual convertida para mensal. O gráfico mostra capital investido vs. juros acumulados — e marca o ano em que os juros superam o capital.',
+        },
+        {
+          question: 'O que mostra o Simulador de Inflação?',
+          answer: 'Ele compara duas curvas ao longo do tempo: quanto você precisaria ter para manter o poder de compra atual (corrigido pela inflação) e quanto seu dinheiro valeria se investido a uma taxa de retorno. Se a curva de retorno ficar acima da de inflação, seu investimento está preservando (e crescendo) o seu poder de compra.',
+        },
+      ],
     },
   ];
 
@@ -60,39 +87,54 @@ const Suporte = () => {
         className="bg-white dark:bg-vindex-card rounded-xl p-6 border border-gray-200 dark:border-vindex-border shadow-sm"
       >
         <h2 className="text-2xl font-bold text-gray-900 dark:text-vindex-text mb-4">Perguntas Frequentes</h2>
-        <div className="space-y-2">
-          {faqs.map((faq, index) => (
-            <div
-              key={index}
-              className={`bg-gray-50 dark:bg-vindex-bg rounded-lg overflow-hidden border transition-colors ${
-                openFaq === index
-                  ? 'border-l-2 border-primary border-t border-r border-b border-gray-200 dark:border-vindex-border/50'
-                  : 'border-gray-200 dark:border-vindex-border/50'
-              }`}
-            >
-              <button
-                onClick={() => setOpenFaq(openFaq === index ? null : index)}
-                className="w-full px-4 py-3 flex items-center justify-between text-left hover:bg-gray-100 dark:hover:bg-vindex-border/30 transition-colors"
-              >
-                <span className="text-gray-900 dark:text-vindex-text font-medium pr-4">{faq.question}</span>
-                <ChevronDown
-                  size={20}
-                  className={`text-gray-500 dark:text-vindex-text/60 transition-transform duration-200 flex-shrink-0 ${
-                    openFaq === index ? 'rotate-180 text-primary' : ''
-                  }`}
-                />
-              </button>
-              {openFaq === index && (
-                <motion.div
-                  initial={{ opacity: 0 }}
-                  animate={{ opacity: 1 }}
-                  className="px-4 pb-4 pt-0"
-                >
-                  <p className="text-gray-600 dark:text-vindex-text/70 text-sm leading-relaxed">{faq.answer}</p>
-                </motion.div>
-              )}
-            </div>
-          ))}
+        <div className="space-y-6">
+          {(() => {
+            let globalIndex = 0;
+            return faqGroups.map((group) => (
+              <div key={group.group}>
+                <p className="text-xs font-semibold uppercase tracking-wider text-gray-400 dark:text-vindex-text/40 mb-2 px-1">
+                  {group.group}
+                </p>
+                <div className="space-y-2">
+                  {group.items.map((faq) => {
+                    const idx = globalIndex++;
+                    return (
+                      <div
+                        key={idx}
+                        className={`bg-gray-50 dark:bg-vindex-bg rounded-lg overflow-hidden border transition-colors ${
+                          openFaq === idx
+                            ? 'border-l-2 border-primary border-t border-r border-b border-gray-200 dark:border-vindex-border/50'
+                            : 'border-gray-200 dark:border-vindex-border/50'
+                        }`}
+                      >
+                        <button
+                          onClick={() => setOpenFaq(openFaq === idx ? null : idx)}
+                          className="w-full px-4 py-3 flex items-center justify-between text-left hover:bg-gray-100 dark:hover:bg-vindex-border/30 transition-colors"
+                        >
+                          <span className="text-gray-900 dark:text-vindex-text font-medium pr-4">{faq.question}</span>
+                          <ChevronDown
+                            size={20}
+                            className={`text-gray-500 dark:text-vindex-text/60 transition-transform duration-200 flex-shrink-0 ${
+                              openFaq === idx ? 'rotate-180 text-primary' : ''
+                            }`}
+                          />
+                        </button>
+                        {openFaq === idx && (
+                          <motion.div
+                            initial={{ opacity: 0 }}
+                            animate={{ opacity: 1 }}
+                            className="px-4 pb-4 pt-0"
+                          >
+                            <p className="text-gray-600 dark:text-vindex-text/70 text-sm leading-relaxed">{faq.answer}</p>
+                          </motion.div>
+                        )}
+                      </div>
+                    );
+                  })}
+                </div>
+              </div>
+            ));
+          })()}
         </div>
 
         {/* CTA */}

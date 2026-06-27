@@ -21,6 +21,7 @@ import UpcomingRecurrencesSection from '@/components/UpcomingRecurrencesSection'
 import InflationBudgetChart from '@/components/InflationBudgetChart';
 import BetaWarningModal from '@/components/BetaWarningModal';
 import useBetaWarning from '@/hooks/useBetaWarning';
+import OnboardingChecklist from '@/components/OnboardingChecklist';
 import { useTheme } from '@/context/ThemeContext';
 
 const Dashboard = () => {
@@ -141,6 +142,8 @@ const Dashboard = () => {
       </Helmet>
       
       <BetaWarningModal open={showModal} onOpenChange={(open) => { if (!open) dismissModal(); }} />
+
+      <OnboardingChecklist />
 
       <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 pt-2">
         <div>
