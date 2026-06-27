@@ -31,7 +31,7 @@ Deno.serve(async (req)=>{
     // We fetch a wide range to ensure we cover gaps
     // Let's fetch last 5 years by default to be safe if 'syncAll' is true
     const isSyncAll = body.syncAll === true;
-    const apiStartDate = isSyncAll ? '01/01/2015' : `01/${String(startMonth).padStart(2, '0')}/${startYear}`;
+    const apiStartDate = isSyncAll ? '01/01/1995' : `01/${String(startMonth).padStart(2, '0')}/${startYear}`;
     const apiEndDate = `${String(now.getDate()).padStart(2, '0')}/${String(currentMonth).padStart(2, '0')}/${currentYear}`;
     const url = `https://api.bcb.gov.br/dados/serie/bcdata.sgs.433/dados?formato=json&dataInicial=${apiStartDate}&dataFinal=${apiEndDate}`;
     console.log(`Fetching from BCB: ${url}`);
