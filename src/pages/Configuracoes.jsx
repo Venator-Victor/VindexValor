@@ -107,7 +107,7 @@ const Configuracoes = () => {
                 onClick={() => setActiveTab(tab.id)}
                 className={`w-full flex items-center gap-3 px-4 py-3 rounded-lg transition-all ${
                   activeTab === tab.id
-                    ? 'bg-white dark:bg-vindex-border text-vindex-success shadow-sm border border-gray-200 dark:border-vindex-border'
+                    ? 'bg-white dark:bg-vindex-border text-primary shadow-sm border border-gray-200 dark:border-vindex-border'
                     : 'bg-transparent text-gray-500 dark:text-vindex-text/60 hover:bg-gray-100 dark:hover:bg-vindex-border/50 hover:text-gray-900 dark:hover:text-vindex-text'
                 }`}
               >
@@ -159,7 +159,7 @@ const Configuracoes = () => {
                         </AlertDialogHeader>
                         <AlertDialogFooter>
                           <AlertDialogCancel className="bg-gray-100 dark:bg-vindex-bg hover:bg-gray-200 dark:hover:bg-vindex-bg/80 border-gray-200 dark:border-vindex-border text-gray-900 dark:text-vindex-text rounded-lg">Cancelar</AlertDialogCancel>
-                          <AlertDialogAction onClick={handleResetPassword} className="bg-vindex-success hover:bg-vindex-success/90 rounded-lg text-white">
+                          <AlertDialogAction onClick={handleResetPassword} className="bg-primary hover:bg-primary/90 rounded-lg text-primary-foreground">
                             Confirmar
                           </AlertDialogAction>
                         </AlertDialogFooter>
@@ -180,7 +180,7 @@ const Configuracoes = () => {
                     onClick={() => setTheme('dark')}
                     className={`flex items-center gap-2 px-4 py-2 rounded-lg transition-all ${
                       theme === 'dark'
-                        ? 'bg-vindex-border text-vindex-success border border-vindex-border'
+                        ? 'bg-vindex-border text-primary border border-vindex-border'
                         : 'bg-gray-100 dark:bg-vindex-bg text-gray-500 dark:text-vindex-text/60 hover:bg-gray-200 dark:hover:bg-vindex-border/50'
                     }`}
                   >
@@ -226,7 +226,7 @@ const Configuracoes = () => {
                   <option value="es-ES">Español (ES)</option>
                 </select>
               </div>
-              <Button onClick={handleSave} className="bg-green-100 dark:bg-vindex-success/20 hover:bg-green-200 dark:hover:bg-vindex-success/30 text-green-700 dark:text-vindex-success border border-green-200 dark:border-vindex-success/50 rounded-lg">
+              <Button onClick={handleSave} className="bg-primary/10 hover:bg-primary/20 text-primary border border-primary/30 rounded-lg">
                 Salvar Preferências
               </Button>
             </div>
@@ -265,7 +265,7 @@ const Configuracoes = () => {
 
               <div className="flex flex-col items-center justify-center p-8 bg-gray-50 dark:bg-vindex-bg rounded-xl border border-gray-200 dark:border-vindex-border/50">
                 <img src="/VindexValor.svg" alt="VindexValor" className="w-20 h-20 mb-4 object-contain" />
-                <h3 className="text-2xl font-bold text-vindex-success mb-1">VindexValor</h3>
+                <h3 className="text-2xl font-bold text-primary mb-1">VindexValor</h3>
                 <p className="text-gray-500 dark:text-vindex-text/70 mb-4">Gestão Financeira Inteligente</p>
                 <span className="px-3 py-1 bg-gray-200 dark:bg-vindex-border rounded-full text-xs font-mono text-gray-700 dark:text-vindex-text">v0.3</span>
               </div>
