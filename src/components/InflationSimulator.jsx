@@ -1,7 +1,7 @@
 import React, { useState, useMemo } from 'react';
 import { motion } from 'framer-motion';
 import {
-  ComposedChart, Bar, Line, XAxis, YAxis,
+  AreaChart, Area, XAxis, YAxis,
   CartesianGrid, Tooltip, Legend, ResponsiveContainer, ReferenceLine, Label,
 } from 'recharts';
 import { formatCurrency } from '@/utils/calculations';
@@ -139,7 +139,17 @@ const InflationSimulator = () => {
         {/* Chart */}
         <div className="md:col-span-2 h-72">
           <ResponsiveContainer width="100%" height="100%">
-            <ComposedChart data={chartData}>
+            <AreaChart data={chartData}>
+              <defs>
+                <linearGradient id="gradNeeded" x1="0" y1="0" x2="0" y2="1">
+                  <stop offset="5%" stopColor={DANGER_DARK} stopOpacity={0.8} />
+                  <stop offset="95%" stopColor={DANGER_DARK} stopOpacity={0.4} />
+                </linearGradient>
+                <linearGradient id="gradInvested" x1="0" y1="0" x2="0" y2="1">
+                  <stop offset="5%" stopColor={SUCCESS} stopOpacity={0.8} />
+                  <stop offset="95%" stopColor={SUCCESS} stopOpacity={0.4} />
+                </linearGradient>
+              </defs>
               <CartesianGrid strokeDasharray="3 3" stroke={gridColor} vertical={false} />
               <XAxis
                 dataKey="year"
@@ -170,9 +180,9 @@ const InflationSimulator = () => {
               <ReferenceLine y={currentValue} stroke={textColor} strokeDasharray="4 4" strokeOpacity={0.35}>
                 <Label value="hoje" position="insideTopRight" fontSize={10} fill={textColor} opacity={0.5} />
               </ReferenceLine>
-              <Bar dataKey="needed" fill={DANGER_DARK} fillOpacity={0.8} radius={[3, 3, 0, 0]} maxBarSize={28} />
-              <Line dataKey="invested" stroke={SUCCESS} strokeWidth={2.5} dot={false} type="monotone" activeDot={{ r: 4 }} />
-            </ComposedChart>
+              <Area type="monotone" dataKey="needed" stroke={DANGER_DARK} fill="url(#gradNeeded)" strokeWidth={1.5} dot={false} />
+              <Area type="monotone" dataKey="invested" stroke={SUCCESS} fill="url(#gradInvested)" strokeWidth={1.5} dot={false} />
+            </AreaChart>
           </ResponsiveContainer>
         </div>
       </div>
