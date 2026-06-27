@@ -235,24 +235,41 @@ const Configuracoes = () => {
           {activeTab === 'notificacoes' && (
             <div className="space-y-6">
               <h2 className="text-2xl font-bold text-gray-900 dark:text-vindex-text mb-4">Notificações</h2>
-              <div className="space-y-4">
+
+              <div className="flex flex-col items-center justify-center gap-4 py-10 px-6 bg-gray-50 dark:bg-vindex-bg rounded-xl border border-dashed border-gray-300 dark:border-vindex-border text-center">
+                <div className="w-14 h-14 rounded-full bg-primary/10 flex items-center justify-center">
+                  <Bell size={28} className="text-primary" />
+                </div>
+                <div>
+                  <p className="text-gray-900 dark:text-vindex-text font-semibold text-lg">Em breve</p>
+                  <p className="text-sm text-gray-500 dark:text-vindex-text/60 mt-1 max-w-sm">
+                    Notificações push, lembretes de recorrências e resumos mensais estão planejados para versões futuras.
+                  </p>
+                </div>
+                <a
+                  href="https://github.com/Venator-Victor/vindexvalor/issues"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="text-sm font-medium text-primary hover:underline"
+                >
+                  Acompanhe ou sugira no GitHub →
+                </a>
+              </div>
+
+              <div className="space-y-2 text-sm text-gray-400 dark:text-vindex-text/40">
+                <p className="font-medium text-gray-500 dark:text-vindex-text/50">Funcionalidades planejadas</p>
                 {[
-                  { label: 'Notificações de Transações', description: 'Receba alertas para novas transações' },
-                  { label: 'Lembretes de Recorrências', description: 'Avisos antes de transações recorrentes' },
-                  { label: 'Alertas de Orçamento', description: 'Notificações quando ultrapassar o orçamento' },
-                  { label: 'Resumo Mensal', description: 'Relatório mensal por email' },
-                ].map((notification, index) => (
-                  <div key={index} className="flex items-center justify-between p-4 bg-gray-50 dark:bg-vindex-bg rounded-lg border border-gray-200 dark:border-vindex-border/50">
+                  { label: 'Notificações de Transações', description: 'Alertas para novas entradas e saídas' },
+                  { label: 'Lembretes de Recorrências', description: 'Avisos antes de transações recorrentes vencerem' },
+                  { label: 'Alertas de Orçamento', description: 'Aviso ao ultrapassar o limite de uma categoria' },
+                  { label: 'Resumo Mensal', description: 'Relatório automático por e-mail ao fim de cada mês' },
+                ].map((item, index) => (
+                  <div key={index} className="flex items-center justify-between p-3 rounded-lg border border-gray-100 dark:border-vindex-border/30 opacity-50">
                     <div>
-                      <p className="text-gray-900 dark:text-vindex-text font-medium">{notification.label}</p>
-                      <p className="text-sm text-gray-500 dark:text-vindex-text/60">{notification.description}</p>
+                      <p className="text-gray-700 dark:text-vindex-text/70 font-medium">{item.label}</p>
+                      <p className="text-xs text-gray-400 dark:text-vindex-text/40">{item.description}</p>
                     </div>
-                    <button
-                      onClick={() => handleFeatureClick(notification.label)}
-                      className="w-12 h-6 bg-gray-200 dark:bg-vindex-border rounded-full relative transition-colors hover:bg-gray-300 dark:hover:bg-vindex-border/80"
-                    >
-                      <div className="w-5 h-5 bg-white dark:bg-vindex-text rounded-full absolute left-0.5 top-0.5 transition-transform" />
-                    </button>
+                    <span className="text-xs px-2 py-0.5 rounded-full bg-gray-100 dark:bg-vindex-border/40 text-gray-400 dark:text-vindex-text/40">em breve</span>
                   </div>
                 ))}
               </div>
