@@ -14,6 +14,18 @@ import {
   TooltipTrigger,
 } from "@/components/ui/tooltip";
 
+const StyledSelect = ({ className = '', ...props }) => (
+  <div className="relative">
+    <select
+      {...props}
+      className={`appearance-none bg-gray-50 dark:bg-vindex-bg border border-gray-200 dark:border-vindex-border text-gray-900 dark:text-vindex-text rounded-lg pl-3 pr-7 py-1 text-sm focus:outline-none focus:ring-1 focus:ring-vindex-danger disabled:opacity-50 cursor-pointer ${className}`}
+    />
+    <svg className="pointer-events-none absolute right-2 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-gray-400 dark:text-vindex-text/40" viewBox="0 0 20 20" fill="currentColor">
+      <path fillRule="evenodd" d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" clipRule="evenodd" />
+    </svg>
+  </div>
+);
+
 const FIRST_YEAR = 1995;
 const CURRENT_YEAR = new Date().getFullYear();
 
@@ -198,40 +210,31 @@ const InflationCard = ({ currentBalance }) => {
 
           {/* Controls per mode */}
           {mode === 'period' && (
-            <select
-              value={selectedMonths}
-              onChange={(e) => setSelectedMonths(Number(e.target.value))}
-              className="bg-gray-50 dark:bg-vindex-bg border border-gray-200 dark:border-vindex-border text-gray-900 dark:text-vindex-text rounded-lg px-3 py-1 text-sm focus:outline-none focus:ring-1 focus:ring-vindex-danger"
-            >
+            <StyledSelect value={selectedMonths} onChange={(e) => setSelectedMonths(Number(e.target.value))}>
               {PERIOD_OPTIONS.map(opt => (
                 <option key={opt.months} value={opt.months}>Últimos {opt.label}</option>
               ))}
-            </select>
+            </StyledSelect>
           )}
 
           {mode === 'range' && (
             <div className="flex items-center gap-2">
               <span className="text-sm text-gray-500 dark:text-vindex-text/60">De</span>
-              <select
+              <StyledSelect
                 value={rangeStart}
                 onChange={(e) => {
                   setRangeStart(e.target.value);
                   if (e.target.value > rangeEnd) setRangeEnd(e.target.value);
                 }}
-                className="bg-gray-50 dark:bg-vindex-bg border border-gray-200 dark:border-vindex-border text-gray-900 dark:text-vindex-text rounded-lg px-3 py-1 text-sm focus:outline-none focus:ring-1 focus:ring-vindex-danger"
               >
                 {ALL_YEARS.map(y => <option key={y} value={y}>{y}</option>)}
-              </select>
+              </StyledSelect>
               <span className="text-sm text-gray-500 dark:text-vindex-text/60">até</span>
-              <select
-                value={rangeEnd}
-                onChange={(e) => setRangeEnd(e.target.value)}
-                className="bg-gray-50 dark:bg-vindex-bg border border-gray-200 dark:border-vindex-border text-gray-900 dark:text-vindex-text rounded-lg px-3 py-1 text-sm focus:outline-none focus:ring-1 focus:ring-vindex-danger"
-              >
+              <StyledSelect value={rangeEnd} onChange={(e) => setRangeEnd(e.target.value)}>
                 {ALL_YEARS.filter(y => y >= rangeStart).map(y => (
                   <option key={y} value={y}>{y}</option>
                 ))}
-              </select>
+              </StyledSelect>
             </div>
           )}
 

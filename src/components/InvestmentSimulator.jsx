@@ -1,36 +1,73 @@
 import React, { useState, useMemo } from 'react';
 import { motion } from 'framer-motion';
+import {
+  AreaChart, Area, XAxis, YAxis,
+  CartesianGrid, Tooltip, Legend, ResponsiveContainer, ReferenceLine, Label,
+} from 'recharts';
 import { formatCurrency } from '@/utils/calculations';
+import { useTheme } from '@/context/ThemeContext';
 import { TrendingUp } from '@/components/BxIcon';
+import { PRIMARY, SUCCESS } from '@/utils/colors';
+
 const InvestmentSimulator = () => {
+  const { theme } = useTheme();
+  const isDark = theme === 'dark';
+
+  const [initialDeposit, setInitialDeposit] = useState(0);
   const [monthlyAmount, setMonthlyAmount] = useState(500);
-  const [period, setPeriod] = useState(10); // Default 10 years
-  const [isYears, setIsYears] = useState(true);
-  const [annualReturn, setAnnualReturn] = useState(10); // 10% a.a.
+  const [annualReturn, setAnnualReturn] = useState(10);
+  const [years, setYears] = useState(20);
 
-  const result = useMemo(() => {
-    // Formula: FV = PMT * [((1 + r/12)^n - 1) / (r/12)]
-    // r = annual rate / 100
-    // n = total months
-    
-    const r = annualReturn / 100;
-    const monthlyRate = r / 12;
-    const n = isYears ? period * 12 : period;
+  const textColor = isDark ? '#d1dcf0' : '#1f2937';
+  const gridColor = isDark ? '#283768' : '#e5e7eb';
+  const tooltipBg = isDark ? '#161e3b' : '#ffffff';
+  const tooltipBorder = isDark ? '#283768' : '#e2e8f0';
 
-    if (monthlyRate === 0) {
-      return monthlyAmount * n;
-    }
+  const chartData = useMemo(() => {
+    const monthlyRate = annualReturn / 100 / 12;
 
-    const futureValue = monthlyAmount * ((Math.pow(1 + monthlyRate, n) - 1) / monthlyRate);
-    return futureValue;
-  }, [monthlyAmount, period, isYears, annualReturn]);
+    return Array.from({ length: years }, (_, i) => {
+      const y = i + 1;
+      const n = y * 12;
 
-  const totalInvested = useMemo(() => {
-    const n = isYears ? period * 12 : period;
-    return monthlyAmount * n;
-  }, [monthlyAmount, period, isYears]);
+      const fvInitial = initialDeposit * Math.pow(1 + monthlyRate, n);
+      const fvMonthly = monthlyRate === 0
+        ? monthlyAmount * n
+        : monthlyAmount * ((Math.pow(1 + monthlyRate, n) - 1) / monthlyRate);
 
-  const totalInterest = result - totalInvested;
+      const total = fvInitial + fvMonthly;
+      const invested = initialDeposit + monthlyAmount * n;
+      const interest = total - invested;
+
+      return {
+        year: `${y}a`,
+        invested: parseFloat(invested.toFixed(2)),
+        interest: parseFloat(Math.max(0, interest).toFixed(2)),
+      };
+    });
+  }, [initialDeposit, monthlyAmount, annualReturn, years]);
+
+  // Find year where compound interest first overtakes total capital
+  const crossoverPoint = chartData.find(d => d.interest >= d.invested);
+
+  const lastPoint = chartData.at(-1);
+  const totalInvested = lastPoint?.invested ?? 0;
+  const totalInterest = lastPoint?.interest ?? 0;
+  const totalAccumulated = totalInvested + totalInterest;
+  const interestRatio = totalAccumulated > 0
+    ? ((totalInterest / totalAccumulated) * 100).toFixed(1)
+    : '0.0';
+
+  const xAxisInterval = years <= 10 ? 0 : years <= 30 ? 4 : 9;
+
+  const formatYAxis = (v) => {
+    if (v >= 1_000_000) return `${(v / 1_000_000).toFixed(1)}M`;
+    if (v >= 1_000) return `${(v / 1_000).toFixed(0)}k`;
+    return v;
+  };
+
+  const inputClass =
+    'w-full px-3 py-2 bg-gray-50 dark:bg-vindex-bg border border-gray-200 dark:border-vindex-border rounded-lg text-sm text-gray-900 dark:text-gray-100 focus:outline-none focus:ring-1 focus:ring-vindex-success no-spinner';
 
   return (
     <motion.div
@@ -46,96 +83,166 @@ const InvestmentSimulator = () => {
           Simulador de Investimentos (Juros Compostos)
         </h3>
         <p className="text-sm text-gray-500 dark:text-gray-400 mt-1">
-          Projete seu patrimônio futuro com aportes mensais constantes.
+          Projete seu patrimônio e veja quando os juros superam o capital investido.
         </p>
       </div>
 
-      <div className="p-6 grid grid-cols-1 md:grid-cols-2 gap-8 items-center">
-        {/* Inputs */}
+      <div className="p-6 grid grid-cols-1 md:grid-cols-3 gap-6 items-start">
+        {/* Inputs + Summary */}
         <div className="space-y-4">
           <div>
-            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-              Aporte Mensal (R$)
+            <label className="block text-xs font-medium text-gray-500 dark:text-gray-400 mb-1">
+              Aporte inicial (R$)
             </label>
             <input
-              type="number"
-              min="0"
-              value={monthlyAmount}
+              type="number" min="0" value={initialDeposit}
+              onChange={(e) => setInitialDeposit(Number(e.target.value))}
+              className={inputClass}
+            />
+          </div>
+
+          <div>
+            <label className="block text-xs font-medium text-gray-500 dark:text-gray-400 mb-1">
+              Aporte mensal (R$)
+            </label>
+            <input
+              type="number" min="0" value={monthlyAmount}
               onChange={(e) => setMonthlyAmount(Number(e.target.value))}
-              className="w-full px-3 py-2 bg-gray-50 dark:bg-vindex-bg border border-gray-200 dark:border-vindex-border rounded-lg text-gray-900 dark:text-gray-100 focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 transition-colors"
-              placeholder="0,00"
+              className={inputClass}
             />
           </div>
 
           <div>
-            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-              Taxa de Retorno Anual (%)
+            <label className="block text-xs font-medium text-gray-500 dark:text-gray-400 mb-1">
+              Taxa de retorno (% a.a.)
             </label>
             <input
-              type="number"
-              min="0"
-              step="0.1"
-              value={annualReturn}
+              type="number" min="0" step="0.1" value={annualReturn}
               onChange={(e) => setAnnualReturn(Number(e.target.value))}
-              className="w-full px-3 py-2 bg-gray-50 dark:bg-vindex-bg border border-gray-200 dark:border-vindex-border rounded-lg text-gray-900 dark:text-gray-100 focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 transition-colors"
+              className={inputClass}
             />
           </div>
 
           <div>
-            <div className="flex items-center justify-between mb-1">
-              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">
-                Tempo de Aplicação
-              </label>
-              <div className="flex bg-gray-100 dark:bg-gray-800 rounded-lg p-0.5">
-                <button
-                  onClick={() => setIsYears(false)}
-                  className={`px-3 py-1 text-xs font-medium rounded-md transition-all ${!isYears ? 'bg-white dark:bg-vindex-card shadow text-emerald-600 dark:text-emerald-400' : 'text-gray-500 dark:text-gray-400'}`}
-                >
-                  Meses
-                </button>
-                <button
-                  onClick={() => setIsYears(true)}
-                  className={`px-3 py-1 text-xs font-medium rounded-md transition-all ${isYears ? 'bg-white dark:bg-vindex-card shadow text-emerald-600 dark:text-emerald-400' : 'text-gray-500 dark:text-gray-400'}`}
-                >
-                  Anos
-                </button>
-              </div>
-            </div>
+            <label className="block text-xs font-medium text-gray-500 dark:text-gray-400 mb-2">
+              Período —{' '}
+              <span className="text-gray-900 dark:text-vindex-text font-semibold">
+                {years} {years === 1 ? 'ano' : 'anos'}
+              </span>
+            </label>
             <input
-              type="number"
-              min="1"
-              max={isYears ? 100 : 1200}
-              value={period}
-              onChange={(e) => setPeriod(Number(e.target.value))}
-              className="w-full px-3 py-2 bg-gray-50 dark:bg-vindex-bg border border-gray-200 dark:border-vindex-border rounded-lg text-gray-900 dark:text-gray-100 focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 transition-colors"
+              type="range" min="1" max="100" value={years}
+              onChange={(e) => setYears(Number(e.target.value))}
+              className="w-full accent-vindex-success cursor-pointer"
             />
+            <div className="flex justify-between text-xs text-gray-400 dark:text-gray-600 mt-0.5">
+              <span>1a</span><span>50a</span><span>100a</span>
+            </div>
+          </div>
+
+          {/* Summary */}
+          <div className="rounded-lg border border-gray-200 dark:border-vindex-border overflow-hidden text-sm">
+            <div className="p-3 bg-emerald-50 dark:bg-emerald-900/10">
+              <p className="text-xs text-gray-500 dark:text-gray-400">Total acumulado</p>
+              <p className="text-2xl font-bold text-vindex-success mt-0.5">
+                {formatCurrency(totalAccumulated)}
+              </p>
+            </div>
+            <div className="p-3 flex justify-between items-center border-t border-gray-100 dark:border-vindex-border/50">
+              <span className="text-gray-500 dark:text-gray-400 flex items-center gap-1.5">
+                <span className="w-2 h-2 rounded-full inline-block" style={{ backgroundColor: PRIMARY }} />
+                Capital
+              </span>
+              <span className="font-semibold text-gray-900 dark:text-vindex-text">
+                {formatCurrency(totalInvested)}
+              </span>
+            </div>
+            <div className="p-3 flex justify-between items-center border-t border-gray-100 dark:border-vindex-border/50">
+              <span className="text-gray-500 dark:text-gray-400 flex items-center gap-1.5">
+                <span className="w-2 h-2 rounded-full inline-block" style={{ backgroundColor: SUCCESS }} />
+                Juros
+              </span>
+              <span className="font-bold text-vindex-success">+{formatCurrency(totalInterest)}</span>
+            </div>
+            <div className="p-3 flex justify-between items-center border-t border-gray-100 dark:border-vindex-border/50">
+              <span className="text-gray-500 dark:text-gray-400">Juros representam</span>
+              <span className="font-semibold text-gray-900 dark:text-vindex-text">{interestRatio}%</span>
+            </div>
+            {crossoverPoint && (
+              <div className="p-3 flex justify-between items-center border-t border-gray-100 dark:border-vindex-border/50 bg-emerald-50/50 dark:bg-emerald-900/5">
+                <span className="text-gray-500 dark:text-gray-400">Juros superam capital</span>
+                <span className="font-semibold text-vindex-success">ano {crossoverPoint.year.replace('a', '')}</span>
+              </div>
+            )}
           </div>
         </div>
 
-        {/* Results */}
-        <div className="bg-gray-50 dark:bg-vindex-bg/50 rounded-xl p-6 border border-gray-100 dark:border-gray-800 flex flex-col justify-between h-full min-h-[200px]">
-          <div>
-            <span className="text-sm font-medium text-gray-500 dark:text-gray-400">Total Acumulado</span>
-            <motion.p 
-              key={result}
-              initial={{ scale: 0.95, opacity: 0.5 }}
-              animate={{ scale: 1, opacity: 1 }}
-              className="text-4xl font-bold text-emerald-600 dark:text-emerald-400 mt-1 mb-6"
-            >
-              {formatCurrency(result)}
-            </motion.p>
-          </div>
-
-          <div className="space-y-3">
-            <div className="flex justify-between items-center text-sm border-b border-gray-200 dark:border-gray-700 pb-2">
-              <span className="text-gray-600 dark:text-gray-400">Total Investido</span>
-              <span className="font-semibold text-gray-900 dark:text-gray-200">{formatCurrency(totalInvested)}</span>
-            </div>
-            <div className="flex justify-between items-center text-sm">
-              <span className="text-gray-600 dark:text-gray-400">Juros Recebidos</span>
-              <span className="font-bold text-emerald-600 dark:text-emerald-400">+{formatCurrency(totalInterest)}</span>
-            </div>
-          </div>
+        {/* Chart */}
+        <div className="md:col-span-2 h-72">
+          <ResponsiveContainer width="100%" height="100%">
+            <AreaChart data={chartData}>
+              <defs>
+                <linearGradient id="gradCapital" x1="0" y1="0" x2="0" y2="1">
+                  <stop offset="5%" stopColor={PRIMARY} stopOpacity={0.85} />
+                  <stop offset="95%" stopColor={PRIMARY} stopOpacity={0.55} />
+                </linearGradient>
+                <linearGradient id="gradJuros" x1="0" y1="0" x2="0" y2="1">
+                  <stop offset="5%" stopColor={SUCCESS} stopOpacity={0.85} />
+                  <stop offset="95%" stopColor={SUCCESS} stopOpacity={0.5} />
+                </linearGradient>
+              </defs>
+              <CartesianGrid strokeDasharray="3 3" stroke={gridColor} vertical={false} />
+              <XAxis
+                dataKey="year"
+                stroke={textColor} fontSize={11}
+                tickLine={false} axisLine={false}
+                interval={xAxisInterval}
+              />
+              <YAxis
+                stroke={textColor} fontSize={11}
+                tickLine={false} axisLine={false}
+                tickFormatter={formatYAxis}
+                width={45}
+              />
+              <Tooltip
+                contentStyle={{ backgroundColor: tooltipBg, borderColor: tooltipBorder, borderRadius: '8px', color: textColor }}
+                itemStyle={{ color: textColor }}
+                formatter={(value, name) => [
+                  formatCurrency(value),
+                  name === 'invested' ? 'Capital investido' : 'Juros acumulados',
+                ]}
+              />
+              <Legend
+                wrapperStyle={{ fontSize: 12, paddingTop: 8 }}
+                formatter={(value) =>
+                  value === 'invested' ? 'Capital investido' : 'Juros acumulados'
+                }
+              />
+              {crossoverPoint && (
+                <ReferenceLine
+                  x={crossoverPoint.year}
+                  stroke={SUCCESS} strokeDasharray="4 4" strokeOpacity={0.8}
+                >
+                  <Label
+                    value="Juros > Capital"
+                    position="insideTopRight"
+                    fontSize={10}
+                    fill={SUCCESS}
+                    opacity={0.9}
+                    offset={4}
+                  />
+                </ReferenceLine>
+              )}
+              <Area
+                type="monotone" dataKey="invested" stackId="1"
+                stroke={PRIMARY} fill="url(#gradCapital)" strokeWidth={1.5}
+              />
+              <Area
+                type="monotone" dataKey="interest" stackId="1"
+                stroke={SUCCESS} fill="url(#gradJuros)" strokeWidth={1.5}
+              />
+            </AreaChart>
+          </ResponsiveContainer>
         </div>
       </div>
     </motion.div>
