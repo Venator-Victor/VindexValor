@@ -60,12 +60,15 @@ const HomePage = () => {
                 <h2 className="text-3xl md:text-4xl font-bold mb-6">Sobre o Projeto</h2>
                 <div className="w-20 h-1 bg-primary mx-auto mb-8 rounded-full"></div>
                 <p className="text-lg text-muted-foreground leading-relaxed mb-6">
-                  O VindexValor é um web app dedicado à gestão financeira pessoal. Desenvolvido como 
-                  <strong className="text-foreground"> Trabalho de Conclusão de Curso (TCC)</strong> para a Pós-Graduação 
+                  O VindexValor é um web app de gestão financeira pessoal inteligente, desenvolvido como
+                  <strong className="text-foreground"> Trabalho de Conclusão de Curso (TCC)</strong> para a Pós-Graduação
                   em <strong className="text-foreground">Desenvolvimento Full Stack pela PUC-RS</strong>.
                 </p>
-                <p className="text-lg text-muted-foreground leading-relaxed">
+                <p className="text-lg text-muted-foreground leading-relaxed mb-6">
                   O objetivo é facilitar o controle financeiro, oferecendo ferramentas intuitivas para gestão de despesas, projeções contra a inflação (IPCA), metas e acompanhamento detalhado do seu patrimônio ao longo do tempo.
+                </p>
+                <p className="text-lg text-muted-foreground leading-relaxed">
+                  O projeto é <strong className="text-foreground">open source</strong> — contribuições e feedbacks são bem-vindos.
                 </p>
               </motion.div>
             </div>

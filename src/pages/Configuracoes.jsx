@@ -262,17 +262,23 @@ const Configuracoes = () => {
           {activeTab === 'sobre' && (
             <div className="space-y-6">
               <h2 className="text-2xl font-bold text-gray-900 dark:text-vindex-text mb-4">Sobre</h2>
+
               <div className="flex flex-col items-center justify-center p-8 bg-gray-50 dark:bg-vindex-bg rounded-xl border border-gray-200 dark:border-vindex-border/50">
-                 <img src="https://horizons-cdn.hostinger.com/2a249bc4-344a-46af-9dec-bb8c9e46ed73/5249fd8daaf81ca40360b2d3e3ff3ab7.png" alt="Logo" className="w-20 h-20 mb-4 object-contain" />
-                 <h3 className="text-2xl font-bold text-vindex-success mb-1">VindexValor</h3>
-                 <p className="text-gray-500 dark:text-vindex-text/70 mb-4">Gestão Financeira Inteligente</p>
-                 <span className="px-3 py-1 bg-gray-200 dark:bg-vindex-border rounded-full text-xs font-mono text-gray-700 dark:text-vindex-text">v1.0.0</span>
+                <img src="/VindexValor.svg" alt="VindexValor" className="w-20 h-20 mb-4 object-contain" />
+                <h3 className="text-2xl font-bold text-vindex-success mb-1">VindexValor</h3>
+                <p className="text-gray-500 dark:text-vindex-text/70 mb-4">Gestão Financeira Inteligente</p>
+                <span className="px-3 py-1 bg-gray-200 dark:bg-vindex-border rounded-full text-xs font-mono text-gray-700 dark:text-vindex-text">v1.0.0</span>
               </div>
-              
-              <div className="space-y-2 text-sm text-gray-500 dark:text-vindex-text/60">
-                <p>O VindexValor é sua plataforma completa para controle financeiro pessoal. Monitore gastos, gerencie investimentos e alcance sua liberdade financeira.</p>
+
+              <div className="space-y-3 text-sm text-gray-500 dark:text-vindex-text/60">
+                <p>
+                  O <span className="font-semibold text-gray-700 dark:text-vindex-text">VindexValor</span> é um web app de gestão financeira pessoal inteligente, desenvolvido como Trabalho de Conclusão de Curso (TCC) para a Pós-Graduação em Desenvolvimento Full Stack pela PUC-RS.
+                </p>
+                <p>
+                  O projeto é <span className="font-semibold text-gray-700 dark:text-vindex-text">open source</span> — contribuições, sugestões e feedbacks são bem-vindos pelo GitHub.
+                </p>
                 <div className="pt-4 border-t border-gray-200 dark:border-vindex-border/30">
-                   <p>© 2026 VindexValor. Todos os direitos reservados.</p>
+                  <p>© 2026 VindexValor. Todos os direitos reservados.</p>
                 </div>
               </div>
             </div>
