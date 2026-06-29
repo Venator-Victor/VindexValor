@@ -281,7 +281,7 @@ const Configuracoes = () => {
               <h2 className="text-2xl font-bold text-gray-900 dark:text-vindex-text mb-4">Sobre</h2>
 
               <div className="flex flex-col items-center justify-center p-8 bg-gray-50 dark:bg-vindex-bg rounded-xl border border-gray-200 dark:border-vindex-border/50">
-                <img src="/VindexValor.svg" alt="VindexValor" className="w-20 h-20 mb-4 object-contain" />
+                <img src="/VindexValor.png" alt="VindexValor" className="w-20 h-20 mb-4 object-contain" />
                 <h3 className="text-2xl font-bold text-primary mb-1">VindexValor</h3>
                 <p className="text-gray-500 dark:text-vindex-text/70 mb-4">Gestão Financeira Inteligente</p>
                 <span className="px-3 py-1 bg-gray-200 dark:bg-vindex-border rounded-full text-xs font-mono text-gray-700 dark:text-vindex-text">v0.3</span>
