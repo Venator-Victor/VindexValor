@@ -148,13 +148,19 @@ const InflationCard = ({ currentBalance }) => {
 
   const isShortPeriod = chartData.length <= 36;
   const isVeryLongPeriod = chartData.length > 60;
+
+  // Explicit tick list: always land on January entries so labels never disappear
+  // regardless of what month the slice starts on.
+  const xAxisTicks = useMemo(() => {
+    if (isShortPeriod) return undefined;
+    const yearStep = isVeryLongPeriod ? (isMobile ? 10 : 5) : 1;
+    return chartData
+      .filter(d => d.name.startsWith('01/') && parseInt(d.name.substring(3)) % yearStep === 0)
+      .map(d => d.name);
+  }, [chartData, isShortPeriod, isVeryLongPeriod, isMobile]);
+
   const xAxisTickFormatter = (value) =>
-    isShortPeriod ? value : (value.startsWith('01/') ? value.substring(3) : '');
-  const xAxisInterval = isShortPeriod
-    ? 'preserveStartEnd'
-    : isVeryLongPeriod
-      ? (isMobile ? 119 : 59)
-      : 11;
+    isShortPeriod ? value : value.substring(3);
 
   const periodStartYear = filteredData.length
     ? filteredData[0].period.substring(0, 4)
@@ -195,7 +201,7 @@ const InflationCard = ({ currentBalance }) => {
         <h2 className="text-xl font-bold text-gray-900 dark:text-vindex-text flex items-center gap-2">
           <TrendingDown size={20} className="text-vindex-danger" />
           Impacto Histórico da Inflação (IPCA)
-          <UiTooltip>
+          <UiTooltip delayDuration={100}>
             <TooltipTrigger>
               <Info className="w-4 h-4 text-gray-500 dark:text-vindex-text/50" />
             </TooltipTrigger>
@@ -279,7 +285,8 @@ const InflationCard = ({ currentBalance }) => {
                   fontSize={12}
                   tickLine={false}
                   axisLine={false}
-                  interval={xAxisInterval}
+                  interval={isShortPeriod ? 'preserveStartEnd' : 0}
+                  ticks={xAxisTicks}
                   tickFormatter={xAxisTickFormatter}
                 />
                 <YAxis stroke={textColor} fontSize={12} tickLine={false} axisLine={false} unit="%" />
