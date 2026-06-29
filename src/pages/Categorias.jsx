@@ -17,7 +17,7 @@ import SelectInput from '@/components/ui/SelectInput';
 import NumberInput from '@/components/ui/NumberInput';
 import { formatCurrency } from '@/utils/calculations';
 import DefaultCategoriesModal from '@/components/DefaultCategoriesModal';
-import GaugeChart from '@/components/GaugeChart';
+import GaugeSummaryCard from '@/components/GaugeSummaryCard';
 import { useSortableList } from '@/hooks/useSortableList';
 import { PERIOD_OPTIONS, CHART_PERIOD_OPTIONS } from '@/utils/periodOptions';
 import CategoryDetailModal from '@/components/CategoryDetailModal';
@@ -200,20 +200,15 @@ const Categorias = () => {
         </div>
       </div>
 
-      {/* Overview Chart Section - Updated with Gauge Chart */}
-      <div className="bg-white dark:bg-vindex-card rounded-xl p-6 border border-gray-200 dark:border-vindex-border shadow-sm flex flex-col md:flex-row justify-around items-center gap-6">
-         <div className="text-center">
-            <p className="text-sm font-medium text-gray-700 dark:text-gray-300">Utilização Total</p>
-            <p className="text-2xl font-bold text-gray-900 dark:text-gray-50">{formatCurrency(totalSpent)}</p>
-         </div>
-         
-         <GaugeChart value={totalSpent} max={totalBudget > 0 ? totalBudget : 100} size={160} strokeWidth={16} className="my-2" label="" />
-
-         <div className="text-center">
-            <p className="text-sm font-medium text-gray-700 dark:text-gray-300">Orçamento Total</p>
-            <p className="text-2xl font-bold" style={{ color: PRIMARY }}>{formatCurrency(totalBudget)}</p>
-         </div>
-      </div>
+      <GaugeSummaryCard
+        leftLabel="Utilização Total"
+        leftValue={formatCurrency(totalSpent)}
+        gaugeValue={totalSpent}
+        gaugeMax={totalBudget}
+        rightLabel="Orçamento Total"
+        rightValue={formatCurrency(totalBudget)}
+        rightClassName="text-2xl font-bold text-primary"
+      />
 
       {/* Categories List/Grid */}
       <div className="flex justify-between items-center mb-4 mt-6">

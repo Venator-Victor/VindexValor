@@ -19,7 +19,7 @@ import {
 import MetaForm from '@/components/MetaForm';
 import MetaProgressCard from '@/components/MetaProgressCard';
 import MetaCategorySelector from '@/components/MetaCategorySelector';
-import GaugeChart from '@/components/GaugeChart'; // Importing GaugeChart
+import GaugeSummaryCard from '@/components/GaugeSummaryCard';
 import { useToast } from '@/components/ui/use-toast';
 import { formatCurrency } from '@/utils/calculations';
 import { differenceInDays, parseISO, isPast } from 'date-fns';
@@ -269,38 +269,18 @@ const Metas = () => {
         </Dialog>
       </div>
 
-      {/* Main Gauge Chart Section */}
       <AnimatePresence mode="wait">
-        <motion.div 
-            key={filterType}
-            initial={{ opacity: 0, y: -20 }}
-            animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0 }}
-            className="bg-white dark:bg-vindex-card rounded-xl p-6 border border-gray-200 dark:border-vindex-border shadow-sm flex flex-col md:flex-row justify-around items-center gap-6"
-        >
-             <div className="text-center">
-                <p className="text-sm font-medium text-gray-700 dark:text-gray-300">Acumulado</p>
-                <p className="text-2xl font-bold text-green-600 dark:text-vindex-success">{formatCurrency(totalAccumulated)}</p>
-             </div>
-             
-             <div className="flex flex-col items-center">
-                <h3 className="text-lg font-semibold text-gray-900 dark:text-gray-100 mb-2">
-                    {filterType === 'valor_final' ? 'Metas Fixas' : 'Metas Recorrentes'}
-                </h3>
-                <GaugeChart 
-                    value={totalAccumulated} 
-                    max={totalTarget > 0 ? totalTarget : 100} 
-                    size={180} 
-                    strokeWidth={18}
-                    className="my-2"
-                />
-             </div>
-
-             <div className="text-center">
-                <p className="text-sm font-medium text-gray-700 dark:text-gray-300">Total Alvo</p>
-                <p className="text-2xl font-bold text-gray-900 dark:text-gray-100">{formatCurrency(totalTarget)}</p>
-             </div>
-        </motion.div>
+        <GaugeSummaryCard
+          motionKey={filterType}
+          leftLabel="Acumulado"
+          leftValue={formatCurrency(totalAccumulated)}
+          leftClassName="text-2xl font-bold text-green-600 dark:text-vindex-success"
+          gaugeValue={totalAccumulated}
+          gaugeMax={totalTarget}
+          title={filterType === 'valor_final' ? 'Metas Fixas' : 'Metas Recorrentes'}
+          rightLabel="Total Alvo"
+          rightValue={formatCurrency(totalTarget)}
+        />
       </AnimatePresence>
 
       {goals.length === 0 ? (

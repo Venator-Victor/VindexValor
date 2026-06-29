@@ -17,7 +17,7 @@ import { formatCurrency } from '@/utils/calculations';
 import SelectInput from '@/components/ui/SelectInput';
 import DatePicker from '@/components/ui/DatePicker';
 import RecorrenciaCard from '@/components/cards/RecorrenciaCard';
-import GaugeChart from '@/components/GaugeChart';
+import GaugeSummaryCard from '@/components/GaugeSummaryCard';
 import DefaultCategoriesModal from '@/components/DefaultCategoriesModal';
 import { useSortableList } from '@/hooks/useSortableList';
 import { PERIOD_OPTIONS, CHART_PERIOD_OPTIONS } from '@/utils/periodOptions';
@@ -410,17 +410,16 @@ const Recorrencias = () => {
         </div>
       </div>
 
-      <div className="bg-white dark:bg-vindex-card rounded-xl p-6 border border-gray-200 dark:border-vindex-border shadow-sm flex flex-col md:flex-row justify-around items-center gap-6">
-         <div className="text-center">
-            <p className="text-sm font-medium text-gray-700 dark:text-gray-300">Pago até agora</p>
-            <p className="text-2xl font-bold text-green-600 dark:text-vindex-success">{formatCurrency(totalPaid)}</p>
-         </div>
-         <GaugeChart value={totalPaid} max={totalDebt > 0 ? totalDebt : 100} size={140} strokeWidth={16} className="my-2" />
-         <div className="text-center">
-            <p className="text-sm font-medium text-gray-700 dark:text-gray-300">Falta pagar</p>
-            <p className="text-2xl font-bold text-red-600 dark:text-vindex-danger">{formatCurrency(totalPending)}</p>
-         </div>
-      </div>
+      <GaugeSummaryCard
+        leftLabel="Pago até agora"
+        leftValue={formatCurrency(totalPaid)}
+        leftClassName="text-2xl font-bold text-green-600 dark:text-vindex-success"
+        gaugeValue={totalPaid}
+        gaugeMax={totalDebt}
+        rightLabel="Falta pagar"
+        rightValue={formatCurrency(totalPending)}
+        rightClassName="text-2xl font-bold text-red-600 dark:text-vindex-danger"
+      />
 
       {sortedRecurring.length === 0 ? (
         <EmptyState icon={Repeat} message="Você ainda não tem recorrências cadastradas." buttonLabel="Criar Primeira Recorrência" onButtonClick={() => { resetForm(); setIsDialogOpen(true); }} />
