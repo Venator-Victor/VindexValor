@@ -6,6 +6,7 @@ import { mockData } from '@/utils/mockData';
 import { useExchangeRate } from '@/hooks/useExchangeRate';
 import { calculateAccountBalance, isCryptoCurrency } from '@/utils/calculations';
 import { validateCreditCardAccount } from '@/utils/accountValidation';
+import { sanitizeUserInput } from '@/utils/securityUtils';
 
 const FinanceContext = createContext();
 
@@ -192,7 +193,11 @@ export const FinanceProvider = ({ children }) => {
   const createFatura = async (faturaData) => {
     if (!user || !user.id) throw new Error("Usuário não autenticado");
     try {
-      const payload = { ...faturaData, user_id: user.id };
+      const payload = {
+        ...faturaData,
+        user_id: user.id,
+        ...(faturaData.invoice_number && { invoice_number: sanitizeUserInput(faturaData.invoice_number) }),
+      };
       const { data, error } = await supabase.from('invoices').insert(payload).select('*, accounts(name)').single();
       if (error) throw error;
       setFaturas(prev => [data, ...prev]);
@@ -258,9 +263,11 @@ export const FinanceProvider = ({ children }) => {
     try {
       const payload = {
         ...accountData,
-        user_id: user.id
+        user_id: user.id,
+        name: sanitizeUserInput(accountData.name),
+        ...(accountData.bank && { bank: sanitizeUserInput(accountData.bank) }),
       };
-      
+
       const { data, error } = await supabase.from('accounts').insert(payload).select().single();
         
       if (error) throw error;
@@ -281,7 +288,12 @@ export const FinanceProvider = ({ children }) => {
     }
     
     try {
-      const { data, error } = await supabase.from('accounts').update(accountData).eq('id', id).eq('user_id', user.id).select().single();
+      const sanitized = {
+        ...accountData,
+        name: sanitizeUserInput(accountData.name),
+        ...(accountData.bank && { bank: sanitizeUserInput(accountData.bank) }),
+      };
+      const { data, error } = await supabase.from('accounts').update(sanitized).eq('id', id).eq('user_id', user.id).select().single();
       if (error) throw error;
       setAccounts(prev => prev.map(acc => acc.id === id ? data : acc));
       return data;
@@ -301,7 +313,7 @@ export const FinanceProvider = ({ children }) => {
   // Category Operations
   const addCategory = async (categoryData) => {
     if (!user) throw new Error("Usuário não autenticado");
-    const { data, error } = await supabase.from('categories').insert({ ...categoryData, user_id: user.id }).select().single();
+    const { data, error } = await supabase.from('categories').insert({ ...categoryData, name: sanitizeUserInput(categoryData.name), user_id: user.id }).select().single();
     if (error) throw error;
     setCategories(prev => [...prev, data]);
     return data;
@@ -309,7 +321,7 @@ export const FinanceProvider = ({ children }) => {
   
   const updateCategory = async (id, categoryData) => {
     if (!user) throw new Error("Usuário não autenticado");
-    const { data, error } = await supabase.from('categories').update(categoryData).eq('id', id).eq('user_id', user.id).select().single();
+    const { data, error } = await supabase.from('categories').update({ ...categoryData, name: sanitizeUserInput(categoryData.name) }).eq('id', id).eq('user_id', user.id).select().single();
     if (error) throw error;
     setCategories(prev => prev.map(c => c.id === id ? data : c));
     return data;
@@ -356,7 +368,7 @@ export const FinanceProvider = ({ children }) => {
       ? (data.status ? 'Ativo' : 'Inativo')
       : (data.status || 'Ativo');
     const payload = {
-      description: data.description,
+      description: sanitizeUserInput(data.description),
       amount: data.amount,
       frequency: data.frequency,
       next_date: data.nextDate || data.next_date,
@@ -464,6 +476,8 @@ export const FinanceProvider = ({ children }) => {
   const createTransaction = async (formData) => {
     if (!user) throw new Error("Usuário não autenticado");
     const { frequency, recurring_installment_count, ...txPayload } = formData;
+    if (txPayload.description) txPayload.description = sanitizeUserInput(txPayload.description);
+    if (txPayload.notes) txPayload.notes = sanitizeUserInput(txPayload.notes);
 
     if (txPayload.is_recurring && frequency) {
       // Delegate to edge function for atomic creation:
@@ -501,7 +515,10 @@ export const FinanceProvider = ({ children }) => {
 
   const updateTransaction = async (id, formData) => {
     if (!user) throw new Error("Usuário não autenticado");
-    const { data, error } = await supabase.from('transactions').update(formData).eq('id', id).eq('user_id', user.id)
+    const sanitized = { ...formData };
+    if (sanitized.description) sanitized.description = sanitizeUserInput(sanitized.description);
+    if (sanitized.notes) sanitized.notes = sanitizeUserInput(sanitized.notes);
+    const { data, error } = await supabase.from('transactions').update(sanitized).eq('id', id).eq('user_id', user.id)
       .select('*, categories(*), contas:accounts!fk_transacoes_conta(*), conta_destino:accounts!fk_transacoes_conta_destino(*), invoices(id, invoice_number)').single();
     if (error) throw error;
     setTransactions(prev => prev.map(t => t.id === id ? data : t));
