@@ -24,7 +24,7 @@ import OnboardingChecklist from '@/components/OnboardingChecklist';
 import { useTheme } from '@/context/ThemeContext';
 
 const Dashboard = () => {
-  const { transactions, accounts, calculatedAccounts, investments, recurring, categories, exchangeRates } = useFinance();
+  const { transactions, accounts, investments, recurring, categories, exchangeRates } = useFinance();
   const { theme } = useTheme();
   
   const [selectedPeriod, setSelectedPeriod] = useState('Mensal');
@@ -69,7 +69,7 @@ const Dashboard = () => {
     });
   }, [investments, startDate, endDate]);
 
-  const totalBalanceBRL = calculatedAccounts.reduce((sum, acc) => {
+  const totalBalanceBRL = accounts.reduce((sum, acc) => {
     const currency = acc.currency || 'BRL';
     let balanceInBRL = acc.balance;
     if (currency !== 'BRL' && exchangeRates[currency]) {
@@ -81,7 +81,7 @@ const Dashboard = () => {
   const totalInvestmentsAllTime = calculateTotalInvestmentValue(investments);
   const totalAssets = totalBalanceBRL + totalInvestmentsAllTime;
 
-  const { liabilities: totalLiabilities } = calculateAssetsLiabilities(transactions, calculatedAccounts, recurring, exchangeRates);
+  const { liabilities: totalLiabilities } = calculateAssetsLiabilities(transactions, accounts, recurring, exchangeRates);
 
   const filteredIncomeBRL = filteredTransactions
     .filter(t => t.type === 'entrada')
@@ -196,7 +196,7 @@ const Dashboard = () => {
 
       <div className="grid grid-cols-1 gap-6">
         <div className="h-[400px]">
-          <AssetCompositionChart accounts={calculatedAccounts} investments={investments} recurring={recurring} exchangeRates={exchangeRates} selectedPeriod={selectedPeriod} />
+          <AssetCompositionChart accounts={accounts} investments={investments} recurring={recurring} exchangeRates={exchangeRates} selectedPeriod={selectedPeriod} />
         </div>
       </div>
       
