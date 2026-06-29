@@ -4,6 +4,7 @@ import { motion } from 'framer-motion';
 import { AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
 import { formatCurrency } from '@/utils/calculations';
 import { useTheme } from '@/context/ThemeContext';
+import { useIsMobile } from '@/hooks/use-mobile';
 import { InfoCircle as Info, AlertCircle, RefreshCw, TrendingDown } from '@/components/BxIcon';
 import { supabase } from '@/lib/customSupabaseClient';
 import { Button } from '@/components/ui/button';
@@ -46,6 +47,7 @@ const ALL_YEARS = Array.from(
 
 const InflationCard = ({ currentBalance }) => {
   const { theme } = useTheme();
+  const isMobile = useIsMobile();
   const isDark = theme === 'dark';
 
   const [allData, setAllData] = useState([]);
@@ -144,10 +146,15 @@ const InflationCard = ({ currentBalance }) => {
     };
   }, [filteredData]);
 
-  const isLongPeriod = chartData.length > 36;
+  const isShortPeriod = chartData.length <= 36;
+  const isVeryLongPeriod = chartData.length > 60;
   const xAxisTickFormatter = (value) =>
-    isLongPeriod ? (value.startsWith('01/') ? value.substring(3) : '') : value;
-  const xAxisInterval = isLongPeriod ? 11 : 'preserveStartEnd';
+    isShortPeriod ? value : (value.startsWith('01/') ? value.substring(3) : '');
+  const xAxisInterval = isShortPeriod
+    ? 'preserveStartEnd'
+    : isVeryLongPeriod
+      ? (isMobile ? 119 : 59)
+      : 11;
 
   const periodStartYear = filteredData.length
     ? filteredData[0].period.substring(0, 4)
