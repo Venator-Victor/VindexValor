@@ -4,7 +4,7 @@ import { useAuth } from '@/context/SupabaseAuthContext';
 import { useToast } from '@/components/ui/use-toast';
 import { mockData } from '@/utils/mockData';
 import { useExchangeRate } from '@/hooks/useExchangeRate';
-import { calculateAccountBalance, isCryptoCurrency } from '@/utils/calculations';
+import { isCryptoCurrency } from '@/utils/calculations';
 import { validateCreditCardAccount } from '@/utils/accountValidation';
 import { sanitizeUserInput } from '@/utils/securityUtils';
 
@@ -51,6 +51,7 @@ export const FinanceProvider = ({ children }) => {
     accounts_view_preference: 'card'
   });
   
+  const [accountBalances, setAccountBalances] = useState({});
   const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(() => localStorage.getItem('sidebarCollapsed') === 'true');
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
@@ -75,7 +76,8 @@ export const FinanceProvider = ({ children }) => {
         { data: recurringData, error: recurringError },
         { data: parcelsData, error: parcelsError },
         { data: txTypesData },
-        { data: invData, error: invError }
+        { data: invData, error: invError },
+        { data: balancesData }
       ] = await Promise.all([
         supabase.from('transactions').select(`*, categories ( id, name, color, icon ), contas:accounts!fk_transacoes_conta ( id, name, type, color, currency, crypto_symbol ), conta_destino:accounts!fk_transacoes_conta_destino ( id, name, type, currency, crypto_symbol ), invoices(id, invoice_number)`).eq('user_id', user.id).order('date', { ascending: false }),
         supabase.from('accounts').select('id, user_id, name, type, bank, balance, color, created_at, icon, account_subtype, credit_limit, closing_date, due_date, investment_type, expected_return, reload_value, reload_date, total_amount, interest_rate, term_months, amortization_type, holders, initial_balance, currency, crypto_symbol').eq('user_id', user.id),
@@ -85,7 +87,8 @@ export const FinanceProvider = ({ children }) => {
         supabase.from('recurring_items').select('*, categories(name, color)').eq('user_id', user.id).order('next_date', { ascending: true }),
         supabase.from('recurring_installments').select('*').eq('user_id', user.id),
         supabase.from('transaction_types').select('*'),
-        supabase.from('investments').select('*').eq('user_id', user.id).order('purchase_date', { ascending: false })
+        supabase.from('investments').select('*').eq('user_id', user.id).order('purchase_date', { ascending: false }),
+        supabase.rpc('get_account_balances')
       ]);
 
       if (transError) console.error("Error fetching transactions:", transError);
@@ -105,6 +108,9 @@ export const FinanceProvider = ({ children }) => {
       setParcels(parcelsData || []);
       setTransactionTypes(txTypesData || []);
       setInvestments((invData || []).map(mapInvestment));
+      if (balancesData) {
+        setAccountBalances(Object.fromEntries(balancesData.map(b => [b.account_id, b.balance])));
+      }
 
       if (settingsData) {
         setSettings(prev => ({ ...prev, ...settingsData }));
@@ -132,6 +138,11 @@ export const FinanceProvider = ({ children }) => {
     if (!user) return;
     const { data } = await supabase.from('recurring_installments').select('*').eq('user_id', user.id);
     if (data) setParcels(data);
+  };
+
+  const refreshAccountBalances = async () => {
+    const { data } = await supabase.rpc('get_account_balances');
+    if (data) setAccountBalances(Object.fromEntries(data.map(b => [b.account_id, b.balance])));
   };
 
   const saveSettings = async (newSettings) => {
@@ -179,9 +190,9 @@ export const FinanceProvider = ({ children }) => {
   const calculatedAccounts = useMemo(() => {
     return accounts.map(acc => ({
       ...acc,
-      balance: calculateAccountBalance(transactions, acc.id, acc.initial_balance || 0)
+      balance: accountBalances[acc.id] ?? acc.initial_balance ?? 0
     }));
-  }, [accounts, transactions]);
+  }, [accounts, accountBalances]);
 
   // Fatura Operations
   const fetchFaturas = async () => {
@@ -269,9 +280,10 @@ export const FinanceProvider = ({ children }) => {
       };
 
       const { data, error } = await supabase.from('accounts').insert(payload).select().single();
-        
+
       if (error) throw error;
       setAccounts(prev => [...prev, data]);
+      setAccountBalances(prev => ({ ...prev, [data.id]: Number(data.initial_balance || 0) }));
       return data;
     } catch (error) {
       throw error;
@@ -296,6 +308,7 @@ export const FinanceProvider = ({ children }) => {
       const { data, error } = await supabase.from('accounts').update(sanitized).eq('id', id).eq('user_id', user.id).select().single();
       if (error) throw error;
       setAccounts(prev => prev.map(acc => acc.id === id ? data : acc));
+      refreshAccountBalances();
       return data;
     } catch (error) {
       throw error;
@@ -427,6 +440,7 @@ export const FinanceProvider = ({ children }) => {
         .single();
       if (tx) setTransactions(prev => [tx, ...prev]);
     }
+    await refreshAccountBalances();
     return result;
   };
 
@@ -503,6 +517,7 @@ export const FinanceProvider = ({ children }) => {
       if (tx) setTransactions(prev => [tx, ...prev]);
       if (result.recurrence) setRecurring(prev => [...prev, result.recurrence]);
       if (recurring_installment_count) await fetchParcels();
+      refreshAccountBalances();
       return tx || result.firstTransaction;
     }
 
@@ -510,6 +525,7 @@ export const FinanceProvider = ({ children }) => {
       .select('*, categories(*), contas:accounts!fk_transacoes_conta(*), conta_destino:accounts!fk_transacoes_conta_destino(*), invoices(id, invoice_number)').single();
     if (error) throw error;
     setTransactions(prev => [data, ...prev]);
+    refreshAccountBalances();
     return data;
   };
 
@@ -522,6 +538,7 @@ export const FinanceProvider = ({ children }) => {
       .select('*, categories(*), contas:accounts!fk_transacoes_conta(*), conta_destino:accounts!fk_transacoes_conta_destino(*), invoices(id, invoice_number)').single();
     if (error) throw error;
     setTransactions(prev => prev.map(t => t.id === id ? data : t));
+    refreshAccountBalances();
     return data;
   };
 
@@ -530,6 +547,7 @@ export const FinanceProvider = ({ children }) => {
     const { error } = await supabase.from('transactions').delete().eq('id', id).eq('user_id', user.id);
     if (error) throw error;
     setTransactions(prev => prev.filter(t => t.id !== id));
+    refreshAccountBalances();
     return true;
   };
 

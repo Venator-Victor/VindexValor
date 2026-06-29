@@ -2,8 +2,7 @@ import React, { useState, useMemo } from 'react';
 import { Helmet } from 'react-helmet';
 import { motion } from 'framer-motion';
 import { useFinance } from '@/context/FinanceContext';
-import { 
-  calculateAccountBalance,
+import {
   calculateTotalInvestmentValue,
   formatCurrencyWithSymbol,
   calculateAssetsLiabilities
@@ -25,7 +24,7 @@ import OnboardingChecklist from '@/components/OnboardingChecklist';
 import { useTheme } from '@/context/ThemeContext';
 
 const Dashboard = () => {
-  const { transactions, accounts, investments, recurring, categories, exchangeRates } = useFinance();
+  const { transactions, accounts, calculatedAccounts, investments, recurring, categories, exchangeRates } = useFinance();
   const { theme } = useTheme();
   
   const [selectedPeriod, setSelectedPeriod] = useState('Mensal');
@@ -70,12 +69,7 @@ const Dashboard = () => {
     });
   }, [investments, startDate, endDate]);
 
-  const dynamicAccounts = useMemo(() => accounts.map(acc => ({
-      ...acc,
-      balance: calculateAccountBalance(transactions, acc.id, acc.initial_balance ?? acc.balance ?? 0)
-  })), [accounts, transactions]);
-
-  const totalBalanceBRL = dynamicAccounts.reduce((sum, acc) => {
+  const totalBalanceBRL = calculatedAccounts.reduce((sum, acc) => {
     const currency = acc.currency || 'BRL';
     let balanceInBRL = acc.balance;
     if (currency !== 'BRL' && exchangeRates[currency]) {
@@ -87,7 +81,7 @@ const Dashboard = () => {
   const totalInvestmentsAllTime = calculateTotalInvestmentValue(investments);
   const totalAssets = totalBalanceBRL + totalInvestmentsAllTime;
 
-  const { liabilities: totalLiabilities } = calculateAssetsLiabilities(transactions, dynamicAccounts, recurring, exchangeRates);
+  const { liabilities: totalLiabilities } = calculateAssetsLiabilities(transactions, calculatedAccounts, recurring, exchangeRates);
 
   const filteredIncomeBRL = filteredTransactions
     .filter(t => t.type === 'entrada')
@@ -202,7 +196,7 @@ const Dashboard = () => {
 
       <div className="grid grid-cols-1 gap-6">
         <div className="h-[400px]">
-          <AssetCompositionChart accounts={dynamicAccounts} investments={investments} recurring={recurring} exchangeRates={exchangeRates} selectedPeriod={selectedPeriod} />
+          <AssetCompositionChart accounts={calculatedAccounts} investments={investments} recurring={recurring} exchangeRates={exchangeRates} selectedPeriod={selectedPeriod} />
         </div>
       </div>
       
