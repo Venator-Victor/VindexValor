@@ -37,11 +37,11 @@ const SignupPage = () => {
       return;
     }
 
-    if (formData.password.length < 8) {
-       toast({
+    if (formData.password.length < 8 || !/[A-Z]/.test(formData.password) || !/[0-9]/.test(formData.password)) {
+      toast({
         variant: "destructive",
         title: "Senha Fraca",
-        description: "A senha deve ter pelo menos 8 caracteres.",
+        description: "A senha deve ter mínimo 8 caracteres, uma letra maiúscula e um número.",
       });
       return;
     }
@@ -102,6 +102,20 @@ const SignupPage = () => {
                 {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
               </button>
             </div>
+            {formData.password.length > 0 && (
+              <ul className="mt-2 space-y-1">
+                {[
+                  { label: 'Mínimo 8 caracteres', met: formData.password.length >= 8 },
+                  { label: 'Uma letra maiúscula', met: /[A-Z]/.test(formData.password) },
+                  { label: 'Um número', met: /[0-9]/.test(formData.password) },
+                ].map(({ label, met }) => (
+                  <li key={label} className={`flex items-center gap-1.5 text-xs transition-colors ${met ? 'text-green-500' : 'text-muted-foreground'}`}>
+                    <span className="text-base leading-none">{met ? '✓' : '·'}</span>
+                    {label}
+                  </li>
+                ))}
+              </ul>
+            )}
           </div>
 
           <div>
