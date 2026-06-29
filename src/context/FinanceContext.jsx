@@ -17,21 +17,6 @@ const mapInvestment = (row) => ({
   accountId: row.account_id,
 });
 
-const calculateNextDate = (dateStr, frequency, steps = 1) => {
-  const d = new Date(dateStr + 'T12:00:00');
-  for (let i = 0; i < steps; i++) {
-    switch (frequency) {
-      case 'Diário':     d.setDate(d.getDate() + 1); break;
-      case 'Semanal':    d.setDate(d.getDate() + 7); break;
-      case 'Quinzenal':  d.setDate(d.getDate() + 15); break;
-      case 'Mensal':     d.setMonth(d.getMonth() + 1); break;
-      case 'Trimestral': d.setMonth(d.getMonth() + 3); break;
-      case 'Semestral':  d.setMonth(d.getMonth() + 6); break;
-      case 'Anual':      d.setFullYear(d.getFullYear() + 1); break;
-    }
-  }
-  return d.toISOString().slice(0, 10);
-};
 
 export const useFinance = () => {
   const context = useContext(FinanceContext);
@@ -479,44 +464,37 @@ export const FinanceProvider = ({ children }) => {
   const createTransaction = async (formData) => {
     if (!user) throw new Error("Usuário não autenticado");
     const { frequency, recurring_installment_count, ...txPayload } = formData;
+
+    if (txPayload.is_recurring && frequency) {
+      // Delegate to edge function for atomic creation:
+      // recurring_item + transaction + installments in a single server-side call.
+      const { data: result, error } = await supabase.functions.invoke('create-recurrence', {
+        body: {
+          transaction: txPayload,
+          frequency,
+          recurrence_type: txPayload.recurring_type || 'Assinatura',
+          installment_count: recurring_installment_count ? parseInt(recurring_installment_count) : null,
+        }
+      });
+      if (error) throw error;
+      if (result?.error) throw new Error(result.error);
+
+      // Fetch the created transaction with full joins for state update
+      const { data: tx } = await supabase
+        .from('transactions')
+        .select('*, categories(*), contas:accounts!fk_transacoes_conta(*), conta_destino:accounts!fk_transacoes_conta_destino(*), invoices(id, invoice_number)')
+        .eq('id', result.firstTransaction.id)
+        .single();
+
+      if (tx) setTransactions(prev => [tx, ...prev]);
+      if (result.recurrence) setRecurring(prev => [...prev, result.recurrence]);
+      if (recurring_installment_count) await fetchParcels();
+      return tx || result.firstTransaction;
+    }
+
     const { data, error } = await supabase.from('transactions').insert({ ...txPayload, user_id: user.id })
       .select('*, categories(*), contas:accounts!fk_transacoes_conta(*), conta_destino:accounts!fk_transacoes_conta_destino(*), invoices(id, invoice_number)').single();
     if (error) throw error;
-
-    if (txPayload.is_recurring && frequency) {
-      const nextDate = calculateNextDate(data.date, frequency);
-      const recurringType = txPayload.recurring_type || 'Assinatura';
-      const count = recurring_installment_count ? parseInt(recurring_installment_count) : null;
-      const { data: ri } = await supabase.from('recurring_items').insert({
-        user_id: user.id,
-        description: data.description,
-        amount: data.amount,
-        frequency,
-        next_date: nextDate,
-        status: 'Ativo',
-        category_id: data.category_id || null,
-        recurrence_type: recurringType,
-        installment_count: count
-      }).select().single();
-      if (ri) {
-        await supabase.from('transactions').update({ recurring_id: ri.id }).eq('id', data.id);
-        setRecurring(prev => [...prev, ri]);
-        if (recurringType === 'Parcelas' && count) {
-          const installments = Array.from({ length: count }, (_, i) => ({
-            user_id: user.id,
-            recurring_item_id: ri.id,
-            parcel_number: i + 1,
-            amount: Math.abs(data.amount),
-            due_date: calculateNextDate(data.date, frequency, i),
-            status: i === 0 ? 'paid' : 'pending',
-            paid_date: i === 0 ? data.date : null
-          }));
-          await supabase.from('recurring_installments').insert(installments);
-          await fetchParcels();
-        }
-      }
-    }
-
     setTransactions(prev => [data, ...prev]);
     return data;
   };
