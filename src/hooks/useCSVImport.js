@@ -12,147 +12,126 @@ export const useCSVImport = () => {
   const [isParsing, setIsParsing] = useState(false);
   const [isImporting, setIsImporting] = useState(false);
 
-  const normalizeHeader = (str) => {
-    return str.normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLowerCase().trim();
-  };
-
-  const getFieldValue = (row, possibleKeys) => {
-    const key = Object.keys(row).find(k => possibleKeys.includes(normalizeHeader(k)));
-    return key ? row[key] : '';
-  };
+  const normalizeHeader = (str) =>
+    str.normalize('NFD').replace(/[̀-ͯ]/g, '').toLowerCase().trim();
 
   const dateVars = ['date', 'data', 'data_transacao'];
-  const valVars = ['amount', 'value', 'valor', 'preço', 'preco'];
+  const valVars  = ['amount', 'value', 'valor', 'preço', 'preco'];
   const descVars = ['title', 'descricao', 'description', 'nome', 'produto'];
-  const idVars = ['identificador', 'id', 'transaction_id'];
 
-  const parseCSVFile = (file) => {
-    return new Promise((resolve, reject) => {
+  const parseDate = (rawDate) => {
+    if (!rawDate) return '';
+    if (/^\d{4}-\d{2}-\d{2}/.test(rawDate)) return rawDate.substring(0, 10);
+    if (rawDate.includes('/')) {
+      const parts = rawDate.split('/');
+      if (parts.length === 3) {
+        const [p1, p2, p3] = parts;
+        if (p3.length === 4) return `${p3}-${p2.padStart(2, '0')}-${p1.padStart(2, '0')}`;
+      }
+    }
+    return rawDate;
+  };
+
+  // Parse file without column detection — returns raw headers + rows
+  const parseCSVFileRaw = (file) =>
+    new Promise((resolve, reject) => {
       Papa.parse(file, {
         header: true,
         skipEmptyLines: true,
-        complete: (results) => {
-          const headers = results.meta.fields || [];
-          const normFields = headers.map(normalizeHeader);
-          
-          const hasData = normFields.some(f => dateVars.includes(f));
-          const hasValor = normFields.some(f => valVars.includes(f));
-          const hasDesc = normFields.some(f => descVars.includes(f));
-          const hasId = normFields.some(f => idVars.includes(f));
-          
-          const availableCols = headers.join(', ');
-
-          if (!hasData) return reject(new Error(`Coluna de data não encontrada. Colunas disponíveis: [${availableCols}]. Aceitas variações: ${dateVars.join(', ')}`));
-          if (!hasValor) return reject(new Error(`Coluna de valor não encontrada. Colunas disponíveis: [${availableCols}]. Aceitas variações: ${valVars.join(', ')}`));
-          if (!hasDesc) return reject(new Error(`Coluna de descrição não encontrada. Colunas disponíveis: [${availableCols}]. Aceitas variações: ${descVars.join(', ')}`));
-          if (!hasId) return reject(new Error(`Coluna de identificador não encontrada. Colunas disponíveis: [${availableCols}]. Aceitas variações: ${idVars.join(', ')}`));
-
-          const mappedData = results.data.map(row => {
-            const rawValor = getFieldValue(row, valVars);
-            let valStr = String(rawValor).trim();
-            
-            // Retain only digits, minus sign, comma, and dot
-            valStr = valStr.replace(/[^\d.,-]/g, '');
-            
-            if (valStr.includes('.') && valStr.includes(',')) {
-              valStr = valStr.replace(/\./g, '').replace(',', '.');
-            } else if (valStr.includes(',')) {
-              valStr = valStr.replace(',', '.');
-            }
-            
-            const numValor = parseFloat(valStr) || 0;
-            const rawDesc = getFieldValue(row, descVars);
-            const rawData = getFieldValue(row, dateVars);
-            const rawId = getFieldValue(row, idVars);
-
-            let parsedDate = rawData;
-            if (rawData.includes('/')) {
-              const parts = rawData.split('/');
-              if (parts.length === 3) {
-                const [p1, p2, p3] = parts;
-                if (p3.length === 4) {
-                  parsedDate = `${p3}-${p2.padStart(2, '0')}-${p1.padStart(2, '0')}`;
-                }
-              }
-            }
-
-            let catId = null;
-            let catName = "Sem categoria";
-            const descLower = String(rawDesc).toLowerCase().trim();
-            
-            const existingMapping = mappings.find(m => descLower.includes(m.description));
-            
-            if (existingMapping) {
-              catId = existingMapping.category_id;
-              catName = existingMapping.categorias?.name || "Desconhecida";
-            } else if (categories && categories.length > 0) {
-              for (let cat of categories) {
-                if (descLower.includes(cat.name.toLowerCase())) {
-                  catId = cat.id;
-                  catName = cat.name;
-                  break;
-                }
-              }
-            }
-
-            return {
-              date: parsedDate,
-              description: rawDesc,
-              originalAmount: numValor,
-              amount: numValor, // Preserves the exact negative/positive sign
-              type: numValor >= 0 ? 'entrada' : 'saida',
-              category_id: catId,
-              categoria_name: catName,
-              identificador: rawId,
-              _sourceFile: file.name
-            };
-          });
-
-          resolve(mappedData);
-        },
-        error: (err) => reject(new Error(`Erro ao ler o arquivo ${file.name}.`))
+        complete: (results) =>
+          resolve({ headers: results.meta.fields || [], data: results.data, fileName: file.name }),
+        error: () => reject(new Error(`Erro ao ler o arquivo ${file.name}.`)),
       });
     });
-  };
 
-  const parseMultipleCSVs = async (files) => {
+  const parseMultipleCSVsRaw = async (files) => {
     setIsParsing(true);
     try {
-      const allPromises = Array.from(files).map(file => parseCSVFile(file));
-      const results = await Promise.all(allPromises);
-      return results.reduce((acc, curr) => acc.concat(curr), []);
+      const results = await Promise.all(Array.from(files).map(parseCSVFileRaw));
+      const headers = results[0]?.headers || [];
+      const data = results.flatMap(r => r.data.map(row => ({ ...row, _sourceFile: r.fileName })));
+      return { headers, data };
     } finally {
       setIsParsing(false);
     }
   };
 
+  // Auto-detect which header matches each field
+  const autoDetectMapping = (headers) => {
+    const find = (vars) => headers.find(h => vars.includes(normalizeHeader(h))) || '';
+    return {
+      date:        find(dateVars),
+      description: find(descVars),
+      amount:      find(valVars),
+    };
+  };
+
+  // Apply a confirmed column mapping to raw rows
+  const applyColumnMapping = (rawData, mapping) => {
+    return rawData.map(row => {
+      const rawValor = row[mapping.amount];
+      let valStr = String(rawValor || '').trim().replace(/[^\d.,-]/g, '');
+      if (valStr.includes('.') && valStr.includes(',')) {
+        valStr = valStr.replace(/\./g, '').replace(',', '.');
+      } else if (valStr.includes(',')) {
+        valStr = valStr.replace(',', '.');
+      }
+      const numValor = parseFloat(valStr) || 0;
+
+      const rawDesc = String(row[mapping.description] || '').trim();
+      const parsedDate = parseDate(String(row[mapping.date] || '').trim());
+
+      let catId = null;
+      let catName = 'Sem categoria';
+      const descLower = rawDesc.toLowerCase();
+      const existingMapping = mappings.find(m => descLower.includes(m.description));
+      if (existingMapping) {
+        catId = existingMapping.category_id;
+        catName = existingMapping.categorias?.name || 'Desconhecida';
+      } else if (categories?.length > 0) {
+        for (const cat of categories) {
+          if (descLower.includes(cat.name.toLowerCase())) {
+            catId = cat.id;
+            catName = cat.name;
+            break;
+          }
+        }
+      }
+
+      return {
+        date: parsedDate,
+        description: rawDesc,
+        originalAmount: numValor,
+        amount: numValor,
+        type: numValor >= 0 ? 'entrada' : 'saida',
+        category_id: catId,
+        categoria_name: catName,
+        _sourceFile: row._sourceFile,
+      };
+    });
+  };
+
   const importData = async (transactions, accountId) => {
-    if (!user || !user.id) throw new Error("Usuário não autenticado");
+    if (!user || !user.id) throw new Error('Usuário não autenticado');
     setIsImporting(true);
     try {
-      const dbData = transactions.map(t => {
-        return {
-          user_id: user.id,
-          description: t.description,
-          amount: t.amount, // Directly use parsed signed amount
-          type: t.type,
-          date: t.date,
-          category_id: t.category_id,
-          account_id: accountId,
-          is_recurring: false
-        };
-      });
-
+      const dbData = transactions.map(t => ({
+        user_id: user.id,
+        description: t.description,
+        amount: t.amount,
+        type: t.type,
+        date: t.date,
+        category_id: t.category_id,
+        account_id: accountId,
+        is_recurring: false,
+      }));
       const { data, error } = await supabase.from('transactions').insert(dbData).select();
       if (error) throw error;
-      
       return data ? data.length : 0;
-    } catch (error) {
-      throw error;
     } finally {
       setIsImporting(false);
     }
   };
 
-  return { parseMultipleCSVs, importData, isParsing, isImporting };
+  return { parseMultipleCSVsRaw, autoDetectMapping, applyColumnMapping, importData, isParsing, isImporting };
 };
