@@ -1,5 +1,6 @@
 import { createClient } from '@supabase/supabase-js';
 import { corsHeaders } from "./cors.ts";
+import { calculateNextDate } from "../_shared/date-utils.ts";
 
 Deno.serve(async (req) => {
   if (req.method === 'OPTIONS') {
@@ -57,18 +58,7 @@ Deno.serve(async (req) => {
       .single();
     if (txError) throw txError;
 
-    const nextDate = new Date(rule.next_date + 'T12:00:00');
-    switch (rule.frequency) {
-      case 'Diário':     nextDate.setDate(nextDate.getDate() + 1); break;
-      case 'Semanal':    nextDate.setDate(nextDate.getDate() + 7); break;
-      case 'Quinzenal':  nextDate.setDate(nextDate.getDate() + 15); break;
-      case 'Mensal':     nextDate.setMonth(nextDate.getMonth() + 1); break;
-      case 'Trimestral': nextDate.setMonth(nextDate.getMonth() + 3); break;
-      case 'Semestral':  nextDate.setMonth(nextDate.getMonth() + 6); break;
-      case 'Anual':      nextDate.setFullYear(nextDate.getFullYear() + 1); break;
-      default:           nextDate.setMonth(nextDate.getMonth() + 1);
-    }
-    const nextDateStr = nextDate.toISOString().slice(0, 10);
+    const nextDateStr = calculateNextDate(rule.next_date, rule.frequency);
 
     const { error: updateError } = await supabaseClient
       .from('recurring_items')

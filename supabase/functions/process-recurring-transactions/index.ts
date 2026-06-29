@@ -1,5 +1,6 @@
 import { createClient } from '@supabase/supabase-js';
 import { corsHeaders } from "./cors.ts";
+import { calculateNextDate } from "../_shared/date-utils.ts";
 Deno.serve(async (req)=>{
   if (req.method === 'OPTIONS') {
     return new Response('ok', {
@@ -72,29 +73,9 @@ Deno.serve(async (req)=>{
         original_amount: rec.amount
       });
       if (!txError) {
-        const nextDate = new Date(rec.next_date);
-        switch(rec.frequency){
-          case 'Semanal':
-            nextDate.setDate(nextDate.getDate() + 7);
-            break;
-          case 'Quinzenal':
-            nextDate.setDate(nextDate.getDate() + 15);
-            break;
-          case 'Mensal':
-            nextDate.setMonth(nextDate.getMonth() + 1);
-            break;
-          case 'Trimestral':
-            nextDate.setMonth(nextDate.getMonth() + 3);
-            break;
-          case 'Semestral':
-            nextDate.setMonth(nextDate.getMonth() + 6);
-            break;
-          case 'Anual':
-            nextDate.setFullYear(nextDate.getFullYear() + 1);
-            break;
-        }
+        const nextDateStr = calculateNextDate(rec.next_date, rec.frequency);
         await supabase.from('recorrencias').update({
-          next_date: nextDate.toISOString().slice(0, 10)
+          next_date: nextDateStr
         }).eq('id', rec.id).eq('user_id', user.id);
         processedCount++;
       }

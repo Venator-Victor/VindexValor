@@ -1,21 +1,6 @@
 import { createClient } from '@supabase/supabase-js';
 import { corsHeaders } from "./cors.ts";
-
-function advanceDate(dateStr: string, frequency: string, steps = 1): string {
-  const d = new Date(dateStr + 'T12:00:00');
-  for (let i = 0; i < steps; i++) {
-    switch (frequency) {
-      case 'Diário':     d.setDate(d.getDate() + 1); break;
-      case 'Semanal':    d.setDate(d.getDate() + 7); break;
-      case 'Quinzenal':  d.setDate(d.getDate() + 15); break;
-      case 'Mensal':     d.setMonth(d.getMonth() + 1); break;
-      case 'Trimestral': d.setMonth(d.getMonth() + 3); break;
-      case 'Semestral':  d.setMonth(d.getMonth() + 6); break;
-      case 'Anual':      d.setFullYear(d.getFullYear() + 1); break;
-    }
-  }
-  return d.toISOString().slice(0, 10);
-}
+import { advanceDate } from "../_shared/date-utils.ts";
 
 Deno.serve(async (req) => {
   if (req.method === 'OPTIONS') {
