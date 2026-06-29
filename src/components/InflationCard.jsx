@@ -102,7 +102,6 @@ const InflationCard = ({ currentBalance }) => {
         if (dbError) throw dbError;
         setAllData(data ?? []);
       } catch (err) {
-        console.error("Error loading inflation data:", err);
         setError(err.message || "Não foi possível carregar os dados de inflação.");
       } finally {
         setLoading(false);

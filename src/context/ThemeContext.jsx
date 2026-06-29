@@ -87,10 +87,6 @@ export const ThemeProvider = ({ children }) => {
         if (data.goals_view_preference) {
           setMetasViewMode(data.goals_view_preference);
         }
-      } else {
-        await supabase
-          .from('settings')
-          .upsert({ user_id: user.id, theme: theme, goals_view_preference: 'card' }, { onConflict: 'user_id' });
       }
     };
 

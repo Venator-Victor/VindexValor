@@ -116,7 +116,6 @@ const InflationBudgetChart = () => {
         setChartData(data);
 
       } catch (err) {
-        console.error('Failed to fetch historical inflation:', err);
         if (isMounted) {
           setError(err.message || 'Não foi possível carregar os dados históricos.');
         }
