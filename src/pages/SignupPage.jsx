@@ -41,7 +41,7 @@ const SignupPage = () => {
       toast({
         variant: "destructive",
         title: "Senha Fraca",
-        description: "A senha deve ter mínimo 8 caracteres, uma letra maiúscula e um número.",
+        description: "A senha deve ter mínimo 8 caracteres, uma letra maiúscula, uma minúscula, um número e um símbolo.",
       });
       return;
     }

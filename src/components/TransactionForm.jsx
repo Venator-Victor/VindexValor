@@ -13,7 +13,7 @@ import { formatCurrencyWithSymbol } from '@/utils/calculations';
 import { PERIOD_OPTIONS } from '@/utils/periodOptions';
 
 const TransactionForm = ({ initialData, onSuccess, onCancel }) => {
-  const { accounts, categories, faturas, createTransaction, updateTransaction } = useFinance();
+  const { accounts, categories, invoices, createTransaction, updateTransaction } = useFinance();
   const { saveCategoryMapping, getSuggestedCategory } = useAutoMappingCategories();
   const { toast } = useToast();
 
@@ -249,7 +249,7 @@ const TransactionForm = ({ initialData, onSuccess, onCancel }) => {
                 required
               >
                 <option value="">Selecione uma fatura...</option>
-                {faturas.map(fat => (
+                {invoices.map(fat => (
                   <option key={fat.id} value={fat.id}>
                     {fat.invoice_number || 'Sem número'} - {formatCurrencyWithSymbol(fat.total_amount, 'BRL')}
                   </option>

@@ -3,7 +3,7 @@ import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { render, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { MemoryRouter } from 'react-router-dom';
-import Transacoes from '../Transacoes';
+import Transactions from '../Transactions';
 import { defaultFinanceValue } from '@/test-utils/renderWithProviders';
 
 // ─── Mocks ────────────────────────────────────────────────────────────────────
@@ -16,7 +16,7 @@ vi.mock('@/context/SupabaseAuthContext', () => ({
 }));
 
 vi.mock('@/context/ThemeContext', () => ({
-  useTheme: () => ({ theme: 'dark', toggleTheme: vi.fn(), setTheme: vi.fn(), colors: {}, metasViewMode: 'card', setMetasViewPreference: vi.fn() }),
+  useTheme: () => ({ theme: 'dark', toggleTheme: vi.fn(), setTheme: vi.fn(), colors: {}, goalsViewMode: 'card', setGoalsViewPreference: vi.fn() }),
 }));
 
 // These components pull in additional hooks that need auth — stub them out
@@ -64,14 +64,14 @@ function renderTransacoes(transactions = []) {
   financeValue.categories = [{ id: 'cat-1', name: 'Food', color: '#ff0', icon: 'bx bx-food' }];
   return render(
     <MemoryRouter>
-      <Transacoes />
+      <Transactions />
     </MemoryRouter>
   );
 }
 
 // ─── Tests ────────────────────────────────────────────────────────────────────
 
-describe('Transacoes page', () => {
+describe('Transactions page', () => {
   beforeEach(() => vi.clearAllMocks());
 
   it('renders the page title', () => {

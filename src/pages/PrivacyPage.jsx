@@ -283,7 +283,7 @@ const PrivacyPage = () => {
                 <li>🔗 <a href="https://www.linkedin.com/in/victor-schramm/" target="_blank" rel="noopener noreferrer" className="text-primary hover:underline">LinkedIn — Victor Schramm</a></li>
               </ul>
               <p className="text-sm text-muted-foreground mt-4">
-                Página de <Link to="/suporte" className="text-primary hover:underline">Suporte</Link> disponível dentro do aplicativo.
+                Página de <Link to="/support" className="text-primary hover:underline">Suporte</Link> disponível dentro do aplicativo.
               </p>
             </Section>
 

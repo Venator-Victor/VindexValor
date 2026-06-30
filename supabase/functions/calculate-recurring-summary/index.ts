@@ -26,7 +26,7 @@ Deno.serve(async (req)=>{
     }
     const userId = user.id;
     const supabaseClient = createClient(Deno.env.get('SUPABASE_URL') ?? '', Deno.env.get('SUPABASE_SERVICE_ROLE_KEY') ?? '');
-    const { data: recurrences, error } = await supabaseClient.from('recorrencias').select('*').eq('user_id', userId).eq('status', 'Ativo');
+    const { data: recurrences, error } = await supabaseClient.from('recurring_items').select('*').eq('user_id', userId).eq('status', 'Ativo');
     if (error) throw error;
     let totalMonthlyRecurring = 0;
     const byFrequency = {};

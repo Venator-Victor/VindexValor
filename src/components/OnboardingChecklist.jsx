@@ -7,7 +7,7 @@ import { Check, X, ArrowRight, Wallet, Receipt, Tag, Target } from '@/components
 const STORAGE_KEY = 'vindex_onboarding_dismissed';
 
 const OnboardingChecklist = () => {
-  const { accounts, transactions, categories, goals, faturas } = useFinance();
+  const { accounts, transactions, categories, goals, invoices } = useFinance();
   const [dismissed, setDismissed] = useState(() => localStorage.getItem(STORAGE_KEY) === 'true');
 
   const steps = [
@@ -15,7 +15,7 @@ const OnboardingChecklist = () => {
       id: 'conta',
       label: 'Adicionar uma conta',
       description: 'Cadastre sua conta bancária, carteira ou cartão de crédito.',
-      path: '/contas',
+      path: '/accounts',
       Icon: Wallet,
       done: accounts.length > 0,
     },
@@ -23,15 +23,15 @@ const OnboardingChecklist = () => {
       id: 'transacao',
       label: 'Registrar uma transação ou fatura',
       description: 'Lance uma receita, despesa ou importe um extrato CSV.',
-      path: '/transacoes',
+      path: '/transactions',
       Icon: Receipt,
-      done: transactions.length > 0 || faturas.length > 0,
+      done: transactions.length > 0 || invoices.length > 0,
     },
     {
       id: 'categoria',
       label: 'Organizar categorias',
       description: 'Crie ou personalize suas categorias para classificar gastos.',
-      path: '/categorias',
+      path: '/categories',
       Icon: Tag,
       done: categories.length > 0,
     },
@@ -39,7 +39,7 @@ const OnboardingChecklist = () => {
       id: 'meta',
       label: 'Definir uma meta financeira',
       description: 'Crie um objetivo — reserva de emergência, viagem, aposentadoria.',
-      path: '/metas',
+      path: '/goals',
       Icon: Target,
       done: goals.length > 0,
     },

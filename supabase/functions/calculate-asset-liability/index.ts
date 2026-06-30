@@ -28,7 +28,7 @@ Deno.serve(async (req)=>{
     const supabaseClient = createClient(Deno.env.get('SUPABASE_URL') ?? '', Deno.env.get('SUPABASE_SERVICE_ROLE_KEY') ?? '');
     const { months = 12 } = await req.json();
     // 1. Get Current Accounts Snapshot
-    const { data: accounts, error: accError } = await supabaseClient.from('contas').select('id, type, balance').eq('user_id', userId);
+    const { data: accounts, error: accError } = await supabaseClient.from('accounts').select('id, type, balance').eq('user_id', userId);
     if (accError) throw accError;
     const LIABILITY_TYPES = [
       'Cartão de Crédito',

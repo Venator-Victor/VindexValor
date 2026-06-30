@@ -9,11 +9,11 @@ import NumberInput from '@/components/ui/NumberInput';
 import { ArrowDownRight, ArrowUpRight } from '@/components/BxIcon';
 import { supabase } from '@/lib/customSupabaseClient';
 
-const CompraFaturaForm = ({ faturaId, initialData, onSuccess, onCancel }) => {
-  const { categories, accounts, transactions, createCompraFatura, updateCompraFatura } = useFinance();
+const InvoiceItemForm = ({ invoiceId, initialData, onSuccess, onCancel }) => {
+  const { categories, accounts, transactions, createInvoiceItem, updateInvoiceItem } = useFinance();
   const { toast } = useToast();
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const [tipo, setTipo] = useState('saida');
+  const [type, setType] = useState('saida');
 
   const [formData, setFormData] = useState({
     data: new Date().toISOString().split('T')[0],
@@ -26,8 +26,8 @@ const CompraFaturaForm = ({ faturaId, initialData, onSuccess, onCancel }) => {
 
   useEffect(() => {
     if (initialData) {
-      const initialTipo = Number(initialData.amount) >= 0 ? 'entrada' : 'saida';
-      setTipo(initialTipo);
+      const initialType = Number(initialData.amount) >= 0 ? 'entrada' : 'saida';
+      setType(initialType);
       setFormData({
         date: initialData.date || new Date().toISOString().split('T')[0],
         description: initialData.description || '',
@@ -49,10 +49,10 @@ const CompraFaturaForm = ({ faturaId, initialData, onSuccess, onCancel }) => {
     setIsSubmitting(true);
     try {
       const numericValue = Number(formData.amount);
-      const finalValor = tipo === 'saida' ? -Math.abs(numericValue) : Math.abs(numericValue);
+      const finalValor = type === 'saida' ? -Math.abs(numericValue) : Math.abs(numericValue);
 
       const payload = {
-        invoice_id: faturaId,
+        invoice_id: invoiceId,
         date: formData.date,
         description: formData.description,
         category_id: formData.category_id || null,
@@ -62,10 +62,10 @@ const CompraFaturaForm = ({ faturaId, initialData, onSuccess, onCancel }) => {
       };
 
       if (initialData) {
-        await updateCompraFatura(initialData.id, payload);
+        await updateInvoiceItem(initialData.id, payload);
         toast({ title: "Compra atualizada com sucesso!" });
       } else {
-        await createCompraFatura(payload);
+        await createInvoiceItem(payload);
         
         // Auto-update fatura closing_date to the first day of the next month
         const dataObj = new Date(formData.date);
@@ -75,7 +75,7 @@ const CompraFaturaForm = ({ faturaId, initialData, onSuccess, onCancel }) => {
         await supabase
           .from('invoices')
           .update({ closing_date: nextMonthStr })
-          .eq('id', faturaId);
+          .eq('id', invoiceId);
           
         toast({ title: "Compra adicionada com sucesso!" });
       }
@@ -96,18 +96,18 @@ const CompraFaturaForm = ({ faturaId, initialData, onSuccess, onCancel }) => {
         <div className="grid grid-cols-2 gap-3 mt-2">
           <Button
             type="button"
-            variant={tipo === 'saida' ? 'default' : 'outline'}
-            className={tipo === 'saida' ? 'bg-red-600 hover:bg-red-700 text-white' : 'text-muted-foreground'}
-            onClick={() => setTipo('saida')}
+            variant={type === 'saida' ? 'default' : 'outline'}
+            className={type === 'saida' ? 'bg-red-600 hover:bg-red-700 text-white' : 'text-muted-foreground'}
+            onClick={() => setType('saida')}
           >
             <ArrowDownRight className="w-4 h-4 mr-2" />
             Saída (Despesa)
           </Button>
           <Button
             type="button"
-            variant={tipo === 'entrada' ? 'default' : 'outline'}
-            className={tipo === 'entrada' ? 'bg-green-600 hover:bg-green-700 text-white' : 'text-muted-foreground'}
-            onClick={() => setTipo('entrada')}
+            variant={type === 'entrada' ? 'default' : 'outline'}
+            className={type === 'entrada' ? 'bg-green-600 hover:bg-green-700 text-white' : 'text-muted-foreground'}
+            onClick={() => setType('entrada')}
           >
             <ArrowUpRight className="w-4 h-4 mr-2" />
             Entrada (Reembolso)
@@ -171,8 +171,8 @@ const CompraFaturaForm = ({ faturaId, initialData, onSuccess, onCancel }) => {
       <div>
         <Label htmlFor="amount">Valor *</Label>
         <div className="mt-1 relative flex items-center">
-          <div className={`absolute left-3 font-bold text-lg pointer-events-none z-10 ${tipo === 'saida' ? 'text-red-500' : 'text-green-500'}`}>
-            {tipo === 'saida' ? '-' : '+'}
+          <div className={`absolute left-3 font-bold text-lg pointer-events-none z-10 ${type === 'saida' ? 'text-red-500' : 'text-green-500'}`}>
+            {type === 'saida' ? '-' : '+'}
           </div>
           <div className="w-full pl-6">
             <NumberInput
@@ -199,4 +199,4 @@ const CompraFaturaForm = ({ faturaId, initialData, onSuccess, onCancel }) => {
   );
 };
 
-export default CompraFaturaForm;
+export default InvoiceItemForm;

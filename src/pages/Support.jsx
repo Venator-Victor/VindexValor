@@ -3,7 +3,7 @@ import { Helmet } from 'react-helmet';
 import { motion } from 'framer-motion';
 import { ChevronDown } from '@/components/BxIcon';
 
-const Suporte = () => {
+const Support = () => {
   const [openFaq, setOpenFaq] = useState(null);
 
   const faqGroups = [
@@ -71,12 +71,12 @@ const Suporte = () => {
   return (
     <div className="space-y-6">
       <Helmet>
-        <title>VindexValor - Suporte</title>
+        <title>VindexValor - Support</title>
         <meta name="description" content="Perguntas frequentes e canais de contato" />
       </Helmet>
 
       <div>
-        <h1 className="text-3xl font-bold text-gray-900 dark:text-vindex-text mb-2">Suporte</h1>
+        <h1 className="text-3xl font-bold text-gray-900 dark:text-vindex-text mb-2">Support</h1>
         <p className="text-gray-500 dark:text-vindex-text/70">Encontre respostas ou entre em contato</p>
       </div>
 
@@ -213,4 +213,4 @@ const Suporte = () => {
   );
 };
 
-export default Suporte;
+export default Support;

@@ -4,7 +4,7 @@ import { Edit, Trash, ArrowDownRight, ArrowUpRight, ArrowUp, ArrowDown } from '@
 import { Button } from '@/components/ui/button';
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from '@/components/ui/alert-dialog';
 
-const CompraFaturaList = ({ compras, onEdit, onDelete }) => {
+const InvoiceItemList = ({ items, onEdit, onDelete }) => {
   const [deleteId, setDeleteId] = useState(null);
   const [sortConfig, setSortConfig] = useState({ key: 'date', direction: 'descending' });
 
@@ -35,7 +35,7 @@ const CompraFaturaList = ({ compras, onEdit, onDelete }) => {
   };
 
   const sortedCompras = useMemo(() => {
-    const sorted = [...compras];
+    const sorted = [...items];
     sorted.sort((a, b) => {
       let aValue, bValue;
 
@@ -46,8 +46,8 @@ const CompraFaturaList = ({ compras, onEdit, onDelete }) => {
         aValue = a.amount < 0 ? 'saida' : 'entrada';
         bValue = b.amount < 0 ? 'saida' : 'entrada';
       } else if (sortConfig.key === 'categoria') {
-        aValue = a.categorias?.name || '';
-        bValue = b.categorias?.name || '';
+        aValue = a.categories?.name || '';
+        bValue = b.categories?.name || '';
       } else if (sortConfig.key === 'amount') {
         aValue = Number(a.amount || 0);
         bValue = Number(b.amount || 0);
@@ -61,11 +61,11 @@ const CompraFaturaList = ({ compras, onEdit, onDelete }) => {
       return 0;
     });
     return sorted;
-  }, [compras, sortConfig]);
+  }, [items, sortConfig]);
 
-  const total = compras.reduce((sum, item) => sum + Number(item.amount || 0), 0);
+  const total = items.reduce((sum, item) => sum + Number(item.amount || 0), 0);
 
-  if (!compras || compras.length === 0) {
+  if (!items || items.length === 0) {
     return (
       <div className="text-center py-8 text-muted-foreground bg-card rounded-xl border border-dashed">
         Nenhuma movimentação registrada nesta fatura.
@@ -125,10 +125,10 @@ const CompraFaturaList = ({ compras, onEdit, onDelete }) => {
                     </div>
                   </td>
                   <td className="p-3">
-                    {c.categorias ? (
+                    {c.categories ? (
                       <div className="flex items-center gap-2">
-                        <div className="w-3 h-3 rounded-full" style={{ backgroundColor: c.categorias.color }}></div>
-                        <span>{c.categorias.name}</span>
+                        <div className="w-3 h-3 rounded-full" style={{ backgroundColor: c.categories.color }}></div>
+                        <span>{c.categories.name}</span>
                       </div>
                     ) : (
                       <span className="text-muted-foreground text-xs">Sem categoria</span>
@@ -179,4 +179,4 @@ const CompraFaturaList = ({ compras, onEdit, onDelete }) => {
   );
 };
 
-export default CompraFaturaList;
+export default InvoiceItemList;

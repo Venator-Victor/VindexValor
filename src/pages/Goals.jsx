@@ -24,9 +24,9 @@ import { useToast } from '@/components/ui/use-toast';
 import { formatCurrency } from '@/utils/calculations';
 import { differenceInDays, parseISO, isPast } from 'date-fns';
 
-const Metas = () => {
+const Goals = () => {
   const { goals, addGoal, updateGoal, deleteGoal } = useFinance();
-  const { metasViewMode, setMetasViewPreference } = useTheme();
+  const { goalsViewMode, setGoalsViewPreference } = useTheme();
   
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [editingGoal, setEditingGoal] = useState(null);
@@ -150,14 +150,14 @@ const Metas = () => {
   return (
     <div className="space-y-6 pb-20">
       <Helmet>
-        <title>VindexValor - Metas Financeiras</title>
+        <title>VindexValor - Goals Financeiras</title>
         <meta name="description" content="Defina e acompanhe seus objetivos financeiros" />
       </Helmet>
 
       {/* Header Actions */}
       <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
         <div>
-          <h1 className="text-3xl font-bold text-gray-900 dark:text-gray-50 mb-2">Metas Financeiras</h1>
+          <h1 className="text-3xl font-bold text-gray-900 dark:text-gray-50 mb-2">Goals Financeiras</h1>
           <p className="text-gray-700 dark:text-gray-300">Transforme sonhos em realidade com planejamento.</p>
         </div>
         
@@ -209,15 +209,15 @@ const Metas = () => {
                 {/* View Toggle */}
                 <div className="flex items-center bg-white dark:bg-vindex-card rounded-lg border border-gray-200 dark:border-vindex-border p-1 shadow-sm">
                     <button
-                        onClick={() => setMetasViewPreference('list')}
-                        className={`p-2 rounded-md transition-all ${metasViewMode === 'list' ? 'bg-gray-100 dark:bg-vindex-bg text-gray-900 dark:text-gray-100' : 'text-gray-400 hover:text-gray-600 dark:hover:text-gray-300'}`}
+                        onClick={() => setGoalsViewPreference('list')}
+                        className={`p-2 rounded-md transition-all ${goalsViewMode === 'list' ? 'bg-gray-100 dark:bg-vindex-bg text-gray-900 dark:text-gray-100' : 'text-gray-400 hover:text-gray-600 dark:hover:text-gray-300'}`}
                         title="Visualização em Lista"
                     >
                         <List size={20} />
                     </button>
                     <button
-                        onClick={() => setMetasViewPreference('card')}
-                        className={`p-2 rounded-md transition-all ${metasViewMode === 'card' ? 'bg-gray-100 dark:bg-vindex-bg text-gray-900 dark:text-gray-100' : 'text-gray-400 hover:text-gray-600 dark:hover:text-gray-300'}`}
+                        onClick={() => setGoalsViewPreference('card')}
+                        className={`p-2 rounded-md transition-all ${goalsViewMode === 'card' ? 'bg-gray-100 dark:bg-vindex-bg text-gray-900 dark:text-gray-100' : 'text-gray-400 hover:text-gray-600 dark:hover:text-gray-300'}`}
                         title="Visualização em Grade"
                     >
                         <LayoutGrid size={20} />
@@ -276,7 +276,7 @@ const Metas = () => {
           leftValue={formatCurrency(totalAccumulated)}
           gaugeValue={totalAccumulated}
           gaugeMax={totalTarget}
-          title={filterType === 'valor_final' ? 'Metas Fixas' : 'Metas Recorrentes'}
+          title={filterType === 'valor_final' ? 'Goals Fixas' : 'Goals Recorrentes'}
           rightLabel="Total Alvo"
           rightValue={formatCurrency(totalTarget)}
           mode="progress"
@@ -308,7 +308,7 @@ const Metas = () => {
                  </div>
             )}
 
-            {metasViewMode === 'card' ? (
+            {goalsViewMode === 'card' ? (
                 // --- GRID VIEW ---
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                 <AnimatePresence>
@@ -455,4 +455,4 @@ const Metas = () => {
   );
 };
 
-export default Metas;
+export default Goals;

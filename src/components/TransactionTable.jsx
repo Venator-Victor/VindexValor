@@ -39,11 +39,11 @@ const TransactionTable = ({ transactions, onEdit, onDelete, selectedIds, onSelec
       let bVal = b[sortConfig.key];
 
       if (sortConfig.key === 'category') {
-        aVal = a.categorias?.name || '';
-        bVal = b.categorias?.name || '';
+        aVal = a.categories?.name || '';
+        bVal = b.categories?.name || '';
       } else if (sortConfig.key === 'account') {
-        aVal = a.contas?.name || '';
-        bVal = b.contas?.name || '';
+        aVal = a.account?.name || '';
+        bVal = b.account?.name || '';
       } else if (sortConfig.key === 'amount') {
         aVal = Number(a.amount);
         bVal = Number(b.amount);
@@ -131,10 +131,10 @@ const TransactionTable = ({ transactions, onEdit, onDelete, selectedIds, onSelec
                     </td>
                     <td className="p-3">
                       <div className="flex items-center gap-2">
-                        {t.categorias ? (
+                        {t.categories ? (
                           <>
-                            <div className="w-3 h-3 rounded-full shrink-0" style={{ backgroundColor: t.categorias.color }}></div>
-                            <span className="truncate max-w-[100px]">{t.categorias.name}</span>
+                            <div className="w-3 h-3 rounded-full shrink-0" style={{ backgroundColor: t.categories.color }}></div>
+                            <span className="truncate max-w-[100px]">{t.categories.name}</span>
                           </>
                         ) : (
                           <span className="text-muted-foreground text-xs">Sem categoria</span>
@@ -142,10 +142,10 @@ const TransactionTable = ({ transactions, onEdit, onDelete, selectedIds, onSelec
                       </div>
                     </td>
                     <td className="p-3">
-                      <span className="truncate max-w-[100px] block text-muted-foreground">{t.contas?.name || 'N/A'}</span>
+                      <span className="truncate max-w-[100px] block text-muted-foreground">{t.account?.name || 'N/A'}</span>
                     </td>
                     <td className={`p-3 text-right font-bold whitespace-nowrap ${valColor}`}>
-                      {formatCurrencyWithSymbol(t.amount, t.contas?.currency || 'BRL')}
+                      {formatCurrencyWithSymbol(t.amount, t.account?.currency || 'BRL')}
                     </td>
                     <td className="p-3">
                       <div className="flex items-center justify-center gap-2">

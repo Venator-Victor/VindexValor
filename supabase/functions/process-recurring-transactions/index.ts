@@ -57,11 +57,11 @@ Deno.serve(async (req)=>{
       });
     }
     const today = new Date().toISOString().slice(0, 10);
-    const { data: recurrences, error: fetchError } = await supabase.from('recorrencias').select('*').eq('status', true).eq('user_id', user.id).lte('next_date', today);
+    const { data: recurrences, error: fetchError } = await supabase.from('recurring_items').select('*').eq('status', true).eq('user_id', user.id).lte('next_date', today);
     if (fetchError) throw fetchError;
     let processedCount = 0;
     for (const rec of recurrences || []){
-      const { error: txError } = await supabase.from('transacoes').insert({
+      const { error: txError } = await supabase.from('transactions').insert({
         user_id: user.id,
         description: rec.description,
         amount: rec.amount,
@@ -74,7 +74,7 @@ Deno.serve(async (req)=>{
       });
       if (!txError) {
         const nextDateStr = calculateNextDate(rec.next_date, rec.frequency);
-        await supabase.from('recorrencias').update({
+        await supabase.from('recurring_items').update({
           next_date: nextDateStr
         }).eq('id', rec.id).eq('user_id', user.id);
         processedCount++;

@@ -86,7 +86,7 @@ const Dashboard = () => {
   const filteredIncomeBRL = filteredTransactions
     .filter(t => t.type === 'entrada')
     .reduce((sum, t) => {
-      const currency = t.contas?.currency || 'BRL';
+      const currency = t.account?.currency || 'BRL';
       const rate = t.exchange_rate || exchangeRates[currency] || 1;
       return sum + (Number(t.amount) * (currency === 'BRL' ? 1 : rate));
     }, 0);
@@ -94,7 +94,7 @@ const Dashboard = () => {
   const filteredExpensesBRL = filteredTransactions
     .filter(t => t.type === 'saida')
     .reduce((sum, t) => {
-      const currency = t.contas?.currency || 'BRL';
+      const currency = t.account?.currency || 'BRL';
       const rate = t.exchange_rate || exchangeRates[currency] || 1;
       return sum + (Math.abs(Number(t.amount)) * (currency === 'BRL' ? 1 : rate));
     }, 0);

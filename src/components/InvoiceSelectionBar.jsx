@@ -11,7 +11,7 @@ import { useAuth } from '@/context/SupabaseAuthContext';
 import SelectInput from '@/components/ui/SelectInput';
 import { formatCurrency } from '@/utils/calculations';
 
-const InvoiceSelectionBar = ({ selectedIds, faturas, faturaTotals = {}, onClearSelection, onRefresh }) => {
+const InvoiceSelectionBar = ({ selectedIds, invoices, invoiceTotals = {}, onClearSelection, onRefresh }) => {
   const [isDeleting, setIsDeleting] = useState(false);
   const [showConfirmDelete, setShowConfirmDelete] = useState(false);
   
@@ -27,7 +27,7 @@ const InvoiceSelectionBar = ({ selectedIds, faturas, faturaTotals = {}, onClearS
 
   if (!selectedIds || selectedIds.length === 0) return null;
 
-  const totalBRL = selectedIds.reduce((sum, id) => sum + (faturaTotals[id] || 0), 0);
+  const totalBRL = selectedIds.reduce((sum, id) => sum + (invoiceTotals[id] || 0), 0);
   const totalBTC = 0; // Calculado futuramente, atualmente mockado como 0
 
   const handleDelete = async () => {
@@ -71,8 +71,8 @@ const InvoiceSelectionBar = ({ selectedIds, faturas, faturaTotals = {}, onClearS
     setIsLinking(true);
     try {
       const transactionsToInsert = selectedIds.map(id => {
-        const fatura = faturas.find(f => f.id === id);
-        const total = faturaTotals[id] || 0;
+        const fatura = invoices.find(f => f.id === id);
+        const total = invoiceTotals[id] || 0;
         return {
           user_id: user.id,
           description: `Pagamento Fatura ${fatura?.invoice_number || ''}`,

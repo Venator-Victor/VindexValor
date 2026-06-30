@@ -5,7 +5,7 @@ import { useFinance } from '@/context/FinanceContext';
 import { useToast } from '@/components/ui/use-toast';
 import { Pencil, Trash, Clock5, Check, Checks } from '@/components/BxIcon';
 
-const RecorrenciaCard = ({ item, onEdit, onDelete, onToggleStatus }) => {
+const RecurrenceCard = ({ item, onEdit, onDelete, onToggleStatus }) => {
   const { parcels, payParcel, processRecurring } = useFinance();
   const { toast } = useToast();
   const [isProcessing, setIsProcessing] = useState(false);
@@ -40,7 +40,7 @@ const RecorrenciaCard = ({ item, onEdit, onDelete, onToggleStatus }) => {
   };
 
   // Safe access to category name from joined data
-  const categoryName = item.categorias?.name || 'Sem categoria';
+  const categoryName = item.categories?.name || 'Sem categoria';
 
   return (
     <div className={`bg-white dark:bg-vindex-card rounded-xl p-5 border shadow-sm hover:shadow-md transition-all relative overflow-hidden flex flex-col justify-between ${isActive ? 'border-gray-200 dark:border-vindex-border' : 'border-gray-100 dark:border-vindex-border/30 opacity-80'}`}>
@@ -149,4 +149,4 @@ const RecorrenciaCard = ({ item, onEdit, onDelete, onToggleStatus }) => {
   );
 };
 
-export default RecorrenciaCard;
+export default RecurrenceCard;

@@ -4,7 +4,7 @@ import InflationSimulator from '@/components/InflationSimulator';
 import InvestmentSimulator from '@/components/InvestmentSimulator';
 import InflationCard from '@/components/InflationCard';
 
-const Analises = () => {
+const Analytics = () => {
   return (
     <div className="space-y-8 pb-12">
       <Helmet>
@@ -37,4 +37,4 @@ const Analises = () => {
   );
 };
 
-export default Analises;
+export default Analytics;

@@ -3,7 +3,7 @@ import { formatCurrency, calculateInvestmentReturn } from '@/utils/calculations'
 import { Button } from '@/components/ui/button';
 import { Pencil, Trash, TrendingUp, TrendingDown } from '@/components/BxIcon';
 
-const InvestimentoCard = ({ investment, onEdit, onDelete }) => {
+const InvestmentCard = ({ investment, onEdit, onDelete }) => {
   const returnPercent = calculateInvestmentReturn(investment.investedAmount, investment.currentAmount);
   const isProfit = returnPercent >= 0;
 
@@ -60,4 +60,4 @@ const InvestimentoCard = ({ investment, onEdit, onDelete }) => {
   );
 };
 
-export default InvestimentoCard;
+export default InvestmentCard;

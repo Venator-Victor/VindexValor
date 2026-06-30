@@ -14,13 +14,13 @@ const TopCategoriesSection = ({ transactions, categories, selectedPeriod }) => {
     const stats = {};
     
     expenses.forEach(t => {
-      const catName = t.categorias?.name || 'Outros';
+      const catName = t.categories?.name || 'Outros';
       if (!stats[catName]) {
         stats[catName] = {
           id: t.category_id,
           amount: 0,
-          color: t.categorias?.color || '#94a3b8',
-          icon: t.categorias?.icon || 'bx-purchase-tag'
+          color: t.categories?.color || '#94a3b8',
+          icon: t.categories?.icon || 'bx-purchase-tag'
         };
       }
       stats[catName].amount += Math.abs(Number(t.amount));
@@ -59,7 +59,7 @@ const TopCategoriesSection = ({ transactions, categories, selectedPeriod }) => {
               initial={{ opacity: 0, x: -10 }}
               animate={{ opacity: 1, x: 0 }}
               transition={{ delay: index * 0.1 }}
-              onClick={() => navigate('/transacoes', { state: { filterCategoryId: cat.id || 'null' } })}
+              onClick={() => navigate('/transactions', { state: { filterCategoryId: cat.id || 'null' } })}
               className="group cursor-pointer hover:bg-gray-50 dark:hover:bg-gray-800/50 p-2 -mx-2 rounded-lg transition-colors"
             >
               <div className="flex justify-between items-center mb-2">

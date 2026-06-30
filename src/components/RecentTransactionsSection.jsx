@@ -13,7 +13,7 @@ const RecentTransactionsSection = ({ transactions, categories, selectedPeriod })
     .slice(0, 15);
 
   const getCategoryDetails = (t) => {
-    if (t.categorias) return { icon: t.categorias.icon, color: t.categorias.color, name: t.categorias.name };
+    if (t.categories) return { icon: t.categories.icon, color: t.categories.color, name: t.categories.name };
     const cat = categories.find(c => c.id === t.category_id || c.name === t.category);
     return cat ? { icon: cat.icon, color: cat.color, name: cat.name } : { icon: 'bx bx-tag', color: '#94a3b8', name: 'Sem categoria' };
   };
@@ -45,7 +45,7 @@ const RecentTransactionsSection = ({ transactions, categories, selectedPeriod })
                 initial={{ opacity: 0, y: 10 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: Math.min(index * 0.05, 0.5) }}
-                onClick={() => navigate('/transacoes', { state: { editTransactionId: t.id } })}
+                onClick={() => navigate('/transactions', { state: { editTransactionId: t.id } })}
                 className="flex items-center justify-between p-3 hover:bg-gray-50 dark:hover:bg-gray-800/50 rounded-lg transition-colors border border-transparent hover:border-gray-100 dark:hover:border-gray-800 cursor-pointer"
               >
                 <div className="flex items-center gap-3 overflow-hidden">

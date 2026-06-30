@@ -22,7 +22,7 @@ import { useSortableList } from '@/hooks/useSortableList';
 import { PERIOD_OPTIONS, CHART_PERIOD_OPTIONS } from '@/utils/periodOptions';
 import CategoryDetailModal from '@/components/CategoryDetailModal';
 
-const Categorias = () => {
+const Categories = () => {
   const {
     categories,
     transactions,
@@ -42,7 +42,7 @@ const Categorias = () => {
   const [selectedDetailCategory, setSelectedDetailCategory] = useState(null);
   
   const [displayLayout, setDisplayLayout] = useState(() => {
-    return localStorage.getItem('categorias_view_preference') || 'card';
+    return localStorage.getItem('categories_view_preference') || 'card';
   });
   
   const [formData, setFormData] = useState({
@@ -56,7 +56,7 @@ const Categorias = () => {
 
   const handleLayoutChange = layout => {
     setDisplayLayout(layout);
-    localStorage.setItem('categorias_view_preference', layout);
+    localStorage.setItem('categories_view_preference', layout);
   };
   
   const handlePeriodChange = e => {
@@ -133,7 +133,7 @@ const Categorias = () => {
     const category = categories.find(c => c.id === id);
     if (!category) return;
     
-    const transactionCount = transactions.filter(t => t.category_id === category.id || t.categorias?.name === category.name || t.category === category.name).length;
+    const transactionCount = transactions.filter(t => t.category_id === category.id || t.categories?.name === category.name || t.category === category.name).length;
     if (transactionCount > 0) {
       toast({
         title: "Não é possível excluir",
@@ -160,14 +160,14 @@ const Categorias = () => {
   return (
     <div className="space-y-6 pb-20 md:pb-0">
       <Helmet>
-        <title>VindexValor - Categorias</title>
+        <title>VindexValor - Categories</title>
         <meta name="description" content="Organize suas transações com categorias personalizadas" />
       </Helmet>
 
       {/* Header and Controls */}
       <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
         <div>
-          <h1 className="text-3xl font-bold text-gray-900 dark:text-gray-50 mb-2">Categorias</h1>
+          <h1 className="text-3xl font-bold text-gray-900 dark:text-gray-50 mb-2">Categories</h1>
           <p className="text-gray-700 dark:text-gray-300">Orçamento mensal por categoria</p>
         </div>
         
@@ -212,7 +212,7 @@ const Categorias = () => {
 
       {/* Categories List/Grid */}
       <div className="flex justify-between items-center mb-4 mt-6">
-         <h2 className="text-lg font-semibold text-gray-900 dark:text-gray-50">Minhas Categorias</h2>
+         <h2 className="text-lg font-semibold text-gray-900 dark:text-gray-50">Minhas Categories</h2>
          <span className="text-sm text-gray-700 dark:text-gray-300 bg-gray-100 dark:bg-vindex-bg px-2 py-1 rounded">
             Visualizando gastos: <span className="font-semibold capitalize text-gray-900 dark:text-gray-100">{currentPeriod}</span>
          </span>
@@ -227,7 +227,7 @@ const Categorias = () => {
              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
                <AnimatePresence>
                  {sortedCategories.map((category, index) => {
-                    const transactionCount = transactions.filter(t => t.category_id === category.id || t.categorias?.name === category.name || t.category === category.name).length;
+                    const transactionCount = transactions.filter(t => t.category_id === category.id || t.categories?.name === category.name || t.category === category.name).length;
                     
                     return (
                       <motion.div 
@@ -293,7 +293,7 @@ const Categorias = () => {
                       </thead>
                       <tbody className="divide-y divide-gray-200 dark:divide-vindex-border">
                          {sortedCategories.map(category => {
-                            const transactionCount = transactions.filter(t => t.category_id === category.id || t.categorias?.name === category.name || t.category === category.name).length;
+                            const transactionCount = transactions.filter(t => t.category_id === category.id || t.categories?.name === category.name || t.category === category.name).length;
                             const hasLimit = category.spending_limit > 0;
                             
                             return (
@@ -410,4 +410,4 @@ const Categorias = () => {
   );
 };
 
-export default Categorias;
+export default Categories;

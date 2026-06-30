@@ -21,7 +21,7 @@ import { useSortableList } from '@/hooks/useSortableList';
 import InvestmentTypeSelector from '@/components/InvestmentTypeSelector';
 import { CHART_PERIOD_OPTIONS } from '@/utils/periodOptions';
 import InvestmentSubtypeSelector from '@/components/InvestmentSubtypeSelector';
-import InvestimentoCard from '@/components/cards/InvestimentoCard';
+import InvestimentoCard from '@/components/cards/InvestmentCard';
 import {
     Select,
     SelectContent,
@@ -31,7 +31,7 @@ import {
 } from "@/components/ui/select";
 import { INVESTMENT_TYPES } from '@/utils/investmentTypes';
 
-const Investimentos = () => {
+const Investments = () => {
   const { investments, accounts, addInvestment, updateInvestment, deleteInvestment, settings, saveSettings } = useFinance();
   const { toast } = useToast();
   const [isDialogOpen, setIsDialogOpen] = useState(false);
@@ -199,14 +199,14 @@ const Investimentos = () => {
   return (
     <div className="space-y-6 pb-20 md:pb-0">
       <Helmet>
-        <title>VindexValor - Investimentos</title>
+        <title>VindexValor - Investments</title>
         <meta name="description" content="Acompanhe seus investimentos e rentabilidade" />
       </Helmet>
 
       {/* Header and Controls */}
       <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
         <div>
-          <h1 className="text-3xl font-bold text-gray-900 dark:text-gray-50 mb-2">Investimentos</h1>
+          <h1 className="text-3xl font-bold text-gray-900 dark:text-gray-50 mb-2">Investments</h1>
           <p className="text-gray-700 dark:text-gray-300">Acompanhe seus investimentos e rentabilidade</p>
         </div>
 
@@ -492,4 +492,4 @@ const Investimentos = () => {
   );
 };
 
-export default Investimentos;
+export default Investments;

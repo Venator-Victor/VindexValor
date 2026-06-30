@@ -41,7 +41,7 @@ export const FinanceProvider = ({ children }) => {
   const [goals, setGoals] = useState([]);
   const [transactionTypes, setTransactionTypes] = useState([]);
   const [inflationHistory, setInflationHistory] = useState(mockData.inflationHistory || []);
-  const [faturas, setFaturas] = useState([]);
+  const [invoices, setInvoices] = useState([]);
   const [settings, setSettings] = useState({
     theme: 'dark',
     currency: 'BRL',
@@ -79,10 +79,10 @@ export const FinanceProvider = ({ children }) => {
         { data: invData, error: invError },
         { data: balancesData }
       ] = await Promise.all([
-        supabase.from('transactions').select(`*, categories ( id, name, color, icon ), contas:accounts!fk_transacoes_conta ( id, name, type, color, currency, crypto_symbol ), conta_destino:accounts!fk_transacoes_conta_destino ( id, name, type, currency, crypto_symbol ), invoices(id, invoice_number)`).eq('user_id', user.id).order('date', { ascending: false }),
+        supabase.from('transactions').select(`*, categories ( id, name, color, icon ), account:accounts!fk_transacoes_conta ( id, name, type, color, currency, crypto_symbol ), destination_account:accounts!fk_transacoes_conta_destino ( id, name, type, currency, crypto_symbol ), invoices(id, invoice_number)`).eq('user_id', user.id).order('date', { ascending: false }),
         supabase.from('accounts').select('id, user_id, name, type, bank, balance, color, created_at, icon, account_subtype, credit_limit, closing_date, due_date, investment_type, expected_return, reload_value, reload_date, total_amount, interest_rate, term_months, amortization_type, holders, initial_balance, currency, crypto_symbol').eq('user_id', user.id),
         supabase.from('categories').select('*').eq('user_id', user.id),
-        supabase.from('invoices').select('*, accounts(name)').eq('user_id', user.id).order('opening_date', { ascending: false }),
+        supabase.from('invoices').select('*, account:accounts(name)').eq('user_id', user.id).order('opening_date', { ascending: false }),
         supabase.from('settings').select('*').eq('user_id', user.id).maybeSingle(),
         supabase.from('recurring_items').select('*, categories(name, color)').eq('user_id', user.id).order('next_date', { ascending: true }),
         supabase.from('recurring_installments').select('*').eq('user_id', user.id),
@@ -103,7 +103,7 @@ export const FinanceProvider = ({ children }) => {
       setTransactions(transData || []);
       setAccounts(accData || []);
       setCategories(catData || []);
-      setFaturas(faturaData || []);
+      setInvoices(faturaData || []);
       setRecurring(recurringData || []);
       setParcels(parcelsData || []);
       setTransactionTypes(txTypesData || []);
@@ -195,13 +195,13 @@ export const FinanceProvider = ({ children }) => {
   }, [accounts, accountBalances]);
 
   // Fatura Operations
-  const fetchFaturas = async () => {
+  const fetchInvoices = async () => {
     if (!user || !user.id) return;
-    const { data } = await supabase.from('invoices').select('*, accounts(name)').eq('user_id', user.id).order('opening_date', { ascending: false });
-    if (data) setFaturas(data);
+    const { data } = await supabase.from('invoices').select('*, account:accounts(name)').eq('user_id', user.id).order('opening_date', { ascending: false });
+    if (data) setInvoices(data);
   };
 
-  const createFatura = async (faturaData) => {
+  const createInvoice = async (faturaData) => {
     if (!user || !user.id) throw new Error("Usuário não autenticado");
     try {
       const payload = {
@@ -209,9 +209,9 @@ export const FinanceProvider = ({ children }) => {
         user_id: user.id,
         ...(faturaData.invoice_number && { invoice_number: sanitizeUserInput(faturaData.invoice_number) }),
       };
-      const { data, error } = await supabase.from('invoices').insert(payload).select('*, accounts(name)').single();
+      const { data, error } = await supabase.from('invoices').insert(payload).select('*, account:accounts(name)').single();
       if (error) throw error;
-      setFaturas(prev => [data, ...prev]);
+      setInvoices(prev => [data, ...prev]);
       return data;
     } catch (error) {
       console.error("Error creating fatura:", error);
@@ -220,13 +220,13 @@ export const FinanceProvider = ({ children }) => {
   };
 
   // Compras da Fatura Operations
-  const fetchComprasFatura = async (faturaId) => {
+  const fetchInvoiceItems = async (faturaId) => {
     if (!user || !user.id) return [];
     const { data } = await supabase.from('invoice_items').select('*, categories(name, color)').eq('invoice_id', faturaId).eq('user_id', user.id).order('data', { ascending: false });
     return data || [];
   };
 
-  const createCompraFatura = async (payload) => {
+  const createInvoiceItem = async (payload) => {
     if (!user || !user.id) throw new Error("Usuário não autenticado");
     const { data, error } = await supabase
       .from('invoice_items')
@@ -237,7 +237,7 @@ export const FinanceProvider = ({ children }) => {
     return data;
   };
 
-  const updateCompraFatura = async (id, payload) => {
+  const updateInvoiceItem = async (id, payload) => {
     if (!user || !user.id) throw new Error("Usuário não autenticado");
     const { data, error } = await supabase
       .from('invoice_items')
@@ -250,7 +250,7 @@ export const FinanceProvider = ({ children }) => {
     return data;
   };
 
-  const deleteCompraFatura = async (id) => {
+  const deleteInvoiceItem = async (id) => {
     if (!user || !user.id) throw new Error("Usuário não autenticado");
     const { error } = await supabase
       .from('invoice_items')
@@ -435,7 +435,7 @@ export const FinanceProvider = ({ children }) => {
     setRecurring(prev => prev.map(r => r.id === recurringItemId ? { ...r, next_date: result.nextDate } : r));
     if (result?.transaction) {
       const { data: tx } = await supabase.from('transactions')
-        .select('*, categories(*), contas:accounts!fk_transacoes_conta(*), conta_destino:accounts!fk_transacoes_conta_destino(*), invoices(id, invoice_number)')
+        .select('*, categories(*), account:accounts!fk_transacoes_conta(*), destination_account:accounts!fk_transacoes_conta_destino(*), invoices(id, invoice_number)')
         .eq('id', result.transactionId)
         .single();
       if (tx) setTransactions(prev => [tx, ...prev]);
@@ -510,7 +510,7 @@ export const FinanceProvider = ({ children }) => {
       // Fetch the created transaction with full joins for state update
       const { data: tx } = await supabase
         .from('transactions')
-        .select('*, categories(*), contas:accounts!fk_transacoes_conta(*), conta_destino:accounts!fk_transacoes_conta_destino(*), invoices(id, invoice_number)')
+        .select('*, categories(*), account:accounts!fk_transacoes_conta(*), destination_account:accounts!fk_transacoes_conta_destino(*), invoices(id, invoice_number)')
         .eq('id', result.firstTransaction.id)
         .single();
 
@@ -522,7 +522,7 @@ export const FinanceProvider = ({ children }) => {
     }
 
     const { data, error } = await supabase.from('transactions').insert({ ...txPayload, user_id: user.id })
-      .select('*, categories(*), contas:accounts!fk_transacoes_conta(*), conta_destino:accounts!fk_transacoes_conta_destino(*), invoices(id, invoice_number)').single();
+      .select('*, categories(*), account:accounts!fk_transacoes_conta(*), destination_account:accounts!fk_transacoes_conta_destino(*), invoices(id, invoice_number)').single();
     if (error) throw error;
     setTransactions(prev => [data, ...prev]);
     refreshAccountBalances();
@@ -535,7 +535,7 @@ export const FinanceProvider = ({ children }) => {
     if (sanitized.description) sanitized.description = sanitizeUserInput(sanitized.description);
     if (sanitized.notes) sanitized.notes = sanitizeUserInput(sanitized.notes);
     const { data, error } = await supabase.from('transactions').update(sanitized).eq('id', id).eq('user_id', user.id)
-      .select('*, categories(*), contas:accounts!fk_transacoes_conta(*), conta_destino:accounts!fk_transacoes_conta_destino(*), invoices(id, invoice_number)').single();
+      .select('*, categories(*), account:accounts!fk_transacoes_conta(*), destination_account:accounts!fk_transacoes_conta_destino(*), invoices(id, invoice_number)').single();
     if (error) throw error;
     setTransactions(prev => prev.map(t => t.id === id ? data : t));
     refreshAccountBalances();
@@ -561,7 +561,7 @@ export const FinanceProvider = ({ children }) => {
     goals,
     transactionTypes,
     inflationHistory,
-    faturas,
+    invoices,
     settings,
     setSettings,
     isLoading,
@@ -573,12 +573,12 @@ export const FinanceProvider = ({ children }) => {
     isRatesLoading,
     refreshExchangeRates,
     fetchAllData,
-    fetchFaturas,
-    createFatura,
-    fetchComprasFatura,
-    createCompraFatura,
-    updateCompraFatura,
-    deleteCompraFatura,
+    fetchInvoices,
+    createInvoice,
+    fetchInvoiceItems,
+    createInvoiceItem,
+    updateInvoiceItem,
+    deleteInvoiceItem,
     createAccount,
     updateAccount,
     removeAccount,

@@ -10,7 +10,7 @@ import { useAuth } from '@/context/SupabaseAuthContext';
 import { useTheme } from '@/context/ThemeContext';
 import BxIcon, { User, Cog, Bell, InfoCircle, Share, Lock, Moon, Sun } from '@/components/BxIcon';
 
-const Configuracoes = () => {
+const Settings = () => {
   const { settings, setSettings, saveSettings, transactions, accounts, categories, investments, recurring } = useFinance();
   const { user, resetPasswordForEmail } = useAuth();
   const { theme, toggleTheme, setTheme } = useTheme();
@@ -306,4 +306,4 @@ const Configuracoes = () => {
   );
 };
 
-export default Configuracoes;
+export default Settings;

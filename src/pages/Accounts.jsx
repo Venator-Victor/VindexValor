@@ -18,7 +18,7 @@ import AccountModal from '@/components/AccountModal';
 import { useSortableList } from '@/hooks/useSortableList';
 import { PERIOD_OPTIONS } from '@/utils/periodOptions';
 
-const Contas = () => {
+const Accounts = () => {
   const { accounts, transactions, removeAccount: deleteAccount, settings, saveSettings } = useFinance();
   const { toast } = useToast();
   
@@ -94,12 +94,12 @@ const Contas = () => {
   return (
     <div className="space-y-6 pb-20 md:pb-0">
       <Helmet>
-        <title>VindexValor - Contas</title>
+        <title>VindexValor - Accounts</title>
       </Helmet>
 
       <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
         <div>
-          <h1 className="text-3xl font-bold text-gray-900 dark:text-gray-50 mb-2">Contas</h1>
+          <h1 className="text-3xl font-bold text-gray-900 dark:text-gray-50 mb-2">Accounts</h1>
           <p className="text-gray-700 dark:text-gray-300">Gerencie suas contas bancárias e carteiras de cripto</p>
         </div>
         
@@ -367,4 +367,4 @@ const Contas = () => {
   );
 };
 
-export default Contas;
+export default Accounts;

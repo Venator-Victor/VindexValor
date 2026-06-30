@@ -16,7 +16,7 @@ import CategoryMappingManager from '@/components/CategoryMappingManager';
 import FilterRangeInput, { parseValueFilterString } from '@/components/FilterRangeInput';
 import InfoTooltip from '@/components/InfoTooltip';
 
-const Transacoes = () => {
+const Transactions = () => {
   const { transactions, categories, accounts, isLoading, deleteTransaction } = useFinance();
   const { toast } = useToast();
   const location = useLocation();
@@ -28,7 +28,7 @@ const Transacoes = () => {
   const [deleteId, setDeleteId] = useState(null);
   const [selectedIds, setSelectedIds] = useState([]);
   
-  const [filters, setFilters] = useState({ tipo: '', account_id: '' });
+  const [filters, setFilters] = useState({ type: '', account_id: '' });
   const [searchTerm, setSearchTerm] = useState('');
   const [valueFilterStr, setValueFilterStr] = useState('');
   const [selectedCategoryId, setSelectedCategoryId] = useState('');
@@ -71,7 +71,7 @@ const Transacoes = () => {
     const weekAgoStr = weekAgo.toISOString().split('T')[0];
     
     return transactions.filter(t => {
-      const matchesType = !filters.tipo || t.type === filters.tipo;
+      const matchesType = !filters.type || t.type === filters.type;
       const matchesAccount = !filters.account_id || t.account_id === filters.account_id || t.destination_account_id === filters.account_id;
       
       const searchLower = searchTerm.toLowerCase();
@@ -159,7 +159,7 @@ const Transacoes = () => {
     searchTerm ? 1 : 0,
     valueFilterStr ? 1 : 0,
     selectedCategoryId ? 1 : 0,
-    filters.tipo ? 1 : 0,
+    filters.type ? 1 : 0,
     filters.account_id ? 1 : 0
   ].reduce((a, b) => a + b, 0);
 
@@ -294,7 +294,7 @@ const Transacoes = () => {
 
           <div className="flex flex-col lg:col-span-1">
             <SelectInput
-              value={filters.tipo}
+              value={filters.type}
               onChange={(e) => setFilters({ ...filters, tipo: e.target.value })}
               options={[
                 { label: "Todos Tipos", value: "" },
@@ -370,4 +370,4 @@ const Transacoes = () => {
   );
 };
 
-export default Transacoes;
+export default Transactions;

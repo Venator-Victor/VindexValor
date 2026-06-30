@@ -29,26 +29,26 @@ Deno.serve(async (req) => {
     }
 
     const data = await req.json();
-    const { tipo, recorrente, tipoRecorrente, valor, account_id, destination_account_id } = data;
+    const { type, recurring, recurringType, amount, account_id, destination_account_id } = data;
     const errors = [];
 
-    if (tipo === 'transferencia' && recorrente === true) {
-      errors.push("Transferências não podem ser recorrentes.");
+    if (type === 'transferencia' && recurring === true) {
+      errors.push("Transfers cannot be recurring.");
     }
-    if (recorrente === true && tipo === 'entrada' && tipoRecorrente !== 'salário') {
-      errors.push("Entradas recorrentes devem ser do tipo 'salário'.");
+    if (recurring === true && type === 'entrada' && recurringType !== 'salário') {
+      errors.push("Recurring income must be of type 'salário'.");
     }
-    if (recorrente === true && tipo === 'saida' && !['parcelamento', 'assinatura'].includes(tipoRecorrente)) {
-      errors.push("Saídas recorrentes devem ser 'parcelamento' ou 'assinatura'.");
+    if (recurring === true && type === 'saida' && !['parcelamento', 'assinatura'].includes(recurringType)) {
+      errors.push("Recurring expenses must be 'parcelamento' or 'assinatura'.");
     }
-    if (recorrente === true && !tipoRecorrente) {
-      errors.push("Transações recorrentes exigem um tipo de recorrência.");
+    if (recurring === true && !recurringType) {
+      errors.push("Recurring transactions require a recurrence type.");
     }
-    if (valor <= 0) {
-      errors.push("O valor deve ser maior que zero.");
+    if (amount <= 0) {
+      errors.push("Amount must be greater than zero.");
     }
-    if (tipo === 'transferencia' && account_id === destination_account_id) {
-      errors.push("Conta de origem e destino devem ser diferentes para transferências.");
+    if (type === 'transferencia' && account_id === destination_account_id) {
+      errors.push("Source and destination accounts must be different for transfers.");
     }
 
     if (errors.length > 0) {

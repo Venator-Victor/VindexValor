@@ -3,7 +3,7 @@ import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { render, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { MemoryRouter } from 'react-router-dom';
-import Contas from '../Contas';
+import Accounts from '../Accounts';
 import { defaultFinanceValue } from '@/test-utils/renderWithProviders';
 
 // ─── Mocks ────────────────────────────────────────────────────────────────────
@@ -16,7 +16,7 @@ vi.mock('@/context/SupabaseAuthContext', () => ({
 }));
 
 vi.mock('@/context/ThemeContext', () => ({
-  useTheme: () => ({ theme: 'dark', toggleTheme: vi.fn(), setTheme: vi.fn(), colors: {}, metasViewMode: 'card', setMetasViewPreference: vi.fn() }),
+  useTheme: () => ({ theme: 'dark', toggleTheme: vi.fn(), setTheme: vi.fn(), colors: {}, goalsViewMode: 'card', setGoalsViewPreference: vi.fn() }),
 }));
 
 vi.mock('@/hooks/useSortableList', () => ({
@@ -35,19 +35,19 @@ function renderContas(accounts = []) {
   financeValue.accounts = accounts;
   return render(
     <MemoryRouter>
-      <Contas />
+      <Accounts />
     </MemoryRouter>
   );
 }
 
 // ─── Tests ────────────────────────────────────────────────────────────────────
 
-describe('Contas page', () => {
+describe('Accounts page', () => {
   beforeEach(() => vi.clearAllMocks());
 
   it('renders the page title', () => {
     renderContas();
-    expect(screen.getByRole('heading', { name: 'Contas' })).toBeInTheDocument();
+    expect(screen.getByRole('heading', { name: 'Accounts' })).toBeInTheDocument();
   });
 
   it('shows a button to add a new account', () => {

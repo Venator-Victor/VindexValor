@@ -13,7 +13,7 @@ const InvoiceFilterBar = ({ onFilterChange }) => {
     search: '',
     valorRange: '',
     category_id: '',
-    parcelamento: 'todos',
+    installment: 'todos',
     account_id: ''
   });
 
@@ -28,7 +28,7 @@ const InvoiceFilterBar = ({ onFilterChange }) => {
       search: '',
       valorRange: '',
       category_id: '',
-      parcelamento: 'todos',
+      installment: 'todos',
       account_id: ''
     };
     setFilters(cleared);
@@ -36,7 +36,7 @@ const InvoiceFilterBar = ({ onFilterChange }) => {
   };
 
   const activeCount = Object.entries(filters).filter(([k, v]) => {
-    if (k === 'parcelamento') return v !== 'todos';
+    if (k === 'installment') return v !== 'todos';
     if (k === 'valorRange') return v.trim() !== '';
     return v !== '';
   }).length;
@@ -106,8 +106,8 @@ const InvoiceFilterBar = ({ onFilterChange }) => {
         {/* Parcelamento */}
         <div className="flex flex-col lg:col-span-1">
           <SelectInput
-            value={filters.parcelamento}
-            onChange={(e) => handleChange('parcelamento', e.target.value)}
+            value={filters.installment}
+            onChange={(e) => handleChange('installment', e.target.value)}
             options={[
               { label: "Todos (Parcelados ou Não)", value: "todos" },
               { label: "Apenas Parcelados", value: "parcelado" },

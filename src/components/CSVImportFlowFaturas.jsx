@@ -10,7 +10,7 @@ import ColumnMappingStep from './ColumnMappingStep';
 
 // step: 'upload' | 'mapping' | 'processing' | 'completed'
 const CSVImportFlowFaturas = ({ onSuccess, onCancel }) => {
-  const { accounts, createFatura } = useFinance();
+  const { accounts, createInvoice } = useFinance();
   const { parseFilesRaw, autoDetectMapping, applyMapping, importData } = useInvoiceCSVImport();
   const { toast } = useToast();
 
@@ -96,7 +96,7 @@ const CSVImportFlowFaturas = ({ onSuccess, onCancel }) => {
           maxDateStr = nextMonthDate.toISOString().split('T')[0];
         }
 
-        const newFatura = await createFatura({
+        const newFatura = await createInvoice({
           invoice_number: autoFaturaName,
           account_id: selectedAccountForAuto,
           opening_date: minDateStr,

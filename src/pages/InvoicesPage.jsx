@@ -18,18 +18,18 @@ import { parseValueFilterString } from '@/components/FilterRangeInput';
 import { supabase } from '@/lib/customSupabaseClient';
 import InvoiceSelectionBar from '@/components/InvoiceSelectionBar';
 
-const FaturasPage = () => {
+const InvoicesPage = () => {
   const { user } = useAuth();
-  const { faturas, fetchFaturas, createFatura, accounts } = useFinance();
+  const { invoices, fetchInvoices, createInvoice, accounts } = useFinance();
   const [isLoading, setIsLoading] = useState(true);
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [isImportOpen, setIsImportOpen] = useState(false);
   const [isEditOpen, setIsEditOpen] = useState(false);
   
-  const [comprasFiltro, setComprasFiltro] = useState([]);
+  const [filteredItems, setComprasFiltro] = useState([]);
   const [isFiltering, setIsFiltering] = useState(false);
-  const [selectedFaturas, setSelectedFaturas] = useState([]);
-  const [faturaTotals, setFaturaTotals] = useState({});
+  const [selectedInvoices, setSelectedFaturas] = useState([]);
+  const [invoiceTotals, setInvoiceTotals] = useState({});
 
   const [dateFilterType, setDateFilterType] = useState('');
   
@@ -56,7 +56,7 @@ const FaturasPage = () => {
   });
 
   useEffect(() => {
-    loadFaturas();
+    loadInvoices();
   }, []);
 
   const fetchTotals = async (faturasList) => {
@@ -79,32 +79,32 @@ const FaturasPage = () => {
           totals[item.invoice_id] += Number(item.amount);
         }
       });
-      setFaturaTotals(totals);
+      setInvoiceTotals(totals);
     } catch (err) {
       console.error("Erro ao buscar totais das faturas:", err);
     }
   };
 
-  const loadFaturas = async () => {
+  const loadInvoices = async () => {
     setIsLoading(true);
-    await fetchFaturas();
+    await fetchInvoices();
   };
 
   useEffect(() => {
-    if (faturas.length > 0) {
-      fetchTotals(faturas);
+    if (invoices.length > 0) {
+      fetchTotals(invoices);
     }
     setIsLoading(false);
-  }, [faturas]);
+  }, [invoices]);
 
   const handleCreateSubmit = async (e) => {
     e.preventDefault();
     try {
-      await createFatura(formData);
+      await createInvoice(formData);
       toast({ title: "Fatura criada com sucesso!" });
       setIsDialogOpen(false);
       setFormData({ invoice_number: '', opening_date: '', closing_date: '', account_id: '', status: 'aberta' });
-      loadFaturas();
+      loadInvoices();
     } catch (error) {
       toast({ title: "Erro ao criar fatura", description: error.message, variant: "destructive" });
     }
@@ -125,7 +125,7 @@ const FaturasPage = () => {
       
       toast({ title: "Fatura atualizada com sucesso!" });
       setIsEditOpen(false);
-      loadFaturas();
+      loadInvoices();
     } catch (error) {
       toast({ title: "Erro ao atualizar fatura", description: error.message, variant: "destructive" });
     }
@@ -150,7 +150,7 @@ const FaturasPage = () => {
     const parsedValueFilter = filters.valorRange ? parseValueFilterString(filters.valorRange) : null;
     const hasActiveValueFilter = parsedValueFilter && parsedValueFilter.isValid && parsedValueFilter.conditions.length > 0;
     
-    const hasActiveFilters = filters.search || hasActiveValueFilter || filters.category_id || filters.account_id || filters.parcelamento !== 'todos';
+    const hasActiveFilters = filters.search || hasActiveValueFilter || filters.category_id || filters.account_id || filters.installment !== 'todos';
     setIsFiltering(hasActiveFilters);
     
     if (hasActiveFilters) {
@@ -170,11 +170,11 @@ const FaturasPage = () => {
       
       if (filters.category_id) query = query.eq('category_id', filters.category_id);
       
-      if (filters.parcelamento === 'parcelado') query = query.eq('is_parcelado', true);
-      if (filters.parcelamento === 'nao_parcelado') query = query.eq('is_parcelado', false);
+      if (filters.installment === 'parcelado') query = query.eq('is_parcelado', true);
+      if (filters.installment === 'nao_parcelado') query = query.eq('is_parcelado', false);
       
       if (filters.account_id) {
-        const matchedFaturas = faturas.filter(f => f.account_id === filters.account_id).map(f => f.id);
+        const matchedFaturas = invoices.filter(f => f.account_id === filters.account_id).map(f => f.id);
         if (matchedFaturas.length > 0) {
           query = query.in('invoice_id', matchedFaturas);
         } else {
@@ -190,12 +190,12 @@ const FaturasPage = () => {
   };
 
   const handleImportSuccess = () => {
-    loadFaturas();
+    loadInvoices();
   };
 
   const handleSelectAll = (checked) => {
     if (checked) {
-      setSelectedFaturas(filteredFaturas.map(f => f.id));
+      setSelectedFaturas(filteredInvoices.map(f => f.id));
     } else {
       setSelectedFaturas([]);
     }
@@ -209,14 +209,14 @@ const FaturasPage = () => {
     }
   };
 
-  const handleRowClick = (fatura) => {
+  const handleRowClick = (invoice) => {
     setEditFormData({
-      id: fatura.id,
-      invoice_number: fatura.invoice_number || '',
-      opening_date: fatura.opening_date || '',
-      closing_date: fatura.closing_date || '',
-      account_id: fatura.account_id || '',
-      status: fatura.status || 'aberta'
+      id: invoice.id,
+      invoice_number: invoice.invoice_number || '',
+      opening_date: invoice.opening_date || '',
+      closing_date: invoice.closing_date || '',
+      account_id: invoice.account_id || '',
+      status: invoice.status || 'aberta'
     });
     setIsEditOpen(true);
   };
@@ -234,13 +234,13 @@ const FaturasPage = () => {
     return sortConfig.direction === 'ascending' ? <ArrowUp className="w-4 h-4" /> : <ArrowDown className="w-4 h-4" />;
   };
 
-  const filteredFaturas = useMemo(() => {
-    const sorted = [...faturas].sort((a, b) => {
+  const filteredInvoices = useMemo(() => {
+    const sorted = [...invoices].sort((a, b) => {
       let aValue, bValue;
 
       if (sortConfig.key === 'amount') {
-         aValue = faturaTotals[a.id] || 0;
-         bValue = faturaTotals[b.id] || 0;
+         aValue = invoiceTotals[a.id] || 0;
+         bValue = invoiceTotals[b.id] || 0;
       } else if (sortConfig.key === 'opening_date') {
          aValue = new Date(a.opening_date || 0).getTime();
          bValue = new Date(b.opening_date || 0).getTime();
@@ -286,7 +286,7 @@ const FaturasPage = () => {
 
       return matchesDate;
     });
-  }, [faturas, dateFilterType, sortConfig, faturaTotals]);
+  }, [invoices, dateFilterType, sortConfig, invoiceTotals]);
 
   return (
     <div className="space-y-6 pb-20 md:pb-0 relative min-h-screen">
@@ -390,7 +390,7 @@ const FaturasPage = () => {
           <h2 className="text-lg font-bold mb-4 flex items-center gap-2">
             <Receipt className="w-5 h-5 text-primary" /> Resultados Filtrados (Compras)
           </h2>
-          {comprasFiltro.length === 0 ? (
+          {filteredItems.length === 0 ? (
              <div className="text-center py-8 text-muted-foreground border-dashed border-2 rounded-lg">
                 Nenhuma compra encontrada com os filtros atuais.
              </div>
@@ -407,10 +407,10 @@ const FaturasPage = () => {
                       </tr>
                    </thead>
                    <tbody className="divide-y">
-                      {comprasFiltro.map(c => (
+                      {filteredItems.map(c => (
                          <tr key={c.id} className="hover:bg-muted/30">
                             <td className="p-3 font-medium cursor-pointer text-primary hover:underline" onClick={() => navigate(`/faturas/${c.invoice_id}`)}>
-                              {c.faturas?.invoice_number || 'Desconhecida'}
+                              {c.invoices?.invoice_number || 'Desconhecida'}
                             </td>
                             <td className="p-3 text-muted-foreground whitespace-nowrap">{formatDate(c.date)}</td>
                             <td className="p-3">
@@ -418,10 +418,10 @@ const FaturasPage = () => {
                               {c.is_parcelado && <span className="ml-2 text-[10px] bg-blue-100 text-blue-800 px-2 py-0.5 rounded-full whitespace-nowrap">Parc {c.parcel_number}/{c.total_parcels}</span>}
                             </td>
                             <td className="p-3">
-                               {c.categorias ? (
+                               {c.categories ? (
                                   <div className="flex items-center gap-1.5">
-                                    <div className="w-2.5 h-2.5 rounded-full shrink-0" style={{ backgroundColor: c.categorias.color }}></div>
-                                    <span className="text-xs truncate max-w-[120px]">{c.categorias.name}</span>
+                                    <div className="w-2.5 h-2.5 rounded-full shrink-0" style={{ backgroundColor: c.categories.color }}></div>
+                                    <span className="text-xs truncate max-w-[120px]">{c.categories.name}</span>
                                   </div>
                                ) : <span className="text-muted-foreground text-xs">Sem categoria</span>}
                             </td>
@@ -436,15 +436,15 @@ const FaturasPage = () => {
       ) : (
         <>
           <div className="flex justify-between items-center mb-2 px-1">
-            <span className="text-sm text-muted-foreground">Exibindo {filteredFaturas.length} faturas</span>
-            {selectedFaturas.length > 0 && (
+            <span className="text-sm text-muted-foreground">Exibindo {filteredInvoices.length} faturas</span>
+            {selectedInvoices.length > 0 && (
               <span className="selection-indicator-text text-sm">
-                {selectedFaturas.length} selecionada{selectedFaturas.length > 1 ? 's' : ''}
+                {selectedInvoices.length} selecionada{selectedInvoices.length > 1 ? 's' : ''}
               </span>
             )}
           </div>
           
-          {filteredFaturas.length === 0 ? (
+          {filteredInvoices.length === 0 ? (
             <div className="text-center py-12 bg-card rounded-xl border border-dashed">
               <CreditCard className="mx-auto h-12 w-12 text-muted-foreground/50 mb-4" />
               <p className="text-muted-foreground mb-4">Nenhuma fatura encontrada.</p>
@@ -458,7 +458,7 @@ const FaturasPage = () => {
                     <tr>
                       <th className="p-3 w-12 text-center">
                         <Checkbox 
-                          checked={selectedFaturas.length === filteredFaturas.length && filteredFaturas.length > 0}
+                          checked={selectedInvoices.length === filteredInvoices.length && filteredInvoices.length > 0}
                           onCheckedChange={handleSelectAll}
                           aria-label="Selecionar todas faturas"
                         />
@@ -483,35 +483,35 @@ const FaturasPage = () => {
                     </tr>
                   </thead>
                   <tbody className="divide-y">
-                    {filteredFaturas.map(fatura => {
-                      const totalValue = faturaTotals[fatura.id] || 0;
+                    {filteredInvoices.map(invoice => {
+                      const totalValue = invoiceTotals[invoice.id] || 0;
                       return (
-                        <tr 
-                          key={fatura.id} 
-                          className={`hover:bg-muted/30 cursor-pointer transition-colors ${selectedFaturas.includes(fatura.id) ? 'bg-primary/5 dark:bg-primary/10' : ''}`}
-                          onClick={() => handleRowClick(fatura)}
+                        <tr
+                          key={invoice.id}
+                          className={`hover:bg-muted/30 cursor-pointer transition-colors ${selectedInvoices.includes(invoice.id) ? 'bg-primary/5 dark:bg-primary/10' : ''}`}
+                          onClick={() => handleRowClick(invoice)}
                         >
                           <td className="p-3 text-center" onClick={(e) => e.stopPropagation()}>
-                            <Checkbox 
-                              checked={selectedFaturas.includes(fatura.id)}
-                              onCheckedChange={(checked) => handleSelectRow(fatura.id, checked)}
-                              aria-label={`Selecionar fatura ${fatura.invoice_number}`}
+                            <Checkbox
+                              checked={selectedInvoices.includes(invoice.id)}
+                              onCheckedChange={(checked) => handleSelectRow(invoice.id, checked)}
+                              aria-label={`Selecionar fatura ${invoice.invoice_number}`}
                             />
                           </td>
                           <td className="p-3 font-medium text-foreground">
-                            {fatura.invoice_number || 'Fatura Sem Nome'}
+                            {invoice.invoice_number || 'Fatura Sem Nome'}
                           </td>
                           <td className="p-3 text-muted-foreground">
-                            {fatura.contas?.name || 'Conta Removida'}
+                            {invoice.account?.name || 'Conta Removida'}
                           </td>
                           <td className="p-3 text-muted-foreground whitespace-nowrap">
-                            {formatDate(fatura.opening_date)}
+                            {formatDate(invoice.opening_date)}
                           </td>
                           <td className={`p-3 text-right font-medium whitespace-nowrap ${totalValue < 0 ? 'text-red-600 dark:text-red-400' : totalValue > 0 ? 'text-green-600 dark:text-green-400' : ''}`}>
                             {formatCurrency(totalValue)}
                           </td>
                           <td className="p-3 text-center">
-                            {getStatusBadge(fatura.status)}
+                            {getStatusBadge(invoice.status)}
                           </td>
                         </tr>
                       );
@@ -525,11 +525,11 @@ const FaturasPage = () => {
       )}
 
       <InvoiceSelectionBar 
-        selectedIds={selectedFaturas}
-        faturas={faturas}
-        faturaTotals={faturaTotals}
+        selectedIds={selectedInvoices}
+        invoices={invoices}
+        invoiceTotals={invoiceTotals}
         onClearSelection={() => setSelectedFaturas([])}
-        onRefresh={() => loadFaturas()}
+        onRefresh={() => loadInvoices()}
       />
 
       {/* Edit Dialog */}
@@ -589,4 +589,4 @@ const FaturasPage = () => {
   );
 };
 
-export default FaturasPage;
+export default InvoicesPage;

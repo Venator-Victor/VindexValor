@@ -95,12 +95,12 @@ const Header = () => {
                     </Link>
                   </DropdownMenuItem>
                   <DropdownMenuItem asChild>
-                    <Link to="/suporte" className="cursor-pointer flex items-center gap-2">
+                    <Link to="/support" className="cursor-pointer flex items-center gap-2">
                       <HelpCircle size={16} /> Suporte
                     </Link>
                   </DropdownMenuItem>
                   <DropdownMenuItem asChild>
-                    <Link to="/configuracoes" className="cursor-pointer flex items-center gap-2">
+                    <Link to="/settings" className="cursor-pointer flex items-center gap-2">
                       <Settings size={16} /> Configurações
                     </Link>
                   </DropdownMenuItem>

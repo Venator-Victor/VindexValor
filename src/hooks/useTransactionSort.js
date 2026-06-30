@@ -25,11 +25,11 @@ export const useTransactionSort = (transactions, initialKey = 'date', initialDir
 
         // Handle nested or special values
         if (sortConfig.key === 'categoria') {
-          aValue = a.categorias?.name || 'Sem Categoria';
-          bValue = b.categorias?.name || 'Sem Categoria';
+          aValue = a.categories?.name || 'Sem Categoria';
+          bValue = b.categories?.name || 'Sem Categoria';
         } else if (sortConfig.key === 'conta') {
-          aValue = a.contas?.name || 'N/A';
-          bValue = b.contas?.name || 'N/A';
+          aValue = a.account?.name || 'N/A';
+          bValue = b.account?.name || 'N/A';
         } else if (sortConfig.key === 'amount') {
           aValue = Number(aValue);
           bValue = Number(bValue);

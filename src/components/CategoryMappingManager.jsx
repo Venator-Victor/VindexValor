@@ -13,7 +13,7 @@ const CategoryMappingManager = () => {
 
   const filteredMappings = mappings.filter(m => 
     m.description.toLowerCase().includes(search.toLowerCase()) ||
-    m.categorias?.name?.toLowerCase().includes(search.toLowerCase())
+    m.categories?.name?.toLowerCase().includes(search.toLowerCase())
   );
 
   return (
@@ -60,8 +60,8 @@ const CategoryMappingManager = () => {
                       <td className="px-4 py-3 font-medium">{mapping.description}</td>
                       <td className="px-4 py-3">
                         <span className="inline-flex items-center gap-1.5 px-2 py-1 rounded bg-secondary/10 text-secondary-foreground text-xs">
-                          {mapping.categorias?.icon && <BxIcon iconClass={mapping.categorias.icon} size={14} />}
-                          {mapping.categorias?.name || 'Categoria Removida'}
+                          {mapping.categories?.icon && <BxIcon iconClass={mapping.categories.icon} size={14} />}
+                          {mapping.categories?.name || 'Categoria Removida'}
                         </span>
                       </td>
                       <td className="px-4 py-3 text-right">

@@ -87,7 +87,7 @@ export const useCSVImport = () => {
       const existingMapping = mappings.find(m => descLower.includes(m.description));
       if (existingMapping) {
         catId = existingMapping.category_id;
-        catName = existingMapping.categorias?.name || 'Desconhecida';
+        catName = existingMapping.categories?.name || 'Desconhecida';
       } else if (categories?.length > 0) {
         for (const cat of categories) {
           if (descLower.includes(cat.name.toLowerCase())) {

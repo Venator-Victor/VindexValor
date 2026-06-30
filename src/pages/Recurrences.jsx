@@ -16,7 +16,7 @@ import { useToast } from '@/components/ui/use-toast';
 import { formatCurrency } from '@/utils/calculations';
 import SelectInput from '@/components/ui/SelectInput';
 import DatePicker from '@/components/ui/DatePicker';
-import RecorrenciaCard from '@/components/cards/RecorrenciaCard';
+import RecorrenciaCard from '@/components/cards/RecurrenceCard';
 import GaugeSummaryCard from '@/components/GaugeSummaryCard';
 import DefaultCategoriesModal from '@/components/DefaultCategoriesModal';
 import { useSortableList } from '@/hooks/useSortableList';
@@ -24,7 +24,7 @@ import { PERIOD_OPTIONS, CHART_PERIOD_OPTIONS } from '@/utils/periodOptions';
 import ColorPicker from '@/components/ui/ColorPicker';
 import IconSelector from '@/components/IconSelector';
 
-const Recorrencias = () => {
+const Recurrences = () => {
   const { recurring, parcels, updateRecurring, deleteRecurring, addRecurring, settings, saveSettings, transactionTypes } = useFinance();
   const { categories, addCategory } = useCategories();
   const { toast } = useToast();
@@ -53,13 +53,13 @@ const Recorrencias = () => {
   });
 
   const viewMode = settings.recurring_items_view_preference || 'list';
-  const currentPeriod = settings.recorrencias_period_preference || 'mensal';
+  const currentPeriod = settings.recurring_items_period_preference || 'mensal';
 
   const setViewMode = (mode) => {
     saveSettings({ recurring_items_view_preference: mode });
   };
 
-  const handlePeriodChange = (e) => saveSettings({ recorrencias_period_preference: e.target.value });
+  const handlePeriodChange = (e) => saveSettings({ recurring_items_period_preference: e.target.value });
 
   const statusOptions = [
       { label: "Ativo", value: "Ativo" },
@@ -456,7 +456,7 @@ const Recorrencias = () => {
                         <td className="px-6 py-4 text-sm text-gray-900 dark:text-gray-100 font-medium">
                             <div className="flex flex-col">
                                 <span>{item.description}</span>
-                                <span className="text-xs text-gray-500">{item.categorias?.name || 'Sem categoria'}</span>
+                                <span className="text-xs text-gray-500">{item.categories?.name || 'Sem categoria'}</span>
                             </div>
                         </td>
                         <td className="px-6 py-4 text-sm text-gray-700 dark:text-gray-300">
@@ -519,4 +519,4 @@ const Recorrencias = () => {
   );
 };
 
-export default Recorrencias;
+export default Recurrences;

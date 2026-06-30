@@ -26,7 +26,7 @@ Deno.serve(async (req)=>{
     }
     const userId = user.id;
     const supabaseClient = createClient(Deno.env.get('SUPABASE_URL') ?? '', Deno.env.get('SUPABASE_SERVICE_ROLE_KEY') ?? '');
-    const { data: accounts, error } = await supabaseClient.from('contas').select('id, name, type, balance').eq('user_id', userId);
+    const { data: accounts, error } = await supabaseClient.from('accounts').select('id, name, type, balance').eq('user_id', userId);
     if (error) throw error;
     let totalBalance = 0;
     const byType = {};

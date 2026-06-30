@@ -23,19 +23,19 @@ const Sidebar = () => {
 
   const mainNavItems = [
     { path: '/dashboard', Icon: Dashboard, pack: 'filled', label: 'Dashboard' },
-    { path: '/transacoes', Icon: Receipt, label: 'Transações' },
-    { path: '/faturas', Icon: File, label: 'Faturas' },
-    { path: '/contas', Icon: Wallet, label: 'Contas' },
-    { path: '/investimentos', Icon: TrendingUp, label: 'Investimentos' },
-    { path: '/analises', Icon: BarChart, label: 'Análises' },
-    { path: '/metas', Icon: Target, label: 'Metas' },
-    { path: '/categorias', Icon: Tag, label: 'Categorias' },
-    { path: '/recorrencias', Icon: History, label: 'Recorrências' },
+    { path: '/transactions', Icon: Receipt, label: 'Transações' },
+    { path: '/invoices', Icon: File, label: 'Faturas' },
+    { path: '/accounts', Icon: Wallet, label: 'Contas' },
+    { path: '/investments', Icon: TrendingUp, label: 'Investimentos' },
+    { path: '/analytics', Icon: BarChart, label: 'Análises' },
+    { path: '/goals', Icon: Target, label: 'Metas' },
+    { path: '/categories', Icon: Tag, label: 'Categorias' },
+    { path: '/recurrences', Icon: History, label: 'Recorrências' },
   ];
 
   const bottomNavItems = [
-    { path: '/suporte', Icon: HelpCircle, label: 'Suporte' },
-    { path: '/configuracoes', Icon: Cog, label: 'Configurações' },
+    { path: '/support', Icon: HelpCircle, label: 'Suporte' },
+    { path: '/settings', Icon: Cog, label: 'Configurações' },
   ];
 
   const sidebarWidth = isSidebarCollapsed ? 'w-20' : 'w-72';
@@ -49,7 +49,7 @@ const Sidebar = () => {
         className={`
           flex items-center ${isSidebarCollapsed ? 'justify-center px-0' : 'justify-start px-6'} py-3 mx-2 rounded-lg mb-1
           transition-all duration-75 group relative
-          ${isActive || (item.path === '/faturas' && location.pathname.startsWith('/faturas'))
+          ${isActive || (item.path === '/invoices' && location.pathname.startsWith('/invoices'))
             ? 'bg-primary text-white shadow-[0_0_15px_rgba(67,207,234,0.3)]'
             : 'text-gray-600 hover:bg-gray-100 hover:text-gray-900 dark:text-gray-400 dark:hover:bg-vindex-border/50 dark:hover:text-vindex-text'
           }

@@ -25,7 +25,7 @@ export const ThemeProvider = ({ children }) => {
     return 'light';
   });
 
-  const [metasViewMode, setMetasViewMode] = useState('card');
+  const [goalsViewMode, setGoalsViewMode] = useState('card');
 
   const themeColors = {
     light: {
@@ -85,7 +85,7 @@ export const ThemeProvider = ({ children }) => {
           setTheme(data.theme);
         }
         if (data.goals_view_preference) {
-          setMetasViewMode(data.goals_view_preference);
+          setGoalsViewMode(data.goals_view_preference);
         }
       }
     };
@@ -113,8 +113,8 @@ export const ThemeProvider = ({ children }) => {
     }
   };
 
-  const setMetasViewPreference = async (mode) => {
-    setMetasViewMode(mode);
+  const setGoalsViewPreference = async (mode) => {
+    setGoalsViewMode(mode);
     if (user && user.id) {
       await supabase
         .from('settings')
@@ -129,8 +129,8 @@ export const ThemeProvider = ({ children }) => {
       colors: currentColors, 
       toggleTheme, 
       setTheme: setThemeValue,
-      metasViewMode,
-      setMetasViewPreference
+      goalsViewMode,
+      setGoalsViewPreference
     }}>
       {children}
     </ThemeContext.Provider>

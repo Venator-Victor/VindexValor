@@ -27,7 +27,7 @@ Deno.serve(async (req)=>{
     const userId = user.id;
     const supabaseClient = createClient(Deno.env.get('SUPABASE_URL') ?? '', Deno.env.get('SUPABASE_SERVICE_ROLE_KEY') ?? '');
     const { goalId } = await req.json();
-    let query = supabaseClient.from('metas').select('*').eq('user_id', userId);
+    let query = supabaseClient.from('goals').select('*').eq('user_id', userId);
     if (goalId) {
       query = query.eq('id', goalId);
     }

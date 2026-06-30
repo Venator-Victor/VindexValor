@@ -8,8 +8,8 @@ import { Button } from '@/components/ui/button';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from '@/components/ui/alert-dialog';
 import { formatCurrency, formatCurrencyWithSymbol } from '@/utils/calculations';
-import CompraFaturaList from '@/components/CompraFaturaList';
-import CompraFaturaForm from '@/components/CompraFaturaForm';
+import InvoiceItemList from '@/components/InvoiceItemList';
+import InvoiceItemForm from '@/components/InvoiceItemForm';
 import { supabase } from '@/lib/customSupabaseClient';
 import { useToast } from '@/components/ui/use-toast';
 
@@ -18,16 +18,16 @@ const isValidUUID = (id) => {
   return uuidRegex.test(id);
 };
 
-const FaturaDetailPage = () => {
+const InvoiceDetailPage = () => {
   const { id } = useParams();
   const navigate = useNavigate();
   const { user } = useAuth();
-  const { fetchComprasFatura, deleteCompraFatura } = useFinance();
+  const { fetchInvoiceItems, deleteInvoiceItem } = useFinance();
   const { toast } = useToast();
   
-  const [fatura, setFatura] = useState(null);
-  const [compras, setCompras] = useState([]);
-  const [pagamentos, setPagamentos] = useState([]);
+  const [invoice, setInvoice] = useState(null);
+  const [items, setItems] = useState([]);
+  const [payments, setPayments] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
   const [uuidError, setUuidError] = useState('');
   
@@ -56,7 +56,7 @@ const FaturaDetailPage = () => {
     try {
       const { data: faturaData, error } = await supabase
         .from('invoices')
-        .select('*, accounts(name)')
+        .select('*, account:accounts(name)')
         .eq('id', id)
         .single();
         
@@ -65,17 +65,17 @@ const FaturaDetailPage = () => {
       }
       
       if (faturaData) {
-        setFatura(faturaData);
+        setInvoice(faturaData);
         
-        const comprasData = await fetchComprasFatura(id);
-        setCompras(comprasData);
+        const comprasData = await fetchInvoiceItems(id);
+        setItems(comprasData);
 
         const { data: pagamentosData } = await supabase
           .from('transactions')
-          .select('*, contas:accounts!fk_transacoes_conta(name, currency)')
+          .select('*, account:accounts!fk_transacoes_conta(name, currency)')
           .eq('invoice_id', id);
         
-        setPagamentos(pagamentosData || []);
+        setPayments(pagamentosData || []);
       }
     } catch (err) {
       console.error("Unexpected error:", err);
@@ -85,7 +85,7 @@ const FaturaDetailPage = () => {
   };
 
   // Only consider negative values (purchases/expenses) for fatura total
-  const totalSaidas = compras.filter(c => Number(c.amount) < 0).reduce((acc, c) => acc + Number(c.amount), 0);
+  const totalSaidas = items.filter(c => Number(c.amount) < 0).reduce((acc, c) => acc + Number(c.amount), 0);
   const calculatedTotal = totalSaidas;
 
   const fetchEligiblePayments = async () => {
@@ -95,7 +95,7 @@ const FaturaDetailPage = () => {
       // Fetch ALL payments from ANY account of the user that aren't linked to a fatura
       const { data, error } = await supabase
         .from('transactions')
-        .select('*, contas:accounts!fk_transacoes_conta(name, currency)')
+        .select('*, account:accounts!fk_transacoes_conta(name, currency)')
         .eq('user_id', user.id)
         .in('type', ['pagamento', 'transferencia', 'Pagamento', 'Transferência'])
         .is('invoice_id', null)
@@ -139,7 +139,7 @@ const FaturaDetailPage = () => {
       const paymentRecord = eligiblePayments.find(p => p.id === paymentId) || paymentToConfirm;
       const amountPaid = paymentRecord ? Math.abs(paymentRecord.amount) : 0;
       
-      const currentTotalPaid = pagamentos.reduce((acc, p) => acc + Math.abs(p.amount), 0);
+      const currentTotalPaid = payments.reduce((acc, p) => acc + Math.abs(p.amount), 0);
       const newTotalPaid = currentTotalPaid + amountPaid;
       
       if (newTotalPaid >= Math.abs(calculatedTotal)) {
@@ -182,7 +182,7 @@ const FaturaDetailPage = () => {
   };
 
   const handleDeleteCompra = async (compraId) => {
-    await deleteCompraFatura(compraId, id);
+    await deleteInvoiceItem(compraId, id);
     loadData();
   };
 
@@ -205,21 +205,21 @@ const FaturaDetailPage = () => {
       <div className="bg-destructive/10 text-destructive p-4 rounded-xl flex flex-col items-center justify-center gap-3 border border-destructive/20">
         <AlertCircle className="w-8 h-8" />
         <p className="font-medium text-center">{uuidError}</p>
-        <Button variant="outline" className="mt-2" onClick={() => navigate('/faturas')}>
+        <Button variant="outline" className="mt-2" onClick={() => navigate('/invoices')}>
           Voltar para Faturas
         </Button>
       </div>
     </div>
   );
   
-  if (!fatura) return (
+  if (!invoice) return (
     <div className="p-8 text-center text-destructive">
       <p className="mb-4">Fatura não encontrada.</p>
-      <Button variant="outline" onClick={() => navigate('/faturas')}>Voltar para Faturas</Button>
+      <Button variant="outline" onClick={() => navigate('/invoices')}>Voltar para Faturas</Button>
     </div>
   );
 
-  const totalPaid = pagamentos.reduce((acc, p) => acc + Math.abs(p.amount), 0);
+  const totalPaid = payments.reduce((acc, p) => acc + Math.abs(p.amount), 0);
   const remaining = Math.abs(calculatedTotal) - totalPaid;
   
   const calcTotalColor = calculatedTotal < 0 ? 'text-red-600 dark:text-red-400' : 'text-foreground';
@@ -231,12 +231,12 @@ const FaturaDetailPage = () => {
       </Helmet>
 
       <div className="flex items-center gap-4">
-        <Button variant="ghost" size="icon" onClick={() => navigate('/faturas')}>
+        <Button variant="ghost" size="icon" onClick={() => navigate('/invoices')}>
           <ArrowLeft className="w-5 h-5" />
         </Button>
         <div>
-          <h1 className="text-3xl font-bold">{fatura.invoice_number || 'Detalhes da Fatura'}</h1>
-          <p className="text-muted-foreground">{fatura.contas?.name}</p>
+          <h1 className="text-3xl font-bold">{invoice.invoice_number || 'Detalhes da Fatura'}</h1>
+          <p className="text-muted-foreground">{invoice.account?.name}</p>
         </div>
       </div>
 
@@ -268,7 +268,7 @@ const FaturaDetailPage = () => {
           </Button>
         </div>
         
-        {pagamentos.length > 0 ? (
+        {payments.length > 0 ? (
           <div className="space-y-4">
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div className="bg-background p-4 rounded-lg border">
@@ -293,15 +293,15 @@ const FaturaDetailPage = () => {
                   </tr>
                 </thead>
                 <tbody className="divide-y">
-                  {pagamentos.map(p => {
+                  {payments.map(p => {
                     const payColor = p.amount < 0 ? 'text-red-600 dark:text-red-400' : p.amount > 0 ? 'text-green-600 dark:text-green-400' : 'text-foreground';
                     return (
                       <tr key={p.id} className="hover:bg-muted/30">
                         <td className="p-3 text-muted-foreground">{formatDate(p.date)}</td>
                         <td className="p-3 font-medium">{p.description}</td>
-                        <td className="p-3 text-muted-foreground">{p.contas?.name || 'N/A'}</td>
+                        <td className="p-3 text-muted-foreground">{p.account?.name || 'N/A'}</td>
                         <td className={`p-3 text-right font-bold whitespace-nowrap ${payColor}`}>
-                          {formatCurrencyWithSymbol(p.amount, p.contas?.currency || 'BRL')}
+                          {formatCurrencyWithSymbol(p.amount, p.account?.currency || 'BRL')}
                         </td>
                         <td className="p-3 text-right">
                           <Button variant="ghost" size="sm" onClick={() => handleUnlinkPayment(p.id)} className="h-8 w-8 p-0 text-destructive hover:text-destructive hover:bg-destructive/10">
@@ -317,20 +317,20 @@ const FaturaDetailPage = () => {
           </div>
         ) : (
           <div className="text-center py-6 text-muted-foreground border border-dashed rounded-lg bg-background">
-            Nenhum pagamento vinculado a esta fatura.
+            Nenhum pagamento vinculado a esta invoice.
           </div>
         )}
       </div>
 
       <div className="flex justify-between items-center mt-8">
-        <h2 className="text-xl font-bold">Movimentações ({compras.length})</h2>
+        <h2 className="text-xl font-bold">Movimentações ({items.length})</h2>
         <Button onClick={() => { setEditingCompra(null); setIsFormOpen(true); }}>
           <Plus className="w-4 h-4 mr-2" /> Adicionar Movimentação
         </Button>
       </div>
 
-      <CompraFaturaList 
-        compras={compras}
+      <InvoiceItemList 
+        items={items}
         onEdit={handleEditCompra}
         onDelete={handleDeleteCompra}
       />
@@ -341,8 +341,8 @@ const FaturaDetailPage = () => {
           <DialogHeader>
             <DialogTitle>{editingCompra ? 'Editar Movimentação' : 'Adicionar Movimentação'}</DialogTitle>
           </DialogHeader>
-          <CompraFaturaForm 
-            faturaId={id}
+          <InvoiceItemForm 
+            invoiceId={id}
             initialData={editingCompra}
             onSuccess={handleFormSuccess}
             onCancel={() => setIsFormOpen(false)}
@@ -358,7 +358,7 @@ const FaturaDetailPage = () => {
           </DialogHeader>
           <div className="space-y-4 pt-4">
             {isLoadingPayments ? (
-              <div className="text-center py-8 text-muted-foreground">Buscando pagamentos...</div>
+              <div className="text-center py-8 text-muted-foreground">Buscando payments...</div>
             ) : eligiblePayments.length === 0 ? (
               <div className="text-center py-8 text-muted-foreground border border-dashed rounded-lg bg-muted/20">
                 Nenhuma transação de pagamento disponível no momento.
@@ -382,9 +382,9 @@ const FaturaDetailPage = () => {
                         <tr key={p.id} className="hover:bg-muted/30">
                           <td className="p-3 text-muted-foreground">{formatDate(p.date)}</td>
                           <td className="p-3 font-medium">{p.description}</td>
-                          <td className="p-3 text-muted-foreground">{p.contas?.name || 'N/A'}</td>
+                          <td className="p-3 text-muted-foreground">{p.account?.name || 'N/A'}</td>
                           <td className={`p-3 text-right font-medium whitespace-nowrap ${modalPayColor}`}>
-                            {formatCurrencyWithSymbol(p.amount, p.contas?.currency || 'BRL')}
+                            {formatCurrencyWithSymbol(p.amount, p.account?.currency || 'BRL')}
                           </td>
                           <td className="p-3 text-center">
                             <Button size="sm" variant="outline" onClick={() => handleSelectPayment(p)}>
@@ -422,4 +422,4 @@ const FaturaDetailPage = () => {
   );
 };
 
-export default FaturaDetailPage;
+export default InvoiceDetailPage;
