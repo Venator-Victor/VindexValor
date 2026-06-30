@@ -99,9 +99,16 @@ UPDATE "public"."categories" SET "budget_period" = 'yearly'     WHERE "budget_pe
 
 -- ============================================================
 -- 6. Recreate views with English string values, table names, and column names
+--    Use DROP + CREATE because some views changed output column names
 -- ============================================================
 
-CREATE OR REPLACE VIEW "public"."vw_account_monthly_flow" WITH ("security_invoker"='on') AS
+DROP VIEW IF EXISTS "public"."vw_account_monthly_flow";
+DROP VIEW IF EXISTS "public"."vw_category_spending";
+DROP VIEW IF EXISTS "public"."vw_dashboard_summary";
+DROP VIEW IF EXISTS "public"."vw_expense_by_category_monthly";
+DROP VIEW IF EXISTS "public"."vw_income_vs_expense_monthly";
+
+CREATE VIEW "public"."vw_account_monthly_flow" WITH ("security_invoker"='on') AS
  WITH "monthly_flow" AS (
          SELECT "transactions"."user_id",
             "transactions"."account_id",
@@ -131,7 +138,7 @@ CREATE OR REPLACE VIEW "public"."vw_account_monthly_flow" WITH ("security_invoke
   GROUP BY "user_id", "account_id", (EXTRACT(year FROM "date")), (EXTRACT(month FROM "date"));
 
 
-CREATE OR REPLACE VIEW "public"."vw_category_spending" WITH ("security_invoker"='true') AS
+CREATE VIEW "public"."vw_category_spending" WITH ("security_invoker"='true') AS
  SELECT "t"."user_id",
     "c"."id" AS "category_id",
     "c"."name" AS "category_name",
@@ -144,7 +151,7 @@ CREATE OR REPLACE VIEW "public"."vw_category_spending" WITH ("security_invoker"=
   GROUP BY "t"."user_id", "c"."id", "c"."name", "c"."color", "c"."spending_limit";
 
 
-CREATE OR REPLACE VIEW "public"."vw_dashboard_summary" WITH ("security_invoker"='on') AS
+CREATE VIEW "public"."vw_dashboard_summary" WITH ("security_invoker"='on') AS
  SELECT "user_id",
     COALESCE("sum"(
         CASE
@@ -165,7 +172,7 @@ CREATE OR REPLACE VIEW "public"."vw_dashboard_summary" WITH ("security_invoker"=
   GROUP BY "user_id";
 
 
-CREATE OR REPLACE VIEW "public"."vw_expense_by_category_monthly" WITH ("security_invoker"='on') AS
+CREATE VIEW "public"."vw_expense_by_category_monthly" WITH ("security_invoker"='on') AS
  SELECT "t"."user_id",
     "t"."category_id",
     "c"."name" AS "category_name",
@@ -180,7 +187,7 @@ CREATE OR REPLACE VIEW "public"."vw_expense_by_category_monthly" WITH ("security
   GROUP BY "t"."user_id", "t"."category_id", "c"."name", "c"."color", (EXTRACT(month FROM "t"."date")), (EXTRACT(year FROM "t"."date"));
 
 
-CREATE OR REPLACE VIEW "public"."vw_income_vs_expense_monthly" WITH ("security_invoker"='on') AS
+CREATE VIEW "public"."vw_income_vs_expense_monthly" WITH ("security_invoker"='on') AS
  SELECT "user_id",
     EXTRACT(month FROM "date") AS "month",
     EXTRACT(year FROM "date") AS "year",
@@ -204,4 +211,4 @@ CREATE OR REPLACE VIEW "public"."vw_income_vs_expense_monthly" WITH ("security_i
             ELSE (0)::numeric
         END)) AS "net_balance"
    FROM "public"."transactions" "t"
-  GROUP BY "user_id", (EXTRACT(month FROM "date")), (EXTRACT(month FROM "date"));
+  GROUP BY "user_id", (EXTRACT(month FROM "date")), (EXTRACT(year FROM "date"));
