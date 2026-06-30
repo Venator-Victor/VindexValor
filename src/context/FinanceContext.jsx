@@ -7,6 +7,7 @@ import { useExchangeRate } from '@/hooks/useExchangeRate';
 import { isCryptoCurrency } from '@/utils/calculations';
 import { validateCreditCardAccount } from '@/utils/accountValidation';
 import { sanitizeUserInput } from '@/utils/securityUtils';
+import i18n from '@/i18n';
 
 const FinanceContext = createContext();
 
@@ -61,6 +62,12 @@ export const FinanceProvider = ({ children }) => {
       fetchAllData();
     }
   }, [user, session]);
+
+  useEffect(() => {
+    if (settings?.language) {
+      i18n.changeLanguage(settings.language);
+    }
+  }, [settings?.language]);
 
   const fetchAllData = async () => {
     if (!user || !user.id) return;

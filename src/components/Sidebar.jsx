@@ -1,6 +1,7 @@
 import React from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
+import { useTranslation } from 'react-i18next';
 import { useFinance } from '@/context/FinanceContext';
 import { useAuth } from '@/context/SupabaseAuthContext';
 import VindexLogo from './VindexLogo';
@@ -11,6 +12,7 @@ import BxIcon, {
 } from './BxIcon';
 
 const Sidebar = () => {
+  const { t } = useTranslation();
   const location = useLocation();
   const navigate = useNavigate();
   const { isSidebarCollapsed, toggleSidebar, isMobileMenuOpen, toggleMobileMenu } = useFinance();
@@ -22,20 +24,20 @@ const Sidebar = () => {
   };
 
   const mainNavItems = [
-    { path: '/dashboard', Icon: Dashboard, pack: 'filled', label: 'Dashboard' },
-    { path: '/transactions', Icon: Receipt, label: 'Transações' },
-    { path: '/invoices', Icon: File, label: 'Faturas' },
-    { path: '/accounts', Icon: Wallet, label: 'Contas' },
-    { path: '/investments', Icon: TrendingUp, label: 'Investimentos' },
-    { path: '/analytics', Icon: BarChart, label: 'Análises' },
-    { path: '/goals', Icon: Target, label: 'Metas' },
-    { path: '/categories', Icon: Tag, label: 'Categorias' },
-    { path: '/recurrences', Icon: History, label: 'Recorrências' },
+    { path: '/dashboard', Icon: Dashboard, pack: 'filled', label: t('nav.dashboard') },
+    { path: '/transactions', Icon: Receipt, label: t('nav.transactions') },
+    { path: '/invoices', Icon: File, label: t('nav.invoices') },
+    { path: '/accounts', Icon: Wallet, label: t('nav.accounts') },
+    { path: '/investments', Icon: TrendingUp, label: t('nav.investments') },
+    { path: '/analytics', Icon: BarChart, label: t('nav.analytics') },
+    { path: '/goals', Icon: Target, label: t('nav.goals') },
+    { path: '/categories', Icon: Tag, label: t('nav.categories') },
+    { path: '/recurrences', Icon: History, label: t('nav.recurrences') },
   ];
 
   const bottomNavItems = [
-    { path: '/support', Icon: HelpCircle, label: 'Suporte' },
-    { path: '/settings', Icon: Cog, label: 'Configurações' },
+    { path: '/support', Icon: HelpCircle, label: t('nav.support') },
+    { path: '/settings', Icon: Cog, label: t('nav.settings') },
   ];
 
   const sidebarWidth = isSidebarCollapsed ? 'w-20' : 'w-72';
@@ -128,13 +130,13 @@ const Sidebar = () => {
             <NavItem key={item.path} item={item} isActive={location.pathname === item.path} />
           ))}
           
-          <NavItem 
-            key="/privacy" 
-            item={{ path: '/privacy', label: 'Privacidade' }} 
-            isActive={location.pathname === '/privacy'} 
+          <NavItem
+            key="/privacy"
+            item={{ path: '/privacy', label: t('nav.privacy') }}
+            isActive={location.pathname === '/privacy'}
             isLucide={true}
           />
-          
+
           <button onClick={handleLogout} className="w-full">
             <motion.div
               whileHover={{ x: isSidebarCollapsed ? 0 : 4 }}
@@ -148,12 +150,12 @@ const Sidebar = () => {
             >
               <Door size={20} className="flex-shrink-0" />
               {!isSidebarCollapsed && (
-                <span className="font-medium ml-3 whitespace-nowrap overflow-hidden">Sair</span>
+                <span className="font-medium ml-3 whitespace-nowrap overflow-hidden">{t('nav.logout')}</span>
               )}
-              
+
               {isSidebarCollapsed && (
                 <div className="absolute left-full ml-2 px-2 py-1 bg-white dark:bg-vindex-card border border-gray-200 dark:border-vindex-border text-gray-900 dark:text-vindex-text text-sm rounded opacity-0 group-hover:opacity-100 pointer-events-none whitespace-nowrap z-50 transition-opacity duration-75 shadow-md">
-                  Sair
+                  {t('nav.logout')}
                 </div>
               )}
             </motion.div>

@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { Helmet } from 'react-helmet';
+import { useTranslation } from 'react-i18next';
 import { motion } from 'framer-motion';
 import { useFinance } from '@/context/FinanceContext';
 import { Button } from '@/components/ui/button';
@@ -11,6 +12,7 @@ import { useTheme } from '@/context/ThemeContext';
 import BxIcon, { User, Cog, Bell, InfoCircle, Share, Lock, Moon, Sun } from '@/components/BxIcon';
 
 const Settings = () => {
+  const { t } = useTranslation();
   const { settings, setSettings, saveSettings, transactions, accounts, categories, investments, recurring } = useFinance();
   const { user, resetPasswordForEmail } = useAuth();
   const { theme, toggleTheme, setTheme } = useTheme();
@@ -18,10 +20,10 @@ const Settings = () => {
   const [activeTab, setActiveTab] = useState('conta');
 
   const tabs = [
-    { id: 'conta', label: 'Conta', Icon: User },
-    { id: 'preferencias', label: 'Preferências', Icon: Cog },
-    { id: 'notificacoes', label: 'Notificações', Icon: Bell },
-    { id: 'sobre', label: 'Sobre', Icon: InfoCircle },
+    { id: 'conta', label: t('settings.tab_account'), Icon: User },
+    { id: 'preferencias', label: t('settings.tab_preferences'), Icon: Cog },
+    { id: 'notificacoes', label: t('settings.tab_notifications'), Icon: Bell },
+    { id: 'sobre', label: t('settings.tab_about'), Icon: InfoCircle },
   ];
 
   const handleSave = async () => {
@@ -45,7 +47,7 @@ const Settings = () => {
     try {
       await resetPasswordForEmail(user.email);
     } catch (err) {
-      toast({ title: "Erro ao redefinir senha", description: err?.message, variant: "destructive" });
+      toast({ title: t('settings.reset_password_error'), description: err?.message, variant: "destructive" });
     }
   };
 
@@ -79,8 +81,8 @@ const Settings = () => {
     document.body.removeChild(link);
     
     toast({
-      title: "Exportação Concluída",
-      description: "Seus dados foram exportados com sucesso!",
+      title: t('settings.export_success_title'),
+      description: t('settings.export_success_desc'),
       className: "bg-green-100 dark:bg-vindex-success/10 border-green-500 dark:border-vindex-success/50 text-green-900 dark:text-vindex-text",
     });
   };
@@ -93,8 +95,8 @@ const Settings = () => {
       </Helmet>
 
       <div>
-        <h1 className="text-3xl font-bold text-gray-900 dark:text-vindex-text mb-2">Configurações</h1>
-        <p className="text-gray-500 dark:text-vindex-text/70">Personalize sua experiência</p>
+        <h1 className="text-3xl font-bold text-gray-900 dark:text-vindex-text mb-2">{t('settings.title')}</h1>
+        <p className="text-gray-500 dark:text-vindex-text/70">{t('settings.subtitle')}</p>
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-4 gap-6">
@@ -127,40 +129,40 @@ const Settings = () => {
         >
           {activeTab === 'conta' && (
             <div className="space-y-6">
-              <h2 className="text-2xl font-bold text-gray-900 dark:text-vindex-text mb-4">Conta</h2>
-              
+              <h2 className="text-2xl font-bold text-gray-900 dark:text-vindex-text mb-4">{t('settings.section_account')}</h2>
+
               <div>
-                <Label htmlFor="email">Email</Label>
+                <Label htmlFor="email">{t('auth.email')}</Label>
                 <div className="w-full px-3 py-2 bg-gray-100 dark:bg-vindex-bg border border-gray-200 dark:border-vindex-border rounded-lg text-gray-500 dark:text-vindex-text opacity-70 cursor-not-allowed">
                     {user?.email || 'email@exemplo.com'}
                 </div>
               </div>
 
               <div className="border-t border-gray-200 dark:border-vindex-border pt-6 mt-6 space-y-4">
-                 <h3 className="text-lg font-bold text-gray-900 dark:text-vindex-text">Gerenciamento de Dados</h3>
-                 
+                 <h3 className="text-lg font-bold text-gray-900 dark:text-vindex-text">{t('settings.section_data_management')}</h3>
+
                  <div className="flex flex-col md:flex-row gap-4">
                     <Button onClick={handleExportData} className="flex-1 bg-white dark:bg-vindex-border hover:bg-gray-100 dark:hover:bg-vindex-border/80 text-gray-900 dark:text-vindex-text border border-gray-200 dark:border-vindex-border/50 rounded-lg shadow-sm">
-                      <Share size={16} className="mr-2" /> Exportar Dados
+                      <Share size={16} className="mr-2" /> {t('settings.export_data')}
                     </Button>
 
                     <AlertDialog>
                       <AlertDialogTrigger asChild>
                          <Button variant="destructive" className="flex-1 bg-red-50 dark:bg-vindex-danger/20 hover:bg-red-100 dark:hover:bg-vindex-danger/30 text-vindex-danger border border-red-200 dark:border-vindex-danger/50 rounded-lg">
-                            <Lock size={16} className="mr-2" /> Redefinir Senha
+                            <Lock size={16} className="mr-2" /> {t('settings.reset_password')}
                          </Button>
                       </AlertDialogTrigger>
                       <AlertDialogContent className="bg-white dark:bg-vindex-card text-gray-900 dark:text-vindex-text border-gray-200 dark:border-vindex-border rounded-xl">
                         <AlertDialogHeader>
-                          <AlertDialogTitle>Redefinir Senha</AlertDialogTitle>
+                          <AlertDialogTitle>{t('settings.reset_password')}</AlertDialogTitle>
                           <AlertDialogDescription className="text-gray-500 dark:text-vindex-text/60">
-                            Um email de redefinição de senha será enviado para {user?.email}. Deseja continuar?
+                            {t('settings.reset_password_confirm', { email: user?.email })}
                           </AlertDialogDescription>
                         </AlertDialogHeader>
                         <AlertDialogFooter>
-                          <AlertDialogCancel className="bg-gray-100 dark:bg-vindex-bg hover:bg-gray-200 dark:hover:bg-vindex-bg/80 border-gray-200 dark:border-vindex-border text-gray-900 dark:text-vindex-text rounded-lg">Cancelar</AlertDialogCancel>
+                          <AlertDialogCancel className="bg-gray-100 dark:bg-vindex-bg hover:bg-gray-200 dark:hover:bg-vindex-bg/80 border-gray-200 dark:border-vindex-border text-gray-900 dark:text-vindex-text rounded-lg">{t('common.cancel')}</AlertDialogCancel>
                           <AlertDialogAction onClick={handleResetPassword} className="bg-primary hover:bg-primary/90 rounded-lg text-primary-foreground">
-                            Confirmar
+                            {t('common.confirm')}
                           </AlertDialogAction>
                         </AlertDialogFooter>
                       </AlertDialogContent>
@@ -172,9 +174,9 @@ const Settings = () => {
 
           {activeTab === 'preferencias' && (
             <div className="space-y-6">
-              <h2 className="text-2xl font-bold text-gray-900 dark:text-vindex-text mb-4">Preferências</h2>
+              <h2 className="text-2xl font-bold text-gray-900 dark:text-vindex-text mb-4">{t('settings.section_preferences')}</h2>
               <div>
-                <Label>Tema</Label>
+                <Label>{t('settings.theme_label')}</Label>
                 <div className="flex gap-4 mt-2">
                   <button
                     onClick={() => setTheme('dark')}
@@ -185,7 +187,7 @@ const Settings = () => {
                     }`}
                   >
                     <Moon size={16} />
-                    Escuro
+                    {t('settings.theme_dark')}
                   </button>
                   <button
                     onClick={() => setTheme('light')}
@@ -196,54 +198,54 @@ const Settings = () => {
                     }`}
                   >
                     <Sun size={16} />
-                    Claro
+                    {t('settings.theme_light')}
                   </button>
                 </div>
               </div>
               <div>
-                <Label htmlFor="currency">Moeda Padrão</Label>
+                <Label htmlFor="currency">{t('settings.currency_label')}</Label>
                 <select
                   id="currency"
                   value={settings.currency}
                   onChange={(e) => setSettings({ ...settings, currency: e.target.value })}
                   className="w-full px-3 py-2 bg-gray-50 dark:bg-vindex-bg border border-gray-200 dark:border-vindex-border rounded-lg text-gray-900 dark:text-vindex-text"
                 >
-                  <option value="BRL">Real (BRL)</option>
-                  <option value="USD">Dólar (USD)</option>
-                  <option value="EUR">Euro (EUR)</option>
+                  <option value="BRL">{t('settings.currency_brl')}</option>
+                  <option value="USD">{t('settings.currency_usd')}</option>
+                  <option value="EUR">{t('settings.currency_eur')}</option>
                 </select>
               </div>
               <div>
-                <Label htmlFor="language">Idioma</Label>
+                <Label htmlFor="language">{t('settings.language_label')}</Label>
                 <select
                   id="language"
                   value={settings.language}
                   onChange={(e) => setSettings({ ...settings, language: e.target.value })}
                   className="w-full px-3 py-2 bg-gray-50 dark:bg-vindex-bg border border-gray-200 dark:border-vindex-border rounded-lg text-gray-900 dark:text-vindex-text"
                 >
-                  <option value="pt-BR">Português (BR)</option>
-                  <option value="en-US">English (US)</option>
-                  <option value="es-ES">Español (ES)</option>
+                  <option value="pt-BR">{t('settings.language_pt')}</option>
+                  <option value="en-US">{t('settings.language_en')}</option>
+                  <option value="es-ES">{t('settings.language_es')}</option>
                 </select>
               </div>
               <Button onClick={handleSave} className="bg-primary/10 hover:bg-primary/20 text-primary border border-primary/30 rounded-lg">
-                Salvar Preferências
+                {t('settings.save_preferences')}
               </Button>
             </div>
           )}
 
           {activeTab === 'notificacoes' && (
             <div className="space-y-6">
-              <h2 className="text-2xl font-bold text-gray-900 dark:text-vindex-text mb-4">Notificações</h2>
+              <h2 className="text-2xl font-bold text-gray-900 dark:text-vindex-text mb-4">{t('settings.section_notifications')}</h2>
 
               <div className="flex flex-col items-center justify-center gap-4 py-10 px-6 bg-gray-50 dark:bg-vindex-bg rounded-xl border border-dashed border-gray-300 dark:border-vindex-border text-center">
                 <div className="w-14 h-14 rounded-full bg-primary/10 flex items-center justify-center">
                   <Bell size={28} className="text-primary" />
                 </div>
                 <div>
-                  <p className="text-gray-900 dark:text-vindex-text font-semibold text-lg">Em breve</p>
+                  <p className="text-gray-900 dark:text-vindex-text font-semibold text-lg">{t('settings.notifications_coming_soon')}</p>
                   <p className="text-sm text-gray-500 dark:text-vindex-text/60 mt-1 max-w-sm">
-                    Notificações push, lembretes de recorrências e resumos mensais estão planejados para versões futuras.
+                    {t('settings.notifications_desc')}
                   </p>
                 </div>
                 <a
@@ -252,17 +254,17 @@ const Settings = () => {
                   rel="noopener noreferrer"
                   className="text-sm font-medium text-primary hover:underline"
                 >
-                  Acompanhe ou sugira no GitHub →
+                  {t('settings.notifications_github')}
                 </a>
               </div>
 
               <div className="space-y-2 text-sm text-gray-400 dark:text-vindex-text/40">
-                <p className="font-medium text-gray-500 dark:text-vindex-text/50">Funcionalidades planejadas</p>
+                <p className="font-medium text-gray-500 dark:text-vindex-text/50">{t('settings.planned_features')}</p>
                 {[
-                  { label: 'Notificações de Transações', description: 'Alertas para novas entradas e saídas' },
-                  { label: 'Lembretes de Recorrências', description: 'Avisos antes de transações recorrentes vencerem' },
-                  { label: 'Alertas de Orçamento', description: 'Aviso ao ultrapassar o limite de uma categoria' },
-                  { label: 'Resumo Mensal', description: 'Relatório automático por e-mail ao fim de cada mês' },
+                  { label: t('settings.notif_transactions'), description: t('settings.notif_transactions_desc') },
+                  { label: t('settings.notif_recurrences'), description: t('settings.notif_recurrences_desc') },
+                  { label: t('settings.notif_budget'), description: t('settings.notif_budget_desc') },
+                  { label: t('settings.notif_monthly'), description: t('settings.notif_monthly_desc') },
                 ].map((item, index) => (
                   <div key={index} className="flex items-center justify-between p-3 rounded-lg border border-gray-100 dark:border-vindex-border/30 opacity-50">
                     <div>
@@ -278,24 +280,20 @@ const Settings = () => {
 
           {activeTab === 'sobre' && (
             <div className="space-y-6">
-              <h2 className="text-2xl font-bold text-gray-900 dark:text-vindex-text mb-4">Sobre</h2>
+              <h2 className="text-2xl font-bold text-gray-900 dark:text-vindex-text mb-4">{t('settings.section_about')}</h2>
 
               <div className="flex flex-col items-center justify-center p-8 bg-gray-50 dark:bg-vindex-bg rounded-xl border border-gray-200 dark:border-vindex-border/50">
                 <img src="/VindexValor.png" alt="VindexValor" className="w-20 h-20 mb-4 object-contain" />
                 <h3 className="text-2xl font-bold text-primary mb-1">VindexValor</h3>
-                <p className="text-gray-500 dark:text-vindex-text/70 mb-4">Gestão Financeira Inteligente</p>
+                <p className="text-gray-500 dark:text-vindex-text/70 mb-4">{t('settings.about_tagline')}</p>
                 <span className="px-3 py-1 bg-gray-200 dark:bg-vindex-border rounded-full text-xs font-mono text-gray-700 dark:text-vindex-text">v0.3</span>
               </div>
 
               <div className="space-y-3 text-sm text-gray-500 dark:text-vindex-text/60">
-                <p>
-                  O <span className="font-semibold text-gray-700 dark:text-vindex-text">VindexValor</span> é um web app de gestão financeira pessoal inteligente, desenvolvido como Trabalho de Conclusão de Curso (TCC) para a Pós-Graduação em Desenvolvimento Full Stack pela PUC-RS.
-                </p>
-                <p>
-                  O projeto é <span className="font-semibold text-gray-700 dark:text-vindex-text">open source</span> — contribuições, sugestões e feedbacks são bem-vindos pelo GitHub.
-                </p>
+                <p>{t('settings.about_description')}</p>
+                <p>{t('settings.about_open_source')}</p>
                 <div className="pt-4 border-t border-gray-200 dark:border-vindex-border/30">
-                  <p>© 2026 VindexValor. Todos os direitos reservados.</p>
+                  <p>{t('settings.about_copyright', { year: new Date().getFullYear() })}</p>
                 </div>
               </div>
             </div>

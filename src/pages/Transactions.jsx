@@ -1,5 +1,6 @@
 import React, { useState, useMemo, useEffect } from 'react';
 import { Helmet } from 'react-helmet';
+import { useTranslation } from 'react-i18next';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { Receipt as ReceiptText, Share as UploadCloud, Plus, Search, X, Filter } from '@/components/BxIcon';
 import { useFinance } from '@/context/FinanceContext';
@@ -17,6 +18,7 @@ import FilterRangeInput, { parseValueFilterString } from '@/components/FilterRan
 import InfoTooltip from '@/components/InfoTooltip';
 
 const Transactions = () => {
+  const { t } = useTranslation();
   const { transactions, categories, accounts, isLoading, deleteTransaction } = useFinance();
   const { toast } = useToast();
   const location = useLocation();
@@ -137,9 +139,9 @@ const Transactions = () => {
   };
 
   const handleImportSuccess = (count) => {
-    toast({ 
-      title: "Importação Concluída", 
-      description: `${count} transações importadas com sucesso!`,
+    toast({
+      title: t('transactions.import_success_title'),
+      description: t('transactions.import_success_desc', { count }),
     });
     setIsImportOpen(false);
     setTimeout(() => {
@@ -171,8 +173,8 @@ const Transactions = () => {
 
       <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
         <div>
-          <h1 className="text-3xl font-bold mb-2">Transações</h1>
-          <p className="text-muted-foreground">Gerencie suas movimentações e pagamentos</p>
+          <h1 className="text-3xl font-bold mb-2">{t('transactions.title')}</h1>
+          <p className="text-muted-foreground">{t('transactions.subtitle')}</p>
         </div>
 
         <div className="flex flex-wrap gap-2 w-full md:w-auto items-center">
@@ -180,12 +182,12 @@ const Transactions = () => {
             value={dateFilterType}
             onChange={(e) => setDateFilterType(e.target.value)}
             options={[
-              { label: "Qualquer Data", value: "" },
-              { label: "Dia", value: "today" },
-              { label: "Semana", value: "week" },
-              { label: "Mês", value: "month" },
-              { label: "Ano", value: "year" },
-              { label: "Período (Abertura)", value: "periodo" }
+              { label: t('transactions.date_filter_any'), value: "" },
+              { label: t('transactions.date_filter_today'), value: "today" },
+              { label: t('transactions.date_filter_week'), value: "week" },
+              { label: t('transactions.date_filter_month'), value: "month" },
+              { label: t('transactions.date_filter_year'), value: "year" },
+              { label: t('transactions.date_filter_period'), value: "periodo" },
             ]}
             className="w-40 sm:w-48"
           />
@@ -193,13 +195,13 @@ const Transactions = () => {
           <CategoryMappingManager />
           
           <Button variant="outline" onClick={() => setIsImportOpen(true)} className="gap-2">
-            <UploadCloud className="w-4 h-4" /> Importar CSV
+            <UploadCloud className="w-4 h-4" /> {t('transactions.import_csv')}
           </Button>
 
           <Dialog open={isImportOpen} onOpenChange={setIsImportOpen}>
             <DialogContent className="dialog-responsive max-w-[95vw] md:max-w-4xl p-4 md:p-6">
               <DialogHeader>
-                <DialogTitle>Importar Transações</DialogTitle>
+                <DialogTitle>{t('transactions.import_title')}</DialogTitle>
               </DialogHeader>
               <CSVImportFlow onSuccess={handleImportSuccess} onCancel={() => setIsImportOpen(false)} />
             </DialogContent>
@@ -211,12 +213,12 @@ const Transactions = () => {
           }}>
             <DialogTrigger asChild>
               <Button className="gap-2">
-                <Plus className="w-4 h-4" /> Nova Transação
+                <Plus className="w-4 h-4" /> {t('transactions.new')}
               </Button>
             </DialogTrigger>
             <DialogContent className="sm:max-w-[550px] max-h-[90vh] overflow-y-auto custom-scrollbar">
               <DialogHeader>
-                <DialogTitle>{editingTransaction ? 'Editar Transação' : 'Nova Transação'}</DialogTitle>
+                <DialogTitle>{editingTransaction ? t('transactions.edit') : t('transactions.new')}</DialogTitle>
               </DialogHeader>
               <TransactionForm 
                 initialData={editingTransaction} 
@@ -231,25 +233,25 @@ const Transactions = () => {
       <div className="bg-card rounded-xl p-4 border shadow-sm space-y-4">
         <div className="flex items-center justify-between mb-2">
           <div className="flex items-center gap-2 text-foreground font-semibold">
-            <Filter className="w-4 h-4" /> 
-            Filtros Avançados
-            
+            <Filter className="w-4 h-4" />
+            {t('common.advanced_filters')}
+
             <InfoTooltip content={
               <div className="space-y-1 text-sm">
-                <p><strong>Campo Valor:</strong> Use sinais =, &gt;, &lt; (ex: &gt;100; &lt;1000)</p>
-                <p><strong>Campo Descrição:</strong> Buscar por nome ou descrição</p>
+                <p><strong>{t('common.amount')}:</strong> {t('common.filter_value_hint')}</p>
+                <p><strong>{t('common.description')}:</strong> {t('common.filter_desc_hint')}</p>
               </div>
             } />
 
             {activeCount > 0 && (
               <span className="bg-primary text-primary-foreground text-xs px-2 py-0.5 rounded-full ml-2">
-                {activeCount} ativo{activeCount !== 1 && 's'}
+                {activeCount > 1 ? t('common.active_filters_count_plural', { count: activeCount }) : t('common.active_filters_count', { count: activeCount })}
               </span>
             )}
           </div>
           {activeCount > 0 && (
             <Button variant="ghost" size="sm" onClick={clearFilters} className="h-8 text-xs text-muted-foreground hover:text-foreground">
-              Limpar Filtros <X className="w-3 h-3 ml-1" />
+              {t('common.clear_filters')} <X className="w-3 h-3 ml-1" />
             </Button>
           )}
         </div>
@@ -260,7 +262,7 @@ const Transactions = () => {
               <Search className="absolute left-3 top-2.5 h-4 w-4 text-muted-foreground" />
               <input
                 type="text"
-                placeholder="Buscar por descrição..."
+                placeholder={t('common.search_placeholder')}
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
                 className="w-full pl-9 pr-8 py-2 rounded-md border border-input bg-background text-sm text-foreground focus:outline-none focus:ring-1 focus:ring-primary h-[42px]"
@@ -285,8 +287,8 @@ const Transactions = () => {
               value={selectedCategoryId}
               onChange={(e) => setSelectedCategoryId(e.target.value)}
               options={[
-                { label: "Todas categorias", value: "" },
-                { label: "Sem categoria", value: "null" },
+                { label: t('transactions.all_categories'), value: "" },
+                { label: t('common.no_category'), value: "null" },
                 ...categories.map(c => ({ label: c.name, value: c.id }))
               ]}
             />
@@ -297,11 +299,11 @@ const Transactions = () => {
               value={filters.type}
               onChange={(e) => setFilters({ ...filters, tipo: e.target.value })}
               options={[
-                { label: "Todos Tipos", value: "" },
-                { label: "Entrada", value: "entrada" },
-                { label: "Saída", value: "saida" },
-                { label: "Transferência", value: "transferencia" },
-                { label: "Pagamento", value: "pagamento" }
+                { label: t('transactions.all_types'), value: "" },
+                { label: t('transactions.type_income'), value: "income" },
+                { label: t('transactions.type_expense'), value: "expense" },
+                { label: t('transactions.type_transfer'), value: "transfer" },
+                { label: t('transactions.type_payment'), value: "payment" },
               ]}
             />
           </div>
@@ -311,7 +313,7 @@ const Transactions = () => {
               value={filters.account_id}
               onChange={(e) => setFilters({ ...filters, account_id: e.target.value })}
               options={[
-                { label: "Todas Contas", value: "" },
+                { label: t('transactions.all_accounts'), value: "" },
                 ...accounts.map(a => ({ label: a.name, value: a.id }))
               ]}
             />
@@ -320,20 +322,22 @@ const Transactions = () => {
       </div>
 
       <div className="text-sm text-muted-foreground flex justify-between items-center">
-        <span>Exibindo {filteredTransactions.length} transações</span>
+        <span>{t('transactions.showing_count', { count: filteredTransactions.length })}</span>
         {selectedIds.length > 0 && (
           <span className="selection-indicator-text text-sm font-medium">
-            {selectedIds.length} selecionada{selectedIds.length > 1 ? 's' : ''}
+            {selectedIds.length > 1
+              ? t('common.selected_count_plural', { count: selectedIds.length })
+              : t('common.selected_count', { count: selectedIds.length })}
           </span>
         )}
       </div>
 
       {isLoading ? (
-        <div className="text-center py-12 text-muted-foreground">Carregando transações...</div>
+        <div className="text-center py-12 text-muted-foreground">{t('transactions.loading')}</div>
       ) : filteredTransactions.length === 0 ? (
         <div className="text-center py-12 bg-card rounded-xl border border-dashed">
           <ReceiptText className="mx-auto h-12 w-12 text-muted-foreground/50 mb-4" />
-          <p className="text-muted-foreground mb-4">Nenhuma transação encontrada com os filtros atuais.</p>
+          <p className="text-muted-foreground mb-4">{t('transactions.empty')}</p>
         </div>
       ) : (
         <TransactionTable 
@@ -355,14 +359,14 @@ const Transactions = () => {
       <AlertDialog open={!!deleteId} onOpenChange={() => setDeleteId(null)}>
         <AlertDialogContent>
           <AlertDialogHeader>
-            <AlertDialogTitle>Confirmar exclusão</AlertDialogTitle>
+            <AlertDialogTitle>{t('common.delete_confirm_title')}</AlertDialogTitle>
             <AlertDialogDescription>
-              Tem certeza que deseja excluir esta transação?
+              {t('transactions.delete_confirm')}
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
-            <AlertDialogCancel>Cancelar</AlertDialogCancel>
-            <AlertDialogAction onClick={handleDelete} className="bg-destructive hover:bg-destructive/90 text-destructive-foreground">Excluir</AlertDialogAction>
+            <AlertDialogCancel>{t('common.cancel')}</AlertDialogCancel>
+            <AlertDialogAction onClick={handleDelete} className="bg-destructive hover:bg-destructive/90 text-destructive-foreground">{t('common.delete')}</AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>

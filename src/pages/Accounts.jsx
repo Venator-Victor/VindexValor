@@ -1,6 +1,7 @@
 import { PRIMARY, PRIMARY_HOVER } from '@/utils/colors';
 import React, { useState, useMemo, useEffect } from 'react';
 import { Helmet } from 'react-helmet';
+import { useTranslation } from 'react-i18next';
 import { motion } from 'framer-motion';
 import { Grid as LayoutGrid, ListUl as ListIcon, Wallet as WalletCards, Eye, EyeSlash as EyeOff } from '@/components/BxIcon';
 import BxIcon, { Plus, Pencil, Trash } from '@/components/BxIcon';
@@ -19,6 +20,7 @@ import { useSortableList } from '@/hooks/useSortableList';
 import { PERIOD_OPTIONS } from '@/utils/periodOptions';
 
 const Accounts = () => {
+  const { t } = useTranslation();
   const { accounts, transactions, removeAccount: deleteAccount, settings, saveSettings } = useFinance();
   const { toast } = useToast();
   
@@ -50,7 +52,7 @@ const Accounts = () => {
     try {
       if (saveSettings) {
         await saveSettings({ accounts_view_preference: mode });
-        toast({ title: "Visualização atualizada", description: "Sua preferência foi salva com sucesso." });
+        toast({ title: t('accounts.view_updated'), description: t('accounts.view_updated_desc') });
       } else {
         toast({ title: "Aviso", description: "Função de salvar não disponível no contexto.", variant: "destructive" });
       }

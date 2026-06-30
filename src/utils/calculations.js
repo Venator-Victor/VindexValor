@@ -63,14 +63,17 @@ export const getLastNMonths = (n) => {
   return months;
 };
 
-export const formatCurrency = (value) => {
+const CURRENCY_TO_LOCALE = { 'BRL': 'pt-BR', 'USD': 'en-US', 'EUR': 'en-US' };
+
+export const formatCurrency = (value, currency = 'BRL') => {
   const numValue = Number(value) || 0;
   const isNegative = numValue < 0;
-  const formatted = new Intl.NumberFormat('pt-BR', {
+  const locale = CURRENCY_TO_LOCALE[currency] || 'pt-BR';
+  const formatted = new Intl.NumberFormat(locale, {
     style: 'currency',
-    currency: 'BRL',
+    currency: currency,
   }).format(Math.abs(numValue));
-  
+
   return isNegative ? `-${formatted}` : formatted;
 };
 
@@ -102,7 +105,8 @@ export const formatCurrencyWithSymbol = (amount, currencyCode = 'BRL') => {
   const numValue = Number(amount) || 0;
   const isNegative = numValue < 0;
 
-  const formatted = new Intl.NumberFormat('pt-BR', {
+  const locale = isCryptoCurrency(currencyCode) ? 'pt-BR' : (CURRENCY_TO_LOCALE[currencyCode] || 'pt-BR');
+  const formatted = new Intl.NumberFormat(locale, {
     minimumFractionDigits: decimals,
     maximumFractionDigits: decimals,
   }).format(Math.abs(numValue));

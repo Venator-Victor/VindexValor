@@ -1,6 +1,7 @@
 import React, { useState, useMemo } from 'react';
 import { Helmet } from 'react-helmet';
 import { motion } from 'framer-motion';
+import { useTranslation } from 'react-i18next';
 import { useFinance } from '@/context/FinanceContext';
 import {
   calculateTotalInvestmentValue,
@@ -24,9 +25,10 @@ import OnboardingChecklist from '@/components/OnboardingChecklist';
 import { useTheme } from '@/context/ThemeContext';
 
 const Dashboard = () => {
+  const { t } = useTranslation();
   const { transactions, accounts, investments, recurring, categories, exchangeRates } = useFinance();
   const { theme } = useTheme();
-  
+
   const [selectedPeriod, setSelectedPeriod] = useState('monthly');
   
   const { showModal, dismissModal } = useBetaWarning();
@@ -101,31 +103,31 @@ const Dashboard = () => {
 
   const metrics = [
     {
-      title: 'Saldo Total (em BRL)',
+      title: t('dashboard.total_balance'),
       value: formatCurrencyWithSymbol(totalBalanceBRL, 'BRL'),
       Icon: Wallet,
       textColor: 'text-gray-900 dark:text-gray-50',
       iconColor: 'text-primary',
       borderColor: 'border-gray-200 dark:border-vindex-border',
-      tooltip: 'Soma dos saldos atuais convertidos para BRL. Não é afetado pelo filtro de período.'
+      tooltip: t('dashboard.total_balance_tooltip'),
     },
     {
-      title: 'Despesas (em BRL)',
+      title: t('dashboard.expenses'),
       value: formatCurrencyWithSymbol(filteredExpensesBRL, 'BRL'),
       Icon: TrendingDown,
       textColor: 'text-gray-900 dark:text-gray-50',
       iconColor: 'text-vindex-danger',
       borderColor: 'border-red-200 dark:border-vindex-danger/30',
-      tooltip: `Total de despesas convertidas para BRL no período selecionado (${selectedPeriod}).`
+      tooltip: t('dashboard.expenses_tooltip'),
     },
     {
-      title: 'Receitas (em BRL)',
+      title: t('dashboard.income'),
       value: formatCurrencyWithSymbol(filteredIncomeBRL, 'BRL'),
       Icon: TrendingUp,
       textColor: 'text-gray-900 dark:text-gray-50',
       iconColor: 'text-primary',
       borderColor: 'border-green-200 dark:border-vindex-success/30',
-      tooltip: `Total de receitas convertidas para BRL no período selecionado (${selectedPeriod}).`
+      tooltip: t('dashboard.income_tooltip'),
     },
   ];
 
@@ -141,8 +143,8 @@ const Dashboard = () => {
 
       <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 pt-2">
         <div>
-          <h1 className="text-3xl font-bold text-gray-900 dark:text-gray-50 mb-1">Dashboard</h1>
-          <p className="text-gray-600 dark:text-gray-400 text-sm">Visão geral da sua saúde financeira.</p>
+          <h1 className="text-3xl font-bold text-gray-900 dark:text-gray-50 mb-1">{t('dashboard.title')}</h1>
+          <p className="text-gray-600 dark:text-gray-400 text-sm">{t('dashboard.subtitle')}</p>
         </div>
         <div className="flex items-center gap-3">
           <DashboardPeriodSelector value={selectedPeriod} onChange={setSelectedPeriod} />
