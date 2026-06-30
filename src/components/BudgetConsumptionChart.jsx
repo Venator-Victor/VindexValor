@@ -26,12 +26,12 @@ const BudgetConsumptionChart = ({ selectedPeriod, filteredTransactions }) => {
     // Adjust based on period (approximation)
     switch(selectedPeriod) {
         case 'Diário': return monthlyTotal / 30;
-        case 'Semanal': return (monthlyTotal / 30) * 7;
-        case 'Quinzenal': return monthlyTotal / 2;
-        case 'Trimestral': return monthlyTotal * 3;
-        case 'Semestral': return monthlyTotal * 6;
-        case 'Anual': return monthlyTotal * 12;
-        case 'Mensal':
+        case 'weekly': return (monthlyTotal / 30) * 7;
+        case 'biweekly': return monthlyTotal / 2;
+        case 'quarterly': return monthlyTotal * 3;
+        case 'semiannual': return monthlyTotal * 6;
+        case 'yearly': return monthlyTotal * 12;
+        case 'monthly':
         default: return monthlyTotal;
     }
   }, [categories, selectedPeriod]);
@@ -42,7 +42,7 @@ const BudgetConsumptionChart = ({ selectedPeriod, filteredTransactions }) => {
 
     // Sort transactions by date ascending
     const sortedTx = [...filteredTransactions]
-        .filter(t => t.type === 'saida')
+        .filter(t => t.type === 'expense')
         .sort((a, b) => new Date(a.date) - new Date(b.date));
 
     if (sortedTx.length === 0) return [];
@@ -79,7 +79,7 @@ const BudgetConsumptionChart = ({ selectedPeriod, filteredTransactions }) => {
         const dateObj = new Date(dateStr + 'T12:00:00');
         
         let label = '';
-        if (selectedPeriod === 'Anual' || selectedPeriod === 'Semestral') {
+        if (selectedPeriod === 'yearly' || selectedPeriod === 'semiannual') {
              label = dateObj.toLocaleDateString('pt-BR', { month: 'short', day: 'numeric' });
         } else {
              label = dateObj.toLocaleDateString('pt-BR', { day: '2-digit', month: '2-digit' });

@@ -352,8 +352,8 @@ export const FinanceProvider = ({ children }) => {
   const addRecurring = async (data) => {
     if (!user) throw new Error("Usuário não autenticado");
     const statusStr = typeof data.status === 'boolean'
-      ? (data.status ? 'Ativo' : 'Inativo')
-      : (data.status || 'Ativo');
+      ? (data.status ? 'active' : 'inactive')
+      : (data.status || 'active');
     const { data: result, error } = await supabase.functions.invoke('create-recurrence', {
       body: {
         description: data.description,
@@ -371,15 +371,15 @@ export const FinanceProvider = ({ children }) => {
     if (result?.error) throw new Error(result.error);
     await fetchRecurring();
     if (result?.firstTransaction) setTransactions(prev => [result.firstTransaction, ...prev]);
-    if (data.recurrence_type === 'Parcelas') await fetchParcels();
+    if (data.recurrence_type === 'installments') await fetchParcels();
     return result;
   };
 
   const updateRecurring = async (id, data) => {
     if (!user) throw new Error("Usuário não autenticado");
     const statusStr = typeof data.status === 'boolean'
-      ? (data.status ? 'Ativo' : 'Inativo')
-      : (data.status || 'Ativo');
+      ? (data.status ? 'active' : 'inactive')
+      : (data.status || 'active');
     const payload = {
       description: sanitizeUserInput(data.description),
       amount: data.amount,
@@ -416,8 +416,8 @@ export const FinanceProvider = ({ children }) => {
     setParcels(updatedParcels);
     const remaining = updatedParcels.filter(p => p.recurring_item_id === parcel.recurring_item_id && !p.paid_date).sort((a, b) => a.parcel_number - b.parcel_number);
     if (remaining.length === 0) {
-      await supabase.from('recurring_items').update({ status: 'Inativo' }).eq('id', parcel.recurring_item_id).eq('user_id', user.id);
-      setRecurring(prev => prev.map(r => r.id === parcel.recurring_item_id ? { ...r, status: 'Inativo' } : r));
+      await supabase.from('recurring_items').update({ status: 'inactive' }).eq('id', parcel.recurring_item_id).eq('user_id', user.id);
+      setRecurring(prev => prev.map(r => r.id === parcel.recurring_item_id ? { ...r, status: 'inactive' } : r));
     } else {
       await supabase.from('recurring_items').update({ next_date: remaining[0].due_date }).eq('id', parcel.recurring_item_id).eq('user_id', user.id);
       setRecurring(prev => prev.map(r => r.id === parcel.recurring_item_id ? { ...r, next_date: remaining[0].due_date } : r));
@@ -500,7 +500,7 @@ export const FinanceProvider = ({ children }) => {
         body: {
           transaction: txPayload,
           frequency,
-          recurrence_type: txPayload.recurring_type || 'Assinatura',
+          recurrence_type: txPayload.recurring_type || 'subscription',
           installment_count: recurring_installment_count ? parseInt(recurring_installment_count) : null,
         }
       });

@@ -103,7 +103,7 @@ export const useCSVImport = () => {
         description: rawDesc,
         originalAmount: numValor,
         amount: numValor,
-        type: numValor >= 0 ? 'entrada' : 'saida',
+        type: numValor >= 0 ? 'income' : 'expense',
         category_id: catId,
         categoria_name: catName,
         _sourceFile: row._sourceFile,

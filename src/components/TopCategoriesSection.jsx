@@ -8,7 +8,7 @@ const TopCategoriesSection = ({ transactions, categories, selectedPeriod }) => {
   const navigate = useNavigate();
 
   const categoryStats = useMemo(() => {
-    const expenses = transactions.filter(t => t.type === 'saida');
+    const expenses = transactions.filter(t => t.type === 'expense');
     const totalExpenses = expenses.reduce((sum, t) => sum + Number(t.amount), 0);
 
     const stats = {};

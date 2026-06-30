@@ -43,7 +43,7 @@ const InvoicesPage = () => {
     opening_date: '',
     closing_date: '',
     account_id: '',
-    status: 'aberta'
+    status: 'open'
   });
 
   const [editFormData, setEditFormData] = useState({
@@ -52,7 +52,7 @@ const InvoicesPage = () => {
     opening_date: '',
     closing_date: '',
     account_id: '',
-    status: 'aberta'
+    status: 'open'
   });
 
   useEffect(() => {
@@ -103,7 +103,7 @@ const InvoicesPage = () => {
       await createInvoice(formData);
       toast({ title: "Fatura criada com sucesso!" });
       setIsDialogOpen(false);
-      setFormData({ invoice_number: '', opening_date: '', closing_date: '', account_id: '', status: 'aberta' });
+      setFormData({ invoice_number: '', opening_date: '', closing_date: '', account_id: '', status: 'open' });
       loadInvoices();
     } catch (error) {
       toast({ title: "Erro ao criar fatura", description: error.message, variant: "destructive" });
@@ -139,9 +139,9 @@ const InvoicesPage = () => {
 
   const getStatusBadge = (status) => {
     switch (status) {
-      case 'aberta': return <span className="px-2 py-1 text-xs font-medium rounded-full bg-blue-100 text-blue-800 dark:bg-blue-900/30 dark:text-blue-400">Aberta</span>;
-      case 'fechada': return <span className="px-2 py-1 text-xs font-medium rounded-full bg-yellow-100 text-yellow-800 dark:bg-yellow-900/30 dark:text-yellow-400">Fechada</span>;
-      case 'paga': return <span className="px-2 py-1 text-xs font-medium rounded-full bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-400">Paga</span>;
+      case 'open':   return <span className="px-2 py-1 text-xs font-medium rounded-full bg-blue-100 text-blue-800 dark:bg-blue-900/30 dark:text-blue-400">Aberta</span>;
+      case 'closed': return <span className="px-2 py-1 text-xs font-medium rounded-full bg-yellow-100 text-yellow-800 dark:bg-yellow-900/30 dark:text-yellow-400">Fechada</span>;
+      case 'paid':   return <span className="px-2 py-1 text-xs font-medium rounded-full bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-400">Paga</span>;
       default: return null;
     }
   };
@@ -216,7 +216,7 @@ const InvoicesPage = () => {
       opening_date: invoice.opening_date || '',
       closing_date: invoice.closing_date || '',
       account_id: invoice.account_id || '',
-      status: invoice.status || 'aberta'
+      status: invoice.status || 'open'
     });
     setIsEditOpen(true);
   };
@@ -366,9 +366,9 @@ const InvoicesPage = () => {
                     value={formData.status}
                     onChange={e => setFormData({...formData, status: e.target.value})}
                     options={[
-                      { label: 'Aberta', value: 'aberta' },
-                      { label: 'Fechada', value: 'fechada' },
-                      { label: 'Paga', value: 'paga' }
+                      { label: 'Aberta', value: 'open' },
+                      { label: 'Fechada', value: 'closed' },
+                      { label: 'Paga', value: 'paid' }
                     ]}
                   />
                 </div>
@@ -566,9 +566,9 @@ const InvoicesPage = () => {
                 value={editFormData.status}
                 onChange={e => setEditFormData({...editFormData, status: e.target.value})}
                 options={[
-                  { label: 'Aberta', value: 'aberta' },
-                  { label: 'Fechada', value: 'fechada' },
-                  { label: 'Paga', value: 'paga' }
+                  { label: 'Aberta', value: 'open' },
+                  { label: 'Fechada', value: 'closed' },
+                  { label: 'Paga', value: 'paid' }
                 ]}
               />
             </div>

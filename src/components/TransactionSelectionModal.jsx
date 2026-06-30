@@ -29,7 +29,7 @@ const TransactionSelectionModal = ({ selectedIds, transactions, onClearSelection
 
   selectedTx.forEach(t => {
     const acc = accounts.find(a => a.id === t.account_id || a.id === t.destination_account_id);
-    const amount = t.type === 'saida' ? -Math.abs(t.amount) : t.type === 'entrada' ? Math.abs(t.amount) : 0;
+    const amount = t.type === 'expense' ? -Math.abs(t.amount) : t.type === 'income' ? Math.abs(t.amount) : 0;
     
     if (acc && isCryptoCurrency(acc.currency)) {
       totalBTC += amount;
@@ -73,8 +73,8 @@ const TransactionSelectionModal = ({ selectedIds, transactions, onClearSelection
         .from('transactions')
         .update({ category_id: selectedBulkCategory || null })
         .in('id', selectedIds)
-        .neq('type', 'pagamento')
-        .neq('type', 'transferencia');
+        .neq('type', 'payment')
+        .neq('type', 'transfer');
 
       if (error) throw error;
 

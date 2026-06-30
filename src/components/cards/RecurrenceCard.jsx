@@ -9,8 +9,8 @@ const RecurrenceCard = ({ item, onEdit, onDelete, onToggleStatus }) => {
   const { parcels, payParcel, processRecurring } = useFinance();
   const { toast } = useToast();
   const [isProcessing, setIsProcessing] = useState(false);
-  const isActive = item.status === 'Ativo';
-  const isParceled = item.recurrence_type === 'Parcelas';
+  const isActive = item.status === 'active';
+  const isParceled = item.recurrence_type === 'installments';
   
   // Find related parcels for this recurring item
   const safeParcels = Array.isArray(parcels) ? parcels : [];
@@ -53,7 +53,7 @@ const RecurrenceCard = ({ item, onEdit, onDelete, onToggleStatus }) => {
             <div>
             <div className="flex items-center gap-2 mb-1">
                  <span className={`text-[10px] uppercase font-bold px-1.5 py-0.5 rounded ${isParceled ? 'bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-300' : 'bg-purple-100 text-purple-700 dark:bg-purple-900/30 dark:text-purple-300'}`}>
-                    {item.recurrence_type || 'Assinatura'}
+                    {item.recurrence_type || 'subscription'}
                  </span>
                  <p className="text-xs text-gray-500 dark:text-gray-400">{categoryName}</p>
             </div>

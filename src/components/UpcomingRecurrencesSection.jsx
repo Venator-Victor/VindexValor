@@ -15,18 +15,18 @@ const UpcomingRecurrencesSection = ({ recurrences, selectedPeriod }) => {
     const endDate = new Date(today);
     switch(selectedPeriod) {
         case 'Diário': endDate.setDate(today.getDate() + 1); break;
-        case 'Semanal': endDate.setDate(today.getDate() + 7); break;
-        case 'Quinzenal': endDate.setDate(today.getDate() + 15); break;
-        case 'Mensal': endDate.setMonth(today.getMonth() + 1); break;
-        case 'Trimestral': endDate.setMonth(today.getMonth() + 3); break;
-        case 'Semestral': endDate.setMonth(today.getMonth() + 6); break;
-        case 'Anual': endDate.setFullYear(today.getFullYear() + 1); break;
+        case 'weekly': endDate.setDate(today.getDate() + 7); break;
+        case 'biweekly': endDate.setDate(today.getDate() + 15); break;
+        case 'monthly': endDate.setMonth(today.getMonth() + 1); break;
+        case 'quarterly': endDate.setMonth(today.getMonth() + 3); break;
+        case 'semiannual': endDate.setMonth(today.getMonth() + 6); break;
+        case 'yearly': endDate.setFullYear(today.getFullYear() + 1); break;
         default: endDate.setMonth(today.getMonth() + 1);
     }
 
     return recurrences
       .filter(r => {
-        if (r.status !== 'Ativo') return false;
+        if (r.status !== 'active') return false;
         if (!r.next_date) return false;
         
         const nextDate = new Date(r.next_date + 'T12:00:00');

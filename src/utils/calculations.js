@@ -11,14 +11,14 @@ export const calculateTotalBalance = (accounts) => {
 
 export const calculateMonthlyIncome = (transactions, month) => {
   return transactions
-    .filter(t => t.date.startsWith(month) && t.type === 'entrada')
+    .filter(t => t.date.startsWith(month) && t.type === 'income')
     .reduce((sum, t) => sum + Math.abs(Number(t.amount)), 0);
 };
 
 export const calculateMonthlyExpenses = (transactions, month) => {
   return Math.abs(
     transactions
-      .filter(t => t.date.startsWith(month) && t.type === 'saida')
+      .filter(t => t.date.startsWith(month) && t.type === 'expense')
       .reduce((sum, t) => sum + Math.abs(Number(t.amount)), 0)
   );
 };
@@ -26,7 +26,7 @@ export const calculateMonthlyExpenses = (transactions, month) => {
 export const calculateSpendingByCategory = (transactions) => {
   const spending = {};
   transactions
-    .filter(t => t.type === 'saida')
+    .filter(t => t.type === 'expense')
     .forEach(t => {
       if (!spending[t.category]) {
         spending[t.category] = 0;
@@ -128,7 +128,7 @@ export const calculateAccountBalance = (transactions, accountId, initialBalance 
   const transactionsSum = transactions.reduce((acc, t) => {
     let absAmount = Math.abs(Number(t.amount));
     
-    if (t.type === 'transferencia') {
+    if (t.type === 'transfer') {
       if (t.account_id === accountId) {
         return acc - absAmount; 
       }
@@ -140,13 +140,13 @@ export const calculateAccountBalance = (transactions, accountId, initialBalance 
       }
     }
 
-    if (t.type === 'entrada' && t.account_id === accountId) {
+    if (t.type === 'income' && t.account_id === accountId) {
       return acc + absAmount;
     }
-    if (t.type === 'saida' && t.account_id === accountId) {
+    if (t.type === 'expense' && t.account_id === accountId) {
       return acc - absAmount;
     }
-    if (t.type === 'pagamento' && t.account_id === accountId) {
+    if (t.type === 'payment' && t.account_id === accountId) {
       return acc - absAmount;
     }
 

@@ -101,7 +101,7 @@ const CSVImportFlowFaturas = ({ onSuccess, onCancel }) => {
           account_id: selectedAccountForAuto,
           opening_date: minDateStr,
           closing_date: maxDateStr,
-          status: 'aberta',
+          status: 'open',
         });
 
         if (!newFatura?.id) throw new Error('Erro ao criar fatura no banco de dados.');

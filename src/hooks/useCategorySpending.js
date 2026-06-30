@@ -43,7 +43,7 @@ export const useCategorySpending = (categoryId, period) => {
       const tDate = new Date(t.date + 'T12:00:00');
       return (
         t.category === categoryId &&
-        t.type === 'saida' &&
+        t.type === 'expense' &&
         tDate >= startDate &&
         tDate <= now &&
         t.user_id === user.id

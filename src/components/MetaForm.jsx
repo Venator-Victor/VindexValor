@@ -20,10 +20,10 @@ const MetaForm = ({ initialData, initialName, onSubmit, onCancel }) => {
   // State for form fields
   const [formData, setFormData] = useState({
     name: '',
-    goal_type: 'valor_final', // 'valor_final' | 'valor_mensal'
+    goal_type: 'target_value', // 'target_value' | 'monthly_value'
     targetAmount: '',
     contributionValue: '',
-    periodFrequency: 'Mensal',
+    periodFrequency: 'monthly',
     accumulated_amount: '',
     deadline: '',
     description: '',
@@ -39,10 +39,10 @@ const MetaForm = ({ initialData, initialName, onSubmit, onCancel }) => {
     if (initialData) {
       setFormData({
         name: initialData.name || '',
-        goal_type: initialData.goal_type || 'valor_final',
+        goal_type: initialData.goal_type || 'target_value',
         targetAmount: initialData.targetAmount || '',
         contributionValue: initialData.contributionValue || '',
-        periodFrequency: initialData.periodFrequency || 'Mensal',
+        periodFrequency: initialData.periodFrequency || 'monthly',
         accumulated_amount: initialData.accumulated_amount || initialData.currentAmount || '',
         deadline: initialData.deadline || '',
         description: initialData.description || '',
@@ -126,9 +126,9 @@ const MetaForm = ({ initialData, initialName, onSubmit, onCancel }) => {
       <div className="bg-gray-50 dark:bg-vindex-bg/50 p-1 rounded-lg flex">
         <button
           type="button"
-          onClick={() => setFormData({ ...formData, goal_type: 'valor_final' })}
+          onClick={() => setFormData({ ...formData, goal_type: 'target_value' })}
           className={`flex-1 py-2 text-sm font-medium rounded-md transition-all ${
-            formData.goal_type === 'valor_final' 
+            formData.goal_type === 'target_value' 
               ? 'bg-white dark:bg-vindex-card text-gray-900 dark:text-gray-100 shadow-sm' 
               : 'text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-200'
           }`}
@@ -138,9 +138,9 @@ const MetaForm = ({ initialData, initialName, onSubmit, onCancel }) => {
         </button>
         <button
           type="button"
-          onClick={() => setFormData({ ...formData, goal_type: 'valor_mensal' })}
+          onClick={() => setFormData({ ...formData, goal_type: 'monthly_value' })}
           className={`flex-1 py-2 text-sm font-medium rounded-md transition-all ${
-            formData.goal_type === 'valor_mensal' 
+            formData.goal_type === 'monthly_value' 
               ? 'bg-white dark:bg-vindex-card text-gray-900 dark:text-gray-100 shadow-sm' 
               : 'text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-200'
           }`}
@@ -166,7 +166,7 @@ const MetaForm = ({ initialData, initialName, onSubmit, onCancel }) => {
 
       {/* 3. Dynamic Fields Based on Type */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4 animate-in fade-in slide-in-from-top-2">
-        {formData.goal_type === 'valor_final' ? (
+        {formData.goal_type === 'target_value' ? (
           <div>
             <Label htmlFor="targetAmount">Valor Alvo (R$) <span className="text-red-500">*</span></Label>
             <NumberInput
@@ -174,7 +174,7 @@ const MetaForm = ({ initialData, initialName, onSubmit, onCancel }) => {
               value={formData.targetAmount}
               onChange={(e) => setFormData({ ...formData, targetAmount: e.target.value })}
               placeholder="0,00"
-              required={formData.goal_type === 'valor_final'}
+              required={formData.goal_type === 'target_value'}
             />
           </div>
         ) : (
@@ -186,7 +186,7 @@ const MetaForm = ({ initialData, initialName, onSubmit, onCancel }) => {
                   value={formData.contributionValue}
                   onChange={(e) => setFormData({ ...formData, contributionValue: e.target.value })}
                   placeholder="0,00"
-                  required={formData.goal_type === 'valor_mensal'}
+                  required={formData.goal_type === 'monthly_value'}
                 />
              </div>
              <div>

@@ -50,7 +50,7 @@ const Categories = () => {
     color: '#283768',
     icon: 'bx bx-tag',
     spending_limit: '',
-    budget_period: 'Mensal'
+    budget_period: 'monthly'
   });
   
 
@@ -110,7 +110,7 @@ const Categories = () => {
       color: '#283768',
       icon: 'bx bx-tag',
       spending_limit: '',
-      budget_period: 'Mensal'
+      budget_period: 'monthly'
     });
     setEditingCategory(null);
   };
@@ -123,7 +123,7 @@ const Categories = () => {
       color: category.color,
       icon: category.icon,
       spending_limit: category.spending_limit || '',
-      budget_period: category.budget_period || 'Mensal'
+      budget_period: category.budget_period || 'monthly'
     });
     setIsDialogOpen(true);
   };

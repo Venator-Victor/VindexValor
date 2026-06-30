@@ -4,39 +4,35 @@ export function calculateNextDate(currentDateStr: string, frequency: string): st
   const workDate = new Date(Date.UTC(y, m - 1, d, 12, 0, 0));
 
   switch (frequency.toLowerCase()) {
-    case 'diario':
-    case 'diário':
+    case 'daily':
       workDate.setUTCDate(workDate.getUTCDate() + 1);
       break;
-    case 'semanal':
-    case 'toda semana':
+    case 'weekly':
       workDate.setUTCDate(workDate.getUTCDate() + 7);
       break;
-    case 'quinzenal':
-    case 'a cada 2 semanas':
+    case 'biweekly':
       workDate.setUTCDate(workDate.getUTCDate() + 15);
       break;
-    case 'mensal':
-    case 'todo mês': {
+    case 'monthly': {
       const day = workDate.getUTCDate();
       workDate.setUTCMonth(workDate.getUTCMonth() + 1);
       // Jan 31 + 1 month overflows to Mar — clamp to last day of Feb instead
       if (workDate.getUTCDate() !== day) workDate.setUTCDate(0);
       break;
     }
-    case 'trimestral': {
+    case 'quarterly': {
       const day = workDate.getUTCDate();
       workDate.setUTCMonth(workDate.getUTCMonth() + 3);
       if (workDate.getUTCDate() !== day) workDate.setUTCDate(0);
       break;
     }
-    case 'semestral': {
+    case 'semiannual': {
       const day = workDate.getUTCDate();
       workDate.setUTCMonth(workDate.getUTCMonth() + 6);
       if (workDate.getUTCDate() !== day) workDate.setUTCDate(0);
       break;
     }
-    case 'anual': {
+    case 'yearly': {
       const day = workDate.getUTCDate();
       workDate.setUTCFullYear(workDate.getUTCFullYear() + 1);
       // Feb 29 in a non-leap year clamps to Feb 28

@@ -97,7 +97,7 @@ const InvoiceDetailPage = () => {
         .from('transactions')
         .select('*, account:accounts!fk_transacoes_conta(name, currency)')
         .eq('user_id', user.id)
-        .in('type', ['pagamento', 'transferencia', 'Pagamento', 'Transferência'])
+        .in('type', ['payment', 'transfer'])
         .is('invoice_id', null)
         .order('date', { ascending: false });
 
@@ -135,7 +135,7 @@ const InvoiceDetailPage = () => {
 
       if (error) throw error;
 
-      // Auto-update fatura status to 'paga' if this payment covers the remainder
+      // Auto-update fatura status to 'paid' if this payment covers the remainder
       const paymentRecord = eligiblePayments.find(p => p.id === paymentId) || paymentToConfirm;
       const amountPaid = paymentRecord ? Math.abs(paymentRecord.amount) : 0;
       
@@ -143,7 +143,7 @@ const InvoiceDetailPage = () => {
       const newTotalPaid = currentTotalPaid + amountPaid;
       
       if (newTotalPaid >= Math.abs(calculatedTotal)) {
-        await supabase.from('invoices').update({ status: 'paga' }).eq('id', id).eq('user_id', user.id);
+        await supabase.from('invoices').update({ status: 'paid' }).eq('id', id).eq('user_id', user.id);
       }
 
       toast({ title: "Pagamento vinculado com sucesso!" });
@@ -166,8 +166,8 @@ const InvoiceDetailPage = () => {
 
       if (error) throw error;
 
-      // Update status back to 'aberta' if it was marked as paid but now it's unlinked
-      await supabase.from('invoices').update({ status: 'aberta' }).eq('id', id).eq('user_id', user.id);
+      // Update status back to 'open' if it was marked as paid but now it's unlinked
+      await supabase.from('invoices').update({ status: 'open' }).eq('id', id).eq('user_id', user.id);
 
       toast({ title: "Pagamento desvinculado com sucesso!" });
       loadData();

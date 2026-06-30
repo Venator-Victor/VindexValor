@@ -13,7 +13,7 @@ const InvoiceItemForm = ({ invoiceId, initialData, onSuccess, onCancel }) => {
   const { categories, accounts, transactions, createInvoiceItem, updateInvoiceItem } = useFinance();
   const { toast } = useToast();
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const [type, setType] = useState('saida');
+  const [type, setType] = useState('expense');
 
   const [formData, setFormData] = useState({
     data: new Date().toISOString().split('T')[0],
@@ -26,7 +26,7 @@ const InvoiceItemForm = ({ invoiceId, initialData, onSuccess, onCancel }) => {
 
   useEffect(() => {
     if (initialData) {
-      const initialType = Number(initialData.amount) >= 0 ? 'entrada' : 'saida';
+      const initialType = Number(initialData.amount) >= 0 ? 'income' : 'expense';
       setType(initialType);
       setFormData({
         date: initialData.date || new Date().toISOString().split('T')[0],
@@ -49,7 +49,7 @@ const InvoiceItemForm = ({ invoiceId, initialData, onSuccess, onCancel }) => {
     setIsSubmitting(true);
     try {
       const numericValue = Number(formData.amount);
-      const finalValor = type === 'saida' ? -Math.abs(numericValue) : Math.abs(numericValue);
+      const finalValor = type === 'expense' ? -Math.abs(numericValue) : Math.abs(numericValue);
 
       const payload = {
         invoice_id: invoiceId,
@@ -96,18 +96,18 @@ const InvoiceItemForm = ({ invoiceId, initialData, onSuccess, onCancel }) => {
         <div className="grid grid-cols-2 gap-3 mt-2">
           <Button
             type="button"
-            variant={type === 'saida' ? 'default' : 'outline'}
-            className={type === 'saida' ? 'bg-red-600 hover:bg-red-700 text-white' : 'text-muted-foreground'}
-            onClick={() => setType('saida')}
+            variant={type === 'expense' ? 'default' : 'outline'}
+            className={type === 'expense' ? 'bg-red-600 hover:bg-red-700 text-white' : 'text-muted-foreground'}
+            onClick={() => setType('expense')}
           >
             <ArrowDownRight className="w-4 h-4 mr-2" />
             Saída (Despesa)
           </Button>
           <Button
             type="button"
-            variant={type === 'entrada' ? 'default' : 'outline'}
-            className={type === 'entrada' ? 'bg-green-600 hover:bg-green-700 text-white' : 'text-muted-foreground'}
-            onClick={() => setType('entrada')}
+            variant={type === 'income' ? 'default' : 'outline'}
+            className={type === 'income' ? 'bg-green-600 hover:bg-green-700 text-white' : 'text-muted-foreground'}
+            onClick={() => setType('income')}
           >
             <ArrowUpRight className="w-4 h-4 mr-2" />
             Entrada (Reembolso)
@@ -171,8 +171,8 @@ const InvoiceItemForm = ({ invoiceId, initialData, onSuccess, onCancel }) => {
       <div>
         <Label htmlFor="amount">Valor *</Label>
         <div className="mt-1 relative flex items-center">
-          <div className={`absolute left-3 font-bold text-lg pointer-events-none z-10 ${type === 'saida' ? 'text-red-500' : 'text-green-500'}`}>
-            {type === 'saida' ? '-' : '+'}
+          <div className={`absolute left-3 font-bold text-lg pointer-events-none z-10 ${type === 'expense' ? 'text-red-500' : 'text-green-500'}`}>
+            {type === 'expense' ? '-' : '+'}
           </div>
           <div className="w-full pl-6">
             <NumberInput

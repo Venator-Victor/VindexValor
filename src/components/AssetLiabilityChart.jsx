@@ -27,19 +27,19 @@ const AssetLiabilityChart = ({
            txByDate[d] = { name: d, assets: 0, liabilities: 0 };
         }
         
-        if (tx.type === 'entrada') {
+        if (tx.type === 'income') {
            txByDate[d].assets += Math.abs(tx.amount);
-        } else if (tx.type === 'saida') {
+        } else if (tx.type === 'expense') {
            txByDate[d].liabilities += Math.abs(tx.amount);
         }
     });
 
     let daysToShow = 30;
-    if (selectedPeriod === 'Semanal') daysToShow = 7;
-    else if (selectedPeriod === 'Quinzenal') daysToShow = 15;
-    else if (selectedPeriod === 'Trimestral') daysToShow = 90;
-    else if (selectedPeriod === 'Semestral') daysToShow = 180;
-    else if (selectedPeriod === 'Anual') daysToShow = 365;
+    if (selectedPeriod === 'weekly') daysToShow = 7;
+    else if (selectedPeriod === 'biweekly') daysToShow = 15;
+    else if (selectedPeriod === 'quarterly') daysToShow = 90;
+    else if (selectedPeriod === 'semiannual') daysToShow = 180;
+    else if (selectedPeriod === 'yearly') daysToShow = 365;
     
     const today = new Date();
     today.setHours(0,0,0,0);

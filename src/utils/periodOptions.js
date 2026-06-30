@@ -1,24 +1,24 @@
-// Title-case values — used in form selectors and frequency pickers
+// English values — stored in recurring_items.frequency, goals.period_frequency, categories.budget_period
 export const PERIOD_OPTIONS = [
-  { label: 'Diário',     value: 'Diário' },
-  { label: 'Semanal',    value: 'Semanal' },
-  { label: 'Quinzenal',  value: 'Quinzenal' },
-  { label: 'Mensal',     value: 'Mensal' },
-  { label: 'Trimestral', value: 'Trimestral' },
-  { label: 'Semestral',  value: 'Semestral' },
-  { label: 'Anual',      value: 'Anual' },
+  { label: 'Diário',     value: 'daily' },
+  { label: 'Semanal',    value: 'weekly' },
+  { label: 'Quinzenal',  value: 'biweekly' },
+  { label: 'Mensal',     value: 'monthly' },
+  { label: 'Trimestral', value: 'quarterly' },
+  { label: 'Semestral',  value: 'semiannual' },
+  { label: 'Anual',      value: 'yearly' },
 ];
 
-// Lowercase values — used in chart/filter period selectors stored in settings
+// Lowercase English values — used in chart/filter period selectors stored in settings
 export const CHART_PERIOD_OPTIONS = [
-  { label: 'Diário',     value: 'diario' },
-  { label: 'Semanal',    value: 'semanal' },
-  { label: 'Quinzenal',  value: 'quinzenal' },
-  { label: 'Mensal',     value: 'mensal' },
-  { label: 'Trimestral', value: 'trimestral' },
-  { label: 'Semestral',  value: 'semestral' },
-  { label: 'Anual',      value: 'anual' },
+  { label: 'Diário',     value: 'daily' },
+  { label: 'Semanal',    value: 'weekly' },
+  { label: 'Quinzenal',  value: 'biweekly' },
+  { label: 'Mensal',     value: 'monthly' },
+  { label: 'Trimestral', value: 'quarterly' },
+  { label: 'Semestral',  value: 'semiannual' },
+  { label: 'Anual',      value: 'yearly' },
 ];
 
-// Subset used for goal contribution frequency (Diário → Mensal only)
+// Subset used for goal contribution frequency (daily → monthly only)
 export const CONTRIBUTION_PERIOD_OPTIONS = PERIOD_OPTIONS.slice(0, 4);

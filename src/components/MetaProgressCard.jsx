@@ -7,7 +7,7 @@ import { differenceInDays, isPast, parseISO } from 'date-fns';
 import BxIcon, { Pencil, Trash } from '@/components/BxIcon';
 
 const MetaProgressCard = ({ goal, onEdit, onDelete, index = 0 }) => {
-  const isTargetMode = goal.goal_type === 'valor_final';
+  const isTargetMode = goal.goal_type === 'target_value';
   
   // Calculate percentage
   let percentage = 0;
@@ -68,7 +68,7 @@ const MetaProgressCard = ({ goal, onEdit, onDelete, index = 0 }) => {
             </h3>
             <div className="flex flex-wrap items-center gap-2 mt-1">
                 <span className="text-[10px] uppercase tracking-wider px-1.5 py-0.5 rounded bg-gray-100 dark:bg-gray-800 text-gray-600 dark:text-gray-400 font-semibold border border-gray-200 dark:border-gray-700 whitespace-nowrap">
-                    {goal.goal_type === 'valor_mensal' ? 'Recorrente' : 'Alvo Fixo'}
+                    {goal.goal_type === 'monthly_value' ? 'Recorrente' : 'Alvo Fixo'}
                 </span>
             </div>
             {goal.deadline && isTargetMode && (

@@ -46,7 +46,7 @@ Deno.serve(async (req) => {
         user_id: userId,
         description: rule.description,
         amount: rule.amount,
-        type: Number(rule.amount) < 0 ? 'saida' : 'entrada',
+        type: Number(rule.amount) < 0 ? 'expense' : 'income',
         date: rule.next_date,
         category_id: rule.category_id,
         is_recurring: true,

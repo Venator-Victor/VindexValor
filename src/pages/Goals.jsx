@@ -34,7 +34,7 @@ const Goals = () => {
   
   // Filter States
   const [selectedPeriod, setSelectedPeriod] = useState('mensal');
-  const [filterType, setFilterType] = useState('valor_final'); // 'valor_final' (Meta Fixa) | 'valor_mensal' (Meta Recorrente)
+  const [filterType, setFilterType] = useState('target_value'); // 'target_value' (Meta Fixa) | 'monthly_value' (Meta Recorrente)
 
   // State for creation flow
   const [creationStep, setCreationStep] = useState('selector'); // 'selector' | 'form'
@@ -102,7 +102,7 @@ const Goals = () => {
 
   // --- List View Helper ---
   const calculateProgress = (goal) => {
-      const isTargetMode = goal.goal_type === 'valor_final';
+      const isTargetMode = goal.goal_type === 'target_value';
       if (isTargetMode && goal.targetAmount > 0) {
           return Math.min((goal.accumulated_amount / goal.targetAmount) * 100, 100);
       } else if (!isTargetMode && goal.contributionValue > 0 && goal.targetAmount > 0) {
@@ -137,8 +137,8 @@ const Goals = () => {
 
   // Filter Goals
   const filteredGoals = goals.filter(goal => {
-      if (filterType === 'valor_final') return goal.goal_type === 'valor_final';
-      if (filterType === 'valor_mensal') return goal.goal_type === 'valor_mensal';
+      if (filterType === 'target_value') return goal.goal_type === 'target_value';
+      if (filterType === 'monthly_value') return goal.goal_type === 'monthly_value';
       return true;
   });
 
@@ -165,7 +165,7 @@ const Goals = () => {
         <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-4 w-full md:w-auto">
             
             {/* Period Selector (Only for Recurrent) */}
-            {filterType === 'valor_mensal' && (
+            {filterType === 'monthly_value' && (
                 <div className="w-full sm:w-40 animate-in fade-in slide-in-from-right-4">
                     <Select value={selectedPeriod} onValueChange={setSelectedPeriod}>
                         <SelectTrigger className="bg-white dark:bg-vindex-card border-gray-200 dark:border-vindex-border text-gray-700 dark:text-gray-300">
@@ -189,16 +189,16 @@ const Goals = () => {
                 {/* Type Filter Toggle */}
                 <div className="flex items-center bg-white dark:bg-vindex-card rounded-lg border border-gray-200 dark:border-vindex-border p-1 shadow-sm">
                     <button
-                        onClick={() => setFilterType('valor_final')}
-                        className={`px-3 py-1.5 text-xs font-medium rounded-md transition-all flex items-center gap-2 ${filterType === 'valor_final' ? 'bg-gray-100 dark:bg-vindex-bg text-gray-900 dark:text-gray-100 shadow-sm' : 'text-gray-500 hover:text-gray-700 dark:hover:text-gray-300'}`}
+                        onClick={() => setFilterType('target_value')}
+                        className={`px-3 py-1.5 text-xs font-medium rounded-md transition-all flex items-center gap-2 ${filterType === 'target_value' ? 'bg-gray-100 dark:bg-vindex-bg text-gray-900 dark:text-gray-100 shadow-sm' : 'text-gray-500 hover:text-gray-700 dark:hover:text-gray-300'}`}
                         title="Meta Fixa"
                     >
                         <Target size={14} />
                         <span className="hidden sm:inline">Meta Fixa</span>
                     </button>
                     <button
-                        onClick={() => setFilterType('valor_mensal')}
-                        className={`px-3 py-1.5 text-xs font-medium rounded-md transition-all flex items-center gap-2 ${filterType === 'valor_mensal' ? 'bg-gray-100 dark:bg-vindex-bg text-gray-900 dark:text-gray-100 shadow-sm' : 'text-gray-500 hover:text-gray-700 dark:hover:text-gray-300'}`}
+                        onClick={() => setFilterType('monthly_value')}
+                        className={`px-3 py-1.5 text-xs font-medium rounded-md transition-all flex items-center gap-2 ${filterType === 'monthly_value' ? 'bg-gray-100 dark:bg-vindex-bg text-gray-900 dark:text-gray-100 shadow-sm' : 'text-gray-500 hover:text-gray-700 dark:hover:text-gray-300'}`}
                         title="Recorrência"
                     >
                         <Calendar size={14} />
@@ -276,7 +276,7 @@ const Goals = () => {
           leftValue={formatCurrency(totalAccumulated)}
           gaugeValue={totalAccumulated}
           gaugeMax={totalTarget}
-          title={filterType === 'valor_final' ? 'Goals Fixas' : 'Goals Recorrentes'}
+          title={filterType === 'target_value' ? 'Goals Fixas' : 'Goals Recorrentes'}
           rightLabel="Total Alvo"
           rightValue={formatCurrency(totalTarget)}
           mode="progress"
@@ -302,8 +302,8 @@ const Goals = () => {
             {filteredGoals.length === 0 && (
                  <div className="text-center py-12">
                      <p className="text-gray-500 dark:text-gray-400">Nenhuma meta encontrada para este filtro.</p>
-                     <Button variant="link" onClick={() => setFilterType(filterType === 'valor_final' ? 'valor_mensal' : 'valor_final')} className="mt-2 text-blue-600">
-                        Ver {filterType === 'valor_final' ? 'metas recorrentes' : 'metas fixas'}
+                     <Button variant="link" onClick={() => setFilterType(filterType === 'target_value' ? 'monthly_value' : 'target_value')} className="mt-2 text-blue-600">
+                        Ver {filterType === 'target_value' ? 'metas recorrentes' : 'metas fixas'}
                      </Button>
                  </div>
             )}
@@ -342,7 +342,7 @@ const Goals = () => {
                             <tbody className="divide-y divide-gray-100 dark:divide-vindex-border">
                                 {filteredGoals.map((goal) => {
                                     const progress = calculateProgress(goal);
-                                    const isTarget = goal.goal_type === 'valor_final';
+                                    const isTarget = goal.goal_type === 'target_value';
                                     const daysLeft = goal.deadline ? differenceInDays(parseISO(goal.deadline), new Date()) : null;
                                     const isOverdue = goal.deadline && isPast(parseISO(goal.deadline));
 

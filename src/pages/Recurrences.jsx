@@ -39,9 +39,9 @@ const Recurrences = () => {
     description: '',
     category_id: '',
     amount: '',
-    frequency: 'Mensal',
+    frequency: 'monthly',
     nextDate: new Date().toISOString().slice(0, 10),
-    status: 'Ativo',
+    status: 'active',
     transaction_type_id: '',
     installment_count: ''
   });
@@ -62,8 +62,8 @@ const Recurrences = () => {
   const handlePeriodChange = (e) => saveSettings({ recurring_items_period_preference: e.target.value });
 
   const statusOptions = [
-      { label: "Ativo", value: "Ativo" },
-      { label: "Inativo", value: "Inativo" }
+      { label: "Ativo", value: "active" },
+      { label: "Inativo", value: "inactive" }
   ];
 
   const categoryOptions = [
@@ -89,7 +89,7 @@ const Recurrences = () => {
             else totalPending += Number(p.amount);
         });
      }
-     recurring.filter(r => r.status === 'Ativo').forEach(r => {
+     recurring.filter(r => r.status === 'active').forEach(r => {
          totalPending += Math.abs(Number(r.amount));
      });
      return { totalPaid, totalPending };
@@ -108,7 +108,7 @@ const Recurrences = () => {
     const typeObj = transactionTypes.find(t => t.id === formData.transaction_type_id);
     const finalAmount = typeObj?.type === 'income' ? Math.abs(Number(formData.amount)) : -Math.abs(Number(formData.amount));
     const isParcelas = typeObj?.name === 'Parcelamento';
-    const isActive = formData.status === 'Ativo';
+    const isActive = formData.status === 'active';
 
     const recurringData = {
       description: formData.description,
@@ -117,7 +117,7 @@ const Recurrences = () => {
       frequency: formData.frequency,
       nextDate: formData.nextDate,
       status: formData.status,
-      recurrence_type: isParcelas ? 'Parcelas' : 'Assinatura',
+      recurrence_type: isParcelas ? 'installments' : 'subscription',
       installment_count: isParcelas && formData.installment_count ? parseInt(formData.installment_count) : null
     };
 
@@ -138,9 +138,9 @@ const Recurrences = () => {
       description: '',
       category_id: '',
       amount: '',
-      frequency: 'Mensal',
+      frequency: 'monthly',
       nextDate: new Date().toISOString().slice(0, 10),
-      status: 'Ativo',
+      status: 'active',
       transaction_type_id: '',
       installment_count: ''
     });
@@ -152,12 +152,12 @@ const Recurrences = () => {
     
     // Attempt to guess transaction_type_id based on name/amount (since recurrences might not store it directly, but mapped from transacoes if needed)
     let guessedTypeId = '';
-    if (recurringItem.recurrence_type === 'Parcelas') {
+    if (recurringItem.recurrence_type === 'installments') {
        guessedTypeId = transactionTypes.find(t => t.name === 'Parcelamento')?.id || '';
     } else if (Number(recurringItem.amount) > 0) {
        guessedTypeId = transactionTypes.find(t => t.name === 'Salário')?.id || '';
     } else {
-       guessedTypeId = transactionTypes.find(t => t.name === 'Assinatura')?.id || '';
+       guessedTypeId = transactionTypes.find(t => t.name === 'Assinatura' || t.name === 'subscription')?.id || '';
     }
 
     setFormData({
@@ -166,7 +166,7 @@ const Recurrences = () => {
       amount: Math.abs(recurringItem.amount).toString(),
       frequency: recurringItem.frequency,
       nextDate: recurringItem.date || recurringItem.next_date,
-      status: recurringItem.status === 'Ativo' ? 'Ativo' : 'Inativo',
+      status: recurringItem.status === 'active' ? 'active' : 'inactive',
       transaction_type_id: guessedTypeId,
       installment_count: recurringItem.installment_count || ''
     });
@@ -180,9 +180,9 @@ const Recurrences = () => {
   };
 
   const toggleStatus = (recurringItem) => {
-    const newStatus = recurringItem.status === 'Ativo' ? 'Inativo' : 'Ativo';
+    const newStatus = recurringItem.status === 'active' ? 'inactive' : 'active';
     updateRecurring(recurringItem.id, { status: newStatus });
-    toast({ title: `Recorrência ${newStatus === 'Ativo' ? 'ativada' : 'desativada'} com sucesso!` });
+    toast({ title: `Recorrência ${newStatus === 'active' ? 'ativada' : 'desativada'} com sucesso!` });
   };
   
   const handleCategoryChange = (e) => {
@@ -460,8 +460,8 @@ const Recurrences = () => {
                             </div>
                         </td>
                         <td className="px-6 py-4 text-sm text-gray-700 dark:text-gray-300">
-                             <span className={`px-2 py-1 rounded-full text-xs font-medium ${item.recurrence_type === 'Parcelas' ? 'bg-blue-50 text-blue-700 dark:bg-blue-900/30 dark:text-blue-300' : 'bg-purple-50 text-purple-700 dark:bg-purple-900/30 dark:text-purple-300'}`}>
-                                 {item.recurrence_type || 'Assinatura'}
+                             <span className={`px-2 py-1 rounded-full text-xs font-medium ${item.recurrence_type === 'installments' ? 'bg-blue-50 text-blue-700 dark:bg-blue-900/30 dark:text-blue-300' : 'bg-purple-50 text-purple-700 dark:bg-purple-900/30 dark:text-purple-300'}`}>
+                                 {item.recurrence_type || 'subscription'}
                              </span>
                         </td>
                         <td className={`px-6 py-4 text-sm font-bold ${Number(item.amount) > 0 ? 'text-green-600 dark:text-vindex-success' : 'text-red-600 dark:text-vindex-danger'}`}>
@@ -481,12 +481,12 @@ const Recurrences = () => {
                             <button
                                 onClick={() => toggleStatus(item)}
                                 className={`px-3 py-1 text-xs rounded-full transition-colors border ${
-                                item.status
+                                item.status === 'active'
                                     ? 'bg-green-50 border-green-200 dark:bg-vindex-success/10 dark:border-vindex-success/30 text-green-700 dark:text-vindex-success hover:bg-green-100 dark:hover:bg-vindex-success/20'
                                     : 'bg-gray-50 border-gray-200 dark:bg-vindex-bg/50 dark:border-vindex-border/50 text-gray-500 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-vindex-border'
                                 }`}
                             >
-                                {item.status ? 'Ativo' : 'Inativo'}
+                                {item.status === 'active' ? 'Ativo' : 'Inativo'}
                             </button>
                         </td>
                         <td className="px-6 py-4">

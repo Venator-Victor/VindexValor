@@ -43,8 +43,8 @@ const InvoiceItemList = ({ items, onEdit, onDelete }) => {
         aValue = new Date(a.date || 0).getTime();
         bValue = new Date(b.date || 0).getTime();
       } else if (sortConfig.key === 'tipo') {
-        aValue = a.amount < 0 ? 'saida' : 'entrada';
-        bValue = b.amount < 0 ? 'saida' : 'entrada';
+        aValue = a.amount < 0 ? 'expense' : 'income';
+        bValue = b.amount < 0 ? 'expense' : 'income';
       } else if (sortConfig.key === 'categoria') {
         aValue = a.categories?.name || '';
         bValue = b.categories?.name || '';

@@ -17,8 +17,8 @@ const CategoryDetailModal = ({ isOpen, onClose, category, transactions, onEdit, 
 
   const { totalIncome, totalExpense } = useMemo(() => {
     return categoryTransactions.reduce((acc, t) => {
-      if (t.type === 'entrada') acc.totalIncome += Math.abs(t.amount);
-      if (t.type === 'saida') acc.totalExpense += Math.abs(t.amount);
+      if (t.type === 'income') acc.totalIncome += Math.abs(t.amount);
+      if (t.type === 'expense') acc.totalExpense += Math.abs(t.amount);
       return acc;
     }, { totalIncome: 0, totalExpense: 0 });
   }, [categoryTransactions]);
@@ -131,9 +131,9 @@ const CategoryDetailModal = ({ isOpen, onClose, category, transactions, onEdit, 
                   </div>
                   <div
                     className="font-bold text-sm whitespace-nowrap pl-2"
-                    style={{ color: t.type === 'entrada' ? '#10b981' : t.type === 'saida' ? '#ef4444' : PRIMARY }}
+                    style={{ color: t.type === 'income' ? '#10b981' : t.type === 'expense' ? '#ef4444' : PRIMARY }}
                   >
-                    {t.type === 'entrada' ? '+' : '-'}{formatCurrency(t.amount)}
+                    {t.type === 'income' ? '+' : '-'}{formatCurrency(t.amount)}
                   </div>
                 </div>
               ))

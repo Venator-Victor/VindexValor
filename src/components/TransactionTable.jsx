@@ -127,7 +127,7 @@ const TransactionTable = ({ transactions, onEdit, onDelete, selectedIds, onSelec
                     <td className="p-3 font-medium truncate max-w-[150px]" title={t.description || t.name}>
                       {t.description || t.name}
                       {t.is_recurring && <History size={16} className="ml-2 text-primary" title="Transação Recorrente" />}
-                      {t.type === 'pagamento' && <span className="ml-2 text-[10px] bg-purple-100 text-purple-800 px-2 py-0.5 rounded-full whitespace-nowrap">Pagamento</span>}
+                      {t.type === 'payment' && <span className="ml-2 text-[10px] bg-purple-100 text-purple-800 px-2 py-0.5 rounded-full whitespace-nowrap">Pagamento</span>}
                     </td>
                     <td className="p-3">
                       <div className="flex items-center gap-2">

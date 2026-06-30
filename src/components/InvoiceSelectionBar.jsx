@@ -77,7 +77,7 @@ const InvoiceSelectionBar = ({ selectedIds, invoices, invoiceTotals = {}, onClea
           user_id: user.id,
           description: `Pagamento Fatura ${fatura?.invoice_number || ''}`,
           amount: -Math.abs(total), 
-          type: 'pagamento',
+          type: 'payment',
           date: new Date().toISOString().split('T')[0],
           account_id: selectedAccountId,
           invoice_id: id
@@ -89,7 +89,7 @@ const InvoiceSelectionBar = ({ selectedIds, invoices, invoiceTotals = {}, onClea
         if (txError) throw txError;
       }
 
-      const { error: statusError } = await supabase.from('invoices').update({ status: 'paga' }).in('id', selectedIds).eq('user_id', user.id);
+      const { error: statusError } = await supabase.from('invoices').update({ status: 'paid' }).in('id', selectedIds).eq('user_id', user.id);
       if (statusError) throw statusError;
 
       toast({ title: "Sucesso", description: "Pagamento vinculado com sucesso às faturas!" });

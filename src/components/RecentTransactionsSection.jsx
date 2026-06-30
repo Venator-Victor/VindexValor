@@ -73,11 +73,11 @@ const RecentTransactionsSection = ({ transactions, categories, selectedPeriod })
                   </div>
                 </div>
                 <div className={`font-bold text-sm whitespace-nowrap pl-2 shrink-0 ${
-                  t.type === 'entrada' 
+                  t.type === 'income' 
                     ? 'text-green-600 dark:text-green-400' 
-                    : t.type === 'saida' ? 'text-red-600 dark:text-red-400' : 'text-blue-600 dark:text-blue-400'
+                    : t.type === 'expense' ? 'text-red-600 dark:text-red-400' : 'text-blue-600 dark:text-blue-400'
                 }`}>
-                  {t.type === 'entrada' ? '+' : t.type === 'saida' ? '-' : ''}{formatCurrency(Math.abs(t.amount))}
+                  {t.type === 'income' ? '+' : t.type === 'expense' ? '-' : ''}{formatCurrency(Math.abs(t.amount))}
                 </div>
               </motion.div>
             );

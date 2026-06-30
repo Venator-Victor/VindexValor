@@ -21,10 +21,10 @@ const TransactionForm = ({ initialData, onSuccess, onCancel }) => {
   const debounceRef = useRef(null);
 
   const [formData, setFormData] = useState({
-    type: 'saida',
+    type: 'expense',
     is_recurring: false,
-    recurring_type: 'Assinatura',
-    frequency: 'Mensal',
+    recurring_type: 'subscription',
+    frequency: 'monthly',
     recurring_installment_count: '',
     amount: '',
     converted_amount: '',
@@ -41,10 +41,10 @@ const TransactionForm = ({ initialData, onSuccess, onCancel }) => {
   useEffect(() => {
     if (initialData) {
       setFormData({
-        type: initialData.type || 'saida',
+        type: initialData.type || 'expense',
         is_recurring: initialData.is_recurring || false,
-        recurring_type: initialData.recurring_type || 'Assinatura',
-        frequency: 'Mensal',
+        recurring_type: initialData.recurring_type || 'subscription',
+        frequency: 'monthly',
         recurring_installment_count: '',
         amount: Math.abs(initialData.amount) || '',
         converted_amount: initialData.converted_amount || '',
@@ -62,7 +62,7 @@ const TransactionForm = ({ initialData, onSuccess, onCancel }) => {
   const sourceAccount = useMemo(() => accounts.find(a => a.id === formData.account_id), [accounts, formData.account_id]);
   const destAccount = useMemo(() => accounts.find(a => a.id === formData.destination_account_id), [accounts, formData.destination_account_id]);
 
-  const isCrossCurrencyTransfer = formData.type === 'transferencia' &&
+  const isCrossCurrencyTransfer = formData.type === 'transfer' &&
                                   sourceAccount &&
                                   destAccount &&
                                   sourceAccount.currency !== destAccount.currency;
@@ -71,7 +71,7 @@ const TransactionForm = ({ initialData, onSuccess, onCancel }) => {
     const newDesc = e.target.value;
     setFormData(prev => ({ ...prev, description: newDesc }));
 
-    if (formData.type !== 'transferencia' && formData.type !== 'pagamento' && (!initialData || !initialData.category_id)) {
+    if (formData.type !== 'transfer' && formData.type !== 'payment' && (!initialData || !initialData.category_id)) {
       if (debounceRef.current) clearTimeout(debounceRef.current);
       debounceRef.current = setTimeout(() => {
         if (newDesc.trim().length > 2) {
@@ -96,14 +96,14 @@ const TransactionForm = ({ initialData, onSuccess, onCancel }) => {
     setIsSubmitting(true);
 
     try {
-      if (formData.type !== 'pagamento' && formData.invoice_id) {
+      if (formData.type !== 'payment' && formData.invoice_id) {
         toast({ title: "Erro de Validação", description: "Apenas pagamentos podem ter faturas vinculadas.", variant: "destructive" });
         setIsSubmitting(false);
         return;
       }
 
       const original_amount = Math.abs(Number(formData.amount));
-      let finalAmount = (formData.type === 'saida' || formData.type === 'transferencia' || formData.type === 'pagamento') ? -original_amount : original_amount;
+      let finalAmount = (formData.type === 'expense' || formData.type === 'transfer' || formData.type === 'payment') ? -original_amount : original_amount;
 
       let converted_amount = null;
       let exchange_rate = null;
@@ -121,8 +121,8 @@ const TransactionForm = ({ initialData, onSuccess, onCancel }) => {
         original_amount,
         converted_amount,
         exchange_rate,
-        invoice_id: formData.type === 'pagamento' ? (formData.invoice_id || null) : null,
-        category_id: (formData.type === 'transferencia' || formData.type === 'pagamento') ? null : (formData.category_id || null),
+        invoice_id: formData.type === 'payment' ? (formData.invoice_id || null) : null,
+        category_id: (formData.type === 'transfer' || formData.type === 'payment') ? null : (formData.category_id || null),
         destination_account_id: formData.destination_account_id || null,
       };
 
@@ -132,7 +132,7 @@ const TransactionForm = ({ initialData, onSuccess, onCancel }) => {
         await createTransaction(payload);
       }
 
-      if (formData.description && formData.category_id && formData.type !== 'transferencia' && formData.type !== 'pagamento' && !isAutoMapped) {
+      if (formData.description && formData.category_id && formData.type !== 'transfer' && formData.type !== 'payment' && !isAutoMapped) {
         await saveCategoryMapping(formData.description, formData.category_id);
       }
       onSuccess?.();
@@ -157,14 +157,14 @@ const TransactionForm = ({ initialData, onSuccess, onCancel }) => {
               onChange={(e) => setFormData(prev => ({
                 ...prev,
                 type: e.target.value,
-                is_recurring: (e.target.value === 'transferencia' || e.target.value === 'pagamento') ? false : prev.is_recurring,
-                category_id: (e.target.value === 'transferencia' || e.target.value === 'pagamento') ? '' : prev.category_id
+                is_recurring: (e.target.value === 'transfer' || e.target.value === 'payment') ? false : prev.is_recurring,
+                category_id: (e.target.value === 'transfer' || e.target.value === 'payment') ? '' : prev.category_id
               }))}
               options={[
-                { label: "Saída", value: "saida" },
-                { label: "Entrada", value: "entrada" },
-                { label: "Transferência", value: "transferencia" },
-                { label: "Pagamento de Fatura", value: "pagamento" }
+                { label: "Saída", value: "expense" },
+                { label: "Entrada", value: "income" },
+                { label: "Transferência", value: "transfer" },
+                { label: "Pagamento de Fatura", value: "payment" }
               ]}
             />
           </div>
@@ -193,8 +193,8 @@ const TransactionForm = ({ initialData, onSuccess, onCancel }) => {
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           <div>
             <Label htmlFor="account_id">
-              {formData.type === 'transferencia' ? 'Conta Origem *' :
-               formData.type === 'pagamento' ? 'Conta de Pagamento *' : 'Conta *'}
+              {formData.type === 'transfer' ? 'Conta Origem *' :
+               formData.type === 'payment' ? 'Conta de Pagamento *' : 'Conta *'}
             </Label>
             <select
               id="account_id"
@@ -215,7 +215,7 @@ const TransactionForm = ({ initialData, onSuccess, onCancel }) => {
             )}
           </div>
 
-          {formData.type === 'transferencia' && (
+          {formData.type === 'transfer' && (
             <div>
               <Label htmlFor="destination_account_id">Conta Destino *</Label>
               <select
@@ -238,7 +238,7 @@ const TransactionForm = ({ initialData, onSuccess, onCancel }) => {
             </div>
           )}
 
-          {formData.type === 'pagamento' && (
+          {formData.type === 'payment' && (
             <div>
               <Label htmlFor="invoice_id">Fatura a Pagar *</Label>
               <select
@@ -290,7 +290,7 @@ const TransactionForm = ({ initialData, onSuccess, onCancel }) => {
           )}
         </div>
 
-        {formData.type !== 'transferencia' && formData.type !== 'pagamento' && (
+        {formData.type !== 'transfer' && formData.type !== 'payment' && (
           <div className="relative">
             <div className="flex justify-between items-center mb-1">
               <Label htmlFor="category_id" className="mb-0">Categoria</Label>
@@ -314,7 +314,7 @@ const TransactionForm = ({ initialData, onSuccess, onCancel }) => {
           </div>
         )}
 
-        {formData.type !== 'transferencia' && formData.type !== 'pagamento' && !initialData && (
+        {formData.type !== 'transfer' && formData.type !== 'payment' && !initialData && (
           <div className="border border-gray-200 dark:border-vindex-border rounded-lg p-3 space-y-3">
             <label className="flex items-center gap-2 cursor-pointer select-none">
               <input
@@ -340,13 +340,13 @@ const TransactionForm = ({ initialData, onSuccess, onCancel }) => {
                     id="recurring_type"
                     value={formData.recurring_type}
                     options={[
-                      { label: 'Assinatura', value: 'Assinatura' },
-                      { label: 'Parcelamento', value: 'Parcelas' }
+                      { label: 'subscription', value: 'subscription' },
+                      { label: 'Parcelamento', value: 'installments' }
                     ]}
                     onChange={(e) => setFormData(prev => ({ ...prev, recurring_type: e.target.value }))}
                   />
                 </div>
-                {formData.recurring_type === 'Parcelas' && (
+                {formData.recurring_type === 'installments' && (
                   <div>
                     <Label htmlFor="recurring_installment_count">Número de parcelas</Label>
                     <input

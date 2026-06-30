@@ -27,7 +27,7 @@ const Dashboard = () => {
   const { transactions, accounts, investments, recurring, categories, exchangeRates } = useFinance();
   const { theme } = useTheme();
   
-  const [selectedPeriod, setSelectedPeriod] = useState('Mensal');
+  const [selectedPeriod, setSelectedPeriod] = useState('monthly');
   
   const { showModal, dismissModal } = useBetaWarning();
 
@@ -36,13 +36,13 @@ const Dashboard = () => {
     const today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
 
     switch(period) {
-      case 'Diário': return today;
-      case 'Semanal': { const d = new Date(today); d.setDate(today.getDate() - 7); return d; }
-      case 'Quinzenal': { const d = new Date(today); d.setDate(today.getDate() - 15); return d; }
-      case 'Mensal': return new Date(today.getFullYear(), today.getMonth(), 1);
-      case 'Trimestral': { const d = new Date(today); d.setMonth(today.getMonth() - 3); return d; }
-      case 'Semestral': { const d = new Date(today); d.setMonth(today.getMonth() - 6); return d; }
-      case 'Anual': return new Date(today.getFullYear(), 0, 1);
+      case 'daily': return today;
+      case 'weekly': { const d = new Date(today); d.setDate(today.getDate() - 7); return d; }
+      case 'biweekly': { const d = new Date(today); d.setDate(today.getDate() - 15); return d; }
+      case 'monthly': return new Date(today.getFullYear(), today.getMonth(), 1);
+      case 'quarterly': { const d = new Date(today); d.setMonth(today.getMonth() - 3); return d; }
+      case 'semiannual': { const d = new Date(today); d.setMonth(today.getMonth() - 6); return d; }
+      case 'yearly': return new Date(today.getFullYear(), 0, 1);
       default: return new Date(0);
     }
   };
@@ -84,7 +84,7 @@ const Dashboard = () => {
   const { liabilities: totalLiabilities } = calculateAssetsLiabilities(transactions, accounts, recurring, exchangeRates);
 
   const filteredIncomeBRL = filteredTransactions
-    .filter(t => t.type === 'entrada')
+    .filter(t => t.type === 'income')
     .reduce((sum, t) => {
       const currency = t.account?.currency || 'BRL';
       const rate = t.exchange_rate || exchangeRates[currency] || 1;
@@ -92,7 +92,7 @@ const Dashboard = () => {
     }, 0);
     
   const filteredExpensesBRL = filteredTransactions
-    .filter(t => t.type === 'saida')
+    .filter(t => t.type === 'expense')
     .reduce((sum, t) => {
       const currency = t.account?.currency || 'BRL';
       const rate = t.exchange_rate || exchangeRates[currency] || 1;

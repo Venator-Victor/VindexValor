@@ -36,7 +36,7 @@ Deno.serve(async (req) => {
     // This is the atomic path — recurring_item + transaction + installments in one call.
     if (body.transaction) {
       const tx = body.transaction;
-      const recurrenceType = body.recurrence_type || tx.recurring_type || 'Assinatura';
+      const recurrenceType = body.recurrence_type || tx.recurring_type || 'subscription';
       const frequency = body.frequency || tx.frequency;
       const installmentCount = body.installment_count ? parseInt(body.installment_count) : null;
 
@@ -49,7 +49,7 @@ Deno.serve(async (req) => {
           amount: tx.amount,
           frequency,
           next_date: advanceDate(tx.date, frequency),
-          status: 'Ativo',
+          status: 'active',
           category_id: tx.category_id || null,
           recurrence_type: recurrenceType,
           installment_count: installmentCount,
@@ -85,8 +85,8 @@ Deno.serve(async (req) => {
 
       if (txError) throw txError;
 
-      // 3. Create installments for Parcelas type
-      if (recurrenceType === 'Parcelas' && installmentCount && installmentCount > 0) {
+      // 3. Create installments for installments type
+      if (recurrenceType === 'installments' && installmentCount && installmentCount > 0) {
         const installments = Array.from({ length: installmentCount }, (_, i) => ({
           user_id: userId,
           recurring_item_id: recurrence.id,
@@ -114,8 +114,8 @@ Deno.serve(async (req) => {
     }
 
     const statusStr = typeof body.status === 'boolean'
-      ? (body.status ? 'Ativo' : 'Inativo')
-      : (body.status || 'Ativo');
+      ? (body.status ? 'active' : 'inactive')
+      : (body.status || 'active');
 
     const { data: recurrence, error: recError } = await supabase
       .from('recurring_items')
@@ -127,7 +127,7 @@ Deno.serve(async (req) => {
         next_date: body.start_date,
         status: statusStr,
         category_id: body.category_id || null,
-        recurrence_type: body.recurrence_type || 'Assinatura',
+        recurrence_type: body.recurrence_type || 'subscription',
         installment_count: body.installment_count || null
       })
       .select()
@@ -145,7 +145,7 @@ Deno.serve(async (req) => {
           user_id: userId,
           description: body.description,
           amount: body.amount,
-          type: body.amount < 0 ? 'saida' : 'entrada',
+          type: body.amount < 0 ? 'expense' : 'income',
           date: body.start_date,
           category_id: body.category_id || null,
           is_recurring: true,
@@ -166,7 +166,7 @@ Deno.serve(async (req) => {
       }
     }
 
-    if (body.recurrence_type === 'Parcelas' && body.installment_count && body.installment_count > 0) {
+    if (body.recurrence_type === 'installments' && body.installment_count && body.installment_count > 0) {
       const count = parseInt(body.installment_count);
       const installments = [];
       for (let i = 0; i < count; i++) {

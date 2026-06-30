@@ -29,7 +29,7 @@ const Accounts = () => {
   const [editingAccount, setEditingAccount] = useState(null);
   const [deleteId, setDeleteId] = useState(null);
   const [accountInitialData, setAccountInitialData] = useState(null);
-  const [period, setPeriod] = useState('Mensal');
+  const [period, setPeriod] = useState('monthly');
   const [showNetWorth, setShowNetWorth] = useState(false);
   
   const [viewMode, setViewMode] = useState('card');
