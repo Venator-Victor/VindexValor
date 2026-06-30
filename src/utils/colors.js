@@ -12,6 +12,13 @@ export const DANGER    = '#ef4444';
 export const WARNING   = '#eab308';
 export const INFO      = '#3b82f6';
 
+// Tailwind text class strings for semantic states (use in className props)
+export const TEXT_SUCCESS = 'text-green-600 dark:text-vindex-success';
+export const TEXT_WARNING = 'text-yellow-500 dark:text-vindex-warning';
+export const TEXT_DANGER  = 'text-red-600 dark:text-vindex-danger';
+export const TEXT_PRIMARY = 'text-primary';
+export const TEXT_NEUTRAL = 'text-gray-900 dark:text-vindex-text';
+
 // Semantic — dark mode overrides
 export const DANGER_DARK = '#e3365e';
 

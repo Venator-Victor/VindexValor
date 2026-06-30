@@ -1,16 +1,14 @@
-import { PRIMARY, PRIMARY_HOVER, SUCCESS, DANGER, DANGER_DARK, WARNING, INFO, successAlpha, dangerAlpha, infoAlpha, primaryAlpha, chartGrid, chartTooltipBg, chartTooltipBorder, chartText, chartCursor } from '@/utils/colors';
+import { SUCCESS, DANGER, WARNING, TEXT_SUCCESS, TEXT_WARNING, TEXT_DANGER, TEXT_NEUTRAL } from '@/utils/colors';
 import React from 'react';
 
-const GaugeChart = ({ value, max, label, size = 200, strokeWidth = 15, className = "my-4" }) => {
+const GaugeChart = ({ value, max, label, size = 200, strokeWidth = 15, className = "my-4", mode = 'usage' }) => {
   const radius = (size - strokeWidth) / 2;
   const cx = size / 2;
   const cy = size / 2;
-  
-  // Calculate percentage (0 to 100)
+
   const percentage = max > 0 ? Math.min((value / max) * 100, 100) : 0;
   const displayPercentage = max > 0 ? (value / max) * 100 : 0;
-  
-  // Convert polar to cartesian
+
   const polarToCartesian = (centerX, centerY, radius, angleInDegrees) => {
     const angleInRadians = (angleInDegrees - 180) * Math.PI / 180.0;
     return {
@@ -19,35 +17,46 @@ const GaugeChart = ({ value, max, label, size = 200, strokeWidth = 15, className
     };
   };
 
-  // Create SVG path for arc
   const createArc = (x, y, radius, startAngle, endAngle) => {
     const start = polarToCartesian(x, y, radius, endAngle);
     const end = polarToCartesian(x, y, radius, startAngle);
     const largeArcFlag = endAngle - startAngle <= 180 ? "0" : "1";
     return [
-      "M", start.x, start.y, 
+      "M", start.x, start.y,
       "A", radius, radius, 0, largeArcFlag, 0, end.x, end.y
     ].join(" ");
   };
 
-  // Determine color based on usage
   const getColor = (percent) => {
-    if (percent < 80) return SUCCESS; // Green
-    if (percent < 100) return WARNING; // Yellow
-    return DANGER; // Red
+    if (mode === 'progress') {
+      if (percent >= 80) return SUCCESS;
+      if (percent >= 40) return WARNING;
+      return DANGER;
+    }
+    if (percent < 80) return SUCCESS;
+    if (percent < 100) return WARNING;
+    return DANGER;
   };
 
-  // Gauge spans 180 degrees (from 0 to 180)
+  const getCenterTextClass = (percent) => {
+    if (mode === 'progress') {
+      if (percent >= 80) return TEXT_SUCCESS;
+      if (percent >= 40) return TEXT_WARNING;
+      return TEXT_DANGER;
+    }
+    return percent > 100 ? TEXT_DANGER : TEXT_NEUTRAL;
+  };
+
   const startAngle = 0;
   const endAngle = 180;
   const currentAngle = (percentage / 100) * 180;
 
   const color = getColor(displayPercentage);
+  const centerTextClass = getCenterTextClass(displayPercentage);
 
   return (
     <div className={`flex flex-col items-center justify-center relative ${className}`} style={{ width: size, height: size / 2 + 20 }}>
       <svg width={size} height={size / 2 + strokeWidth}>
-        {/* Background Arc */}
         <path
           d={createArc(cx, cy, radius, startAngle, endAngle)}
           fill="none"
@@ -56,7 +65,6 @@ const GaugeChart = ({ value, max, label, size = 200, strokeWidth = 15, className
           strokeLinecap="round"
           className="text-gray-200 dark:text-gray-700 opacity-30"
         />
-        {/* Progress Arc */}
         <path
           d={createArc(cx, cy, radius, startAngle, currentAngle)}
           fill="none"
@@ -66,16 +74,16 @@ const GaugeChart = ({ value, max, label, size = 200, strokeWidth = 15, className
           className="transition-all duration-1000 ease-out"
         />
       </svg>
-      
-      {/* Center Text */}
+
       <div className="absolute flex flex-col items-center justify-end" style={{ bottom: '0px', height: size/2 }}>
-        <span className={`text-2xl font-bold ${displayPercentage > 100 ? 'text-red-500' : 'text-gray-900 dark:text-vindex-text'}`}>
+        <span className={`text-2xl font-bold ${centerTextClass}`}>
            {displayPercentage.toFixed(1)}%
         </span>
-        <span className="text-xs text-gray-500 dark:text-vindex-text/60 mt-1">Utilização</span>
+        <span className="text-xs text-gray-500 dark:text-vindex-text/60 mt-1">
+          {mode === 'progress' ? 'Progresso' : 'Utilização'}
+        </span>
       </div>
-      
-      {/* Label at bottom */}
+
       {label && <div className="mt-2 text-sm font-medium text-gray-600 dark:text-vindex-text/80">{label}</div>}
     </div>
   );

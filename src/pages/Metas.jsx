@@ -274,12 +274,12 @@ const Metas = () => {
           motionKey={filterType}
           leftLabel="Acumulado"
           leftValue={formatCurrency(totalAccumulated)}
-          leftClassName="text-2xl font-bold text-green-600 dark:text-vindex-success"
           gaugeValue={totalAccumulated}
           gaugeMax={totalTarget}
           title={filterType === 'valor_final' ? 'Metas Fixas' : 'Metas Recorrentes'}
           rightLabel="Total Alvo"
           rightValue={formatCurrency(totalTarget)}
+          mode="progress"
         />
       </AnimatePresence>
 

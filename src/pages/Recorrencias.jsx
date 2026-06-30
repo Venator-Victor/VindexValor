@@ -1,4 +1,4 @@
-import { PRIMARY, PRIMARY_HOVER } from '@/utils/colors';
+import { PRIMARY, PRIMARY_HOVER, TEXT_SUCCESS, TEXT_DANGER } from '@/utils/colors';
 import React, { useState } from 'react';
 import { Helmet } from 'react-helmet';
 import { motion } from 'framer-motion';
@@ -413,12 +413,12 @@ const Recorrencias = () => {
       <GaugeSummaryCard
         leftLabel="Pago até agora"
         leftValue={formatCurrency(totalPaid)}
-        leftClassName="text-2xl font-bold text-green-600 dark:text-vindex-success"
         gaugeValue={totalPaid}
         gaugeMax={totalDebt}
         rightLabel="Falta pagar"
         rightValue={formatCurrency(totalPending)}
-        rightClassName="text-2xl font-bold text-red-600 dark:text-vindex-danger"
+        rightClassName={totalPending === 0 ? TEXT_SUCCESS : TEXT_DANGER}
+        mode="progress"
       />
 
       {sortedRecurring.length === 0 ? (

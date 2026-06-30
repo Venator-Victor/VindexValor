@@ -62,6 +62,7 @@
   --color-vindex-card: hsl(var(--card));
   --color-vindex-border: hsl(var(--border));
   --color-vindex-success: hsl(var(--secondary));
+  --color-vindex-warning: #eab308;
   --color-vindex-danger: hsl(var(--destructive));
 
   --radius-lg: var(--radius);
