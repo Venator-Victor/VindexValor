@@ -110,8 +110,8 @@ const InvoiceFilterBar = ({ onFilterChange }) => {
             onChange={(e) => handleChange('installment', e.target.value)}
             options={[
               { label: "Todos (Parcelados ou Não)", value: "todos" },
-              { label: "Apenas Parcelados", value: "parcelado" },
-              { label: "Não Parcelados", value: "nao_parcelado" }
+              { label: "Apenas Parcelados", value: "installment" },
+              { label: "Não Parcelados", value: "not_installment" }
             ]}
           />
         </div>

@@ -115,7 +115,7 @@ export const useInvoiceCSVImport = () => {
         description: rawDesc,
         valor: finalValor,
         category_id: '',
-        is_parcelado: isParcelado,
+        is_installment: isParcelado,
         parcel_number: current,
         total_parcels: total
       };
@@ -135,7 +135,7 @@ export const useInvoiceCSVImport = () => {
         description: t.description,
         valor: t.valor,
         category_id: t.category_id || null,
-        is_parcelado: t.is_parcelado,
+        is_installment: t.is_installment,
         parcel_number: t.parcel_number,
         total_parcels: t.total_parcels
       }));

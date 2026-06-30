@@ -170,8 +170,8 @@ const InvoicesPage = () => {
       
       if (filters.category_id) query = query.eq('category_id', filters.category_id);
       
-      if (filters.installment === 'parcelado') query = query.eq('is_parcelado', true);
-      if (filters.installment === 'nao_parcelado') query = query.eq('is_parcelado', false);
+      if (filters.installment === 'installment') query = query.eq('is_installment', true);
+      if (filters.installment === 'not_installment') query = query.eq('is_installment', false);
       
       if (filters.account_id) {
         const matchedFaturas = invoices.filter(f => f.account_id === filters.account_id).map(f => f.id);
@@ -415,7 +415,7 @@ const InvoicesPage = () => {
                             <td className="p-3 text-muted-foreground whitespace-nowrap">{formatDate(c.date)}</td>
                             <td className="p-3">
                               {c.description}
-                              {c.is_parcelado && <span className="ml-2 text-[10px] bg-blue-100 text-blue-800 px-2 py-0.5 rounded-full whitespace-nowrap">Parc {c.parcel_number}/{c.total_parcels}</span>}
+                              {c.is_installment && <span className="ml-2 text-[10px] bg-blue-100 text-blue-800 px-2 py-0.5 rounded-full whitespace-nowrap">Parc {c.parcel_number}/{c.total_parcels}</span>}
                             </td>
                             <td className="p-3">
                                {c.categories ? (
