@@ -239,7 +239,7 @@ const Categories = () => {
                         exit={{ opacity: 0, scale: 0.9 }} 
                         transition={{ delay: index * 0.05 }} 
                         onClick={() => handleCardClick(category)}
-                        className="bg-white dark:bg-vindex-card rounded-xl p-4 border border-gray-200 dark:border-vindex-border transition-all shadow-sm hover:shadow-md flex flex-col justify-between cursor-pointer"
+                        className="bg-white dark:bg-vindex-card rounded-xl p-4 border border-gray-200 dark:border-vindex-border transition-shadow shadow-sm hover:shadow-md flex flex-col justify-between cursor-pointer"
                         onMouseEnter={e => e.currentTarget.style.borderColor = PRIMARY}
                         onMouseLeave={e => e.currentTarget.style.borderColor = ''}
                       >

@@ -195,7 +195,7 @@ const Accounts = () => {
                   initial={{ opacity: 0, y: 20 }}
                   animate={{ opacity: 1, y: 0 }}
                   transition={{ delay: index * 0.1 }}
-                  className="bg-white dark:bg-vindex-card rounded-xl p-6 border border-gray-200 dark:border-vindex-border hover:border-gray-300 dark:hover:border-vindex-text/30 transition-all shadow-sm hover:shadow-md flex flex-col"
+                  className="bg-white dark:bg-vindex-card rounded-xl p-6 border border-gray-200 dark:border-vindex-border hover:border-gray-300 dark:hover:border-vindex-text/30 transition-shadow shadow-sm hover:shadow-md flex flex-col"
                 >
                   <div className="flex items-start justify-between mb-4">
                     <div className="flex items-center gap-3">

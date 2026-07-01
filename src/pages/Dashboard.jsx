@@ -103,6 +103,7 @@ const Dashboard = () => {
 
   const metrics = [
     {
+      id: 'balance',
       title: t('dashboard.total_balance'),
       value: formatCurrencyWithSymbol(totalBalanceBRL, 'BRL'),
       Icon: Wallet,
@@ -112,6 +113,7 @@ const Dashboard = () => {
       tooltip: t('dashboard.total_balance_tooltip'),
     },
     {
+      id: 'expenses',
       title: t('dashboard.expenses'),
       value: formatCurrencyWithSymbol(filteredExpensesBRL, 'BRL'),
       Icon: TrendingDown,
@@ -121,6 +123,7 @@ const Dashboard = () => {
       tooltip: t('dashboard.expenses_tooltip'),
     },
     {
+      id: 'income',
       title: t('dashboard.income'),
       value: formatCurrencyWithSymbol(filteredIncomeBRL, 'BRL'),
       Icon: TrendingUp,
@@ -154,11 +157,11 @@ const Dashboard = () => {
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
         {metrics.map((metric, index) => (
           <motion.div
-            key={metric.title}
+            key={metric.id}
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: index * 0.1 }}
-            className={`relative overflow-hidden rounded-xl p-6 bg-white dark:bg-vindex-card border ${metric.borderColor} shadow-sm hover:shadow-md transition-all group`}
+            className={`relative overflow-hidden rounded-xl p-6 bg-white dark:bg-vindex-card border ${metric.borderColor} shadow-sm hover:shadow-md transition-shadow group`}
           >
             <div className="flex items-start justify-between z-10 relative">
               <div>
