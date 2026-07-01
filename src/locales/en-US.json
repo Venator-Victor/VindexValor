@@ -83,6 +83,7 @@
     "linking": "Linking...",
     "total": "Total",
     "income_label": "Income",
+    "success": "Success",
     "expenses_label": "Expenses",
     "required_field": "Required field",
     "transactions_header": "Transactions"
@@ -97,7 +98,32 @@
     "expenses_tooltip": "Total expenses converted to BRL in the selected period.",
     "income": "Income (in BRL)",
     "income_tooltip": "Total income converted to BRL in the selected period.",
-    "period_label": "Period:"
+    "period_label": "Period:",
+    "upcoming_recurrences_title": "Upcoming Recurrences",
+    "no_recurrences": "No recurrences forecast",
+    "undefined_date": "Undefined date",
+    "overdue": "Overdue",
+    "today": "Today",
+    "tomorrow": "Tomorrow",
+    "in_days": "In {{count}} days",
+    "assets_vs_liabilities": "Assets vs Liabilities ({{period}})",
+    "budgeted_label": "{{amount}} budgeted ({{period}})",
+    "remaining_label": "remaining",
+    "exceeded_label": "exceeded",
+    "accumulated_spending": "Accumulated Spending",
+    "no_transactions": "No transactions",
+    "no_data_this_period": "No data for this period",
+    "uncategorized_label": "Other",
+    "assets_income": "Assets (Income)",
+    "liabilities_expense": "Liabilities (Expenses)",
+    "total_assets": "Total Assets",
+    "total_liabilities": "Total Liabilities",
+    "cash_balance": "Cash / Balance",
+    "cryptocurrencies": "Cryptocurrencies",
+    "liabilities_debts": "Liabilities / Debts",
+    "no_data": "No data",
+    "percent_of_total": "% of total",
+    "composition_title": "Asset Composition"
   },
 
   "transactions": {
@@ -168,6 +194,7 @@
     "col_usage": "Usage",
     "col_budget": "Budget",
     "col_period": "Period",
+    "transaction_count": "{{count}} transactions",
     "budget_optional": "Budget (Optional)",
     "budget_period": "Budget Period",
     "updated_success": "Category updated successfully!",
@@ -177,7 +204,13 @@
     "deleted_success": "Category deleted successfully!",
     "empty": "You have no categories yet.",
     "create_first": "Create First Category",
-    "delete_confirm": "Are you sure you want to delete this category? This action cannot be undone."
+    "delete_confirm": "Are you sure you want to delete this category? This action cannot be undone.",
+    "transaction_history": "Transaction History",
+    "no_transactions": "No transactions in this category.",
+    "budget_of_period": "{{period}} Budget",
+    "spent_of_total": "{{spent}} of {{total}}",
+    "choose_category": "Choose a category",
+    "create_custom": "Create New Custom Category"
   },
 
   "investments": {
@@ -207,7 +240,14 @@
     "created_success": "Investment created successfully!",
     "deleted_success": "Investment deleted successfully!",
     "in_development": "This feature is still under development",
-    "delete_confirm": "Are you sure you want to delete this investment? The invested amount will be returned to the source account, if any."
+    "delete_confirm": "Are you sure you want to delete this investment? The invested amount will be returned to the source account, if any.",
+    "funding_account_option": "{{name}} (Balance: {{balance}})",
+    "name_placeholder": "e.g.: PETR4, Treasury Bond 2029",
+    "purchased_on": "Purchased on: {{date}}",
+    "type_label": "Investment Type",
+    "type_placeholder": "Select the type",
+    "subtype_label": "Subtype",
+    "subtype_placeholder": "Select the subtype"
   },
 
   "goals": {
@@ -247,7 +287,36 @@
     "period_month": "Month",
     "period_quarter": "Quarter",
     "period_semester": "Semester",
-    "period_year": "Year"
+    "period_year": "Year",
+    "view_list_title": "List View",
+    "view_grid_title": "Grid View",
+    "contribution_value": "Contribution Value",
+    "name_label": "Goal Name",
+    "name_placeholder": "e.g.: My New House",
+    "name_required_error": "The goal name is required.",
+    "target_amount_label": "Target Amount",
+    "deadline_label": "Target Deadline (Optional)",
+    "total_accumulated_label": "Total Accumulated Amount",
+    "total_accumulated_hint": "Sum of reservations and other savings.",
+    "account_reservations_label": "Account Reservations (Optional)",
+    "total_reserved_label": "Total Reserved: {{amount}}",
+    "add_account_placeholder": "Add account...",
+    "select_account_placeholder": "Select an account...",
+    "no_accounts_linked": "No accounts linked",
+    "available_balance": "Avail. Balance: {{amount}}",
+    "description_label": "Description",
+    "description_placeholder": "Optional details...",
+    "customization_label": "Customization",
+    "save_changes": "Save Changes",
+    "create_action": "Create Goal",
+    "type_fixed_badge": "Fixed Target",
+    "overdue_card": "Overdue!",
+    "days_left_full": "{{count}} days left",
+    "target_total": "Total Target",
+    "target_period": "Period Target",
+    "selector_title": "What do you want to achieve?",
+    "selector_subtitle": "Choose a category to start your goal",
+    "create_custom_action": "Create a new custom goal"
   },
 
   "recurrences": {
@@ -280,7 +349,23 @@
     "col_status": "Status",
     "col_actions": "Actions",
     "select_type_error": "Please select a transaction type (Salary, Subscription, or Installment)",
-    "delete_confirm": "Are you sure you want to delete this recurrence? This action cannot be undone."
+    "delete_confirm": "Are you sure you want to delete this recurrence? This action cannot be undone.",
+    "new_short": "New",
+    "description_placeholder": "e.g.: Netflix, Rent, TV Purchase",
+    "installment_count_placeholder": "e.g.: 12",
+    "select_type_placeholder": "Select the type",
+    "new_category_option": "+ New Category",
+    "category_created_title": "Category created",
+    "category_created_desc": "Please select the new category from the list.",
+    "payment_registered_title": "Payment registered!",
+    "payment_registered_desc": "Next billing date updated.",
+    "payment_error_title": "Error registering payment",
+    "parcel_of": "Installment {{current}} of {{total}}",
+    "pay_parcel": "Pay inst. {{number}}",
+    "paid_off": "Paid off",
+    "next_label": "Next",
+    "registering": "Registering...",
+    "register_payment": "Register payment"
   },
 
   "invoices": {
@@ -323,7 +408,31 @@
     "create_error": "Error creating invoice",
     "update_error": "Error updating invoice",
     "select_all": "Select all invoices",
-    "select_row": "Select invoice {{name}}"
+    "select_row": "Select invoice {{name}}",
+    "unknown_invoice": "Unknown",
+    "parcel_label": "Inst {{number}}/{{total}}",
+    "filter_installment_all": "All (Installments or Not)",
+    "filter_installment_only": "Installments Only",
+    "filter_installment_none": "Non-Installments",
+    "filter_all_accounts": "All accounts",
+    "bulk_deleted_success": "{{count}} invoices deleted successfully.",
+    "delete_error": "Error deleting",
+    "select_account_error_title": "Select an account",
+    "select_account_error_desc": "Please choose a payment account.",
+    "payment_description": "Invoice Payment {{number}}",
+    "payment_linked_bulk_success": "Payment linked to the invoices successfully!",
+    "link_bulk_error": "Error linking",
+    "delete_bulk_title": "Delete {{count}} invoices?",
+    "delete_bulk_desc": "This action cannot be undone. It will remove the selected invoices. Linked purchases may be left without an invoice.",
+    "link_payment_title": "Link Payment",
+    "payment_select_desc": "Select the account used to pay this invoice. This will update the status and record the payment transaction.",
+    "payment_select_desc_plural": "Select the account used to pay these invoices. This will update the status and record the payment transaction.",
+    "payment_account_label": "Payment Account",
+    "confirm_payment_action": "Confirm Payment",
+    "total_brl": "Total (BRL)",
+    "total_btc": "Total (BTC)",
+    "selected_invoices_count": "{{count}} invoice selected",
+    "selected_invoices_count_plural": "{{count}} invoices selected"
   },
 
   "invoice_detail": {
@@ -360,7 +469,27 @@
     "payment_linked_success": "Payment linked successfully!",
     "payment_unlinked_success": "Payment unlinked successfully!",
     "link_error": "Error linking payment",
-    "unlink_error": "Error unlinking payment"
+    "unlink_error": "Error unlinking payment",
+    "fetch_payments_error": "Error fetching payments",
+    "item_form_type_label": "Transaction Type *",
+    "item_form_type_expense": "Expense",
+    "item_form_type_income": "Income (Refund)",
+    "item_form_date_label": "Transaction Date *",
+    "item_form_description_label": "Description *",
+    "item_form_description_placeholder": "e.g.: Grocery Store, Uber Refund...",
+    "item_form_link_transaction_label": "Link to Transaction (Optional)",
+    "item_form_no_transaction_linked": "No transaction linked",
+    "item_form_amount_label": "Amount *",
+    "item_form_save": "Save Transaction",
+    "item_form_required_error": "Fill in all required fields.",
+    "item_form_updated_success": "Purchase updated successfully!",
+    "item_form_created_success": "Purchase added successfully!",
+    "item_form_save_error": "An error occurred while saving the purchase.",
+    "item_list_empty": "No transactions recorded for this invoice.",
+    "col_status_description": "Status (Description)",
+    "col_type": "Type",
+    "net_invoice_total": "Invoice Net Total:",
+    "delete_item_confirm": "Are you sure you want to delete this transaction?"
   },
 
   "analytics": {
@@ -463,6 +592,7 @@
     "forgot_password": "Forgot your password?",
     "sign_in": "Sign In",
     "sign_up": "Sign Up",
+    "sign_up_action": "Sign Up",
     "signing_in": "Signing in...",
     "no_account": "Don't have an account?",
     "already_account": "Already have an account?",
@@ -513,7 +643,38 @@
     "footer_signup": "Create Account",
     "footer_privacy": "Privacy Policy",
     "footer_full_stack": "Full Stack Development",
-    "footer_copyright": "© {{year}} VindexValor. TCC PUC-RS. All rights reserved."
+    "footer_copyright": "© {{year}} VindexValor. TCC PUC-RS. All rights reserved.",
+    "meta_title": "Smart Personal Finance Management",
+    "meta_description": "Take control of your finances with ease, track investments, and reach your goals with VindexValor.",
+    "hero_image_alt": "Finance and Planning",
+    "hero_subtitle": "Smart Personal Finance Management. Take control of your money, track investments, and reach your goals.",
+    "cta_start": "Get Started",
+    "cta_learn_more": "Learn More",
+    "about_title": "About the Project",
+    "about_p1": "VindexValor is a smart personal finance management web app, developed as a Capstone Project (TCC) for the Full Stack Development Postgraduate program at PUC-RS.",
+    "about_p2": "The goal is to make financial control easier, offering intuitive tools for expense management, inflation (IPCA) projections, goals, and detailed tracking of your net worth over time.",
+    "about_p3": "The project is open source — contributions and feedback are welcome.",
+    "features_title": "Key Features",
+    "features_subtitle": "Everything you need for a healthier, more predictable financial life, all in one platform.",
+    "feature_accounts_title": "Bank Account Management",
+    "feature_accounts_desc": "Create and manage multiple accounts (Checking, Savings, Credit Card) with a unified view of balances and limits.",
+    "feature_transactions_title": "Transaction Tracking",
+    "feature_transactions_desc": "Full control over Income and Expenses, transfers between accounts, and flexible categorization.",
+    "feature_recurring_title": "Recurring Transactions",
+    "feature_recurring_desc": "Manage fixed bills, installments, and salaries with the smart automatic recurrence engine.",
+    "feature_analysis_title": "Spending Analysis",
+    "feature_analysis_desc": "Visualize your spending habits by category with interactive charts and budget limits.",
+    "feature_investments_title": "Investment Tracking",
+    "feature_investments_desc": "Record returns, investment types, and simulate your wealth growth based on historical rates.",
+    "feature_goals_title": "Financial Goals",
+    "feature_goals_desc": "Set and track goals like 'Buy a Car' or 'Emergency Fund', linking real balances to your dreams.",
+    "tech_title": "Technologies Used",
+    "tech_subtitle": "Built with modern technologies to ensure performance, security, and the best user experience.",
+    "tech_central_bank_api": "Central Bank API",
+    "cta_final_title": "Ready to take control of your finances?",
+    "cta_final_subtitle": "Create your account and get a simple, modern, and secure way to track your finances. Organize accounts, log transactions, and view your spending all in one place.",
+    "cta_final_button": "Create Account",
+    "toggle_theme": "Toggle theme"
   },
 
   "period": {
@@ -523,7 +684,7 @@
     "monthly": "Monthly",
     "quarterly": "Quarterly",
     "semiannual": "Semi-annual",
-    "annual": "Annual",
+    "yearly": "Annual",
     "select_period": "Select period"
   },
 
@@ -630,7 +791,8 @@
     "marketing_desc": "Used to track visitors across websites. The intention is to display ads that are relevant and engaging for the individual user.",
     "always_active": "Always Active",
     "save_choices": "Save My Choices",
-    "accept_all_modal": "Accept All"
+    "accept_all_modal": "Accept All",
+    "toggle_category": "Toggle {{category}}"
   },
 
   "inflation": {
@@ -648,7 +810,12 @@
     "period_2y": "2 years",
     "period_5y": "5 years",
     "period_10y": "10 years",
-    "period_20y": "20 years"
+    "period_20y": "20 years",
+    "will_need": "Will need",
+    "will_be_worth": "Investment will be worth",
+    "balance_vs_inflation": "Balance vs. inflation",
+    "today_label": "today",
+    "return_investment_label": "Investment return"
   },
 
   "investment_sim": {
@@ -661,7 +828,12 @@
     "invested_label": "Capital Invested",
     "interest_label": "Compound Interest",
     "total_label": "Total Accumulated",
-    "interest_ratio": "{{ratio}}% of interest in total"
+    "interest_ratio": "{{ratio}}% of interest in total",
+    "years_count": "{{count}} year",
+    "years_count_plural": "{{count}} years",
+    "interest_overtakes": "Interest overtakes capital",
+    "year_label": "year {{year}}",
+    "interest_over_capital": "Interest > Capital"
   },
 
   "account_types": {

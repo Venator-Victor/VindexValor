@@ -70,7 +70,23 @@
     "required_fields": "Selecione todas as colunas obrigatórias para continuar.",
     "filter_value_hint": "Use sinais =, >, < (ex: >100; <1000)",
     "filter_desc_hint": "Buscar por nome ou descrição",
-    "error": "Erro"
+    "error": "Erro",
+    "total": "Total",
+    "linking": "Vinculando...",
+    "validation_error": "Erro de Validação",
+    "other": "Outro",
+    "no_data_period": "Nenhum dado para este período",
+    "attention": "Atenção",
+    "expenses_label": "Despesas",
+    "deleting": "Excluindo...",
+    "required_field": "Campo obrigatório",
+    "confirm_delete": "Confirmar Exclusão",
+    "saving": "Salvando...",
+    "transactions_header": "Transações",
+    "save_error": "Erro ao salvar",
+    "processing": "Processando...",
+    "income_label": "Receitas",
+    "success": "Sucesso"
   },
 
   "dashboard": {
@@ -82,7 +98,32 @@
     "expenses_tooltip": "Total de despesas convertidas para BRL no período selecionado.",
     "income": "Receitas (em BRL)",
     "income_tooltip": "Total de receitas convertidas para BRL no período selecionado.",
-    "period_label": "Período:"
+    "period_label": "Período:",
+    "upcoming_recurrences_title": "Próximas Recorrências",
+    "no_recurrences": "Sem recorrências previstas",
+    "undefined_date": "Data indefinida",
+    "overdue": "Atrasado",
+    "today": "Hoje",
+    "tomorrow": "Amanhã",
+    "in_days": "Em {{count}} dias",
+    "assets_vs_liabilities": "Ativos vs Passivos ({{period}})",
+    "budgeted_label": "{{amount}} orçados ({{period}})",
+    "remaining_label": "restam",
+    "exceeded_label": "excedidos",
+    "accumulated_spending": "Gasto Acumulado",
+    "no_transactions": "Nenhuma transação",
+    "no_data_this_period": "Sem dados neste período",
+    "uncategorized_label": "Outros",
+    "assets_income": "Ativos (Entradas)",
+    "liabilities_expense": "Passivos (Saídas)",
+    "total_assets": "Ativos Totais",
+    "total_liabilities": "Passivos Totais",
+    "cash_balance": "Dinheiro / Saldo",
+    "cryptocurrencies": "Criptomoedas",
+    "liabilities_debts": "Passivos / Dívidas",
+    "no_data": "Sem dados",
+    "percent_of_total": "% do total",
+    "composition_title": "Composição Patrimonial"
   },
 
   "transactions": {
@@ -153,6 +194,7 @@
     "col_usage": "Utilização",
     "col_budget": "Orçamento",
     "col_period": "Período",
+    "transaction_count": "{{count}} transações",
     "budget_optional": "Orçamento (Opcional)",
     "budget_period": "Período do Orçamento",
     "updated_success": "Categoria atualizada com sucesso!",
@@ -162,7 +204,13 @@
     "deleted_success": "Categoria excluída com sucesso!",
     "empty": "Você ainda não tem categorias cadastradas.",
     "create_first": "Criar Primeira Categoria",
-    "delete_confirm": "Tem certeza que deseja excluir esta categoria? Esta ação não pode ser desfeita."
+    "delete_confirm": "Tem certeza que deseja excluir esta categoria? Esta ação não pode ser desfeita.",
+    "transaction_history": "Histórico de Transações",
+    "no_transactions": "Nenhuma transação nesta categoria.",
+    "budget_of_period": "Orçamento {{period}}",
+    "spent_of_total": "{{spent}} de {{total}}",
+    "choose_category": "Escolha uma categoria",
+    "create_custom": "Criar Nova Categoria Personalizada"
   },
 
   "investments": {
@@ -192,7 +240,14 @@
     "created_success": "Investimento criado com sucesso!",
     "deleted_success": "Investimento excluído com sucesso!",
     "in_development": "Esta funcionalidade ainda está em desenvolvimento",
-    "delete_confirm": "Tem certeza que deseja excluir este investimento? O valor investido será devolvido à conta de origem, se houver."
+    "delete_confirm": "Tem certeza que deseja excluir este investimento? O valor investido será devolvido à conta de origem, se houver.",
+    "funding_account_option": "{{name}} (Saldo: {{balance}})",
+    "name_placeholder": "Ex: PETR4, Tesouro Selic 2029",
+    "purchased_on": "Comprado em: {{date}}",
+    "type_label": "Tipo de Investimento",
+    "type_placeholder": "Selecione o tipo",
+    "subtype_label": "Subtipo",
+    "subtype_placeholder": "Selecione o subtipo"
   },
 
   "goals": {
@@ -232,7 +287,36 @@
     "period_month": "Mês",
     "period_quarter": "Trimestre",
     "period_semester": "Semestre",
-    "period_year": "Ano"
+    "period_year": "Ano",
+    "view_list_title": "Visualização em Lista",
+    "view_grid_title": "Visualização em Grade",
+    "contribution_value": "Valor da Contribuição",
+    "name_label": "Nome da Meta",
+    "name_placeholder": "Ex: Minha Casa Nova",
+    "name_required_error": "O nome da meta é obrigatório.",
+    "target_amount_label": "Valor Alvo (R$)",
+    "deadline_label": "Prazo Alvo (Opcional)",
+    "total_accumulated_label": "Valor Total Acumulado (R$)",
+    "total_accumulated_hint": "Soma de reservas e outras economias.",
+    "account_reservations_label": "Reserva em Contas (Opcional)",
+    "total_reserved_label": "Total Reservado: {{amount}}",
+    "add_account_placeholder": "Adicionar conta...",
+    "select_account_placeholder": "Selecione uma conta...",
+    "no_accounts_linked": "Nenhuma conta vinculada",
+    "available_balance": "Saldo Disp: {{amount}}",
+    "description_label": "Descrição",
+    "description_placeholder": "Detalhes opcionais...",
+    "customization_label": "Personalização",
+    "save_changes": "Salvar Alterações",
+    "create_action": "Criar Meta",
+    "type_fixed_badge": "Alvo Fixo",
+    "overdue_card": "Atrasada!",
+    "days_left_full": "{{count}} dias restantes",
+    "target_total": "Meta Total",
+    "target_period": "Meta Período",
+    "selector_title": "O que você deseja conquistar?",
+    "selector_subtitle": "Escolha uma categoria para começar sua meta",
+    "create_custom_action": "Crie uma nova meta personalizada"
   },
 
   "recurrences": {
@@ -265,7 +349,23 @@
     "col_status": "Status",
     "col_actions": "Ações",
     "select_type_error": "Por favor, selecione um tipo de transação (Salário, Assinatura ou Parcelamento)",
-    "delete_confirm": "Tem certeza que deseja excluir esta recorrência? Esta ação não pode ser desfeita."
+    "delete_confirm": "Tem certeza que deseja excluir esta recorrência? Esta ação não pode ser desfeita.",
+    "new_short": "Nova",
+    "description_placeholder": "Ex: Netflix, Aluguel, Compra TV",
+    "installment_count_placeholder": "Ex: 12",
+    "select_type_placeholder": "Selecione o tipo",
+    "new_category_option": "+ Nova Categoria",
+    "category_created_title": "Categoria criada",
+    "category_created_desc": "Por favor, selecione a nova categoria na lista.",
+    "payment_registered_title": "Pagamento registrado!",
+    "payment_registered_desc": "Próxima cobrança atualizada.",
+    "payment_error_title": "Erro ao registrar pagamento",
+    "parcel_of": "Parcela {{current}} de {{total}}",
+    "pay_parcel": "Pagar parc. {{number}}",
+    "paid_off": "Quitado",
+    "next_label": "Próxima",
+    "registering": "Registrando...",
+    "register_payment": "Registrar pagamento"
   },
 
   "invoices": {
@@ -308,7 +408,31 @@
     "create_error": "Erro ao criar fatura",
     "update_error": "Erro ao atualizar fatura",
     "select_all": "Selecionar todas faturas",
-    "select_row": "Selecionar fatura {{name}}"
+    "select_row": "Selecionar fatura {{name}}",
+    "unknown_invoice": "Desconhecida",
+    "parcel_label": "Parc {{number}}/{{total}}",
+    "filter_installment_all": "Todos (Parcelados ou Não)",
+    "filter_installment_only": "Apenas Parcelados",
+    "filter_installment_none": "Não Parcelados",
+    "filter_all_accounts": "Todas contas",
+    "bulk_deleted_success": "{{count}} faturas excluídas com sucesso.",
+    "delete_error": "Erro ao excluir",
+    "select_account_error_title": "Selecione uma conta",
+    "select_account_error_desc": "Por favor, escolha uma conta de pagamento.",
+    "payment_description": "Pagamento Fatura {{number}}",
+    "payment_linked_bulk_success": "Pagamento vinculado com sucesso às faturas!",
+    "link_bulk_error": "Erro ao vincular",
+    "delete_bulk_title": "Excluir {{count}} faturas?",
+    "delete_bulk_desc": "Esta ação não pode ser desfeita. Isso removerá as faturas selecionadas. As compras vinculadas poderão ficar sem fatura.",
+    "link_payment_title": "Vincular Pagamento",
+    "payment_select_desc": "Selecione a conta utilizada para pagar esta fatura. Isso atualizará o status e registrará a transação de pagamento.",
+    "payment_select_desc_plural": "Selecione a conta utilizada para pagar estas faturas. Isso atualizará o status e registrará a transação de pagamento.",
+    "payment_account_label": "Conta de Pagamento",
+    "confirm_payment_action": "Confirmar Pagamento",
+    "total_brl": "Total (BRL)",
+    "total_btc": "Total (BTC)",
+    "selected_invoices_count": "{{count}} fatura selecionada",
+    "selected_invoices_count_plural": "{{count}} faturas selecionadas"
   },
 
   "invoice_detail": {
@@ -345,7 +469,27 @@
     "payment_linked_success": "Pagamento vinculado com sucesso!",
     "payment_unlinked_success": "Pagamento desvinculado com sucesso!",
     "link_error": "Erro ao vincular pagamento",
-    "unlink_error": "Erro ao desvincular pagamento"
+    "unlink_error": "Erro ao desvincular pagamento",
+    "fetch_payments_error": "Erro ao buscar pagamentos",
+    "item_form_type_label": "Tipo da Movimentação *",
+    "item_form_type_expense": "Saída (Despesa)",
+    "item_form_type_income": "Entrada (Reembolso)",
+    "item_form_date_label": "Data da Movimentação *",
+    "item_form_description_label": "Descrição *",
+    "item_form_description_placeholder": "Ex: Supermercado, Estorno Uber...",
+    "item_form_link_transaction_label": "Vincular a Transação (Opcional)",
+    "item_form_no_transaction_linked": "Nenhuma transação vinculada",
+    "item_form_amount_label": "Valor *",
+    "item_form_save": "Salvar Movimentação",
+    "item_form_required_error": "Preencha todos os campos obrigatórios.",
+    "item_form_updated_success": "Compra atualizada com sucesso!",
+    "item_form_created_success": "Compra adicionada com sucesso!",
+    "item_form_save_error": "Ocorreu um erro ao salvar a compra.",
+    "item_list_empty": "Nenhuma movimentação registrada nesta fatura.",
+    "col_status_description": "Status (Descrição)",
+    "col_type": "Tipo",
+    "net_invoice_total": "Líquido da Fatura:",
+    "delete_item_confirm": "Tem certeza que deseja excluir esta movimentação?"
   },
 
   "analytics": {
@@ -448,6 +592,7 @@
     "forgot_password": "Esqueceu a senha?",
     "sign_in": "Entrar",
     "sign_up": "Cadastre-se",
+    "sign_up_action": "Cadastrar",
     "signing_in": "Entrando...",
     "no_account": "Não tem uma conta?",
     "already_account": "Já tem uma conta?",
@@ -498,7 +643,38 @@
     "footer_signup": "Criar Conta",
     "footer_privacy": "Política de Privacidade",
     "footer_full_stack": "Desenvolvimento Full Stack",
-    "footer_copyright": "© {{year}} VindexValor. TCC PUC-RS. Todos os direitos reservados."
+    "footer_copyright": "© {{year}} VindexValor. TCC PUC-RS. Todos os direitos reservados.",
+    "meta_title": "Gestão Financeira Pessoal Inteligente",
+    "meta_description": "Controle suas finanças com facilidade, acompanhe investimentos e alcance suas metas com VindexValor.",
+    "hero_image_alt": "Finanças e Planejamento",
+    "hero_subtitle": "Gestão Financeira Pessoal Inteligente. Assuma o controle do seu dinheiro, acompanhe investimentos e alcance seus objetivos.",
+    "cta_start": "Começar Agora",
+    "cta_learn_more": "Saber Mais",
+    "about_title": "Sobre o Projeto",
+    "about_p1": "O VindexValor é um web app de gestão financeira pessoal inteligente, desenvolvido como Trabalho de Conclusão de Curso (TCC) para a Pós-Graduação em Desenvolvimento Full Stack pela PUC-RS.",
+    "about_p2": "O objetivo é facilitar o controle financeiro, oferecendo ferramentas intuitivas para gestão de despesas, projeções contra a inflação (IPCA), metas e acompanhamento detalhado do seu patrimônio ao longo do tempo.",
+    "about_p3": "O projeto é open source — contribuições e feedbacks são bem-vindos.",
+    "features_title": "Funcionalidades Principais",
+    "features_subtitle": "Tudo o que você precisa para uma vida financeira mais saudável e previsível, reunido em uma só plataforma.",
+    "feature_accounts_title": "Gestão de Contas Bancárias",
+    "feature_accounts_desc": "Cadastre e gerencie múltiplas contas (Corrente, Poupança, Cartão de Crédito) com visão unificada de saldos e limites.",
+    "feature_transactions_title": "Registro de Transações",
+    "feature_transactions_desc": "Controle total sobre Entradas e Saídas, transferências entre contas e categorização flexível.",
+    "feature_recurring_title": "Transações Recorrentes",
+    "feature_recurring_desc": "Gerencie contas fixas, parcelamentos e salários com o motor inteligente de recorrências automáticas.",
+    "feature_analysis_title": "Análise de Gastos",
+    "feature_analysis_desc": "Visualize seus hábitos de consumo por categoria com gráficos interativos e limites de orçamento (budgets).",
+    "feature_investments_title": "Acompanhamento de Investimentos",
+    "feature_investments_desc": "Registre rendimentos, tipos de aplicações e simule o crescimento do seu patrimônio com base em taxas históricas.",
+    "feature_goals_title": "Metas Financeiras",
+    "feature_goals_desc": "Defina e acompanhe objetivos como 'Comprar um Carro' ou 'Fundo de Emergência', associando saldos reais aos seus sonhos.",
+    "tech_title": "Tecnologias Utilizadas",
+    "tech_subtitle": "Construído com tecnologias modernas para garantir performance, segurança e a melhor experiência de usuário.",
+    "tech_central_bank_api": "API do Banco Central",
+    "cta_final_title": "Pronto para controlar suas finanças?",
+    "cta_final_subtitle": "Crie sua conta e tenha uma maneira simples, moderna e segura de acompanhar suas finanças. Organize contas, registre transações e visualize seus gastos em um só lugar.",
+    "cta_final_button": "Criar Conta",
+    "toggle_theme": "Alternar tema"
   },
 
   "period": {
@@ -508,7 +684,7 @@
     "monthly": "Mensal",
     "quarterly": "Trimestral",
     "semiannual": "Semestral",
-    "annual": "Anual",
+    "yearly": "Anual",
     "select_period": "Selecione o período"
   },
 
@@ -615,7 +791,8 @@
     "marketing_desc": "Usados para rastrear visitantes em sites. A intenção é exibir anúncios que sejam relevantes e envolventes para o usuário individual.",
     "always_active": "Sempre Ativo",
     "save_choices": "Salvar Minhas Escolhas",
-    "accept_all_modal": "Aceitar Todos"
+    "accept_all_modal": "Aceitar Todos",
+    "toggle_category": "Alternar {{category}}"
   },
 
   "inflation": {
@@ -633,7 +810,12 @@
     "period_2y": "2 anos",
     "period_5y": "5 anos",
     "period_10y": "10 anos",
-    "period_20y": "20 anos"
+    "period_20y": "20 anos",
+    "will_need": "Precisará de",
+    "will_be_worth": "Investido valerá",
+    "balance_vs_inflation": "Saldo vs. inflação",
+    "today_label": "hoje",
+    "return_investment_label": "Retorno investimento"
   },
 
   "investment_sim": {
@@ -646,7 +828,12 @@
     "invested_label": "Capital Investido",
     "interest_label": "Juros Compostos",
     "total_label": "Total Acumulado",
-    "interest_ratio": "{{ratio}}% dos juros no total"
+    "interest_ratio": "{{ratio}}% dos juros no total",
+    "years_count": "{{count}} ano",
+    "years_count_plural": "{{count}} anos",
+    "interest_overtakes": "Juros superam capital",
+    "year_label": "ano {{year}}",
+    "interest_over_capital": "Juros > Capital"
   },
 
   "account_types": {
