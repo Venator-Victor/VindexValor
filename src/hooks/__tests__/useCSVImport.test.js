@@ -54,6 +54,7 @@ function makeFile(name = 'test.csv') {
 }
 
 function useHook() {
+  // eslint-disable-next-line react-hooks/rules-of-hooks -- renderHook's callback runs inside a React test renderer, so this is a safe hook call.
   return renderHook(() => useCSVImport()).result;
 }
 

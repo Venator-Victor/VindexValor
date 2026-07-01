@@ -1,4 +1,5 @@
 import '@testing-library/jest-dom';
+import '@/i18n';
 
 // ─── localStorage shim ────────────────────────────────────────────────────────
 // Node 26 exposes an experimental but undefined localStorage global that
