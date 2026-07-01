@@ -1,5 +1,6 @@
 import { PRIMARY, PRIMARY_HOVER, SUCCESS, DANGER, DANGER_DARK, WARNING, INFO, successAlpha, dangerAlpha, infoAlpha, primaryAlpha, chartGrid, chartTooltipBg, chartTooltipBorder, chartText, chartCursor } from '@/utils/colors';
 import React, { useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { Helmet } from 'react-helmet';
 import { AnimatePresence, motion } from 'framer-motion';
 import { Target, Grid as LayoutGrid, ListUl as List, Calendar } from '@/components/BxIcon';
@@ -25,6 +26,7 @@ import { formatCurrency } from '@/utils/calculations';
 import { differenceInDays, parseISO, isPast } from 'date-fns';
 
 const Goals = () => {
+  const { t } = useTranslation();
   const { goals, addGoal, updateGoal, deleteGoal } = useFinance();
   const { goalsViewMode, setGoalsViewPreference } = useTheme();
   
@@ -150,15 +152,15 @@ const Goals = () => {
   return (
     <div className="space-y-6 pb-20">
       <Helmet>
-        <title>VindexValor - Goals Financeiras</title>
-        <meta name="description" content="Defina e acompanhe seus objetivos financeiros" />
+        <title>VindexValor - {t('goals.title')}</title>
+        <meta name="description" content={t('goals.subtitle')} />
       </Helmet>
 
       {/* Header Actions */}
       <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
         <div>
-          <h1 className="text-3xl font-bold text-gray-900 dark:text-gray-50 mb-2">Goals Financeiras</h1>
-          <p className="text-gray-700 dark:text-gray-300">Transforme sonhos em realidade com planejamento.</p>
+          <h1 className="text-3xl font-bold text-gray-900 dark:text-gray-50 mb-2">{t('goals.title')}</h1>
+          <p className="text-gray-700 dark:text-gray-300">{t('goals.subtitle')}</p>
         </div>
         
         {/* Right Controls Container */}
@@ -175,11 +177,11 @@ const Goals = () => {
                             </div>
                         </SelectTrigger>
                         <SelectContent>
-                            <SelectItem value="semana">Semana</SelectItem>
-                            <SelectItem value="mensal">Mês</SelectItem>
-                            <SelectItem value="trimestre">Trimestre</SelectItem>
-                            <SelectItem value="semestre">Semestre</SelectItem>
-                            <SelectItem value="ano">Ano</SelectItem>
+                            <SelectItem value="semana">{t('goals.period_week')}</SelectItem>
+                            <SelectItem value="mensal">{t('goals.period_month')}</SelectItem>
+                            <SelectItem value="trimestre">{t('goals.period_quarter')}</SelectItem>
+                            <SelectItem value="semestre">{t('goals.period_semester')}</SelectItem>
+                            <SelectItem value="ano">{t('goals.period_year')}</SelectItem>
                         </SelectContent>
                     </Select>
                 </div>
@@ -191,18 +193,18 @@ const Goals = () => {
                     <button
                         onClick={() => setFilterType('target_value')}
                         className={`px-3 py-1.5 text-xs font-medium rounded-md transition-all flex items-center gap-2 ${filterType === 'target_value' ? 'bg-gray-100 dark:bg-vindex-bg text-gray-900 dark:text-gray-100 shadow-sm' : 'text-gray-500 hover:text-gray-700 dark:hover:text-gray-300'}`}
-                        title="Meta Fixa"
+                        title={t('goals.filter_fixed')}
                     >
                         <Target size={14} />
-                        <span className="hidden sm:inline">Meta Fixa</span>
+                        <span className="hidden sm:inline">{t('goals.filter_fixed')}</span>
                     </button>
                     <button
                         onClick={() => setFilterType('monthly_value')}
                         className={`px-3 py-1.5 text-xs font-medium rounded-md transition-all flex items-center gap-2 ${filterType === 'monthly_value' ? 'bg-gray-100 dark:bg-vindex-bg text-gray-900 dark:text-gray-100 shadow-sm' : 'text-gray-500 hover:text-gray-700 dark:hover:text-gray-300'}`}
-                        title="Recorrência"
+                        title={t('goals.filter_recurring')}
                     >
                         <Calendar size={14} />
-                        <span className="hidden sm:inline">Recorrência</span>
+                        <span className="hidden sm:inline">{t('goals.filter_recurring')}</span>
                     </button>
                 </div>
 
@@ -211,14 +213,14 @@ const Goals = () => {
                     <button
                         onClick={() => setGoalsViewPreference('list')}
                         className={`p-2 rounded-md transition-all ${goalsViewMode === 'list' ? 'bg-gray-100 dark:bg-vindex-bg text-gray-900 dark:text-gray-100' : 'text-gray-400 hover:text-gray-600 dark:hover:text-gray-300'}`}
-                        title="Visualização em Lista"
+                        title={t('goals.view_list_title')}
                     >
                         <List size={20} />
                     </button>
                     <button
                         onClick={() => setGoalsViewPreference('card')}
                         className={`p-2 rounded-md transition-all ${goalsViewMode === 'card' ? 'bg-gray-100 dark:bg-vindex-bg text-gray-900 dark:text-gray-100' : 'text-gray-400 hover:text-gray-600 dark:hover:text-gray-300'}`}
-                        title="Visualização em Grade"
+                        title={t('goals.view_grid_title')}
                     >
                         <LayoutGrid size={20} />
                     </button>
@@ -232,7 +234,7 @@ const Goals = () => {
                     onMouseLeave={(e) => e.currentTarget.style.backgroundColor = CYAN_COLOR}
                 >
                     <Plus size={20} className="sm:mr-2" />
-                    <span className="hidden sm:inline">Nova</span>
+                    <span className="hidden sm:inline">{t('goals.new_short')}</span>
                 </Button>
             </div>
         </div>
@@ -242,9 +244,9 @@ const Goals = () => {
             <div className="p-6 border-b border-gray-100 dark:border-gray-800">
                 <DialogHeader>
                     <DialogTitle>
-                        {editingGoal 
-                            ? 'Editar Meta' 
-                            : (creationStep === 'selector' ? 'Nova Meta' : 'Detalhes da Meta')
+                        {editingGoal
+                            ? t('goals.edit')
+                            : (creationStep === 'selector' ? t('goals.new') : t('goals.details'))
                         }
                     </DialogTitle>
                 </DialogHeader>
@@ -272,12 +274,12 @@ const Goals = () => {
       <AnimatePresence mode="wait">
         <GaugeSummaryCard
           motionKey={filterType}
-          leftLabel="Acumulado"
+          leftLabel={t('goals.accumulated')}
           leftValue={formatCurrency(totalAccumulated)}
           gaugeValue={totalAccumulated}
           gaugeMax={totalTarget}
-          title={filterType === 'target_value' ? 'Goals Fixas' : 'Goals Recorrentes'}
-          rightLabel="Total Alvo"
+          title={filterType === 'target_value' ? t('goals.fixed_goals') : t('goals.recurring_goals')}
+          rightLabel={t('goals.total_target')}
           rightValue={formatCurrency(totalTarget)}
           mode="progress"
         />
@@ -288,12 +290,12 @@ const Goals = () => {
             <div className="mx-auto h-20 w-20 bg-gray-50 dark:bg-gray-800 rounded-full flex items-center justify-center mb-6">
                 <Target className="h-10 w-10 text-gray-400 dark:text-gray-500" />
             </div>
-            <h3 className="text-lg font-semibold text-gray-900 dark:text-gray-100 mb-2">Nenhuma meta encontrada</h3>
+            <h3 className="text-lg font-semibold text-gray-900 dark:text-gray-100 mb-2">{t('goals.empty_title')}</h3>
             <p className="text-gray-500 dark:text-gray-400 mb-8 max-w-sm mx-auto">
-              Definir metas é o primeiro passo para transformar o invisível em visível. Comece agora!
+              {t('goals.empty_desc')}
             </p>
             <Button onClick={openNewGoalModal} className="bg-gray-900 text-white dark:bg-gray-100 dark:text-gray-900 hover:bg-gray-800 dark:hover:bg-gray-200">
-              Criar Primeira Meta
+              {t('goals.create_first')}
             </Button>
          </div>
       ) : (
@@ -301,9 +303,9 @@ const Goals = () => {
             {/* If goals exist but filter returns empty */}
             {filteredGoals.length === 0 && (
                  <div className="text-center py-12">
-                     <p className="text-gray-500 dark:text-gray-400">Nenhuma meta encontrada para este filtro.</p>
+                     <p className="text-gray-500 dark:text-gray-400">{t('goals.filter_empty')}</p>
                      <Button variant="link" onClick={() => setFilterType(filterType === 'target_value' ? 'monthly_value' : 'target_value')} className="mt-2 text-blue-600">
-                        Ver {filterType === 'target_value' ? 'metas recorrentes' : 'metas fixas'}
+                        {filterType === 'target_value' ? t('goals.see_recurring') : t('goals.see_fixed')}
                      </Button>
                  </div>
             )}
@@ -330,13 +332,13 @@ const Goals = () => {
                         <table className="w-full text-sm text-left">
                             <thead className="bg-gray-50 dark:bg-vindex-bg/50 text-gray-500 dark:text-gray-400 font-medium border-b border-gray-100 dark:border-vindex-border">
                                 <tr>
-                                    <th className="px-6 py-4">Nome</th>
-                                    <th className="px-6 py-4">Tipo</th>
-                                    <th className="px-6 py-4">Progresso</th>
-                                    <th className="px-6 py-4">Acumulado</th>
-                                    <th className="px-6 py-4">Alvo</th>
-                                    <th className="px-6 py-4">Prazo</th>
-                                    <th className="px-6 py-4 text-right">Ações</th>
+                                    <th className="px-6 py-4">{t('goals.col_name')}</th>
+                                    <th className="px-6 py-4">{t('goals.col_type')}</th>
+                                    <th className="px-6 py-4">{t('goals.col_progress')}</th>
+                                    <th className="px-6 py-4">{t('goals.col_accumulated')}</th>
+                                    <th className="px-6 py-4">{t('goals.col_target')}</th>
+                                    <th className="px-6 py-4">{t('goals.col_deadline')}</th>
+                                    <th className="px-6 py-4 text-right">{t('goals.col_actions')}</th>
                                 </tr>
                             </thead>
                             <tbody className="divide-y divide-gray-100 dark:divide-vindex-border">
@@ -364,7 +366,7 @@ const Goals = () => {
                                             </td>
                                             <td className="px-6 py-4">
                                                 <span className="text-xs px-2 py-1 rounded bg-gray-100 dark:bg-gray-800 text-gray-600 dark:text-gray-400 border border-gray-200 dark:border-gray-700">
-                                                    {isTarget ? 'Valor Final' : 'Recorrente'}
+                                                    {isTarget ? t('goals.type_fixed') : t('goals.type_recurring')}
                                                 </span>
                                             </td>
                                             <td className="px-6 py-4">
@@ -379,7 +381,7 @@ const Goals = () => {
                                             <td className="px-6 py-4 text-gray-600 dark:text-gray-300">
                                                 {isTarget 
                                                     ? formatCurrency(goal.targetAmount) 
-                                                    : <span title="Valor da Contribuição">{formatCurrency(goal.contributionValue)} <span className="text-xs text-gray-400">/ {goal.periodFrequency}</span></span>
+                                                    : <span title={t('goals.contribution_value')}>{formatCurrency(goal.contributionValue)} <span className="text-xs text-gray-400">/ {goal.periodFrequency}</span></span>
                                                 }
                                             </td>
                                             <td className="px-6 py-4">
@@ -389,11 +391,11 @@ const Goals = () => {
                                                             {new Date(goal.deadline).toLocaleDateString('pt-BR')}
                                                         </span>
                                                         <span className="text-xs text-gray-400">
-                                                            {isOverdue ? 'Atrasado' : `${daysLeft} dias`}
+                                                            {isOverdue ? t('goals.overdue') : t('goals.days_left', { count: daysLeft })}
                                                         </span>
                                                     </div>
                                                 ) : (
-                                                    <span className="text-gray-400 text-xs italic">Sem prazo</span>
+                                                    <span className="text-gray-400 text-xs italic">{t('goals.no_deadline')}</span>
                                                 )}
                                             </td>
                                             <td className="px-6 py-4 text-right">
@@ -430,23 +432,23 @@ const Goals = () => {
       <AlertDialog open={!!deleteId} onOpenChange={() => setDeleteId(null)}>
         <AlertDialogContent className="bg-white dark:bg-vindex-card text-gray-900 dark:text-gray-100 border-gray-200 dark:border-vindex-border rounded-xl">
           <AlertDialogHeader>
-            <AlertDialogTitle>Excluir meta?</AlertDialogTitle>
+            <AlertDialogTitle>{t('goals.delete_title')}</AlertDialogTitle>
             <AlertDialogDescription className="text-gray-600 dark:text-gray-400">
-              Esta ação removerá a meta permanentemente. O histórico de progresso será perdido.
+              {t('goals.delete_desc')}
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
             <AlertDialogCancel className="bg-gray-100 dark:bg-vindex-bg hover:bg-gray-200 dark:hover:bg-vindex-bg/80 border-gray-200 dark:border-vindex-border text-gray-900 dark:text-gray-100 rounded-lg">
-              Cancelar
+              {t('common.cancel')}
             </AlertDialogCancel>
-            <AlertDialogAction 
+            <AlertDialogAction
               onClick={() => {
                 deleteGoal(deleteId);
                 setDeleteId(null);
-              }} 
+              }}
               className="bg-red-600 hover:bg-red-700 dark:bg-vindex-danger dark:hover:bg-vindex-danger/90 rounded-lg text-white"
             >
-              Excluir
+              {t('common.delete')}
             </AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>

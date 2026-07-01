@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { Button } from '@/components/ui/button';
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from '@/components/ui/alert-dialog';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from '@/components/ui/dialog';
@@ -12,6 +13,7 @@ import SelectInput from '@/components/ui/SelectInput';
 import { formatCurrency } from '@/utils/calculations';
 
 const InvoiceSelectionBar = ({ selectedIds, invoices, invoiceTotals = {}, onClearSelection, onRefresh }) => {
+  const { t } = useTranslation();
   const [isDeleting, setIsDeleting] = useState(false);
   const [showConfirmDelete, setShowConfirmDelete] = useState(false);
   
@@ -41,15 +43,15 @@ const InvoiceSelectionBar = ({ selectedIds, invoices, invoiceTotals = {}, onClea
       if (error) throw error;
 
       toast({
-        title: "Sucesso",
-        description: `${selectedIds.length} faturas excluídas com sucesso.`,
+        title: t('common.success'),
+        description: t('invoices.bulk_deleted_success', { count: selectedIds.length }),
       });
       onClearSelection();
       if (onRefresh) onRefresh();
     } catch (error) {
       toast({
         variant: "destructive",
-        title: "Erro ao excluir",
+        title: t('invoices.delete_error'),
         description: error.message,
       });
     } finally {
@@ -64,7 +66,7 @@ const InvoiceSelectionBar = ({ selectedIds, invoices, invoiceTotals = {}, onClea
   
   const handleConfirmPayment = async () => {
     if (!selectedAccountId) {
-      toast({ title: "Selecione uma conta", variant: "destructive", description: "Por favor, escolha uma conta de pagamento." });
+      toast({ title: t('invoices.select_account_error_title'), variant: "destructive", description: t('invoices.select_account_error_desc') });
       return;
     }
     
@@ -75,7 +77,7 @@ const InvoiceSelectionBar = ({ selectedIds, invoices, invoiceTotals = {}, onClea
         const total = invoiceTotals[id] || 0;
         return {
           user_id: user.id,
-          description: `Pagamento Fatura ${fatura?.invoice_number || ''}`,
+          description: t('invoices.payment_description', { number: fatura?.invoice_number || '' }),
           amount: -Math.abs(total), 
           type: 'payment',
           date: new Date().toISOString().split('T')[0],
@@ -92,13 +94,13 @@ const InvoiceSelectionBar = ({ selectedIds, invoices, invoiceTotals = {}, onClea
       const { error: statusError } = await supabase.from('invoices').update({ status: 'paid' }).in('id', selectedIds).eq('user_id', user.id);
       if (statusError) throw statusError;
 
-      toast({ title: "Sucesso", description: "Pagamento vinculado com sucesso às faturas!" });
+      toast({ title: t('common.success'), description: t('invoices.payment_linked_bulk_success') });
       setIsPaymentModalOpen(false);
       setSelectedAccountId('');
       onClearSelection();
       if (onRefresh) onRefresh();
     } catch (err) {
-      toast({ title: "Erro ao vincular", description: err.message, variant: "destructive" });
+      toast({ title: t('invoices.link_bulk_error'), description: err.message, variant: "destructive" });
     } finally {
       setIsLinking(false);
     }
@@ -116,23 +118,23 @@ const InvoiceSelectionBar = ({ selectedIds, invoices, invoiceTotals = {}, onClea
         
         <div className="flex justify-between items-center border-b pb-3">
           <div>
-            <p className="text-sm text-muted-foreground">{selectedIds.length} fatura(s) selecionada(s)</p>
+            <p className="text-sm text-muted-foreground">{t('invoices.selected_invoices_count', { count: selectedIds.length })}</p>
             <div className="flex gap-4 mt-1">
               {totalBRL !== 0 && (
                 <div>
-                  <span className="text-xs text-muted-foreground">Total (BRL)</span>
+                  <span className="text-xs text-muted-foreground">{t('invoices.total_brl')}</span>
                   <p className={`font-bold text-lg ${totalBRL < 0 ? 'text-red-500' : 'text-green-500'}`}>{formatCurrency(totalBRL)}</p>
                 </div>
               )}
               {totalBTC !== 0 && (
                 <div>
-                  <span className="text-xs text-muted-foreground">Total (BTC)</span>
+                  <span className="text-xs text-muted-foreground">{t('invoices.total_btc')}</span>
                   <p className="font-bold text-lg text-foreground">₿ {totalBTC.toFixed(8)}</p>
                 </div>
               )}
               {totalBRL === 0 && totalBTC === 0 && (
                 <div>
-                  <span className="text-xs text-muted-foreground">Total</span>
+                  <span className="text-xs text-muted-foreground">{t('common.total')}</span>
                   <p className="font-bold text-lg text-foreground">{formatCurrency(0)}</p>
                 </div>
               )}
@@ -149,39 +151,39 @@ const InvoiceSelectionBar = ({ selectedIds, invoices, invoiceTotals = {}, onClea
             disabled={selectedIds.length === 0}
           >
             <CreditCard className="h-4 w-4" />
-            <span className="truncate">Selecionar Pagamento</span>
+            <span className="truncate">{t('invoice_detail.select_payment')}</span>
           </Button>
 
           {selectedIds.length === 1 && (
-            <Button 
-              variant="outline" 
-              size="sm" 
+            <Button
+              variant="outline"
+              size="sm"
               className="w-full sm:w-auto rounded-lg sm:rounded-full gap-2 border-border"
               onClick={handleViewPurchases}
             >
               <Eye className="h-4 w-4" />
-              <span className="truncate">Ver Compras</span>
+              <span className="truncate">{t('invoices.view_purchases')}</span>
             </Button>
           )}
 
-          <Button 
-            variant="destructive" 
-            size="sm" 
+          <Button
+            variant="destructive"
+            size="sm"
             className="w-full sm:w-auto rounded-lg sm:rounded-full gap-2"
             onClick={() => setShowConfirmDelete(true)}
           >
             <Trash2 className="h-4 w-4" />
-            <span className="truncate">Excluir</span>
+            <span className="truncate">{t('common.delete')}</span>
           </Button>
-          
-          <Button 
-            variant="ghost" 
-            size="sm" 
+
+          <Button
+            variant="ghost"
+            size="sm"
             className="w-full sm:w-auto rounded-lg sm:rounded-full gap-2"
             onClick={onClearSelection}
           >
             <X className="h-4 w-4" />
-            <span className="truncate">Cancelar</span>
+            <span className="truncate">{t('common.cancel')}</span>
           </Button>
         </div>
       </div>
@@ -189,19 +191,19 @@ const InvoiceSelectionBar = ({ selectedIds, invoices, invoiceTotals = {}, onClea
       <AlertDialog open={showConfirmDelete} onOpenChange={setShowConfirmDelete}>
         <AlertDialogContent>
           <AlertDialogHeader>
-            <AlertDialogTitle>Excluir {selectedIds.length} faturas?</AlertDialogTitle>
+            <AlertDialogTitle>{t('invoices.delete_bulk_title', { count: selectedIds.length })}</AlertDialogTitle>
             <AlertDialogDescription>
-              Esta ação não pode ser desfeita. Isso removerá as faturas selecionadas. As compras vinculadas poderão ficar sem fatura.
+              {t('invoices.delete_bulk_desc')}
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
-            <AlertDialogCancel disabled={isDeleting}>Cancelar</AlertDialogCancel>
-            <AlertDialogAction 
-              onClick={(e) => { e.preventDefault(); handleDelete(); }} 
+            <AlertDialogCancel disabled={isDeleting}>{t('common.cancel')}</AlertDialogCancel>
+            <AlertDialogAction
+              onClick={(e) => { e.preventDefault(); handleDelete(); }}
               disabled={isDeleting}
               className="bg-destructive hover:bg-destructive/90 text-destructive-foreground"
             >
-              {isDeleting ? "Excluindo..." : "Confirmar Exclusão"}
+              {isDeleting ? t('common.deleting') : t('common.confirm_delete')}
             </AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>
@@ -210,24 +212,23 @@ const InvoiceSelectionBar = ({ selectedIds, invoices, invoiceTotals = {}, onClea
       <Dialog open={isPaymentModalOpen} onOpenChange={setIsPaymentModalOpen}>
         <DialogContent className="sm:max-w-[425px]">
           <DialogHeader>
-            <DialogTitle>Vincular Pagamento</DialogTitle>
+            <DialogTitle>{t('invoices.link_payment_title')}</DialogTitle>
           </DialogHeader>
           <div className="py-4">
             <p className="text-sm text-muted-foreground mb-4">
-              Selecione a conta utilizada para pagar {selectedIds.length === 1 ? 'esta fatura' : 'estas faturas'}. 
-              Isso atualizará o status e registrará a transação de pagamento.
+              {t('invoices.payment_select_desc', { count: selectedIds.length })}
             </p>
-            <SelectInput 
-              label="Conta de Pagamento"
+            <SelectInput
+              label={t('invoices.payment_account_label')}
               value={selectedAccountId}
               onChange={e => setSelectedAccountId(e.target.value)}
               options={accounts.map(a => ({ label: a.name, value: a.id }))}
             />
           </div>
           <DialogFooter>
-            <Button variant="ghost" onClick={() => setIsPaymentModalOpen(false)}>Cancelar</Button>
+            <Button variant="ghost" onClick={() => setIsPaymentModalOpen(false)}>{t('common.cancel')}</Button>
             <Button onClick={handleConfirmPayment} disabled={isLinking}>
-              {isLinking ? "Vinculando..." : "Confirmar Pagamento"}
+              {isLinking ? t('common.linking') : t('invoices.confirm_payment_action')}
             </Button>
           </DialogFooter>
         </DialogContent>

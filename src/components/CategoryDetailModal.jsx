@@ -1,4 +1,5 @@
 import React, { useMemo } from 'react';
+import { useTranslation } from 'react-i18next';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
 import { formatCurrency } from '@/utils/calculations';
@@ -8,6 +9,7 @@ import BxIcon from '@/components/BxIcon';
 import { PRIMARY } from '@/utils/colors';
 
 const CategoryDetailModal = ({ isOpen, onClose, category, transactions, onEdit, onDelete }) => {
+  const { t } = useTranslation();
   const categoryTransactions = useMemo(() => {
     if (!category || !transactions) return [];
     return transactions
@@ -43,7 +45,7 @@ const CategoryDetailModal = ({ isOpen, onClose, category, transactions, onEdit, 
               </div>
               <div>
                 <DialogTitle className="text-xl font-bold">{category.name}</DialogTitle>
-                <p className="text-sm text-muted-foreground">{categoryTransactions.length} transações</p>
+                <p className="text-sm text-muted-foreground">{t('categories.transaction_count', { count: categoryTransactions.length })}</p>
               </div>
             </div>
             <div className="flex gap-2">
@@ -57,7 +59,7 @@ const CategoryDetailModal = ({ isOpen, onClose, category, transactions, onEdit, 
                 onMouseLeave={e => { e.currentTarget.style.backgroundColor = 'transparent'; e.currentTarget.style.color = PRIMARY; }}
               >
                 <Edit2 className="w-3.5 h-3.5" />
-                Editar
+                {t('common.edit')}
               </Button>
               {onDelete && (
                 <Button
@@ -67,7 +69,7 @@ const CategoryDetailModal = ({ isOpen, onClose, category, transactions, onEdit, 
                   className="gap-1 text-destructive border-destructive hover:bg-destructive hover:text-destructive-foreground"
                 >
                   <Trash2 className="w-3.5 h-3.5" />
-                  Excluir
+                  {t('common.delete')}
                 </Button>
               )}
             </div>
@@ -76,13 +78,13 @@ const CategoryDetailModal = ({ isOpen, onClose, category, transactions, onEdit, 
           <div className="grid grid-cols-2 gap-4 mb-4">
             <div className="bg-green-50 dark:bg-green-900/20 p-3 rounded-lg border border-green-100 dark:border-green-900/30">
               <p className="text-xs text-green-700 dark:text-green-400 mb-1 flex items-center gap-1">
-                <ArrowUpRight className="w-3 h-3" /> Receitas
+                <ArrowUpRight className="w-3 h-3" /> {t('common.income_label')}
               </p>
               <p className="text-lg font-bold text-green-700 dark:text-green-400">{formatCurrency(totalIncome)}</p>
             </div>
             <div className="bg-red-50 dark:bg-red-900/20 p-3 rounded-lg border border-red-100 dark:border-red-900/30">
               <p className="text-xs text-red-700 dark:text-red-400 mb-1 flex items-center gap-1">
-                <ArrowDownRight className="w-3 h-3" /> Despesas
+                <ArrowDownRight className="w-3 h-3" /> {t('common.expenses_label')}
               </p>
               <p className="text-lg font-bold text-red-700 dark:text-red-400">{formatCurrency(totalExpense)}</p>
             </div>
@@ -91,9 +93,9 @@ const CategoryDetailModal = ({ isOpen, onClose, category, transactions, onEdit, 
           {hasLimit && (
             <div className="bg-muted/30 p-4 rounded-xl border border-border flex items-center justify-between gap-4">
               <div>
-                <p className="text-sm font-medium">Orçamento {category.budget_period}</p>
+                <p className="text-sm font-medium">{t('categories.budget_of_period', { period: category.budget_period })}</p>
                 <p className="text-muted-foreground text-xs mt-1">
-                  {formatCurrency(currentSpending)} de {formatCurrency(category.spending_limit)}
+                  {t('categories.spent_of_total', { spent: formatCurrency(currentSpending), total: formatCurrency(category.spending_limit) })}
                 </p>
               </div>
               <div className="flex items-center gap-3">
@@ -114,7 +116,7 @@ const CategoryDetailModal = ({ isOpen, onClose, category, transactions, onEdit, 
 
         <div className="flex-1 overflow-y-auto p-6 pt-2">
           <h4 className="text-sm font-bold text-foreground mb-3 sticky top-0 bg-card py-2">
-            Histórico de Transações
+            {t('categories.transaction_history')}
           </h4>
           
           <div className="space-y-2">
@@ -138,7 +140,7 @@ const CategoryDetailModal = ({ isOpen, onClose, category, transactions, onEdit, 
                 </div>
               ))
             ) : (
-              <p className="text-sm text-muted-foreground text-center py-6">Nenhuma transação nesta categoria.</p>
+              <p className="text-sm text-muted-foreground text-center py-6">{t('categories.no_transactions')}</p>
             )}
           </div>
         </div>

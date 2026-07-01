@@ -1,4 +1,5 @@
 import React, { useState, useMemo } from 'react';
+import { useTranslation } from 'react-i18next';
 import { motion } from 'framer-motion';
 import {
   AreaChart, Area, XAxis, YAxis,
@@ -10,6 +11,7 @@ import { TrendingUp } from '@/components/BxIcon';
 import { PRIMARY, SUCCESS } from '@/utils/colors';
 
 const InvestmentSimulator = () => {
+  const { t } = useTranslation();
   const { theme } = useTheme();
   const isDark = theme === 'dark';
 
@@ -80,10 +82,10 @@ const InvestmentSimulator = () => {
           <div className="p-2 bg-emerald-100 dark:bg-emerald-900/20 rounded-lg">
             <TrendingUp className="w-5 h-5 text-emerald-600 dark:text-emerald-400" />
           </div>
-          Simulador de Investimentos (Juros Compostos)
+          {t('investment_sim.title')}
         </h3>
         <p className="text-sm text-gray-500 dark:text-gray-400 mt-1">
-          Projete seu patrimônio e veja quando os juros superam o capital investido.
+          {t('investment_sim.subtitle')}
         </p>
       </div>
 
@@ -92,7 +94,7 @@ const InvestmentSimulator = () => {
         <div className="space-y-4">
           <div>
             <label className="block text-xs font-medium text-gray-500 dark:text-gray-400 mb-1">
-              Aporte inicial (R$)
+              {t('investment_sim.initial_deposit')}
             </label>
             <input
               type="number" min="0" value={initialDeposit}
@@ -103,7 +105,7 @@ const InvestmentSimulator = () => {
 
           <div>
             <label className="block text-xs font-medium text-gray-500 dark:text-gray-400 mb-1">
-              Aporte mensal (R$)
+              {t('investment_sim.monthly_amount')}
             </label>
             <input
               type="number" min="0" value={monthlyAmount}
@@ -114,7 +116,7 @@ const InvestmentSimulator = () => {
 
           <div>
             <label className="block text-xs font-medium text-gray-500 dark:text-gray-400 mb-1">
-              Taxa de retorno (% a.a.)
+              {t('investment_sim.annual_return')}
             </label>
             <input
               type="number" min="0" step="0.1" value={annualReturn}
@@ -125,9 +127,9 @@ const InvestmentSimulator = () => {
 
           <div>
             <label className="block text-xs font-medium text-gray-500 dark:text-gray-400 mb-2">
-              Período —{' '}
+              {t('investment_sim.years')} —{' '}
               <span className="text-gray-900 dark:text-vindex-text font-semibold">
-                {years} {years === 1 ? 'ano' : 'anos'}
+                {t('investment_sim.years_count', { count: years })}
               </span>
             </label>
             <input
@@ -143,7 +145,7 @@ const InvestmentSimulator = () => {
           {/* Summary */}
           <div className="rounded-lg border border-gray-200 dark:border-vindex-border overflow-hidden text-sm">
             <div className="p-3 bg-emerald-50 dark:bg-emerald-900/10">
-              <p className="text-xs text-gray-500 dark:text-gray-400">Total acumulado</p>
+              <p className="text-xs text-gray-500 dark:text-gray-400">{t('investment_sim.total_label')}</p>
               <p className="text-2xl font-bold text-vindex-success mt-0.5">
                 {formatCurrency(totalAccumulated)}
               </p>
@@ -151,7 +153,7 @@ const InvestmentSimulator = () => {
             <div className="p-3 flex justify-between items-center border-t border-gray-100 dark:border-vindex-border/50">
               <span className="text-gray-500 dark:text-gray-400 flex items-center gap-1.5">
                 <span className="w-2 h-2 rounded-full inline-block" style={{ backgroundColor: PRIMARY }} />
-                Capital
+                {t('investment_sim.invested_label')}
               </span>
               <span className="font-semibold text-gray-900 dark:text-vindex-text">
                 {formatCurrency(totalInvested)}
@@ -160,18 +162,17 @@ const InvestmentSimulator = () => {
             <div className="p-3 flex justify-between items-center border-t border-gray-100 dark:border-vindex-border/50">
               <span className="text-gray-500 dark:text-gray-400 flex items-center gap-1.5">
                 <span className="w-2 h-2 rounded-full inline-block" style={{ backgroundColor: SUCCESS }} />
-                Juros
+                {t('investment_sim.interest_label')}
               </span>
               <span className="font-bold text-vindex-success">+{formatCurrency(totalInterest)}</span>
             </div>
             <div className="p-3 flex justify-between items-center border-t border-gray-100 dark:border-vindex-border/50">
-              <span className="text-gray-500 dark:text-gray-400">Juros representam</span>
-              <span className="font-semibold text-gray-900 dark:text-vindex-text">{interestRatio}%</span>
+              <span className="text-gray-500 dark:text-gray-400">{t('investment_sim.interest_ratio', { ratio: interestRatio })}</span>
             </div>
             {crossoverPoint && (
               <div className="p-3 flex justify-between items-center border-t border-gray-100 dark:border-vindex-border/50 bg-emerald-50/50 dark:bg-emerald-900/5">
-                <span className="text-gray-500 dark:text-gray-400">Juros superam capital</span>
-                <span className="font-semibold text-vindex-success">ano {crossoverPoint.year.replace('a', '')}</span>
+                <span className="text-gray-500 dark:text-gray-400">{t('investment_sim.interest_overtakes')}</span>
+                <span className="font-semibold text-vindex-success">{t('investment_sim.year_label', { year: crossoverPoint.year.replace('a', '') })}</span>
               </div>
             )}
           </div>
@@ -209,13 +210,13 @@ const InvestmentSimulator = () => {
                 itemStyle={{ color: textColor }}
                 formatter={(value, name) => [
                   formatCurrency(value),
-                  name === 'invested' ? 'Capital investido' : 'Juros acumulados',
+                  name === 'invested' ? t('investment_sim.invested_label') : t('investment_sim.interest_label'),
                 ]}
               />
               <Legend
                 wrapperStyle={{ fontSize: 12, paddingTop: 8 }}
                 formatter={(value) =>
-                  value === 'invested' ? 'Capital investido' : 'Juros acumulados'
+                  value === 'invested' ? t('investment_sim.invested_label') : t('investment_sim.interest_label')
                 }
               />
               {crossoverPoint && (
@@ -224,7 +225,7 @@ const InvestmentSimulator = () => {
                   stroke={SUCCESS} strokeDasharray="4 4" strokeOpacity={0.8}
                 >
                   <Label
-                    value="Juros > Capital"
+                    value={t('investment_sim.interest_over_capital')}
                     position="insideTopRight"
                     fontSize={10}
                     fill={SUCCESS}

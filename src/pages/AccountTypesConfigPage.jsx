@@ -1,33 +1,35 @@
 import React from 'react';
+import { useTranslation } from 'react-i18next';
 import { Helmet } from 'react-helmet';
 import { Cog as Settings, InfoCircle as Info } from '@/components/BxIcon';
 import { ACCOUNT_SUBTYPE_MAP } from '@/utils/accountMappings';
 
 const AccountTypesConfigPage = () => {
+  const { t } = useTranslation();
   const accountTypes = Object.entries(ACCOUNT_SUBTYPE_MAP).map(([typeName, subtypeCode]) => {
     let description = '';
-    
+
     switch(subtypeCode) {
       case 'credit_card':
-        description = 'Conta usada para gerenciar gastos em cartão de crédito, faturas e limites.';
+        description = t('account_types.credit_card_desc');
         break;
       case 'checking':
-        description = 'Conta corrente padrão para movimentações diárias, pagamentos e recebimentos.';
+        description = t('account_types.checking_desc');
         break;
       case 'savings':
-        description = 'Conta poupança para guardar dinheiro a longo prazo com baixo risco.';
+        description = t('account_types.savings_desc');
         break;
       case 'investment':
-        description = 'Conta destinada a gerenciar seus investimentos em corretoras.';
+        description = t('account_types.investment_desc');
         break;
       case 'crypto':
-        description = 'Conta para ativos digitais e criptomoedas (ex: BTC, ETH).';
+        description = t('account_types.crypto_desc');
         break;
       case 'cash':
-        description = 'Carteira física ou dinheiro em espécie.';
+        description = t('account_types.cash_desc');
         break;
       default:
-        description = 'Outros tipos de contas financeiras não categorizadas acima.';
+        description = t('account_types.other_desc');
     }
 
     return { typeName, subtypeCode, description };
@@ -36,7 +38,7 @@ const AccountTypesConfigPage = () => {
   return (
     <div className="space-y-6">
       <Helmet>
-        <title>Configurações de Tipos de Conta - VindexValor</title>
+        <title>{t('account_types.title')} - VindexValor</title>
       </Helmet>
       
       <div className="flex items-center gap-3 mb-6">
@@ -44,8 +46,8 @@ const AccountTypesConfigPage = () => {
           <Settings className="w-6 h-6 text-primary" />
         </div>
         <div>
-          <h1 className="text-2xl font-bold">Mapeamento de Tipos de Conta</h1>
-          <p className="text-muted-foreground">Consulte a relação entre os tipos de conta e seus subtipos no sistema.</p>
+          <h1 className="text-2xl font-bold">{t('account_types.title')}</h1>
+          <p className="text-muted-foreground">{t('account_types.subtitle')}</p>
         </div>
       </div>
 
@@ -53,7 +55,7 @@ const AccountTypesConfigPage = () => {
         <div className="flex items-start gap-3 mb-6 p-4 bg-muted/50 rounded-lg text-sm">
           <Info className="w-5 h-5 text-primary shrink-0 mt-0.5" />
           <p className="text-muted-foreground">
-            O subtipo de conta (<strong>account_subtype</strong>) é usado internamente para aplicar regras específicas, como esconder o campo de "Saldo Inicial" e exibir "Limite do Cartão" para contas do tipo <em>Cartão de Crédito</em>.
+            {t('account_types.info_text')}
           </p>
         </div>
 
@@ -61,9 +63,9 @@ const AccountTypesConfigPage = () => {
           <table className="w-full text-sm text-left">
             <thead className="bg-muted/50 text-muted-foreground border-b">
               <tr>
-                <th className="p-4 font-medium w-1/4">Tipo de Conta (Visível)</th>
-                <th className="p-4 font-medium w-1/4">Código do Subtipo</th>
-                <th className="p-4 font-medium w-1/2">Descrição / Comportamento</th>
+                <th className="p-4 font-medium w-1/4">{t('account_types.col_type')}</th>
+                <th className="p-4 font-medium w-1/4">{t('account_types.col_subtype')}</th>
+                <th className="p-4 font-medium w-1/2">{t('account_types.col_description')}</th>
               </tr>
             </thead>
             <tbody className="divide-y">

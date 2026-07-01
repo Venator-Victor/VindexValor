@@ -1,9 +1,11 @@
 import React from 'react';
+import { useTranslation } from 'react-i18next';
 import { formatCurrency, calculateInvestmentReturn } from '@/utils/calculations';
 import { Button } from '@/components/ui/button';
 import { Pencil, Trash, TrendingUp, TrendingDown } from '@/components/BxIcon';
 
 const InvestmentCard = ({ investment, onEdit, onDelete }) => {
+  const { t } = useTranslation();
   const returnPercent = calculateInvestmentReturn(investment.investedAmount, investment.currentAmount);
   const isProfit = returnPercent >= 0;
 
@@ -23,7 +25,7 @@ const InvestmentCard = ({ investment, onEdit, onDelete }) => {
           </div>
           <h3 className="font-bold text-gray-900 dark:text-gray-50 text-lg line-clamp-1">{investment.name}</h3>
           <p className="text-xs text-gray-700 dark:text-gray-300 mt-1">
-             Comprado em: {new Date(investment.purchaseDate).toLocaleDateString('pt-BR')}
+             {t('investments.purchased_on', { date: new Date(investment.purchaseDate).toLocaleDateString('pt-BR') })}
           </p>
         </div>
         <div className="flex gap-1">
@@ -38,17 +40,17 @@ const InvestmentCard = ({ investment, onEdit, onDelete }) => {
 
       <div className="grid grid-cols-2 gap-4 mb-4">
          <div>
-            <p className="text-xs text-gray-700 dark:text-gray-300">Investido</p>
+            <p className="text-xs text-gray-700 dark:text-gray-300">{t('investments.col_invested')}</p>
             <p className="font-semibold text-gray-900 dark:text-gray-50">{formatCurrency(investment.investedAmount)}</p>
          </div>
          <div className="text-right">
-            <p className="text-xs text-gray-700 dark:text-gray-300">Atual</p>
+            <p className="text-xs text-gray-700 dark:text-gray-300">{t('investments.col_current')}</p>
             <p className="font-bold text-indigo-600 dark:text-indigo-400">{formatCurrency(investment.currentAmount)}</p>
          </div>
       </div>
 
       <div className={`flex items-center justify-between p-3 rounded-lg ${isProfit ? 'bg-green-50 dark:bg-vindex-success/10' : 'bg-red-50 dark:bg-vindex-danger/10'}`}>
-         <span className="text-xs font-medium text-gray-700 dark:text-gray-300">Rentabilidade</span>
+         <span className="text-xs font-medium text-gray-700 dark:text-gray-300">{t('investments.col_return')}</span>
          <div className="flex items-center gap-1">
             {isProfit ? <TrendingUp size={16} className="text-green-600 dark:text-vindex-success" /> : <TrendingDown size={16} className="text-red-600 dark:text-vindex-danger" />}
             <span className={`font-bold ${isProfit ? 'text-green-600 dark:text-vindex-success' : 'text-red-600 dark:text-vindex-danger'}`}>

@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { Link } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useFinance } from '@/context/FinanceContext';
@@ -7,38 +8,39 @@ import { Check, X, ArrowRight, Wallet, Receipt, Tag, Target } from '@/components
 const STORAGE_KEY = 'vindex_onboarding_dismissed';
 
 const OnboardingChecklist = () => {
+  const { t } = useTranslation();
   const { accounts, transactions, categories, goals, invoices } = useFinance();
   const [dismissed, setDismissed] = useState(() => localStorage.getItem(STORAGE_KEY) === 'true');
 
   const steps = [
     {
       id: 'conta',
-      label: 'Adicionar uma conta',
-      description: 'Cadastre sua conta bancária, carteira ou cartão de crédito.',
+      label: t('onboarding.step_account_label'),
+      description: t('onboarding.step_account_desc'),
       path: '/accounts',
       Icon: Wallet,
       done: accounts.length > 0,
     },
     {
       id: 'transacao',
-      label: 'Registrar uma transação ou fatura',
-      description: 'Lance uma receita, despesa ou importe um extrato CSV.',
+      label: t('onboarding.step_transaction_label'),
+      description: t('onboarding.step_transaction_desc'),
       path: '/transactions',
       Icon: Receipt,
       done: transactions.length > 0 || invoices.length > 0,
     },
     {
       id: 'categoria',
-      label: 'Organizar categorias',
-      description: 'Crie ou personalize suas categorias para classificar gastos.',
+      label: t('onboarding.step_category_label'),
+      description: t('onboarding.step_category_desc'),
       path: '/categories',
       Icon: Tag,
       done: categories.length > 0,
     },
     {
       id: 'meta',
-      label: 'Definir uma meta financeira',
-      description: 'Crie um objetivo — reserva de emergência, viagem, aposentadoria.',
+      label: t('onboarding.step_goal_label'),
+      description: t('onboarding.step_goal_desc'),
       path: '/goals',
       Icon: Target,
       done: goals.length > 0,
@@ -68,10 +70,10 @@ const OnboardingChecklist = () => {
           <div className="flex items-center gap-3">
             <div>
               <p className="font-semibold text-gray-900 dark:text-vindex-text">
-                {allDone ? 'Configuração concluída!' : 'Primeiros passos'}
+                {allDone ? t('onboarding.setup_complete') : t('onboarding.first_steps')}
               </p>
               <p className="text-xs text-gray-500 dark:text-vindex-text/50 mt-0.5">
-                {completedCount} de {steps.length} etapas concluídas
+                {t('onboarding.steps_completed', { done: completedCount, total: steps.length })}
               </p>
             </div>
           </div>
@@ -95,7 +97,7 @@ const OnboardingChecklist = () => {
             <button
               onClick={handleDismiss}
               className="p-1.5 rounded-lg text-gray-400 hover:text-gray-700 dark:hover:text-vindex-text hover:bg-gray-100 dark:hover:bg-vindex-border/50 transition-colors"
-              title="Fechar"
+              title={t('onboarding.close')}
             >
               <X size={16} />
             </button>
@@ -145,8 +147,8 @@ const OnboardingChecklist = () => {
         {/* Footer */}
         {allDone && (
           <div className="px-6 py-3 bg-primary/5 border-t border-primary/20 flex items-center justify-between">
-            <p className="text-sm text-primary font-medium">Tudo pronto! Seu VindexValor está configurado.</p>
-            <button onClick={handleDismiss} className="text-sm text-primary hover:underline">Fechar</button>
+            <p className="text-sm text-primary font-medium">{t('onboarding.all_done')}</p>
+            <button onClick={handleDismiss} className="text-sm text-primary hover:underline">{t('onboarding.close')}</button>
           </div>
         )}
       </motion.div>

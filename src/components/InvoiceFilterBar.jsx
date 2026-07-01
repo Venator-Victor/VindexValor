@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { Search, Filter, X } from '@/components/BxIcon';
 import { Button } from '@/components/ui/button';
 import SelectInput from '@/components/ui/SelectInput';
@@ -7,6 +8,7 @@ import { useFinance } from '@/context/FinanceContext';
 import InfoTooltip from './InfoTooltip';
 
 const InvoiceFilterBar = ({ onFilterChange }) => {
+  const { t } = useTranslation();
   const { categories, accounts } = useFinance();
   
   const [filters, setFilters] = useState({
@@ -45,25 +47,25 @@ const InvoiceFilterBar = ({ onFilterChange }) => {
     <div className="bg-card p-4 rounded-xl border shadow-sm space-y-4">
       <div className="flex items-center justify-between mb-2">
         <div className="flex items-center gap-2 text-foreground font-semibold">
-          <Filter className="w-4 h-4" /> 
-          Filtros Avançados
-          
+          <Filter className="w-4 h-4" />
+          {t('common.advanced_filters')}
+
           <InfoTooltip content={
             <div className="space-y-1 text-sm">
-              <p><strong>Campo Valor:</strong> Use sinais =, &gt;, &lt; (ex: &gt;100; &lt;1000)</p>
-              <p><strong>Campo Descrição:</strong> Buscar por nome ou descrição</p>
+              <p><strong>{t('common.amount')}:</strong> {t('common.filter_value_hint')}</p>
+              <p><strong>{t('common.description')}:</strong> {t('common.filter_desc_hint')}</p>
             </div>
           } />
 
           {activeCount > 0 && (
             <span className="bg-primary text-primary-foreground text-xs px-2 py-0.5 rounded-full ml-2">
-              {activeCount} ativo{activeCount !== 1 && 's'}
+              {t('common.active_filters_count', { count: activeCount })}
             </span>
           )}
         </div>
         {activeCount > 0 && (
           <Button variant="ghost" size="sm" onClick={handleClear} className="h-8 text-xs text-muted-foreground hover:text-foreground">
-            Limpar Filtros <X className="w-3 h-3 ml-1" />
+            {t('common.clear_filters')} <X className="w-3 h-3 ml-1" />
           </Button>
         )}
       </div>
@@ -75,7 +77,7 @@ const InvoiceFilterBar = ({ onFilterChange }) => {
             <Search className="absolute left-3 top-2.5 h-4 w-4 text-muted-foreground" />
             <input
               type="text"
-              placeholder="Buscar por descrição..."
+              placeholder={t('common.search_placeholder')}
               value={filters.search}
               onChange={(e) => handleChange('search', e.target.value)}
               className="w-full pl-9 pr-3 py-2 rounded-md border bg-background text-sm text-foreground focus:ring-1 focus:ring-primary outline-none h-[42px]"
@@ -97,7 +99,7 @@ const InvoiceFilterBar = ({ onFilterChange }) => {
             value={filters.category_id}
             onChange={(e) => handleChange('category_id', e.target.value)}
             options={[
-              { label: "Todas categorias", value: "" },
+              { label: t('transactions.all_categories'), value: "" },
               ...categories.map(c => ({ label: c.name, value: c.id }))
             ]}
           />
@@ -109,9 +111,9 @@ const InvoiceFilterBar = ({ onFilterChange }) => {
             value={filters.installment}
             onChange={(e) => handleChange('installment', e.target.value)}
             options={[
-              { label: "Todos (Parcelados ou Não)", value: "todos" },
-              { label: "Apenas Parcelados", value: "installment" },
-              { label: "Não Parcelados", value: "not_installment" }
+              { label: t('invoices.filter_installment_all'), value: "todos" },
+              { label: t('invoices.filter_installment_only'), value: "installment" },
+              { label: t('invoices.filter_installment_none'), value: "not_installment" }
             ]}
           />
         </div>
@@ -122,7 +124,7 @@ const InvoiceFilterBar = ({ onFilterChange }) => {
             value={filters.account_id}
             onChange={(e) => handleChange('account_id', e.target.value)}
             options={[
-              { label: "Todas contas", value: "" },
+              { label: t('invoices.filter_all_accounts'), value: "" },
               ...accounts.map(a => ({ label: a.name, value: a.id }))
             ]}
           />

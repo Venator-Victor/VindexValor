@@ -1,4 +1,5 @@
 import React from 'react';
+import { useTranslation } from 'react-i18next';
 import { Helmet } from 'react-helmet';
 import { Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
@@ -11,11 +12,12 @@ import TechBadge from '@/components/landing/TechBadge';
 import { Button } from '@/components/ui/button';
 
 const HomePage = () => {
+  const { t } = useTranslation();
   return (
     <div className="min-h-screen bg-background text-foreground font-sans flex flex-col">
       <Helmet>
-        <title>VindexValor - Gestão Financeira Pessoal Inteligente</title>
-        <meta name="description" content="Controle suas finanças com facilidade, acompanhe investimentos e alcance suas metas com VindexValor." />
+        <title>VindexValor - {t('landing.meta_title')}</title>
+        <meta name="description" content={t('landing.meta_description')} />
       </Helmet>
 
       <Header />
@@ -24,7 +26,7 @@ const HomePage = () => {
         {/* HERO SECTION */}
         <section id="home" className="relative min-h-[90vh] flex items-center justify-center pt-20 overflow-hidden">
           <div className="absolute inset-0 z-0">
-            <img src="/hero.jpg" alt="Finanças e Planejamento" className="w-full h-full object-cover object-center" />
+            <img src="/hero.jpg" alt={t('landing.hero_image_alt')} className="w-full h-full object-cover object-center" />
             <div className="absolute inset-0 bg-black/60 backdrop-blur-[2px]"></div>
           </div>
           
@@ -34,17 +36,17 @@ const HomePage = () => {
                 Vindex<span className="text-primary">Valor</span>
               </h1>
               <p className="text-xl md:text-2xl text-gray-200 mb-10 font-medium max-w-2xl mx-auto leading-relaxed">
-                Gestão Financeira Pessoal Inteligente. Assuma o controle do seu dinheiro, acompanhe investimentos e alcance seus objetivos.
+                {t('landing.hero_subtitle')}
               </p>
               <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
                 <Link to="/login">
                   <Button size="lg" className="h-14 px-8 text-lg font-bold gap-2 shadow-lg hover:scale-105 transition-transform bg-primary text-black hover:bg-primary/90">
-                    Começar Agora <ArrowRight size={20} />
+                    {t('landing.cta_start')} <ArrowRight size={20} />
                   </Button>
                 </Link>
                 <a href="#sobre">
                   <Button size="lg" variant="outline" className="h-14 px-8 text-lg font-bold bg-white/10 text-white border-white/20 hover:bg-white/20 hover:text-white backdrop-blur-md">
-                    Saber Mais
+                    {t('landing.cta_learn_more')}
                   </Button>
                 </a>
               </div>
@@ -57,18 +59,16 @@ const HomePage = () => {
           <div className="container mx-auto px-4 md:px-6">
             <div className="max-w-3xl mx-auto text-center">
               <motion.div initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ duration: 0.6 }}>
-                <h2 className="text-3xl md:text-4xl font-bold mb-6">Sobre o Projeto</h2>
+                <h2 className="text-3xl md:text-4xl font-bold mb-6">{t('landing.about_title')}</h2>
                 <div className="w-20 h-1 bg-primary mx-auto mb-8 rounded-full"></div>
                 <p className="text-lg text-muted-foreground leading-relaxed mb-6">
-                  O VindexValor é um web app de gestão financeira pessoal inteligente, desenvolvido como
-                  <strong className="text-foreground"> Trabalho de Conclusão de Curso (TCC)</strong> para a Pós-Graduação
-                  em <strong className="text-foreground">Desenvolvimento Full Stack pela PUC-RS</strong>.
+                  {t('landing.about_p1')}
                 </p>
                 <p className="text-lg text-muted-foreground leading-relaxed mb-6">
-                  O objetivo é facilitar o controle financeiro, oferecendo ferramentas intuitivas para gestão de despesas, projeções contra a inflação (IPCA), metas e acompanhamento detalhado do seu patrimônio ao longo do tempo.
+                  {t('landing.about_p2')}
                 </p>
                 <p className="text-lg text-muted-foreground leading-relaxed">
-                  O projeto é <strong className="text-foreground">open source</strong> — contribuições e feedbacks são bem-vindos.
+                  {t('landing.about_p3')}
                 </p>
               </motion.div>
             </div>
@@ -79,19 +79,19 @@ const HomePage = () => {
         <section id="funcionalidades" className="py-24 bg-background border-t border-border">
           <div className="container mx-auto px-4 md:px-6">
             <div className="text-center mb-16">
-              <h2 className="text-3xl md:text-4xl font-bold mb-4">Funcionalidades Principais</h2>
+              <h2 className="text-3xl md:text-4xl font-bold mb-4">{t('landing.features_title')}</h2>
               <p className="text-lg text-muted-foreground max-w-2xl mx-auto">
-                Tudo o que você precisa para uma vida financeira mais saudável e previsível, reunido em uma só plataforma.
+                {t('landing.features_subtitle')}
               </p>
             </div>
 
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-              <FeatureCard icon={Wallet} title="Gestão de Contas Bancárias" description="Cadastre e gerencie múltiplas accounts (Corrente, Poupança, Cartão de Crédito) com visão unificada de saldos e limites." />
-              <FeatureCard icon={ArrowRightLeft} title="Registro de Transações" description="Controle total sobre Entradas e Saídas, transferências entre contas e categorização flexível." />
-              <FeatureCard icon={Repeat} title="Transações Recorrentes" description="Gerencie contas fixas, parcelamentos e salários com o motor inteligente de recorrências automáticas." />
-              <FeatureCard icon={PieChart} title="Análise de Gastos" description="Visualize seus hábitos de consumo por categoria com gráficos interativos e limites de orçamento (budgets)." />
-              <FeatureCard icon={TrendingUp} title="Acompanhamento de Investimentos" description="Registre rendimentos, tipos de aplicações e simule o crescimento do seu patrimônio com base em taxas históricas." />
-              <FeatureCard icon={Target} title="Metas Financeiras" description="Defina e acompanhe objetivos como 'Comprar um Carro' ou 'Fundo de Emergência', associando saldos reais aos seus sonhos." />
+              <FeatureCard icon={Wallet} title={t('landing.feature_accounts_title')} description={t('landing.feature_accounts_desc')} />
+              <FeatureCard icon={ArrowRightLeft} title={t('landing.feature_transactions_title')} description={t('landing.feature_transactions_desc')} />
+              <FeatureCard icon={Repeat} title={t('landing.feature_recurring_title')} description={t('landing.feature_recurring_desc')} />
+              <FeatureCard icon={PieChart} title={t('landing.feature_analysis_title')} description={t('landing.feature_analysis_desc')} />
+              <FeatureCard icon={TrendingUp} title={t('landing.feature_investments_title')} description={t('landing.feature_investments_desc')} />
+              <FeatureCard icon={Target} title={t('landing.feature_goals_title')} description={t('landing.feature_goals_desc')} />
             </div>
           </div>
         </section>
@@ -99,9 +99,9 @@ const HomePage = () => {
         {/* TECNOLOGIAS SECTION */}
         <section id="tecnologias" className="py-24 bg-card text-card-foreground border-t border-border">
           <div className="container mx-auto px-4 md:px-6 text-center">
-            <h2 className="text-3xl md:text-4xl font-bold mb-6">Tecnologias Utilizadas</h2>
+            <h2 className="text-3xl md:text-4xl font-bold mb-6">{t('landing.tech_title')}</h2>
             <p className="text-lg text-muted-foreground max-w-2xl mx-auto mb-12">
-              Construído com tecnologias modernas para garantir performance, segurança e a melhor experiência de usuário.
+              {t('landing.tech_subtitle')}
             </p>
             
             <div className="flex flex-wrap justify-center gap-4 max-w-4xl mx-auto">
@@ -131,7 +131,7 @@ const HomePage = () => {
                 className="bg-sky-50 text-sky-600 border-sky-200 dark:bg-sky-900/20 dark:text-sky-400 dark:border-sky-800"
               />
               <TechBadge
-                name="API do Banco Central"
+                name={t('landing.tech_central_bank_api')}
                 icon={Landmark}
                 className="bg-slate-50 text-slate-600 border-slate-200 dark:bg-slate-800/40 dark:text-slate-400 dark:border-slate-700"
               />
@@ -146,14 +146,14 @@ const HomePage = () => {
           
           <div className="container relative z-10 mx-auto px-4 md:px-6 text-center">
             <h2 className="text-3xl md:text-4xl font-bold mb-6">
-              Pronto para controlar suas finanças?
+              {t('landing.cta_final_title')}
             </h2>
             <p className="text-lg text-primary-foreground/80 max-w-2xl mx-auto mb-10">
-              Crie sua conta e tenha uma maneira simples, moderna e segura de acompanhar suas finanças. Organize contas, registre transações e visualize seus gastos em um só lugar.
+              {t('landing.cta_final_subtitle')}
             </p>
             <Link to="/login">
               <Button size="lg" variant="secondary" className="h-14 px-10 text-lg font-bold shadow-xl hover:scale-105 transition-transform text-black bg-white hover:bg-gray-100">
-                Criar Conta
+                {t('landing.cta_final_button')}
               </Button>
             </Link>
           </div>

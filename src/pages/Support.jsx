@@ -1,69 +1,38 @@
 import React, { useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { Helmet } from 'react-helmet';
 import { motion } from 'framer-motion';
 import { ChevronDown } from '@/components/BxIcon';
 
 const Support = () => {
+  const { t } = useTranslation();
   const [openFaq, setOpenFaq] = useState(null);
 
   const faqGroups = [
     {
-      group: 'Primeiros Passos',
+      group: t('support.faq_group_start'),
       items: [
-        {
-          question: 'Por onde começo?',
-          answer: 'O fluxo recomendado é: (1) crie suas contas em Contas — bancária, carteira, cartão de crédito; (2) importe ou lance suas transações em Transações; (3) organize as categorias de gasto em Categorias; (4) defina suas metas em Metas. Com isso o Dashboard já mostra um panorama completo da sua saúde financeira.',
-        },
-        {
-          question: 'Como adicionar uma conta bancária?',
-          answer: 'Vá em Contas → Nova Conta. Escolha o tipo (Corrente, Poupança, Cartão de Crédito, Investimento, etc.), informe o saldo inicial e salve. Todas as transações lançadas nessa conta são consideradas no cálculo do saldo automaticamente.',
-        },
-        {
-          question: 'Como importar um extrato CSV?',
-          answer: 'Vá em Transações → Importar CSV. O app aceita extratos no formato padrão dos principais bancos brasileiros. Na tela de importação você pode revisar e categorizar cada linha antes de confirmar.',
-        },
-        {
-          question: 'Como funciona a fatura do cartão de crédito?',
-          answer: 'Crie uma conta do tipo "Cartão de Crédito". As compras lançadas nela ficam associadas à fatura do mês. Em Faturas você acompanha os gastos do período, fecha a fatura e registra o pagamento — zerando o saldo devedor.',
-        },
-        {
-          question: 'Como organizar meus gastos com categorias?',
-          answer: 'Em Categorias você cria e personaliza categorias (Alimentação, Transporte, Lazer…) com ícone e cor. Ao lançar uma transação, associe a categoria correspondente. Com isso o Dashboard e as Análises mostram exatamente onde seu dinheiro está indo.',
-        },
-        {
-          question: 'Como definir uma meta financeira?',
-          answer: 'Vá em Metas → Nova Meta. Defina o nome, o valor-alvo e a data desejada. O app calcula o progresso com base no saldo das contas associadas à meta — ideal para reserva de emergência, viagem, ou qualquer objetivo.',
-        },
+        { question: t('support.faq_q1'), answer: t('support.faq_a1') },
+        { question: t('support.faq_q2'), answer: t('support.faq_a2') },
+        { question: t('support.faq_q3'), answer: t('support.faq_a3') },
+        { question: t('support.faq_q4'), answer: t('support.faq_a4') },
+        { question: t('support.faq_q5'), answer: t('support.faq_a5') },
+        { question: t('support.faq_q6'), answer: t('support.faq_a6') },
       ],
     },
     {
-      group: 'Transações & Contas',
+      group: t('support.faq_group_transactions'),
       items: [
-        {
-          question: 'Como registrar uma transferência entre contas?',
-          answer: 'Em Transações, use o botão "Transferência". Selecione a conta de origem e a conta de destino — o app cria automaticamente uma saída na origem e uma entrada no destino sem duplicar no relatório de receitas/despesas.',
-        },
-        {
-          question: 'Por que meu saldo está diferente do esperado?',
-          answer: 'O saldo é calculado em tempo real somando o saldo inicial da conta com todas as transações cadastradas. Verifique se o saldo inicial está correto em Contas → Editar, e se não há transações duplicadas ou com data futura que ainda não entraram no período visualizado.',
-        },
-        {
-          question: 'Como funcionam as transações recorrentes?',
-          answer: 'Em Recorrências você cadastra despesas ou receitas fixas (aluguel, assinatura, salário) com frequência e data de vencimento. O app gera as parcelas automaticamente — você confirma, edita ou pula cada ocorrência conforme ela vence.',
-        },
+        { question: t('support.faq_q7'), answer: t('support.faq_a7') },
+        { question: t('support.faq_q8'), answer: t('support.faq_a8') },
+        { question: t('support.faq_q9'), answer: t('support.faq_a9') },
       ],
     },
     {
-      group: 'Simuladores',
+      group: t('support.faq_group_simulators'),
       items: [
-        {
-          question: 'Como funcionam os juros compostos no Simulador?',
-          answer: 'O Simulador de Investimentos projeta seu patrimônio mês a mês com aporte inicial + aportes mensais, aplicando a taxa anual convertida para mensal. O gráfico mostra capital investido vs. juros acumulados — e marca o ano em que os juros superam o capital.',
-        },
-        {
-          question: 'O que mostra o Simulador de Inflação?',
-          answer: 'Ele compara duas curvas ao longo do tempo: quanto você precisaria ter para manter o poder de compra atual (corrigido pela inflação) e quanto seu dinheiro valeria se investido a uma taxa de retorno. Se a curva de retorno ficar acima da de inflação, seu investimento está preservando (e crescendo) o seu poder de compra.',
-        },
+        { question: t('support.faq_q10'), answer: t('support.faq_a10') },
+        { question: t('support.faq_q11'), answer: t('support.faq_a11') },
       ],
     },
   ];
@@ -71,13 +40,13 @@ const Support = () => {
   return (
     <div className="space-y-6">
       <Helmet>
-        <title>VindexValor - Support</title>
-        <meta name="description" content="Perguntas frequentes e canais de contato" />
+        <title>VindexValor - {t('support.title')}</title>
+        <meta name="description" content={t('support.subtitle')} />
       </Helmet>
 
       <div>
-        <h1 className="text-3xl font-bold text-gray-900 dark:text-vindex-text mb-2">Support</h1>
-        <p className="text-gray-500 dark:text-vindex-text/70">Encontre respostas ou entre em contato</p>
+        <h1 className="text-3xl font-bold text-gray-900 dark:text-vindex-text mb-2">{t('support.title')}</h1>
+        <p className="text-gray-500 dark:text-vindex-text/70">{t('support.subtitle')}</p>
       </div>
 
       {/* FAQ */}
@@ -86,7 +55,7 @@ const Support = () => {
         animate={{ opacity: 1, y: 0 }}
         className="bg-white dark:bg-vindex-card rounded-xl p-6 border border-gray-200 dark:border-vindex-border shadow-sm"
       >
-        <h2 className="text-2xl font-bold text-gray-900 dark:text-vindex-text mb-4">Perguntas Frequentes</h2>
+        <h2 className="text-2xl font-bold text-gray-900 dark:text-vindex-text mb-4">{t('support.faq_title')}</h2>
         <div className="space-y-6">
           {(() => {
             let globalIndex = 0;
@@ -139,14 +108,14 @@ const Support = () => {
 
         {/* CTA */}
         <div className="mt-5 pt-5 border-t border-gray-100 dark:border-vindex-border/30 flex items-center justify-between">
-          <p className="text-sm text-gray-400 dark:text-vindex-text/50">Não encontrou o que procurava?</p>
+          <p className="text-sm text-gray-400 dark:text-vindex-text/50">{t('support.not_found')}</p>
           <a
             href="https://github.com/Venator-Victor/vindexvalor/issues"
             target="_blank"
             rel="noopener noreferrer"
             className="text-sm font-medium text-primary hover:underline"
           >
-            Abrir uma issue no GitHub →
+            {t('support.open_issue')}
           </a>
         </div>
       </motion.div>
@@ -157,7 +126,7 @@ const Support = () => {
         animate={{ opacity: 1, y: 0 }}
         transition={{ delay: 0.1 }}
       >
-        <h2 className="text-xl font-bold text-gray-900 dark:text-vindex-text mb-3">Entre em Contato</h2>
+        <h2 className="text-xl font-bold text-gray-900 dark:text-vindex-text mb-3">{t('support.contact_title')}</h2>
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
           <a
             href="https://github.com/Venator-Victor/vindexvalor/issues"
@@ -171,8 +140,8 @@ const Support = () => {
               </svg>
             </div>
             <div>
-              <p className="text-gray-900 dark:text-vindex-text font-medium group-hover:text-primary transition-colors">GitHub</p>
-              <p className="text-sm text-gray-500 dark:text-vindex-text/60 mt-0.5">Bugs &amp; sugestões — abra uma issue</p>
+              <p className="text-gray-900 dark:text-vindex-text font-medium group-hover:text-primary transition-colors">{t('support.contact_github_title')}</p>
+              <p className="text-sm text-gray-500 dark:text-vindex-text/60 mt-0.5">{t('support.contact_github_desc')}</p>
             </div>
           </a>
 
@@ -186,7 +155,7 @@ const Support = () => {
               </svg>
             </div>
             <div>
-              <p className="text-gray-900 dark:text-vindex-text font-medium group-hover:text-primary transition-colors">E-mail</p>
+              <p className="text-gray-900 dark:text-vindex-text font-medium group-hover:text-primary transition-colors">{t('support.contact_email_title')}</p>
               <p className="text-sm text-gray-500 dark:text-vindex-text/60 mt-0.5">signal@venatorvictor.com</p>
             </div>
           </a>
@@ -203,7 +172,7 @@ const Support = () => {
               </svg>
             </div>
             <div>
-              <p className="text-gray-900 dark:text-vindex-text font-medium group-hover:text-primary transition-colors">LinkedIn</p>
+              <p className="text-gray-900 dark:text-vindex-text font-medium group-hover:text-primary transition-colors">{t('support.contact_linkedin_title')}</p>
               <p className="text-sm text-gray-500 dark:text-vindex-text/60 mt-0.5">victor-schramm</p>
             </div>
           </a>

@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { useNavigate, Link } from 'react-router-dom';
 import { Helmet } from 'react-helmet';
 import { useAuth } from '@/context/SupabaseAuthContext';
@@ -9,6 +10,7 @@ import { RefreshCw as Loader2, Envelope as MailCheck } from '@/components/BxIcon
 import VindexLogo from '@/components/VindexLogo';
 
 const ResetPasswordPage = () => {
+  const { t } = useTranslation();
   const [email, setEmail] = useState('');
   const [newPassword, setNewPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
@@ -32,18 +34,18 @@ const ResetPasswordPage = () => {
   const handleUpdatePassword = async (e) => {
     e.preventDefault();
     if (newPassword.length < 8) {
-      toast({ variant: "destructive", title: "Senha muito curta", description: "A senha deve ter pelo menos 8 caracteres." });
+      toast({ variant: "destructive", title: t('auth.password_too_short_title'), description: t('auth.password_too_short_desc') });
       return;
     }
     if (newPassword !== confirmPassword) {
-      toast({ variant: "destructive", title: "Erro", description: "As senhas não conferem." });
+      toast({ variant: "destructive", title: t('common.error'), description: t('auth.passwords_no_match') });
       return;
     }
     setIsSubmitting(true);
     const { error } = await updatePassword(newPassword);
     setIsSubmitting(false);
     if (!error) {
-      toast({ title: "Senha atualizada!", description: "Você já pode usar sua nova senha." });
+      toast({ title: t('auth.password_updated_title'), description: t('auth.password_updated_desc') });
       navigate('/dashboard');
     }
   };
@@ -51,7 +53,7 @@ const ResetPasswordPage = () => {
   return (
     <div className="min-h-screen bg-vindex-bg flex items-center justify-center p-4">
       <Helmet>
-        <title>Redefinir Senha - VindexValor</title>
+        <title>{t('auth.reset_title')} - VindexValor</title>
       </Helmet>
 
       <div className="w-full max-w-md bg-vindex-card rounded-xl border border-vindex-border shadow-xl p-8">
@@ -60,16 +62,16 @@ const ResetPasswordPage = () => {
         </div>
 
         <h1 className="text-2xl font-bold text-center text-vindex-text mb-6">
-          {isRecoveryMode ? 'Nova Senha' : 'Recuperar Senha'}
+          {isRecoveryMode ? t('auth.new_password_title') : t('auth.reset_title')}
         </h1>
 
         {isRecoveryMode ? (
           <form onSubmit={handleUpdatePassword} className="space-y-4">
             <p className="text-sm text-vindex-text/70 text-center mb-4">
-              Digite sua nova senha abaixo.
+              {t('auth.new_password_placeholder')}
             </p>
             <div>
-              <Label htmlFor="newPassword">Nova Senha</Label>
+              <Label htmlFor="newPassword">{t('auth.new_password_label')}</Label>
               <input
                 id="newPassword"
                 type="password"
@@ -81,7 +83,7 @@ const ResetPasswordPage = () => {
               />
             </div>
             <div>
-              <Label htmlFor="confirmPassword">Confirmar Senha</Label>
+              <Label htmlFor="confirmPassword">{t('auth.confirm_password')}</Label>
               <input
                 id="confirmPassword"
                 type="password"
@@ -96,31 +98,31 @@ const ResetPasswordPage = () => {
               className="w-full bg-vindex-success hover:bg-vindex-success/90 text-white font-bold"
               disabled={isSubmitting}
             >
-              {isSubmitting ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : 'Atualizar Senha'}
+              {isSubmitting ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : t('auth.update_password')}
             </Button>
           </form>
         ) : linkSent ? (
           <div className="flex flex-col items-center gap-4 py-4 text-center">
             <MailCheck className="w-12 h-12 text-vindex-success" />
-            <p className="text-vindex-text font-medium">Link enviado!</p>
+            <p className="text-vindex-text font-medium">{t('auth.link_sent_title')}</p>
             <p className="text-sm text-vindex-text/70">
-              Verifique sua caixa de entrada em <span className="font-semibold text-vindex-text">{email}</span> e clique no link para redefinir sua senha.
+              {t('auth.link_sent_desc', { email })}
             </p>
             <button
               type="button"
               onClick={() => setLinkSent(false)}
               className="text-xs text-vindex-success hover:underline mt-2"
             >
-              Reenviar para outro email
+              {t('auth.resend_email')}
             </button>
           </div>
         ) : (
           <form onSubmit={handleRequestLink} className="space-y-4">
             <p className="text-sm text-vindex-text/70 text-center mb-4">
-              Digite seu email e enviaremos um link para você redefinir sua senha.
+              {t('auth.request_link_placeholder')}
             </p>
             <div>
-              <Label htmlFor="email">Email</Label>
+              <Label htmlFor="email">{t('auth.email')}</Label>
               <input
                 id="email"
                 type="email"
@@ -135,14 +137,14 @@ const ResetPasswordPage = () => {
               className="w-full bg-vindex-success hover:bg-vindex-success/90 text-white font-bold"
               disabled={isSubmitting}
             >
-              {isSubmitting ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : 'Enviar Link'}
+              {isSubmitting ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : t('auth.send_link')}
             </Button>
           </form>
         )}
 
         <div className="mt-6 text-center text-sm">
           <Link to="/login" className="text-vindex-success hover:underline font-bold">
-            Voltar para Login
+            {t('auth.back_to_login')}
           </Link>
         </div>
       </div>

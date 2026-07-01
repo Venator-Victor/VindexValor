@@ -1,5 +1,6 @@
 import { PRIMARY, PRIMARY_HOVER, SUCCESS, DANGER, DANGER_DARK, WARNING, INFO, successAlpha, dangerAlpha, infoAlpha, primaryAlpha, chartGrid, chartTooltipBg, chartTooltipBorder, chartText, chartCursor } from '@/utils/colors';
 import React from 'react';
+import { useTranslation } from 'react-i18next';
 import { motion } from 'framer-motion';
 import { formatCurrency } from '@/utils/calculations';
 import { Button } from '@/components/ui/button';
@@ -7,6 +8,7 @@ import { differenceInDays, isPast, parseISO } from 'date-fns';
 import BxIcon, { Pencil, Trash } from '@/components/BxIcon';
 
 const MetaProgressCard = ({ goal, onEdit, onDelete, index = 0 }) => {
+  const { t } = useTranslation();
   const isTargetMode = goal.goal_type === 'target_value';
   
   // Calculate percentage
@@ -68,12 +70,12 @@ const MetaProgressCard = ({ goal, onEdit, onDelete, index = 0 }) => {
             </h3>
             <div className="flex flex-wrap items-center gap-2 mt-1">
                 <span className="text-[10px] uppercase tracking-wider px-1.5 py-0.5 rounded bg-gray-100 dark:bg-gray-800 text-gray-600 dark:text-gray-400 font-semibold border border-gray-200 dark:border-gray-700 whitespace-nowrap">
-                    {goal.goal_type === 'monthly_value' ? 'Recorrente' : 'Alvo Fixo'}
+                    {goal.goal_type === 'monthly_value' ? t('goals.type_recurring') : t('goals.type_fixed_badge')}
                 </span>
             </div>
             {goal.deadline && isTargetMode && (
                 <div className={`text-xs mt-1 truncate ${isOverdue ? 'text-red-600 font-bold' : 'text-gray-500 dark:text-gray-400'}`}>
-                    {isOverdue ? 'Atrasada!' : `${daysLeft} dias restantes`}
+                    {isOverdue ? t('goals.overdue_card') : t('goals.days_left_full', { count: daysLeft })}
                 </div>
             )}
           </div>
@@ -117,7 +119,7 @@ const MetaProgressCard = ({ goal, onEdit, onDelete, index = 0 }) => {
       <div className="mt-auto pt-3 border-t border-gray-100 dark:border-gray-800 grid grid-cols-2 gap-2 text-sm">
         <div className="overflow-hidden">
            <p className="text-gray-500 dark:text-gray-400 text-[10px] uppercase tracking-wide font-semibold truncate">
-             Acumulado
+             {t('goals.accumulated')}
            </p>
            <p className="font-bold text-emerald-600 dark:text-emerald-400 truncate" title={formatCurrency(goal.accumulated_amount)}>
              {formatCurrency(goal.accumulated_amount)}
@@ -125,7 +127,7 @@ const MetaProgressCard = ({ goal, onEdit, onDelete, index = 0 }) => {
         </div>
         <div className="text-right overflow-hidden">
            <p className="text-gray-500 dark:text-gray-400 text-[10px] uppercase tracking-wide font-semibold truncate">
-              {isTargetMode ? 'Meta Total' : 'Meta Período'}
+              {isTargetMode ? t('goals.target_total') : t('goals.target_period')}
            </p>
            <p className="font-bold text-gray-900 dark:text-gray-50 truncate" title={isTargetMode ? formatCurrency(goal.targetAmount) : formatCurrency(goal.contributionValue)}>
              {isTargetMode ? formatCurrency(goal.targetAmount) : formatCurrency(goal.contributionValue)}

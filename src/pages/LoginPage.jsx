@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { useNavigate, Link } from 'react-router-dom';
 import { Helmet } from 'react-helmet';
 import { useAuth } from '@/context/SupabaseAuthContext';
@@ -8,6 +9,7 @@ import { RefreshCw as Loader2, Eye, EyeSlash as EyeOff } from '@/components/BxIc
 import VindexLogo from '@/components/VindexLogo';
 
 const LoginPage = () => {
+  const { t } = useTranslation();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
@@ -34,11 +36,11 @@ const LoginPage = () => {
           <VindexLogo textColor="text-foreground" />
         </div>
         
-        <h1 className="text-2xl font-bold text-center text-foreground mb-6">Bem-vindo de volta!</h1>
-        
+        <h1 className="text-2xl font-bold text-center text-foreground mb-6">{t('auth.welcome_back')}</h1>
+
         <form onSubmit={handleSubmit} className="space-y-4">
           <div>
-            <Label htmlFor="email" className="text-foreground">Email</Label>
+            <Label htmlFor="email" className="text-foreground">{t('auth.email')}</Label>
             <input
               id="email"
               type="email"
@@ -51,8 +53,8 @@ const LoginPage = () => {
 
           <div>
             <div className="flex justify-between items-center mb-1">
-               <Label htmlFor="password" className="text-foreground">Senha</Label>
-               <Link to="/reset-password" className="text-xs text-primary hover:underline font-medium">Esqueceu a senha?</Link>
+               <Label htmlFor="password" className="text-foreground">{t('auth.password')}</Label>
+               <Link to="/reset-password" className="text-xs text-primary hover:underline font-medium">{t('auth.forgot_password')}</Link>
             </div>
             <div className="relative">
               <input
@@ -79,14 +81,14 @@ const LoginPage = () => {
             className="w-full bg-primary hover:bg-primary/90 text-black font-bold h-11 transition-all"
             disabled={loading}
           >
-            {loading ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : 'Entrar'}
+            {loading ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : t('auth.sign_in')}
           </Button>
         </form>
-        
+
         <div className="mt-6 text-center text-sm text-muted-foreground">
-          Não tem uma conta?{' '}
+          {t('auth.no_account')}{' '}
           <Link to="/signup" className="text-primary hover:underline font-bold">
-            Cadastre-se
+            {t('auth.sign_up')}
           </Link>
         </div>
       </div>

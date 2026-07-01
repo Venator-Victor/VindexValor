@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { useNavigate, Link } from 'react-router-dom';
 import { Helmet } from 'react-helmet';
 import { useAuth } from '@/context/SupabaseAuthContext';
@@ -9,6 +10,7 @@ import { RefreshCw as Loader2, Eye, EyeSlash as EyeOff } from '@/components/BxIc
 import VindexLogo from '@/components/VindexLogo';
 
 const SignupPage = () => {
+  const { t } = useTranslation();
   const [formData, setFormData] = useState({
     email: '',
     password: '',
@@ -31,8 +33,8 @@ const SignupPage = () => {
     if (formData.password !== formData.confirmPassword) {
       toast({
         variant: "destructive",
-        title: "Erro de Validação",
-        description: "As senhas não coincidem.",
+        title: t('auth.validation_error_title'),
+        description: t('auth.passwords_mismatch'),
       });
       return;
     }
@@ -40,8 +42,8 @@ const SignupPage = () => {
     if (formData.password.length < 8 || !/[A-Z]/.test(formData.password) || !/[0-9]/.test(formData.password)) {
       toast({
         variant: "destructive",
-        title: "Senha Fraca",
-        description: "A senha deve ter mínimo 8 caracteres, uma letra maiúscula, uma minúscula, um número e um símbolo.",
+        title: t('auth.weak_password_title'),
+        description: t('auth.weak_password_desc'),
       });
       return;
     }
@@ -58,7 +60,7 @@ const SignupPage = () => {
   return (
     <div className="min-h-screen bg-background flex items-center justify-center p-4">
       <Helmet>
-        <title>Cadastro - VindexValor</title>
+        <title>{t('auth.signup_title')} - VindexValor</title>
       </Helmet>
 
       <div className="w-full max-w-md bg-card rounded-xl border border-border shadow-xl p-8">
@@ -66,11 +68,11 @@ const SignupPage = () => {
           <VindexLogo textColor="text-foreground" />
         </div>
 
-        <h1 className="text-2xl font-bold text-center text-foreground mb-6">Crie sua conta</h1>
+        <h1 className="text-2xl font-bold text-center text-foreground mb-6">{t('auth.create_account')}</h1>
 
         <form onSubmit={handleSubmit} className="space-y-4">
           <div>
-            <Label htmlFor="email" className="text-foreground">Email</Label>
+            <Label htmlFor="email" className="text-foreground">{t('auth.email')}</Label>
             <input
               id="email"
               type="email"
@@ -82,7 +84,7 @@ const SignupPage = () => {
           </div>
 
           <div>
-            <Label htmlFor="password" className="text-foreground">Senha</Label>
+            <Label htmlFor="password" className="text-foreground">{t('auth.password')}</Label>
             <div className="relative">
               <input
                 id="password"
@@ -105,9 +107,9 @@ const SignupPage = () => {
             {formData.password.length > 0 && (
               <ul className="mt-2 space-y-1">
                 {[
-                  { label: 'Mínimo 8 caracteres', met: formData.password.length >= 8 },
-                  { label: 'Uma letra maiúscula', met: /[A-Z]/.test(formData.password) },
-                  { label: 'Um número', met: /[0-9]/.test(formData.password) },
+                  { label: t('auth.password_req_min_length'), met: formData.password.length >= 8 },
+                  { label: t('auth.password_req_uppercase'), met: /[A-Z]/.test(formData.password) },
+                  { label: t('auth.password_req_number'), met: /[0-9]/.test(formData.password) },
                 ].map(({ label, met }) => (
                   <li key={label} className={`flex items-center gap-1.5 text-xs transition-colors ${met ? 'text-green-500' : 'text-muted-foreground'}`}>
                     <span className="text-base leading-none">{met ? '✓' : '·'}</span>
@@ -119,7 +121,7 @@ const SignupPage = () => {
           </div>
 
           <div>
-            <Label htmlFor="confirmPassword" className="text-foreground">Confirmar Senha</Label>
+            <Label htmlFor="confirmPassword" className="text-foreground">{t('auth.confirm_password')}</Label>
             <div className="relative">
               <input
                 id="confirmPassword"
@@ -145,14 +147,14 @@ const SignupPage = () => {
             className="w-full bg-primary hover:bg-primary/90 text-black font-bold h-11 transition-all"
             disabled={loading}
           >
-            {loading ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : 'Cadastrar'}
+            {loading ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : t('auth.sign_up_action')}
           </Button>
         </form>
 
         <div className="mt-6 text-center text-sm text-muted-foreground">
-          Já tem uma conta?{' '}
+          {t('auth.already_account')}{' '}
           <Link to="/login" className="text-primary hover:underline font-bold">
-            Entrar
+            {t('auth.sign_in')}
           </Link>
         </div>
       </div>

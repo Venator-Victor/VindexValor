@@ -1,4 +1,5 @@
 import React, { useEffect } from 'react';
+import { useTranslation } from 'react-i18next';
 import { Link, useNavigate } from 'react-router-dom';
 import { Helmet } from 'react-helmet';
 import {
@@ -23,6 +24,7 @@ const Section = ({ icon: Icon, title, id, children }) => (
 );
 
 const PrivacyPage = () => {
+  const { t } = useTranslation();
   const { setIsModalOpen } = useConsent();
   const navigate = useNavigate();
 
@@ -39,7 +41,7 @@ const PrivacyPage = () => {
         <div className="container mx-auto px-4 md:px-6 h-16 flex items-center justify-between">
           <Link to="/"><VindexLogo textColor="text-foreground" /></Link>
           <Button variant="ghost" size="sm" className="gap-2" onClick={() => navigate(-1)}>
-            <ArrowLeft size={16} /> Voltar
+            <ArrowLeft size={16} /> {t('common.back')}
           </Button>
         </div>
       </header>
@@ -48,7 +50,7 @@ const PrivacyPage = () => {
         <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.5 }}>
 
           <div className="mb-12 text-center">
-            <h1 className="text-4xl md:text-5xl font-bold mb-4 tracking-tight">Política de Privacidade</h1>
+            <h1 className="text-4xl md:text-5xl font-bold mb-4 tracking-tight">{t('privacy.title')}</h1>
             <p className="text-muted-foreground text-lg">Última atualização: {LAST_UPDATED}</p>
             <p className="text-sm text-muted-foreground mt-2">Em conformidade com a Lei Geral de Proteção de Dados — LGPD (Lei nº 13.709/2018)</p>
           </div>
@@ -291,7 +293,7 @@ const PrivacyPage = () => {
 
           <div className="mt-8 text-center">
             <Button size="lg" className="px-8 font-semibold shadow-md" onClick={() => navigate(-1)}>
-              Voltar
+              {t('common.back')}
             </Button>
           </div>
         </motion.div>

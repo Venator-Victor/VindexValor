@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { formatCurrency } from '@/utils/calculations';
 import { Button } from '@/components/ui/button';
 import { useFinance } from '@/context/FinanceContext';
@@ -6,6 +7,7 @@ import { useToast } from '@/components/ui/use-toast';
 import { Pencil, Trash, Clock5, Check, Checks } from '@/components/BxIcon';
 
 const RecurrenceCard = ({ item, onEdit, onDelete, onToggleStatus }) => {
+  const { t } = useTranslation();
   const { parcels, payParcel, processRecurring } = useFinance();
   const { toast } = useToast();
   const [isProcessing, setIsProcessing] = useState(false);
@@ -31,16 +33,16 @@ const RecurrenceCard = ({ item, onEdit, onDelete, onToggleStatus }) => {
     setIsProcessing(true);
     try {
       await processRecurring(item.id);
-      toast({ title: "Pagamento registrado!", description: `Próxima cobrança atualizada.` });
+      toast({ title: t('recurrences.payment_registered_title'), description: t('recurrences.payment_registered_desc') });
     } catch (err) {
-      toast({ title: "Erro ao registrar pagamento", description: err.message, variant: "destructive" });
+      toast({ title: t('recurrences.payment_error_title'), description: err.message, variant: "destructive" });
     } finally {
       setIsProcessing(false);
     }
   };
 
   // Safe access to category name from joined data
-  const categoryName = item.categories?.name || 'Sem categoria';
+  const categoryName = item.categories?.name || t('common.no_category');
 
   return (
     <div className={`bg-white dark:bg-vindex-card rounded-xl p-5 border shadow-sm hover:shadow-md transition-all relative overflow-hidden flex flex-col justify-between ${isActive ? 'border-gray-200 dark:border-vindex-border' : 'border-gray-100 dark:border-vindex-border/30 opacity-80'}`}>
@@ -83,7 +85,7 @@ const RecurrenceCard = ({ item, onEdit, onDelete, onToggleStatus }) => {
          <div className="pl-2 mb-1 mt-auto">
             <div className="flex justify-between text-xs mb-1.5">
                <span className="text-gray-600 dark:text-gray-400 font-medium">
-                  Parcela {nextPendingParcel ? nextPendingParcel.parcel_number : totalParcelsCount} de {totalParcelsCount}
+                  {t('recurrences.parcel_of', { current: nextPendingParcel ? nextPendingParcel.parcel_number : totalParcelsCount, total: totalParcelsCount })}
                </span>
                <span className="font-bold text-blue-600 dark:text-blue-400">
                   {Math.round((totalParcelsCount > 0 ? (paidParcelsCount / totalParcelsCount) : 0) * 100)}%
@@ -102,13 +104,13 @@ const RecurrenceCard = ({ item, onEdit, onDelete, onToggleStatus }) => {
                    onClick={handlePayNextParcel}
                    className="w-full bg-blue-50 hover:bg-blue-100 text-blue-700 dark:bg-blue-900/20 dark:text-blue-300 dark:hover:bg-blue-900/30 border border-blue-200 dark:border-blue-800 h-9"
                 >
-                   <Check size={14} className="mr-1.5" /> Pagar parc. {nextPendingParcel.parcel_number}
+                   <Check size={14} className="mr-1.5" /> {t('recurrences.pay_parcel', { number: nextPendingParcel.parcel_number })}
                 </Button>
             )}
-            
+
             {!nextPendingParcel && paidParcelsCount === totalParcelsCount && totalParcelsCount > 0 && (
                 <div className="w-full text-center text-xs font-bold text-green-600 dark:text-green-400 py-2 bg-green-50 dark:bg-green-900/20 rounded-md border border-green-100 dark:border-green-900/30">
-                    <Checks size={14} className="mr-1 inline" /> Quitado
+                    <Checks size={14} className="mr-1 inline" /> {t('recurrences.paid_off')}
                 </div>
             )}
          </div>
@@ -116,7 +118,7 @@ const RecurrenceCard = ({ item, onEdit, onDelete, onToggleStatus }) => {
           <div className="pl-2 pt-3 border-t border-gray-100 dark:border-vindex-border/50 mt-auto space-y-2">
              <div className="flex items-center justify-between">
                 <div className="flex flex-col">
-                   <span className="text-[10px] text-gray-400 uppercase tracking-wider font-semibold">Próxima</span>
+                   <span className="text-[10px] text-gray-400 uppercase tracking-wider font-semibold">{t('recurrences.next_label')}</span>
                    <span className="text-sm font-bold text-gray-700 dark:text-gray-200">
                       {item.next_date ? new Date(item.next_date).toLocaleDateString('pt-BR') : '—'}
                    </span>
@@ -129,7 +131,7 @@ const RecurrenceCard = ({ item, onEdit, onDelete, onToggleStatus }) => {
                        : 'bg-gray-100 text-gray-500 dark:bg-vindex-bg dark:text-gray-400 hover:bg-gray-200 dark:hover:bg-vindex-border'
                    }`}
                 >
-                   {item.status}
+                   {isActive ? t('recurrences.status_active') : t('recurrences.status_inactive')}
                 </button>
              </div>
              {isActive && (
@@ -140,7 +142,7 @@ const RecurrenceCard = ({ item, onEdit, onDelete, onToggleStatus }) => {
                  className="w-full bg-purple-50 hover:bg-purple-100 text-purple-700 dark:bg-purple-900/20 dark:text-purple-300 dark:hover:bg-purple-900/30 border border-purple-200 dark:border-purple-800 h-9"
                >
                  <Check size={14} className="mr-1.5" />
-                 {isProcessing ? 'Registrando...' : 'Registrar pagamento'}
+                 {isProcessing ? t('recurrences.registering') : t('recurrences.register_payment')}
                </Button>
              )}
           </div>

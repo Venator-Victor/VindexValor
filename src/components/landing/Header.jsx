@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { useTranslation } from 'react-i18next';
 import { Link } from 'react-router-dom';
 import { Menu, X, ArrowRight, Sun, Moon, Door as LogOut, Cog as Settings, Dashboard as LayoutDashboard, HelpCircle, User, Window as AppWindow } from '@/components/BxIcon';
 import { Button } from '@/components/ui/button';
@@ -14,6 +15,7 @@ import {
 } from '@/components/ui/dropdown-menu';
 
 const Header = () => {
+  const { t } = useTranslation();
   const [isScrolled, setIsScrolled] = useState(false);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const { theme, toggleTheme } = useTheme();
@@ -28,10 +30,10 @@ const Header = () => {
   }, []);
 
   const navLinks = [
-    { name: 'Home', href: '#home' },
-    { name: 'Sobre', href: '#sobre' },
-    { name: 'Funcionalidades', href: '#funcionalidades' },
-    { name: 'Tecnologias', href: '#tecnologias' },
+    { name: t('landing.nav_home'), href: '#home' },
+    { name: t('landing.nav_about'), href: '#sobre' },
+    { name: t('landing.nav_features'), href: '#funcionalidades' },
+    { name: t('landing.nav_technologies'), href: '#tecnologias' },
   ];
 
   return (
@@ -69,8 +71,8 @@ const Header = () => {
             <Button 
               variant="ghost" 
               size="icon" 
-              onClick={toggleTheme} 
-              aria-label="Alternar tema"
+              onClick={toggleTheme}
+              aria-label={t('landing.toggle_theme')}
               className={isScrolled ? 'text-muted-foreground hover:text-foreground' : 'text-white/80 hover:text-white hover:bg-white/10'}
             >
               {theme === 'dark' ? <Sun size={20} /> : <Moon size={20} />}
@@ -80,43 +82,43 @@ const Header = () => {
               <DropdownMenu>
                 <DropdownMenuTrigger asChild>
                   <Button variant={isScrolled ? "outline" : "secondary"} className="gap-2 font-semibold">
-                    <User size={16} /> Conta
+                    <User size={16} /> {t('landing.account')}
                   </Button>
                 </DropdownMenuTrigger>
                 <DropdownMenuContent align="end" className="w-48">
                   <DropdownMenuItem asChild>
                     <Link to="/dashboard" className="cursor-pointer flex items-center gap-2">
-                      <AppWindow size={16} /> App
+                      <AppWindow size={16} /> {t('landing.app')}
                     </Link>
                   </DropdownMenuItem>
                   <DropdownMenuItem asChild>
                     <Link to="/dashboard" className="cursor-pointer flex items-center gap-2">
-                      <LayoutDashboard size={16} /> Dashboard
+                      <LayoutDashboard size={16} /> {t('nav.dashboard')}
                     </Link>
                   </DropdownMenuItem>
                   <DropdownMenuItem asChild>
                     <Link to="/support" className="cursor-pointer flex items-center gap-2">
-                      <HelpCircle size={16} /> Suporte
+                      <HelpCircle size={16} /> {t('nav.support')}
                     </Link>
                   </DropdownMenuItem>
                   <DropdownMenuItem asChild>
                     <Link to="/settings" className="cursor-pointer flex items-center gap-2">
-                      <Settings size={16} /> Configurações
+                      <Settings size={16} /> {t('nav.settings')}
                     </Link>
                   </DropdownMenuItem>
                   <DropdownMenuSeparator />
-                  <DropdownMenuItem 
+                  <DropdownMenuItem
                     onClick={signOut}
                     className="cursor-pointer flex items-center gap-2 text-destructive focus:text-destructive"
                   >
-                    <LogOut size={16} /> Sair
+                    <LogOut size={16} /> {t('landing.logout')}
                   </DropdownMenuItem>
                 </DropdownMenuContent>
               </DropdownMenu>
             ) : (
               <Link to="/login">
                 <Button className="gap-2 font-semibold shadow-md bg-primary text-primary-foreground hover:bg-primary/90 border-none">
-                  Login <ArrowRight size={16} />
+                  {t('landing.login')} <ArrowRight size={16} />
                 </Button>
               </Link>
             )}
@@ -164,16 +166,16 @@ const Header = () => {
             {user ? (
               <>
                 <Link to="/dashboard" onClick={() => setMobileMenuOpen(false)} className="flex items-center gap-3 px-4 py-3 text-base font-medium text-foreground hover:bg-muted rounded-md">
-                  <LayoutDashboard size={20} /> Dashboard
+                  <LayoutDashboard size={20} /> {t('nav.dashboard')}
                 </Link>
                 <button onClick={() => { signOut(); setMobileMenuOpen(false); }} className="flex items-center gap-3 px-4 py-3 text-base font-medium text-destructive hover:bg-destructive/10 rounded-md text-left">
-                  <LogOut size={20} /> Sair
+                  <LogOut size={20} /> {t('landing.logout')}
                 </button>
               </>
             ) : (
               <Link to="/login" onClick={() => setMobileMenuOpen(false)}>
                 <Button className="w-full gap-2 font-semibold h-12 text-base">
-                  Login <ArrowRight size={18} />
+                  {t('landing.login')} <ArrowRight size={18} />
                 </Button>
               </Link>
             )}

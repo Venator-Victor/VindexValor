@@ -1,4 +1,5 @@
 import React from 'react';
+import { useTranslation } from 'react-i18next';
 import { Link } from 'react-router-dom';
 import { Envelope as Mail, ArrowRight } from '@/components/BxIcon';
 const GithubIcon = ({ size = 20 }) => (
@@ -15,6 +16,7 @@ const LinkedinIcon = ({ size = 20 }) => (
 import VindexLogo from '@/components/VindexLogo';
 
 const Footer = () => {
+  const { t } = useTranslation();
   return (
     <footer className="bg-card text-card-foreground border-t border-border pt-16 pb-8">
       <div className="container mx-auto px-4 md:px-6">
@@ -26,9 +28,7 @@ const Footer = () => {
               <VindexLogo textColor="text-foreground" />
             </Link>
             <p className="text-muted-foreground text-sm leading-relaxed max-w-md mb-6">
-              O VindexValor é um web app de gestão financeira pessoal inteligente, 
-              desenvolvido como Trabalho de Conclusão de Curso (TCC) para a Pós-Graduação 
-              em Desenvolvimento Full Stack pela PUC-RS.
+              {t('landing.about_p1')}
             </p>
             <div className="flex gap-4">
               <a href="https://github.com/Venator-Victor" target="_blank" rel="noopener noreferrer" className="w-10 h-10 rounded-full bg-muted flex items-center justify-center text-foreground hover:bg-primary hover:text-primary-foreground transition-colors">
@@ -44,44 +44,44 @@ const Footer = () => {
           </div>
 
           <div>
-            <span className="block font-bold text-lg mb-4">Links Rápidos</span>
+            <span className="block font-bold text-lg mb-4">{t('landing.footer_quick_links')}</span>
             <ul className="space-y-2">
-              <li><a href="#home" className="text-muted-foreground hover:text-primary text-sm transition-colors">Home</a></li>
-              <li><a href="#sobre" className="text-muted-foreground hover:text-primary text-sm transition-colors">Sobre</a></li>
-              <li><a href="#funcionalidades" className="text-muted-foreground hover:text-primary text-sm transition-colors">Funcionalidades</a></li>
-              <li><a href="#tecnologias" className="text-muted-foreground hover:text-primary text-sm transition-colors">Tecnologias</a></li>
+              <li><a href="#home" className="text-muted-foreground hover:text-primary text-sm transition-colors">{t('landing.nav_home')}</a></li>
+              <li><a href="#sobre" className="text-muted-foreground hover:text-primary text-sm transition-colors">{t('landing.nav_about')}</a></li>
+              <li><a href="#funcionalidades" className="text-muted-foreground hover:text-primary text-sm transition-colors">{t('landing.nav_features')}</a></li>
+              <li><a href="#tecnologias" className="text-muted-foreground hover:text-primary text-sm transition-colors">{t('landing.nav_technologies')}</a></li>
             </ul>
           </div>
 
           <div>
-            <span className="block font-bold text-lg mb-4">Legal e Acesso</span>
+            <span className="block font-bold text-lg mb-4">{t('landing.footer_legal')}</span>
             <ul className="space-y-2">
               <li>
                 <Link to="/login" className="flex items-center gap-1 text-primary hover:underline text-sm font-semibold transition-colors">
-                  Fazer Login <ArrowRight size={14} />
+                  {t('landing.footer_login')} <ArrowRight size={14} />
                 </Link>
               </li>
               <li>
                 <Link to="/signup" className="flex items-center gap-1 text-muted-foreground hover:text-primary text-sm transition-colors">
-                  Criar Conta
+                  {t('landing.footer_signup')}
                 </Link>
               </li>
               <li className="pt-2 mt-2 border-t border-border/50">
                 <Link to="/privacy" className="flex items-center gap-1 text-muted-foreground hover:text-primary text-sm transition-colors">
-                  Política de Privacidade
+                  {t('landing.footer_privacy')}
                 </Link>
               </li>
             </ul>
           </div>
-          
+
         </div>
 
         <div className="pt-8 border-t border-border flex flex-col md:flex-row items-center justify-between gap-4">
           <p className="text-muted-foreground text-sm text-center md:text-left">
-            &copy; {new Date().getFullYear()} VindexValor. TCC PUC-RS. Todos os direitos reservados.
+            {t('landing.footer_copyright', { year: new Date().getFullYear() })}
           </p>
           <div className="flex gap-4">
-            <span className="text-muted-foreground text-sm">Desenvolvimento Full Stack</span>
+            <span className="text-muted-foreground text-sm">{t('landing.footer_full_stack')}</span>
           </div>
         </div>
       </div>

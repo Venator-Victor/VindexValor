@@ -1,4 +1,5 @@
 import React, { useState, useMemo } from 'react';
+import { useTranslation } from 'react-i18next';
 import { motion } from 'framer-motion';
 import {
   AreaChart, Area, XAxis, YAxis,
@@ -10,6 +11,7 @@ import { TrendingDown, TrendingUp } from '@/components/BxIcon';
 import { SUCCESS, DANGER_DARK } from '@/utils/colors';
 
 const InflationSimulator = () => {
+  const { t } = useTranslation();
   const { theme } = useTheme();
   const isDark = theme === 'dark';
 
@@ -55,10 +57,10 @@ const InflationSimulator = () => {
           <div className="p-2 bg-red-100 dark:bg-red-900/20 rounded-lg">
             <TrendingDown className="w-5 h-5 text-red-600 dark:text-red-400" />
           </div>
-          Simulador de Inflação
+          {t('inflation.simulator_title')}
         </h3>
         <p className="text-sm text-gray-500 dark:text-gray-400 mt-1">
-          Compare a erosão da inflação com o crescimento do seu investimento ao longo do tempo.
+          {t('inflation.simulator_subtitle')}
         </p>
       </div>
 
@@ -66,7 +68,7 @@ const InflationSimulator = () => {
         {/* Inputs + Summary */}
         <div className="space-y-4">
           <div>
-            <label className="block text-xs font-medium text-gray-500 dark:text-gray-400 mb-1">Valor atual (R$)</label>
+            <label className="block text-xs font-medium text-gray-500 dark:text-gray-400 mb-1">{t('inflation.current_value')}</label>
             <input
               type="number" min="0" value={currentValue}
               onChange={(e) => setCurrentValue(Number(e.target.value))}
@@ -78,7 +80,7 @@ const InflationSimulator = () => {
             <div>
               <label className="block text-xs font-medium text-gray-500 dark:text-gray-400 mb-1 flex items-center gap-1">
                 <span className="w-2 h-2 rounded-full bg-vindex-danger inline-block" />
-                Inflação (% a.a.)
+                {t('inflation.inflation_rate')}
               </label>
               <input
                 type="number" min="0" step="0.1" value={inflationRate}
@@ -89,7 +91,7 @@ const InflationSimulator = () => {
             <div>
               <label className="block text-xs font-medium text-gray-500 dark:text-gray-400 mb-1 flex items-center gap-1">
                 <span className="w-2 h-2 rounded-full bg-vindex-success inline-block" />
-                Retorno (% a.a.)
+                {t('inflation.return_rate')}
               </label>
               <input
                 type="number" min="0" step="0.1" value={returnRate}
@@ -101,7 +103,7 @@ const InflationSimulator = () => {
 
           <div>
             <label className="block text-xs font-medium text-gray-500 dark:text-gray-400 mb-2">
-              Período — <span className="text-gray-900 dark:text-vindex-text font-semibold">{years} {years === 1 ? 'ano' : 'anos'}</span>
+              {t('inflation.years')} — <span className="text-gray-900 dark:text-vindex-text font-semibold">{t('investment_sim.years_count', { count: years })}</span>
             </label>
             <input
               type="range" min="1" max="100" value={years}
@@ -117,18 +119,18 @@ const InflationSimulator = () => {
           <div className="rounded-lg border border-gray-200 dark:border-vindex-border overflow-hidden text-sm">
             <div className="p-3 flex justify-between items-center bg-red-50 dark:bg-red-900/10">
               <span className="text-gray-500 dark:text-gray-400 flex items-center gap-1.5">
-                <TrendingDown className="w-3.5 h-3.5 text-vindex-danger" /> Precisará de
+                <TrendingDown className="w-3.5 h-3.5 text-vindex-danger" /> {t('inflation.will_need')}
               </span>
               <span className="font-semibold text-vindex-danger">{formatCurrency(finalNeeded)}</span>
             </div>
             <div className="p-3 flex justify-between items-center border-t border-gray-100 dark:border-vindex-border/50 bg-green-50 dark:bg-green-900/10">
               <span className="text-gray-500 dark:text-gray-400 flex items-center gap-1.5">
-                <TrendingUp className="w-3.5 h-3.5 text-vindex-success" /> Investido valerá
+                <TrendingUp className="w-3.5 h-3.5 text-vindex-success" /> {t('inflation.will_be_worth')}
               </span>
               <span className="font-semibold text-vindex-success">{formatCurrency(finalInvested)}</span>
             </div>
             <div className="p-3 flex justify-between items-center border-t border-gray-100 dark:border-vindex-border/50">
-              <span className="text-gray-500 dark:text-gray-400">Saldo vs. inflação</span>
+              <span className="text-gray-500 dark:text-gray-400">{t('inflation.balance_vs_inflation')}</span>
               <span className={`font-bold ${beatsInflation ? 'text-vindex-success' : 'text-vindex-danger'}`}>
                 {beatsInflation ? '+' : ''}{formatCurrency(realGain)}
               </span>
@@ -168,17 +170,17 @@ const InflationSimulator = () => {
                 itemStyle={{ color: textColor }}
                 formatter={(value, name) => [
                   formatCurrency(value),
-                  name === 'needed' ? 'Necessário (inflação)' : 'Retorno investimento',
+                  name === 'needed' ? t('inflation.needed_label') : t('inflation.return_investment_label'),
                 ]}
               />
               <Legend
                 wrapperStyle={{ fontSize: 12, paddingTop: 8 }}
                 formatter={(value) =>
-                  value === 'needed' ? 'Necessário (inflação)' : 'Retorno investimento'
+                  value === 'needed' ? t('inflation.needed_label') : t('inflation.return_investment_label')
                 }
               />
               <ReferenceLine y={currentValue} stroke={textColor} strokeDasharray="4 4" strokeOpacity={0.35}>
-                <Label value="hoje" position="insideTopRight" fontSize={10} fill={textColor} opacity={0.5} />
+                <Label value={t('inflation.today_label')} position="insideTopRight" fontSize={10} fill={textColor} opacity={0.5} />
               </ReferenceLine>
               <Area type="monotone" dataKey="needed" stroke={DANGER_DARK} fill="url(#gradNeeded)" strokeWidth={1.5} dot={false} />
               <Area type="monotone" dataKey="invested" stroke={SUCCESS} fill="url(#gradInvested)" strokeWidth={1.5} dot={false} />

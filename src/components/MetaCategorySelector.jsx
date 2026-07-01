@@ -1,4 +1,5 @@
 import React from 'react';
+import { useTranslation } from 'react-i18next';
 import { motion } from 'framer-motion';
 import { Button } from '@/components/ui/button';
 import BxIcon, { Plus } from '@/components/BxIcon';
@@ -16,11 +17,12 @@ const CATEGORIES = [
 ];
 
 const MetaCategorySelector = ({ onSelect, onCustomSelect }) => {
+  const { t } = useTranslation();
   return (
     <div className="space-y-6">
       <div className="text-center mb-6">
-        <h3 className="text-lg font-semibold text-gray-900 dark:text-gray-100">O que você deseja conquistar?</h3>
-        <p className="text-sm text-gray-500 dark:text-gray-400">Escolha uma categoria para começar sua meta</p>
+        <h3 className="text-lg font-semibold text-gray-900 dark:text-gray-100">{t('goals.selector_title')}</h3>
+        <p className="text-sm text-gray-500 dark:text-gray-400">{t('goals.selector_subtitle')}</p>
       </div>
 
       <div className="grid grid-cols-2 sm:grid-cols-3 gap-3 max-h-[400px] overflow-y-auto pr-2">
@@ -52,7 +54,7 @@ const MetaCategorySelector = ({ onSelect, onCustomSelect }) => {
           className="w-full h-12 border-dashed border-2 hover:bg-gray-50 dark:hover:bg-gray-800/50 text-gray-600 dark:text-gray-300 gap-2"
         >
           <Plus size={18} />
-          Crie uma nova meta personalizada
+          {t('goals.create_custom_action')}
         </Button>
       </div>
     </div>
