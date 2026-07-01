@@ -1,4 +1,4 @@
-import React, { createContext, useContext, useState, useEffect } from 'react';
+import React, { createContext, useContext, useState } from 'react';
 
 const ConsentContext = createContext();
 
@@ -13,39 +13,36 @@ export const useConsent = () => {
 const CONSENT_KEY = 'vindex_cookie_consent';
 const CONSENT_VERSION = 1;
 
-export const ConsentProvider = ({ children }) => {
-  const [preferences, setPreferences] = useState({
-    essential: true, // Always true
-    analytics: false,
-    marketing: false,
-    preferences: false,
-  });
-  const [hasConsented, setHasConsented] = useState(true); // Default true to hide banner until checked
-  const [isModalOpen, setIsModalOpen] = useState(false);
+const DEFAULT_PREFERENCES = {
+  essential: true, // Always true
+  analytics: false,
+  marketing: false,
+  preferences: false,
+};
 
-  useEffect(() => {
-    const storedConsent = localStorage.getItem(CONSENT_KEY);
-    
-    if (storedConsent) {
-      try {
-        const parsed = JSON.parse(storedConsent);
-        // Check if consent expired (12 months)
-        const consentDate = new Date(parsed.timestamp);
-        const expirationDate = new Date(consentDate.setMonth(consentDate.getMonth() + 12));
-        
-        if (new Date() > expirationDate || parsed.version !== CONSENT_VERSION) {
-          setHasConsented(false); // Expired or old version, re-prompt
-        } else {
-          setPreferences(parsed.preferences);
-          setHasConsented(true);
-        }
-      } catch (e) {
-        setHasConsented(false);
-      }
-    } else {
-      setHasConsented(false);
+const readStoredConsent = () => {
+  const storedConsent = localStorage.getItem(CONSENT_KEY);
+  if (!storedConsent) return null;
+
+  try {
+    const parsed = JSON.parse(storedConsent);
+    // Check if consent expired (12 months)
+    const consentDate = new Date(parsed.timestamp);
+    const expirationDate = new Date(consentDate.setMonth(consentDate.getMonth() + 12));
+
+    if (new Date() > expirationDate || parsed.version !== CONSENT_VERSION) {
+      return null; // Expired or old version, re-prompt
     }
-  }, []);
+    return parsed;
+  } catch (e) {
+    return null;
+  }
+};
+
+export const ConsentProvider = ({ children }) => {
+  const [preferences, setPreferences] = useState(() => readStoredConsent()?.preferences ?? DEFAULT_PREFERENCES);
+  const [hasConsented, setHasConsented] = useState(() => readStoredConsent() !== null);
+  const [isModalOpen, setIsModalOpen] = useState(false);
 
   const saveConsent = (newPreferences) => {
     const consentObject = {

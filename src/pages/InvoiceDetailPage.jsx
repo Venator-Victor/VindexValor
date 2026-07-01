@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { useParams, useNavigate } from 'react-router-dom';
 import { Helmet } from 'react-helmet';
 import { ArrowLeft, Plus, AlertCircle, Wallet, Link as Link2, TrashAlt as Trash2, ArrowDownRight, ArrowUpRight, Sigma } from '@/components/BxIcon';
@@ -19,6 +20,7 @@ const isValidUUID = (id) => {
 };
 
 const InvoiceDetailPage = () => {
+  const { t } = useTranslation();
   const { id } = useParams();
   const navigate = useNavigate();
   const { user } = useAuth();
@@ -40,15 +42,6 @@ const InvoiceDetailPage = () => {
 
   const [paymentToConfirm, setPaymentToConfirm] = useState(null);
   const [isConfirmDialogOpen, setIsConfirmDialogOpen] = useState(false);
-
-  useEffect(() => {
-    if (!id || !isValidUUID(id)) {
-      setUuidError("ID de fatura inválido ou não selecionada.");
-      setIsLoading(false);
-      return;
-    }
-    loadData();
-  }, [id]);
 
   const loadData = async () => {
     setIsLoading(true);
@@ -84,6 +77,17 @@ const InvoiceDetailPage = () => {
     }
   };
 
+  useEffect(() => {
+    if (!id || !isValidUUID(id)) {
+      // eslint-disable-next-line react-hooks/set-state-in-effect -- validates the route param and mirrors the result into state used for the error view; no external system involved but needs to react to `id` changes.
+      setUuidError(t('invoice_detail.invalid_id'));
+      setIsLoading(false);
+      return;
+    }
+    // eslint-disable-next-line react-hooks/set-state-in-effect -- fetches invoice/items/payments from Supabase; setIsLoading(true) inside loadData runs before the first await.
+    loadData();
+  }, [id]);
+
   // Only consider negative values (purchases/expenses) for fatura total
   const totalSaidas = items.filter(c => Number(c.amount) < 0).reduce((acc, c) => acc + Number(c.amount), 0);
   const calculatedTotal = totalSaidas;
@@ -105,7 +109,7 @@ const InvoiceDetailPage = () => {
       setEligiblePayments(data || []);
     } catch (err) {
       console.error("Error fetching payments:", err);
-      toast({ title: "Erro ao buscar pagamentos", description: err.message, variant: "destructive" });
+      toast({ title: t('invoice_detail.fetch_payments_error'), description: err.message, variant: "destructive" });
     } finally {
       setIsLoadingPayments(false);
     }
@@ -146,13 +150,13 @@ const InvoiceDetailPage = () => {
         await supabase.from('invoices').update({ status: 'paid' }).eq('id', id).eq('user_id', user.id);
       }
 
-      toast({ title: "Pagamento vinculado com sucesso!" });
+      toast({ title: t('invoice_detail.payment_linked_success') });
       setIsPaymentModalOpen(false);
       setPaymentToConfirm(null);
       setIsConfirmDialogOpen(false);
       loadData();
     } catch (err) {
-      toast({ title: "Erro ao vincular pagamento", description: err.message, variant: "destructive" });
+      toast({ title: t('invoice_detail.link_error'), description: err.message, variant: "destructive" });
     }
   };
 
@@ -169,10 +173,10 @@ const InvoiceDetailPage = () => {
       // Update status back to 'open' if it was marked as paid but now it's unlinked
       await supabase.from('invoices').update({ status: 'open' }).eq('id', id).eq('user_id', user.id);
 
-      toast({ title: "Pagamento desvinculado com sucesso!" });
+      toast({ title: t('invoice_detail.payment_unlinked_success') });
       loadData();
     } catch (err) {
-      toast({ title: "Erro ao desvincular pagamento", description: err.message, variant: "destructive" });
+      toast({ title: t('invoice_detail.unlink_error'), description: err.message, variant: "destructive" });
     }
   };
 
@@ -198,24 +202,24 @@ const InvoiceDetailPage = () => {
     return `${d}/${m}/${y}`;
   };
 
-  if (isLoading) return <div className="p-8 text-center text-muted-foreground">Carregando detalhes...</div>;
-  
+  if (isLoading) return <div className="p-8 text-center text-muted-foreground">{t('invoice_detail.loading')}</div>;
+
   if (uuidError) return (
     <div className="p-8 max-w-md mx-auto mt-10">
       <div className="bg-destructive/10 text-destructive p-4 rounded-xl flex flex-col items-center justify-center gap-3 border border-destructive/20">
         <AlertCircle className="w-8 h-8" />
         <p className="font-medium text-center">{uuidError}</p>
         <Button variant="outline" className="mt-2" onClick={() => navigate('/invoices')}>
-          Voltar para Faturas
+          {t('invoice_detail.back_to_invoices')}
         </Button>
       </div>
     </div>
   );
-  
+
   if (!invoice) return (
     <div className="p-8 text-center text-destructive">
-      <p className="mb-4">Fatura não encontrada.</p>
-      <Button variant="outline" onClick={() => navigate('/invoices')}>Voltar para Faturas</Button>
+      <p className="mb-4">{t('invoice_detail.not_found')}</p>
+      <Button variant="outline" onClick={() => navigate('/invoices')}>{t('invoice_detail.back_to_invoices')}</Button>
     </div>
   );
 
@@ -227,7 +231,7 @@ const InvoiceDetailPage = () => {
   return (
     <div className="space-y-6 pb-20 md:pb-0">
       <Helmet>
-        <title>VindexValor - Detalhes da Fatura</title>
+        <title>VindexValor - {t('invoice_detail.title')}</title>
       </Helmet>
 
       <div className="flex items-center gap-4">
@@ -235,7 +239,7 @@ const InvoiceDetailPage = () => {
           <ArrowLeft className="w-5 h-5" />
         </Button>
         <div>
-          <h1 className="text-3xl font-bold">{invoice.invoice_number || 'Detalhes da Fatura'}</h1>
+          <h1 className="text-3xl font-bold">{invoice.invoice_number || t('invoice_detail.title')}</h1>
           <p className="text-muted-foreground">{invoice.account?.name}</p>
         </div>
       </div>
@@ -244,15 +248,15 @@ const InvoiceDetailPage = () => {
         <div className="bg-card p-5 rounded-xl border shadow-sm flex flex-col justify-center">
           <div className="flex items-center gap-2 text-red-600 dark:text-red-400 mb-1">
             <ArrowDownRight className="w-4 h-4" />
-            <span className="text-sm font-medium">Total de Saídas (Despesas)</span>
+            <span className="text-sm font-medium">{t('invoice_detail.total_outflows')}</span>
           </div>
           <p className="text-2xl font-bold text-red-600 dark:text-red-400">{formatCurrency(totalSaidas)}</p>
         </div>
-        
+
         <div className="bg-card p-5 rounded-xl border shadow-sm flex flex-col justify-center">
           <div className="flex items-center gap-2 text-foreground mb-1">
             <Sigma className="w-4 h-4" />
-            <span className="text-sm font-medium">Total Líquido da Fatura</span>
+            <span className="text-sm font-medium">{t('invoice_detail.net_total')}</span>
           </div>
           <p className={`text-2xl font-bold ${calcTotalColor}`}>{formatCurrency(calculatedTotal)}</p>
         </div>
@@ -261,22 +265,22 @@ const InvoiceDetailPage = () => {
       <div className="bg-muted/30 p-5 rounded-xl border">
         <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-4 gap-3">
           <h2 className="text-lg font-bold flex items-center gap-2">
-            <Wallet className="w-5 h-5 text-primary" /> Pagamentos Relacionados
+            <Wallet className="w-5 h-5 text-primary" /> {t('invoice_detail.related_payments')}
           </h2>
           <Button variant="outline" size="sm" onClick={handleOpenPaymentModal}>
-            <Link2 className="w-4 h-4 mr-2" /> Selecionar Pagamento
+            <Link2 className="w-4 h-4 mr-2" /> {t('invoice_detail.select_payment')}
           </Button>
         </div>
-        
+
         {payments.length > 0 ? (
           <div className="space-y-4">
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div className="bg-background p-4 rounded-lg border">
-                <span className="text-sm text-muted-foreground">Total Pago</span>
+                <span className="text-sm text-muted-foreground">{t('invoice_detail.total_paid')}</span>
                 <p className="text-lg font-bold text-green-600 dark:text-green-400 mt-1">{formatCurrency(totalPaid)}</p>
               </div>
               <div className="bg-background p-4 rounded-lg border">
-                <span className="text-sm text-muted-foreground">Saldo Restante</span>
+                <span className="text-sm text-muted-foreground">{t('invoice_detail.remaining_balance')}</span>
                 <p className="text-lg font-bold text-primary mt-1">{formatCurrency(remaining > 0 ? remaining : 0)}</p>
               </div>
             </div>
@@ -285,11 +289,11 @@ const InvoiceDetailPage = () => {
               <table className="w-full text-sm">
                 <thead className="bg-muted/50 border-b">
                   <tr>
-                    <th className="p-3 text-left font-medium">Data</th>
-                    <th className="p-3 text-left font-medium">Descrição</th>
-                    <th className="p-3 text-left font-medium">Conta Utilizada</th>
-                    <th className="p-3 text-right font-medium">Valor Pago</th>
-                    <th className="p-3 text-right font-medium">Ações</th>
+                    <th className="p-3 text-left font-medium">{t('invoice_detail.col_date')}</th>
+                    <th className="p-3 text-left font-medium">{t('invoice_detail.col_description')}</th>
+                    <th className="p-3 text-left font-medium">{t('invoice_detail.col_account_used')}</th>
+                    <th className="p-3 text-right font-medium">{t('invoice_detail.col_amount_paid')}</th>
+                    <th className="p-3 text-right font-medium">{t('invoice_detail.col_actions')}</th>
                   </tr>
                 </thead>
                 <tbody className="divide-y">
@@ -317,15 +321,15 @@ const InvoiceDetailPage = () => {
           </div>
         ) : (
           <div className="text-center py-6 text-muted-foreground border border-dashed rounded-lg bg-background">
-            Nenhum pagamento vinculado a esta invoice.
+            {t('invoice_detail.no_payment_linked')}
           </div>
         )}
       </div>
 
       <div className="flex justify-between items-center mt-8">
-        <h2 className="text-xl font-bold">Movimentações ({items.length})</h2>
+        <h2 className="text-xl font-bold">{t('invoice_detail.transactions_title', { count: items.length })}</h2>
         <Button onClick={() => { setEditingCompra(null); setIsFormOpen(true); }}>
-          <Plus className="w-4 h-4 mr-2" /> Adicionar Movimentação
+          <Plus className="w-4 h-4 mr-2" /> {t('invoice_detail.add_transaction')}
         </Button>
       </div>
 
@@ -339,7 +343,7 @@ const InvoiceDetailPage = () => {
       <Dialog open={isFormOpen} onOpenChange={setIsFormOpen}>
         <DialogContent className="sm:max-w-[425px]">
           <DialogHeader>
-            <DialogTitle>{editingCompra ? 'Editar Movimentação' : 'Adicionar Movimentação'}</DialogTitle>
+            <DialogTitle>{editingCompra ? t('invoice_detail.edit_transaction') : t('invoice_detail.add_transaction')}</DialogTitle>
           </DialogHeader>
           <InvoiceItemForm 
             invoiceId={id}
@@ -354,25 +358,25 @@ const InvoiceDetailPage = () => {
       <Dialog open={isPaymentModalOpen} onOpenChange={setIsPaymentModalOpen}>
         <DialogContent className="max-w-2xl">
           <DialogHeader>
-            <DialogTitle>Vincular Pagamento Existente</DialogTitle>
+            <DialogTitle>{t('invoice_detail.link_payment_title')}</DialogTitle>
           </DialogHeader>
           <div className="space-y-4 pt-4">
             {isLoadingPayments ? (
-              <div className="text-center py-8 text-muted-foreground">Buscando payments...</div>
+              <div className="text-center py-8 text-muted-foreground">{t('invoice_detail.loading_payments')}</div>
             ) : eligiblePayments.length === 0 ? (
               <div className="text-center py-8 text-muted-foreground border border-dashed rounded-lg bg-muted/20">
-                Nenhuma transação de pagamento disponível no momento.
+                {t('invoice_detail.no_payments_available')}
               </div>
             ) : (
               <div className="max-h-[60vh] overflow-y-auto pr-2 custom-scrollbar">
                 <table className="w-full text-sm border rounded-lg overflow-hidden">
                   <thead className="bg-muted/50 border-b">
                     <tr>
-                      <th className="p-3 text-left font-medium">Data</th>
-                      <th className="p-3 text-left font-medium">Descrição</th>
-                      <th className="p-3 text-left font-medium">Conta</th>
-                      <th className="p-3 text-right font-medium">Valor</th>
-                      <th className="p-3 text-center font-medium">Ação</th>
+                      <th className="p-3 text-left font-medium">{t('invoice_detail.col_date')}</th>
+                      <th className="p-3 text-left font-medium">{t('invoice_detail.col_description')}</th>
+                      <th className="p-3 text-left font-medium">{t('invoice_detail.col_account')}</th>
+                      <th className="p-3 text-right font-medium">{t('invoice_detail.col_value')}</th>
+                      <th className="p-3 text-center font-medium">{t('invoice_detail.col_action')}</th>
                     </tr>
                   </thead>
                   <tbody className="divide-y">
@@ -388,7 +392,7 @@ const InvoiceDetailPage = () => {
                           </td>
                           <td className="p-3 text-center">
                             <Button size="sm" variant="outline" onClick={() => handleSelectPayment(p)}>
-                              Vincular
+                              {t('invoice_detail.link_action')}
                             </Button>
                           </td>
                         </tr>
@@ -406,14 +410,17 @@ const InvoiceDetailPage = () => {
       <AlertDialog open={isConfirmDialogOpen} onOpenChange={setIsConfirmDialogOpen}>
         <AlertDialogContent>
           <AlertDialogHeader>
-            <AlertDialogTitle>Valores Divergentes</AlertDialogTitle>
+            <AlertDialogTitle>{t('invoice_detail.divergent_title')}</AlertDialogTitle>
             <AlertDialogDescription>
-              Aviso: O amount da transação ({paymentToConfirm && formatCurrency(Math.abs(paymentToConfirm.amount))}) é diferente do total da fatura ({formatCurrency(Math.abs(calculatedTotal))}). Deseja continuar e vincular este pagamento mesmo assim?
+              {t('invoice_detail.divergent_desc', {
+                payment: paymentToConfirm && formatCurrency(Math.abs(paymentToConfirm.amount)),
+                total: formatCurrency(Math.abs(calculatedTotal))
+              })}
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
-            <AlertDialogCancel onClick={() => setPaymentToConfirm(null)}>Cancelar</AlertDialogCancel>
-            <AlertDialogAction onClick={() => linkPayment(paymentToConfirm?.id)}>Sim, vincular</AlertDialogAction>
+            <AlertDialogCancel onClick={() => setPaymentToConfirm(null)}>{t('common.cancel')}</AlertDialogCancel>
+            <AlertDialogAction onClick={() => linkPayment(paymentToConfirm?.id)}>{t('invoice_detail.confirm_link')}</AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>

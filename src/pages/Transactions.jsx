@@ -42,6 +42,7 @@ const Transactions = () => {
       let stateUpdated = false;
       
       if (location.state.filterCategoryId !== undefined) {
+        // eslint-disable-next-line react-hooks/set-state-in-effect -- syncs from router navigation state (external system), then clears it via navigate() below.
         setSelectedCategoryId(location.state.filterCategoryId);
         stateUpdated = true;
       }

@@ -76,6 +76,7 @@ const Carousel = React.forwardRef((
       return
     }
 
+    // eslint-disable-next-line react-hooks/set-state-in-effect -- synchronizes React state with the embla-carousel external instance on mount, before its native events start firing.
     onSelect(api)
     api.on("reInit", onSelect)
     api.on("select", onSelect)

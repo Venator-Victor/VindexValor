@@ -1,10 +1,17 @@
 import React, { useState, useMemo } from 'react';
+import { useTranslation } from 'react-i18next';
 import { formatCurrency } from '@/utils/calculations';
 import { Edit, Trash, ArrowDownRight, ArrowUpRight, ArrowUp, ArrowDown } from '@/components/BxIcon';
 import { Button } from '@/components/ui/button';
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from '@/components/ui/alert-dialog';
 
+const SortIcon = ({ column, sortConfig }) => {
+  if (sortConfig.key !== column) return <div className="w-4 h-4 opacity-0" />;
+  return sortConfig.direction === 'ascending' ? <ArrowUp className="w-4 h-4 text-primary" /> : <ArrowDown className="w-4 h-4 text-primary" />;
+};
+
 const InvoiceItemList = ({ items, onEdit, onDelete }) => {
+  const { t } = useTranslation();
   const [deleteId, setDeleteId] = useState(null);
   const [sortConfig, setSortConfig] = useState({ key: 'date', direction: 'descending' });
 
@@ -27,11 +34,6 @@ const InvoiceItemList = ({ items, onEdit, onDelete }) => {
       direction = 'descending';
     }
     setSortConfig({ key, direction });
-  };
-
-  const SortIcon = ({ column }) => {
-    if (sortConfig.key !== column) return <div className="w-4 h-4 opacity-0" />;
-    return sortConfig.direction === 'ascending' ? <ArrowUp className="w-4 h-4 text-primary" /> : <ArrowDown className="w-4 h-4 text-primary" />;
   };
 
   const sortedCompras = useMemo(() => {
@@ -68,7 +70,7 @@ const InvoiceItemList = ({ items, onEdit, onDelete }) => {
   if (!items || items.length === 0) {
     return (
       <div className="text-center py-8 text-muted-foreground bg-card rounded-xl border border-dashed">
-        Nenhuma movimentação registrada nesta fatura.
+        {t('invoice_detail.item_list_empty')}
       </div>
     );
   }
@@ -83,30 +85,30 @@ const InvoiceItemList = ({ items, onEdit, onDelete }) => {
             <tr>
               <th className="p-3 font-medium">
                 <button onClick={() => requestSort('date')} className="flex items-center gap-1.5 hover:text-foreground">
-                  Data <SortIcon column="data" />
+                  {t('invoice_detail.col_date')} <SortIcon column="data" sortConfig={sortConfig} />
                 </button>
               </th>
               <th className="p-3 font-medium">
                 <button onClick={() => requestSort('description')} className="flex items-center gap-1.5 hover:text-foreground">
-                  Status (Descrição) <SortIcon column="description" />
+                  {t('invoice_detail.col_status_description')} <SortIcon column="description" sortConfig={sortConfig} />
                 </button>
               </th>
               <th className="p-3 font-medium">
                 <button onClick={() => requestSort('tipo')} className="flex items-center gap-1.5 hover:text-foreground">
-                  Tipo <SortIcon column="tipo" />
+                  {t('invoice_detail.col_type')} <SortIcon column="tipo" sortConfig={sortConfig} />
                 </button>
               </th>
               <th className="p-3 font-medium">
                 <button onClick={() => requestSort('categoria')} className="flex items-center gap-1.5 hover:text-foreground">
-                  Categoria <SortIcon column="categoria" />
+                  {t('common.category')} <SortIcon column="categoria" sortConfig={sortConfig} />
                 </button>
               </th>
               <th className="p-3 font-medium">
                 <button onClick={() => requestSort('amount')} className="flex items-center gap-1.5 justify-end w-full hover:text-foreground">
-                  Valor <SortIcon column="amount" />
+                  {t('common.amount')} <SortIcon column="amount" sortConfig={sortConfig} />
                 </button>
               </th>
-              <th className="p-3 font-medium text-center w-20">Ações</th>
+              <th className="p-3 font-medium text-center w-20">{t('invoice_detail.col_actions')}</th>
             </tr>
           </thead>
           <tbody className="divide-y">
@@ -121,7 +123,7 @@ const InvoiceItemList = ({ items, onEdit, onDelete }) => {
                   <td className="p-3">
                     <div className={`flex items-center gap-1.5 text-xs px-2 py-1 rounded-full w-max ${isSaida ? 'bg-red-100 text-red-700 dark:bg-red-900/20 dark:text-red-400' : 'bg-green-100 text-green-700 dark:bg-green-900/20 dark:text-green-400'}`}>
                       {isSaida ? <ArrowDownRight className="w-3 h-3" /> : <ArrowUpRight className="w-3 h-3" />}
-                      {isSaida ? 'Saída' : 'Entrada'}
+                      {isSaida ? t('transactions.type_expense') : t('transactions.type_income')}
                     </div>
                   </td>
                   <td className="p-3">
@@ -131,7 +133,7 @@ const InvoiceItemList = ({ items, onEdit, onDelete }) => {
                         <span>{c.categories.name}</span>
                       </div>
                     ) : (
-                      <span className="text-muted-foreground text-xs">Sem categoria</span>
+                      <span className="text-muted-foreground text-xs">{t('common.no_category')}</span>
                     )}
                   </td>
                   <td className={`p-3 text-right font-semibold whitespace-nowrap ${valColor}`}>
@@ -139,10 +141,10 @@ const InvoiceItemList = ({ items, onEdit, onDelete }) => {
                   </td>
                   <td className="p-3">
                     <div className="flex items-center justify-center gap-2">
-                      <button onClick={() => onEdit(c)} className="p-1.5 rounded-md text-muted-foreground hover:text-primary hover:bg-primary/10 transition-colors" title="Editar">
+                      <button onClick={() => onEdit(c)} className="p-1.5 rounded-md text-muted-foreground hover:text-primary hover:bg-primary/10 transition-colors" title={t('common.edit')}>
                         <Edit className="w-4 h-4" />
                       </button>
-                      <button onClick={() => setDeleteId(c.id)} className="p-1.5 rounded-md text-muted-foreground hover:text-destructive hover:bg-destructive/10 transition-colors" title="Excluir">
+                      <button onClick={() => setDeleteId(c.id)} className="p-1.5 rounded-md text-muted-foreground hover:text-destructive hover:bg-destructive/10 transition-colors" title={t('common.delete')}>
                         <Trash className="w-4 h-4" />
                       </button>
                     </div>
@@ -153,7 +155,7 @@ const InvoiceItemList = ({ items, onEdit, onDelete }) => {
           </tbody>
           <tfoot className="bg-muted/20 font-bold border-t">
             <tr>
-              <td colSpan="4" className="p-3 text-right">Líquido da Fatura:</td>
+              <td colSpan="4" className="p-3 text-right">{t('invoice_detail.net_invoice_total')}</td>
               <td className={`p-3 text-right whitespace-nowrap ${totalColor}`}>{formatCurrency(total)}</td>
               <td></td>
             </tr>
@@ -164,14 +166,14 @@ const InvoiceItemList = ({ items, onEdit, onDelete }) => {
       <AlertDialog open={!!deleteId} onOpenChange={() => setDeleteId(null)}>
         <AlertDialogContent>
           <AlertDialogHeader>
-            <AlertDialogTitle>Confirmar exclusão</AlertDialogTitle>
+            <AlertDialogTitle>{t('common.delete_confirm_title')}</AlertDialogTitle>
             <AlertDialogDescription>
-              Tem certeza que deseja excluir esta movimentação?
+              {t('invoice_detail.delete_item_confirm')}
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
-            <AlertDialogCancel>Cancelar</AlertDialogCancel>
-            <AlertDialogAction onClick={handleDelete} className="bg-destructive text-destructive-foreground">Excluir</AlertDialogAction>
+            <AlertDialogCancel>{t('common.cancel')}</AlertDialogCancel>
+            <AlertDialogAction onClick={handleDelete} className="bg-destructive text-destructive-foreground">{t('common.delete')}</AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>

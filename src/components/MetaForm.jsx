@@ -1,4 +1,5 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { Button } from '@/components/ui/button';
 import { Label } from '@/components/ui/label';
 import { useFinance } from '@/context/FinanceContext';
@@ -14,6 +15,7 @@ import { TrashAlt as Trash2, Plus, AlertCircle } from '@/components/BxIcon';
 import { useToast } from '@/components/ui/use-toast';
 
 const MetaForm = ({ initialData, initialName, onSubmit, onCancel }) => {
+  const { t } = useTranslation();
   const { accounts } = useFinance();
   const { toast } = useToast();
   
@@ -35,7 +37,12 @@ const MetaForm = ({ initialData, initialName, onSubmit, onCancel }) => {
   const [reservations, setReservations] = useState([]); // [{ account_id, amount }]
   const [selectedAccountId, setSelectedAccountId] = useState('');
 
-  useEffect(() => {
+  // Sync form fields when `initialData`/`initialName` change (adjust state during render, per React docs).
+  // The tracker starts with unique sentinels (never `===` to any real prop) so the very first
+  // render also syncs when `initialData`/`initialName` are already provided at mount time.
+  const [syncedFor, setSyncedFor] = useState(() => ({ initialData: {}, initialName: {} }));
+  if (initialData !== syncedFor.initialData || initialName !== syncedFor.initialName) {
+    setSyncedFor({ initialData, initialName });
     if (initialData) {
       setFormData({
         name: initialData.name || '',
@@ -63,12 +70,12 @@ const MetaForm = ({ initialData, initialName, onSubmit, onCancel }) => {
     } else if (initialName) {
       setFormData(prev => ({ ...prev, name: initialName }));
     }
-  }, [initialData, initialName]);
+  }
 
   const handleSubmit = (e) => {
     e.preventDefault();
     if (!formData.name) {
-      toast({ title: "Erro", description: "O nome da meta é obrigatório.", variant: "destructive" });
+      toast({ title: t('common.error'), description: t('goals.name_required_error'), variant: "destructive" });
       return;
     }
 
@@ -114,7 +121,7 @@ const MetaForm = ({ initialData, initialName, onSubmit, onCancel }) => {
   );
 
   const accountOptions = [
-    { label: "Selecione uma conta...", value: "" },
+    { label: t('goals.select_account_placeholder'), value: "" },
     ...availableAccounts.map(acc => ({ label: acc.name, value: acc.id }))
   ];
 
@@ -134,25 +141,25 @@ const MetaForm = ({ initialData, initialName, onSubmit, onCancel }) => {
           }`}
         >
           <Target size={16} className="mr-2" />
-          Valor Final
+          {t('goals.type_fixed')}
         </button>
         <button
           type="button"
           onClick={() => setFormData({ ...formData, goal_type: 'monthly_value' })}
           className={`flex-1 py-2 text-sm font-medium rounded-md transition-all ${
-            formData.goal_type === 'monthly_value' 
-              ? 'bg-white dark:bg-vindex-card text-gray-900 dark:text-gray-100 shadow-sm' 
+            formData.goal_type === 'monthly_value'
+              ? 'bg-white dark:bg-vindex-card text-gray-900 dark:text-gray-100 shadow-sm'
               : 'text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-200'
           }`}
         >
           <CalendarStar size={16} className="mr-2" />
-          Recorrência
+          {t('goals.filter_recurring')}
         </button>
       </div>
 
       {/* 2. Basic Info */}
       <div>
-        <Label htmlFor="name">Nome da Meta <span className="text-red-500">*</span></Label>
+        <Label htmlFor="name">{t('goals.name_label')} <span className="text-red-500">*</span></Label>
         <input
             id="name"
             type="text"
@@ -160,7 +167,7 @@ const MetaForm = ({ initialData, initialName, onSubmit, onCancel }) => {
             onChange={(e) => setFormData({ ...formData, name: e.target.value })}
             className="w-full px-3 py-2 mt-1 bg-white dark:bg-vindex-bg border border-gray-200 dark:border-vindex-border rounded-lg text-gray-900 dark:text-gray-100 focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all outline-none"
             required
-            placeholder="Ex: Minha Casa Nova"
+            placeholder={t('goals.name_placeholder')}
         />
       </div>
 
@@ -168,7 +175,7 @@ const MetaForm = ({ initialData, initialName, onSubmit, onCancel }) => {
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4 animate-in fade-in slide-in-from-top-2">
         {formData.goal_type === 'target_value' ? (
           <div>
-            <Label htmlFor="targetAmount">Valor Alvo (R$) <span className="text-red-500">*</span></Label>
+            <Label htmlFor="targetAmount">{t('goals.target_amount_label')} <span className="text-red-500">*</span></Label>
             <NumberInput
               id="targetAmount"
               value={formData.targetAmount}
@@ -180,7 +187,7 @@ const MetaForm = ({ initialData, initialName, onSubmit, onCancel }) => {
         ) : (
           <>
              <div>
-                <Label htmlFor="contributionValue">Valor da Contribuição (R$) <span className="text-red-500">*</span></Label>
+                <Label htmlFor="contributionValue">{t('goals.contribution_value')} (R$) <span className="text-red-500">*</span></Label>
                 <NumberInput
                   id="contributionValue"
                   value={formData.contributionValue}
@@ -190,8 +197,8 @@ const MetaForm = ({ initialData, initialName, onSubmit, onCancel }) => {
                 />
              </div>
              <div>
-                 <Label htmlFor="periodFrequency">Frequência</Label>
-                 <SelectInput 
+                 <Label htmlFor="periodFrequency">{t('common.frequency')}</Label>
+                 <SelectInput
                     id="periodFrequency"
                     value={formData.periodFrequency}
                     onChange={(e) => setFormData({...formData, periodFrequency: e.target.value})}
@@ -200,11 +207,11 @@ const MetaForm = ({ initialData, initialName, onSubmit, onCancel }) => {
              </div>
           </>
         )}
-        
+
         {/* Deadline - Now Optional */}
         <div>
-          <Label htmlFor="deadline">Prazo Alvo (Opcional)</Label>
-          <DatePicker 
+          <Label htmlFor="deadline">{t('goals.deadline_label')}</Label>
+          <DatePicker
             id="deadline"
             value={formData.deadline}
             onChange={(e) => setFormData({ ...formData, deadline: e.target.value })}
@@ -215,26 +222,26 @@ const MetaForm = ({ initialData, initialName, onSubmit, onCancel }) => {
       {/* 4. Total Accumulated (Common Field) */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           <div>
-            <Label htmlFor="accumulated_amount">Valor Total Acumulado (R$)</Label>
+            <Label htmlFor="accumulated_amount">{t('goals.total_accumulated_label')}</Label>
             <NumberInput
               id="accumulated_amount"
               value={formData.accumulated_amount}
               onChange={(e) => setFormData({ ...formData, accumulated_amount: e.target.value })}
               placeholder="0,00"
             />
-            <p className="text-xs text-gray-500 mt-1">Soma de reservas e outras economias.</p>
+            <p className="text-xs text-gray-500 mt-1">{t('goals.total_accumulated_hint')}</p>
           </div>
       </div>
 
       {/* 5. Account Reservations (Multiple) */}
       <div className="p-4 bg-gray-50 dark:bg-vindex-bg/50 rounded-lg border border-gray-100 dark:border-vindex-border/50 space-y-3">
           <div className="flex justify-between items-center">
-             <Label className="text-gray-700 dark:text-gray-300 font-semibold">Reserva em Contas (Opcional)</Label>
+             <Label className="text-gray-700 dark:text-gray-300 font-semibold">{t('goals.account_reservations_label')}</Label>
              <span className="text-xs font-mono font-medium text-gray-500 bg-white dark:bg-vindex-card px-2 py-1 rounded border dark:border-vindex-border">
-                Total Reservado: {formatCurrency(totalReserved)}
+                {t('goals.total_reserved_label', { amount: formatCurrency(totalReserved) })}
              </span>
           </div>
-          
+
           {/* Account Selector */}
           <div className="flex gap-2">
              <div className="flex-1">
@@ -242,11 +249,11 @@ const MetaForm = ({ initialData, initialName, onSubmit, onCancel }) => {
                   value={selectedAccountId}
                   onChange={(e) => setSelectedAccountId(e.target.value)}
                   options={accountOptions}
-                  placeholder="Adicionar conta..."
+                  placeholder={t('goals.add_account_placeholder')}
                />
              </div>
-             <Button 
-                type="button" 
+             <Button
+                type="button"
                 onClick={handleAddReservation}
                 disabled={!selectedAccountId}
                 className="bg-gray-900 dark:bg-gray-100 text-white dark:text-gray-900"
@@ -259,10 +266,10 @@ const MetaForm = ({ initialData, initialName, onSubmit, onCancel }) => {
           <div className="space-y-2 mt-2">
              {reservations.length === 0 && (
                 <div className="text-center py-4 text-sm text-gray-400 dark:text-gray-500 italic border-dashed border border-gray-200 dark:border-vindex-border rounded-lg">
-                   Nenhuma conta vinculada
+                   {t('goals.no_accounts_linked')}
                 </div>
              )}
-             
+
              {reservations.map((res) => {
                 const account = accounts.find(a => a.id === res.account_id);
                 if (!account) return null;
@@ -270,7 +277,7 @@ const MetaForm = ({ initialData, initialName, onSubmit, onCancel }) => {
                    <div key={res.account_id} className="flex items-center gap-3 bg-white dark:bg-vindex-card p-2 rounded-lg border border-gray-100 dark:border-vindex-border animate-in slide-in-from-left-2">
                       <div className="flex-1">
                          <div className="text-sm font-medium text-gray-700 dark:text-gray-200">{account.name}</div>
-                         <div className="text-xs text-gray-500">Saldo Disp: {formatCurrency(account.balance)}</div>
+                         <div className="text-xs text-gray-500">{t('goals.available_balance', { amount: formatCurrency(account.balance) })}</div>
                       </div>
                       <div className="w-32">
                          <NumberInput
@@ -297,29 +304,29 @@ const MetaForm = ({ initialData, initialName, onSubmit, onCancel }) => {
 
       {/* 6. Description */}
       <div>
-        <Label htmlFor="description">Descrição</Label>
+        <Label htmlFor="description">{t('goals.description_label')}</Label>
         <textarea
           id="description"
           value={formData.description}
           onChange={(e) => setFormData({ ...formData, description: e.target.value })}
           className="w-full px-3 py-2 mt-1 bg-white dark:bg-vindex-bg border border-gray-200 dark:border-vindex-border rounded-lg text-gray-900 dark:text-gray-100 min-h-[80px]"
-          placeholder="Detalhes opcionais..."
+          placeholder={t('goals.description_placeholder')}
         />
       </div>
 
       {/* 7. Customization (Vertical Stacked Layout) */}
       <div className="space-y-4 pt-2">
-          <Label className="text-lg font-semibold text-gray-900 dark:text-gray-100">Personalização</Label>
-          
+          <Label className="text-lg font-semibold text-gray-900 dark:text-gray-100">{t('goals.customization_label')}</Label>
+
           <div className="p-4 rounded-lg bg-gray-50 dark:bg-vindex-bg/30 border border-gray-100 dark:border-vindex-border/50">
-             <ColorPicker 
+             <ColorPicker
                 value={formData.color}
                 onChange={(color) => setFormData({ ...formData, color })}
              />
           </div>
-          
+
           <div className="p-4 rounded-lg bg-gray-50 dark:bg-vindex-bg/30 border border-gray-100 dark:border-vindex-border/50">
-             <IconSelector 
+             <IconSelector
                 selectedIcon={formData.icon}
                 onSelect={(icon) => setFormData({ ...formData, icon })}
              />
@@ -329,10 +336,10 @@ const MetaForm = ({ initialData, initialName, onSubmit, onCancel }) => {
       {/* Actions */}
       <div className="flex gap-3 pt-4 border-t border-gray-100 dark:border-gray-800 mt-6">
         <Button type="submit" className="flex-1 bg-primary text-primary-foreground hover:bg-primary/90 rounded-lg h-11 font-medium shadow-sm transition-all hover:shadow-md">
-          {initialData ? 'Salvar Alterações' : 'Criar Meta'}
+          {initialData ? t('goals.save_changes') : t('goals.create_action')}
         </Button>
         <Button type="button" variant="outline" onClick={onCancel} className="h-11 px-6 border-gray-200 dark:border-vindex-border text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-800 rounded-lg">
-          Cancelar
+          {t('common.cancel')}
         </Button>
       </div>
     </form>

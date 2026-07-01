@@ -5,6 +5,11 @@ import { Checkbox } from '@/components/ui/checkbox';
 import TransactionSelectionSummary from '@/components/TransactionSelectionSummary';
 import { History } from '@/components/BxIcon';
 
+const SortIcon = ({ column, sortConfig }) => {
+  if (sortConfig.key !== column) return <ArrowUpDown className="w-3 h-3 ml-1 opacity-30" />;
+  return sortConfig.direction === 'asc' ? <ArrowUp className="w-3 h-3 ml-1 text-primary" /> : <ArrowDown className="w-3 h-3 ml-1 text-primary" />;
+};
+
 const TransactionTable = ({ transactions, onEdit, onDelete, selectedIds, onSelectionChange }) => {
   const [sortConfig, setSortConfig] = useState({ key: 'date', direction: 'desc' });
 
@@ -68,11 +73,6 @@ const TransactionTable = ({ transactions, onEdit, onDelete, selectedIds, onSelec
     return `${d}/${m}/${y}`;
   };
 
-  const SortIcon = ({ column }) => {
-    if (sortConfig.key !== column) return <ArrowUpDown className="w-3 h-3 ml-1 opacity-30" />;
-    return sortConfig.direction === 'asc' ? <ArrowUp className="w-3 h-3 ml-1 text-primary" /> : <ArrowDown className="w-3 h-3 ml-1 text-primary" />;
-  };
-
   return (
     <div>
       {selectedIds && selectedIds.length > 0 && (
@@ -94,19 +94,19 @@ const TransactionTable = ({ transactions, onEdit, onDelete, selectedIds, onSelec
                   />
                 </th>
                 <th className="p-3 font-medium cursor-pointer hover:bg-muted/80 transition-colors" onClick={() => handleSort('date')}>
-                  <div className="flex items-center">Data <SortIcon column="date" /></div>
+                  <div className="flex items-center">Data <SortIcon column="date" sortConfig={sortConfig} /></div>
                 </th>
                 <th className="p-3 font-medium cursor-pointer hover:bg-muted/80 transition-colors" onClick={() => handleSort('description')}>
-                  <div className="flex items-center">Descrição <SortIcon column="description" /></div>
+                  <div className="flex items-center">Descrição <SortIcon column="description" sortConfig={sortConfig} /></div>
                 </th>
                 <th className="p-3 font-medium cursor-pointer hover:bg-muted/80 transition-colors" onClick={() => handleSort('category')}>
-                  <div className="flex items-center">Categoria <SortIcon column="category" /></div>
+                  <div className="flex items-center">Categoria <SortIcon column="category" sortConfig={sortConfig} /></div>
                 </th>
                 <th className="p-3 font-medium cursor-pointer hover:bg-muted/80 transition-colors" onClick={() => handleSort('account')}>
-                  <div className="flex items-center">Conta <SortIcon column="account" /></div>
+                  <div className="flex items-center">Conta <SortIcon column="account" sortConfig={sortConfig} /></div>
                 </th>
                 <th className="p-3 font-medium cursor-pointer hover:bg-muted/80 transition-colors text-right" onClick={() => handleSort('amount')}>
-                  <div className="flex items-center justify-end">Valor <SortIcon column="amount" /></div>
+                  <div className="flex items-center justify-end">Valor <SortIcon column="amount" sortConfig={sortConfig} /></div>
                 </th>
                 <th className="p-3 font-medium text-center w-20">Ações</th>
               </tr>

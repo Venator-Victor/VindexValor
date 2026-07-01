@@ -11,6 +11,40 @@ import BxIcon, {
   History, HelpCircle, Cog, ChevronLeft, ChevronRight, Door,
 } from './BxIcon';
 
+const NavItem = ({ item, isActive, isLucide, isSidebarCollapsed, isCurrentInvoices, isMobileMenuOpen, toggleMobileMenu }) => (
+  <Link to={item.path} onClick={() => isMobileMenuOpen && toggleMobileMenu()}>
+    <motion.div
+      whileHover={{ x: isSidebarCollapsed ? 0 : 4 }}
+      whileTap={{ scale: 0.98 }}
+      transition={{ duration: 0.08 }}
+      className={`
+        flex items-center ${isSidebarCollapsed ? 'justify-center px-0' : 'justify-start px-6'} py-3 mx-2 rounded-lg mb-1
+        transition-all duration-75 group relative
+        ${isActive || isCurrentInvoices
+          ? 'bg-primary text-white shadow-[0_0_15px_rgba(67,207,234,0.3)]'
+          : 'text-gray-600 hover:bg-gray-100 hover:text-gray-900 dark:text-gray-400 dark:hover:bg-vindex-border/50 dark:hover:text-vindex-text'
+        }
+      `}
+    >
+      {isLucide ? (
+        <ShieldAlert size={20} className="flex-shrink-0" />
+      ) : item.Icon ? (
+        <item.Icon size={20} pack={item.pack || 'basic'} className="flex-shrink-0" />
+      ) : null}
+
+      {!isSidebarCollapsed && (
+        <span className="font-medium ml-3 whitespace-nowrap overflow-hidden">{item.label}</span>
+      )}
+
+      {isSidebarCollapsed && (
+        <div className="absolute left-full ml-2 px-2 py-1 bg-white dark:bg-vindex-card border border-gray-200 dark:border-vindex-border text-gray-900 dark:text-vindex-text text-sm rounded opacity-0 group-hover:opacity-100 pointer-events-none whitespace-nowrap z-50 transition-opacity duration-75 shadow-md">
+          {item.label}
+        </div>
+      )}
+    </motion.div>
+  </Link>
+);
+
 const Sidebar = () => {
   const { t } = useTranslation();
   const location = useLocation();
@@ -41,40 +75,6 @@ const Sidebar = () => {
   ];
 
   const sidebarWidth = isSidebarCollapsed ? 'w-20' : 'w-72';
-
-  const NavItem = ({ item, isActive, isLucide }) => (
-    <Link to={item.path} onClick={() => isMobileMenuOpen && toggleMobileMenu()}>
-      <motion.div
-        whileHover={{ x: isSidebarCollapsed ? 0 : 4 }}
-        whileTap={{ scale: 0.98 }}
-        transition={{ duration: 0.08 }}
-        className={`
-          flex items-center ${isSidebarCollapsed ? 'justify-center px-0' : 'justify-start px-6'} py-3 mx-2 rounded-lg mb-1
-          transition-all duration-75 group relative
-          ${isActive || (item.path === '/invoices' && location.pathname.startsWith('/invoices'))
-            ? 'bg-primary text-white shadow-[0_0_15px_rgba(67,207,234,0.3)]'
-            : 'text-gray-600 hover:bg-gray-100 hover:text-gray-900 dark:text-gray-400 dark:hover:bg-vindex-border/50 dark:hover:text-vindex-text'
-          }
-        `}
-      >
-        {isLucide ? (
-          <ShieldAlert size={20} className="flex-shrink-0" />
-        ) : item.Icon ? (
-          <item.Icon size={20} pack={item.pack || 'basic'} className="flex-shrink-0" />
-        ) : null}
-        
-        {!isSidebarCollapsed && (
-          <span className="font-medium ml-3 whitespace-nowrap overflow-hidden">{item.label}</span>
-        )}
-
-        {isSidebarCollapsed && (
-          <div className="absolute left-full ml-2 px-2 py-1 bg-white dark:bg-vindex-card border border-gray-200 dark:border-vindex-border text-gray-900 dark:text-vindex-text text-sm rounded opacity-0 group-hover:opacity-100 pointer-events-none whitespace-nowrap z-50 transition-opacity duration-75 shadow-md">
-            {item.label}
-          </div>
-        )}
-      </motion.div>
-    </Link>
-  );
 
   return (
     <>
@@ -121,20 +121,38 @@ const Sidebar = () => {
 
         <nav className="flex-1 overflow-y-auto overflow-x-hidden py-4">
           {mainNavItems.map((item) => (
-            <NavItem key={item.path} item={item} isActive={location.pathname === item.path} />
+            <NavItem
+              key={item.path}
+              item={item}
+              isActive={location.pathname === item.path}
+              isCurrentInvoices={item.path === '/invoices' && location.pathname.startsWith('/invoices')}
+              isSidebarCollapsed={isSidebarCollapsed}
+              isMobileMenuOpen={isMobileMenuOpen}
+              toggleMobileMenu={toggleMobileMenu}
+            />
           ))}
         </nav>
 
         <div className="border-t border-gray-200 dark:border-vindex-border py-4">
           {bottomNavItems.map((item) => (
-            <NavItem key={item.path} item={item} isActive={location.pathname === item.path} />
+            <NavItem
+              key={item.path}
+              item={item}
+              isActive={location.pathname === item.path}
+              isSidebarCollapsed={isSidebarCollapsed}
+              isMobileMenuOpen={isMobileMenuOpen}
+              toggleMobileMenu={toggleMobileMenu}
+            />
           ))}
-          
+
           <NavItem
             key="/privacy"
             item={{ path: '/privacy', label: t('nav.privacy') }}
             isActive={location.pathname === '/privacy'}
             isLucide={true}
+            isSidebarCollapsed={isSidebarCollapsed}
+            isMobileMenuOpen={isMobileMenuOpen}
+            toggleMobileMenu={toggleMobileMenu}
           />
 
           <button onClick={handleLogout} className="w-full">

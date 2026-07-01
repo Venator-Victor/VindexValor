@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { cn } from '@/lib/utils';
 import { getCurrencySymbol, getCurrencyDecimals } from '@/utils/currencySymbolMap';
 
@@ -7,24 +7,27 @@ const NumberInput = ({ value, onChange, min, max, className, placeholder, id, cu
   const decimals = getCurrencyDecimals(currencyCode);
   const symbol = getCurrencySymbol(currencyCode);
 
-  useEffect(() => {
-    if (value === '' || value === undefined || value === null) {
-      setDisplayValue('');
-      return;
-    }
-    
-    const numberVal = Number(value);
-    if (!isNaN(numberVal)) {
-      setDisplayValue(formatNumber(numberVal));
-    }
-  }, [value, currencyCode]);
-
   const formatNumber = (val) => {
     return val.toLocaleString('pt-BR', {
       minimumFractionDigits: decimals,
       maximumFractionDigits: decimals,
     });
   };
+
+  // Sync the formatted display value when `value`/`currencyCode` change (adjust state during render, per React docs).
+  const syncKey = `${value}|${currencyCode}`;
+  const [syncedKey, setSyncedKey] = useState(null);
+  if (syncKey !== syncedKey) {
+    setSyncedKey(syncKey);
+    if (value === '' || value === undefined || value === null) {
+      setDisplayValue('');
+    } else {
+      const numberVal = Number(value);
+      if (!isNaN(numberVal)) {
+        setDisplayValue(formatNumber(numberVal));
+      }
+    }
+  }
 
   const handleChange = (e) => {
     let inputValue = e.target.value;

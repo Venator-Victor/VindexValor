@@ -10,16 +10,17 @@ const DatePicker = ({ value, onChange, label, className }) => {
   const [selectedDate, setSelectedDate] = useState(null);
   const containerRef = useRef(null);
 
-  useEffect(() => {
-    if (value) {
-      const date = new Date(value);
-      // Adjust for timezone offset to ensure correct day display
-      const userTimezoneOffset = date.getTimezoneOffset() * 60000;
-      const adjustedDate = new Date(date.getTime() + userTimezoneOffset);
-      setSelectedDate(adjustedDate);
-      setCurrentDate(adjustedDate);
-    }
-  }, [value]);
+  // Sync internal calendar state when the `value` prop changes (adjust state during render, per React docs).
+  const [syncedValue, setSyncedValue] = useState(undefined);
+  if (value && value !== syncedValue) {
+    setSyncedValue(value);
+    const date = new Date(value);
+    // Adjust for timezone offset to ensure correct day display
+    const userTimezoneOffset = date.getTimezoneOffset() * 60000;
+    const adjustedDate = new Date(date.getTime() + userTimezoneOffset);
+    setSelectedDate(adjustedDate);
+    setCurrentDate(adjustedDate);
+  }
 
   useEffect(() => {
     const handleClickOutside = (event) => {

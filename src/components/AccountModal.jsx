@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
 import { Label } from '@/components/ui/label';
@@ -36,7 +36,13 @@ const AccountModal = ({ isOpen, onClose, accountToEdit, initialData }) => {
   const [formData, setFormData] = useState(initialFormState);
   const [isSubmitting, setIsSubmitting] = useState(false);
 
-  useEffect(() => {
+  // Sync form fields when the modal opens or the target account/template changes (adjust state during render, per React docs).
+  // The tracker starts as a unique sentinel (never `===` to any real key) so the very first
+  // render also syncs when the modal is already open with a target account/template at mount time.
+  const syncKey = `${isOpen}|${accountToEdit?.id ?? ''}|${initialData ? JSON.stringify(initialData) : ''}`;
+  const [syncedKey, setSyncedKey] = useState(() => Symbol('unsynced'));
+  if (syncKey !== syncedKey) {
+    setSyncedKey(syncKey);
     if (accountToEdit) {
       const mappedSubtype = accountToEdit.account_subtype || ACCOUNT_SUBTYPE_MAP[accountToEdit.type] || 'other';
       setFormData({
@@ -75,7 +81,7 @@ const AccountModal = ({ isOpen, onClose, accountToEdit, initialData }) => {
     } else {
       setFormData(initialFormState);
     }
-  }, [accountToEdit, initialData, isOpen]);
+  }
 
   const validateDay = (val) => {
     if (!val) return true;

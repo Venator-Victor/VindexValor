@@ -4,31 +4,31 @@ import { AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContai
 import { formatCurrency } from '@/utils/calculations';
 import { motion } from 'framer-motion';
 
+const CustomTooltip = ({ active, payload, label, isProfitability }) => {
+  if (active && payload && payload.length) {
+    return (
+      <div className="bg-white dark:bg-vindex-card p-3 border border-gray-200 dark:border-vindex-border rounded-lg shadow-lg">
+        <p className="text-sm font-medium text-gray-500 dark:text-gray-400 mb-1">{label}</p>
+        <div className="flex items-center gap-2">
+          <span className="text-lg font-bold text-gray-900 dark:text-gray-100">
+            {isProfitability
+              ? `${payload[0].value.toFixed(2)}%`
+              : formatCurrency(payload[0].value)
+            }
+          </span>
+        </div>
+      </div>
+    );
+  }
+  return null;
+};
+
 const InvestmentsChart = ({ data, displayMode }) => {
   const isProfitability = displayMode === 'rentabilidade';
-  
+
   // Calculate current value (last point) or default to 0
   const lastPoint = data && data.length > 0 ? data[data.length - 1] : { value: 0 };
   const currentValue = lastPoint.value || 0;
-
-  const CustomTooltip = ({ active, payload, label }) => {
-    if (active && payload && payload.length) {
-      return (
-        <div className="bg-white dark:bg-vindex-card p-3 border border-gray-200 dark:border-vindex-border rounded-lg shadow-lg">
-          <p className="text-sm font-medium text-gray-500 dark:text-gray-400 mb-1">{label}</p>
-          <div className="flex items-center gap-2">
-            <span className="text-lg font-bold text-gray-900 dark:text-gray-100">
-              {isProfitability 
-                ? `${payload[0].value.toFixed(2)}%`
-                : formatCurrency(payload[0].value)
-              }
-            </span>
-          </div>
-        </div>
-      );
-    }
-    return null;
-  };
 
   return (
     <motion.div 
@@ -78,7 +78,7 @@ const InvestmentsChart = ({ data, displayMode }) => {
               hide={true} 
               domain={['auto', 'auto']}
             />
-            <Tooltip content={<CustomTooltip />} />
+            <Tooltip content={<CustomTooltip isProfitability={isProfitability} />} />
             <Area 
               type="monotone" 
               dataKey="value" 

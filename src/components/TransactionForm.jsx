@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef, useMemo } from 'react';
+import React, { useState, useRef, useMemo } from 'react';
 import { useFinance } from '@/context/FinanceContext';
 import { useToast } from '@/components/ui/use-toast';
 import { Button } from '@/components/ui/button';
@@ -38,26 +38,29 @@ const TransactionForm = ({ initialData, onSuccess, onCancel }) => {
 
   const [isSubmitting, setIsSubmitting] = useState(false);
 
-  useEffect(() => {
-    if (initialData) {
-      setFormData({
-        type: initialData.type || 'expense',
-        is_recurring: initialData.is_recurring || false,
-        recurring_type: initialData.recurring_type || 'subscription',
-        frequency: 'monthly',
-        recurring_installment_count: '',
-        amount: Math.abs(initialData.amount) || '',
-        converted_amount: initialData.converted_amount || '',
-        description: initialData.description || '',
-        date: initialData.date || new Date().toISOString().slice(0, 10),
-        category_id: initialData.category_id || '',
-        account_id: initialData.account_id || '',
-        destination_account_id: initialData.destination_account_id || '',
-        invoice_id: initialData.invoice_id || ''
-      });
-      setIsAutoMapped(false);
-    }
-  }, [initialData]);
+  // Sync form fields when `initialData` changes (adjust state during render, per React docs).
+  // The tracker starts as a unique sentinel (never `===` to any real prop) so the very first
+  // render also syncs when `initialData` is already provided at mount time.
+  const [syncedInitialData, setSyncedInitialData] = useState(() => ({}));
+  if (initialData && initialData !== syncedInitialData) {
+    setSyncedInitialData(initialData);
+    setFormData({
+      type: initialData.type || 'expense',
+      is_recurring: initialData.is_recurring || false,
+      recurring_type: initialData.recurring_type || 'subscription',
+      frequency: 'monthly',
+      recurring_installment_count: '',
+      amount: Math.abs(initialData.amount) || '',
+      converted_amount: initialData.converted_amount || '',
+      description: initialData.description || '',
+      date: initialData.date || new Date().toISOString().slice(0, 10),
+      category_id: initialData.category_id || '',
+      account_id: initialData.account_id || '',
+      destination_account_id: initialData.destination_account_id || '',
+      invoice_id: initialData.invoice_id || ''
+    });
+    setIsAutoMapped(false);
+  }
 
   const sourceAccount = useMemo(() => accounts.find(a => a.id === formData.account_id), [accounts, formData.account_id]);
   const destAccount = useMemo(() => accounts.find(a => a.id === formData.destination_account_id), [accounts, formData.destination_account_id]);

@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { Search } from '@/components/BxIcon';
 export const parseValueFilterString = (input) => {
   if (!input || typeof input !== 'string' || !input.trim()) {
@@ -33,9 +33,12 @@ const FilterRangeInput = ({ value, onChange }) => {
   const [localVal, setLocalVal] = useState(value || '');
   const [error, setError] = useState('');
 
-  useEffect(() => {
+  // Sync local editable copy when the `value` prop changes (adjust state during render, per React docs).
+  const [syncedValue, setSyncedValue] = useState(value);
+  if (value !== syncedValue) {
+    setSyncedValue(value);
     setLocalVal(value || '');
-  }, [value]);
+  }
 
   const handleBlur = () => {
     const parsed = parseValueFilterString(localVal);

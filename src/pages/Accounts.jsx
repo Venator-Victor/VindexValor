@@ -1,5 +1,5 @@
 import { PRIMARY, PRIMARY_HOVER } from '@/utils/colors';
-import React, { useState, useMemo, useEffect } from 'react';
+import React, { useState, useMemo } from 'react';
 import { Helmet } from 'react-helmet';
 import { useTranslation } from 'react-i18next';
 import { motion } from 'framer-motion';
@@ -36,11 +36,12 @@ const Accounts = () => {
   
   const [viewMode, setViewMode] = useState('card');
 
-  useEffect(() => {
-    if (settings && settings.accounts_view_preference) {
-      setViewMode(settings.accounts_view_preference);
-    }
-  }, [settings]);
+  // Sync view mode when the persisted preference loads/changes (adjust state during render, per React docs).
+  const [syncedViewPreference, setSyncedViewPreference] = useState(undefined);
+  if (settings?.accounts_view_preference && settings.accounts_view_preference !== syncedViewPreference) {
+    setSyncedViewPreference(settings.accounts_view_preference);
+    setViewMode(settings.accounts_view_preference);
+  }
 
   
   const { assets: totalAssets, liabilities: totalLiabilities } = useMemo(() => {

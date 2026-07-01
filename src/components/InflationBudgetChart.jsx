@@ -17,6 +17,58 @@ const Loader2 = RefreshCw;
 import { motion } from 'framer-motion';
 import { Button } from '@/components/ui/button';
 
+const CustomTooltip = ({ active, payload }) => {
+  if (active && payload && payload.length) {
+    const data = payload[0]?.payload;
+
+    const nominalValue = payload[0]?.value;
+    const correctedValue = payload[1]?.value;
+    const inflationRate = data?.inflationRate ?? 0;
+
+    const isValidNominal = typeof nominalValue === 'number' && !isNaN(nominalValue);
+    const isValidCorrected = typeof correctedValue === 'number' && !isNaN(correctedValue);
+    const isValidInflation = typeof inflationRate === 'number' && !isNaN(inflationRate);
+
+    return (
+      <div className="bg-white dark:bg-vindex-card p-3 border border-gray-200 dark:border-vindex-border shadow-lg rounded-xl text-sm z-50">
+        <p className="font-semibold text-gray-900 dark:text-gray-100 mb-2 capitalize flex items-center gap-2">
+          {data?.fullName || 'Data'}
+          {data?.isEstimated && (
+            <span className="text-[10px] bg-amber-100 text-amber-700 px-1.5 py-0.5 rounded-full font-normal">Est.</span>
+          )}
+        </p>
+
+        <div className="space-y-2">
+          <div className="flex items-center gap-2">
+            <div className="w-2 h-2 rounded-full bg-blue-500" />
+            <div className="flex flex-col">
+              <span className="text-xs text-gray-500 dark:text-gray-400">Orçamento Nominal</span>
+              <span className="font-mono font-bold text-blue-600 dark:text-blue-400">
+                {isValidNominal ? formatCurrency(nominalValue) : 'N/A'}
+              </span>
+            </div>
+          </div>
+
+          <div className="flex items-center gap-2">
+            <div className="w-2 h-2 rounded-full bg-red-500" />
+            <div className="flex flex-col">
+              <span className="text-xs text-gray-500 dark:text-gray-400">Orçamento Corrigido</span>
+              <span className="font-mono font-bold text-red-600 dark:text-red-400">
+                {isValidCorrected ? formatCurrency(correctedValue) : 'N/A'}
+              </span>
+            </div>
+          </div>
+
+           <div className="pt-2 mt-2 border-t border-gray-100 dark:border-gray-800 text-xs text-gray-400">
+              Inflação no mês: <span className="font-medium text-gray-600 dark:text-gray-300">{isValidInflation ? inflationRate.toFixed(2) : 'N/A'}%</span>
+           </div>
+        </div>
+      </div>
+    );
+  }
+  return null;
+};
+
 const InflationBudgetChart = () => {
   const { categories, isLoading: isFinanceLoading } = useFinance();
   const { theme } = useTheme();
@@ -148,58 +200,6 @@ const InflationBudgetChart = () => {
       corrected: lastPoint.corrected
     };
   }, [chartData, totalNominalBudget]);
-
-  const CustomTooltip = ({ active, payload }) => {
-    if (active && payload && payload.length) {
-      const data = payload[0]?.payload;
-      
-      const nominalValue = payload[0]?.value;
-      const correctedValue = payload[1]?.value;
-      const inflationRate = data?.inflationRate ?? 0;
-      
-      const isValidNominal = typeof nominalValue === 'number' && !isNaN(nominalValue);
-      const isValidCorrected = typeof correctedValue === 'number' && !isNaN(correctedValue);
-      const isValidInflation = typeof inflationRate === 'number' && !isNaN(inflationRate);
-      
-      return (
-        <div className="bg-white dark:bg-vindex-card p-3 border border-gray-200 dark:border-vindex-border shadow-lg rounded-xl text-sm z-50">
-          <p className="font-semibold text-gray-900 dark:text-gray-100 mb-2 capitalize flex items-center gap-2">
-            {data?.fullName || 'Data'}
-            {data?.isEstimated && (
-              <span className="text-[10px] bg-amber-100 text-amber-700 px-1.5 py-0.5 rounded-full font-normal">Est.</span>
-            )}
-          </p>
-          
-          <div className="space-y-2">
-            <div className="flex items-center gap-2">
-              <div className="w-2 h-2 rounded-full bg-blue-500" />
-              <div className="flex flex-col">
-                <span className="text-xs text-gray-500 dark:text-gray-400">Orçamento Nominal</span>
-                <span className="font-mono font-bold text-blue-600 dark:text-blue-400">
-                  {isValidNominal ? formatCurrency(nominalValue) : 'N/A'}
-                </span>
-              </div>
-            </div>
-
-            <div className="flex items-center gap-2">
-              <div className="w-2 h-2 rounded-full bg-red-500" />
-              <div className="flex flex-col">
-                <span className="text-xs text-gray-500 dark:text-gray-400">Orçamento Corrigido</span>
-                <span className="font-mono font-bold text-red-600 dark:text-red-400">
-                  {isValidCorrected ? formatCurrency(correctedValue) : 'N/A'}
-                </span>
-              </div>
-            </div>
-            
-             <div className="pt-2 mt-2 border-t border-gray-100 dark:border-gray-800 text-xs text-gray-400">
-                Inflação no mês: <span className="font-medium text-gray-600 dark:text-gray-300">{isValidInflation ? inflationRate.toFixed(2) : 'N/A'}%</span>
-             </div>
-          </div>
-        </div>
-      );
-    }
-    return null;
-  };
 
   if (error) {
     return (

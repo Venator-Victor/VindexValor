@@ -28,6 +28,7 @@ export const useCustomCategoryMappings = () => {
   }, [user]);
 
   useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect -- fetches from Supabase (external system); setLoading(true) runs before the await, which is the standard data-fetching-on-mount pattern.
     fetchMappings();
   }, [fetchMappings]);
 
