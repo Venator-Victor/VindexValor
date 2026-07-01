@@ -13,7 +13,9 @@ import { useFinance } from '@/context/FinanceContext';
 import { useTheme } from '@/context/ThemeContext';
 import { formatCurrency } from '@/utils/calculations';
 import { RefreshCw as Loader2 } from '@/components/BxIcon';
+import { useTranslation } from 'react-i18next';
 const BudgetConsumptionChart = ({ selectedPeriod, filteredTransactions }) => {
+  const { t } = useTranslation();
   const { categories, isLoading } = useFinance();
   const { theme } = useTheme();
   const isDark = theme === 'dark';
@@ -25,7 +27,7 @@ const BudgetConsumptionChart = ({ selectedPeriod, filteredTransactions }) => {
     
     // Adjust based on period (approximation)
     switch(selectedPeriod) {
-        case 'Diário': return monthlyTotal / 30;
+        case 'daily': return monthlyTotal / 30;
         case 'weekly': return (monthlyTotal / 30) * 7;
         case 'biweekly': return monthlyTotal / 2;
         case 'quarterly': return monthlyTotal * 3;
@@ -128,11 +130,11 @@ const BudgetConsumptionChart = ({ selectedPeriod, filteredTransactions }) => {
       {/* Centered Text Overlay */}
       <div className="absolute top-0 left-0 right-0 z-10 flex flex-col items-center justify-center pt-8 pointer-events-none">
         <h3 className="text-3xl font-bold text-gray-900 dark:text-gray-50 tracking-tight">
-           {remaining >= 0 ? formatCurrency(remaining) : `-${formatCurrency(Math.abs(remaining))}`} 
-           <span className="text-lg font-normal text-gray-500 dark:text-gray-400"> {remaining >= 0 ? 'restam' : 'excedidos'}</span>
+           {remaining >= 0 ? formatCurrency(remaining) : `-${formatCurrency(Math.abs(remaining))}`}
+           <span className="text-lg font-normal text-gray-500 dark:text-gray-400"> {remaining >= 0 ? t('dashboard.remaining_label') : t('dashboard.exceeded_label')}</span>
         </h3>
         <p className="text-sm font-medium text-gray-500 dark:text-gray-400 mt-1 bg-white/50 dark:bg-black/20 px-3 py-1 rounded-full backdrop-blur-sm">
-           {formatCurrency(totalPeriodBudget)} orçados ({selectedPeriod})
+           {t('dashboard.budgeted_label', { amount: formatCurrency(totalPeriodBudget), period: t(`period.${selectedPeriod}`) })}
         </p>
       </div>
 
@@ -159,8 +161,8 @@ const BudgetConsumptionChart = ({ selectedPeriod, filteredTransactions }) => {
                 boxShadow: '0 4px 6px -1px rgb(0 0 0 / 0.1)'
               }}
               formatter={(value, name) => [
-                formatCurrency(value), 
-                name === 'budgetLine' ? 'Orçamento Total' : 'Gasto Acumulado'
+                formatCurrency(value),
+                name === 'budgetLine' ? t('categories.total_budget') : t('dashboard.accumulated_spending')
               ]}
               labelStyle={{ color: textColor, marginBottom: '0.5rem' }}
               cursor={{ stroke: chartColor, strokeWidth: 1, strokeDasharray: '5 5' }}

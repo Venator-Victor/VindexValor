@@ -1,29 +1,31 @@
 import React, { useMemo } from 'react';
+import { useTranslation } from 'react-i18next';
 import { formatCurrency } from '@/utils/calculations';
 import { motion } from 'framer-motion';
 import { useNavigate } from 'react-router-dom';
 import BxIcon, { PieChartAlt2, BarChart } from '@/components/BxIcon';
 
 const TopCategoriesSection = ({ transactions, categories, selectedPeriod }) => {
+  const { t } = useTranslation();
   const navigate = useNavigate();
 
   const categoryStats = useMemo(() => {
-    const expenses = transactions.filter(t => t.type === 'expense');
-    const totalExpenses = expenses.reduce((sum, t) => sum + Number(t.amount), 0);
+    const expenses = transactions.filter(tx => tx.type === 'expense');
+    const totalExpenses = expenses.reduce((sum, tx) => sum + Number(tx.amount), 0);
 
     const stats = {};
-    
-    expenses.forEach(t => {
-      const catName = t.categories?.name || 'Outros';
+
+    expenses.forEach(tx => {
+      const catName = tx.categories?.name || t('dashboard.uncategorized_label');
       if (!stats[catName]) {
         stats[catName] = {
-          id: t.category_id,
+          id: tx.category_id,
           amount: 0,
-          color: t.categories?.color || '#94a3b8',
-          icon: t.categories?.icon || 'bx-purchase-tag'
+          color: tx.categories?.color || '#94a3b8',
+          icon: tx.categories?.icon || 'bx-purchase-tag'
         };
       }
-      stats[catName].amount += Math.abs(Number(t.amount));
+      stats[catName].amount += Math.abs(Number(tx.amount));
     });
 
     return Object.entries(stats)
@@ -44,10 +46,10 @@ const TopCategoriesSection = ({ transactions, categories, selectedPeriod }) => {
       <div className="flex items-center justify-between mb-6 shrink-0">
         <h3 className="text-lg font-bold text-gray-900 dark:text-gray-50 flex items-center gap-2">
             <PieChartAlt2 size={20} className="text-blue-500" />
-            Categorias
+            {t('nav.categories')}
         </h3>
         <span className="text-xs font-medium px-2 py-1 bg-gray-100 dark:bg-gray-800 rounded-md text-gray-500 dark:text-gray-400">
-            {selectedPeriod}
+            {t(`period.${selectedPeriod}`)}
         </span>
       </div>
 
@@ -97,7 +99,7 @@ const TopCategoriesSection = ({ transactions, categories, selectedPeriod }) => {
         ) : (
           <div className="flex flex-col items-center justify-center h-48 text-gray-400">
             <BarChart size={40} className="mb-2" />
-            <p className="text-sm">Sem dados neste período</p>
+            <p className="text-sm">{t('dashboard.no_data_this_period')}</p>
           </div>
         )}
       </div>

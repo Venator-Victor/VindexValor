@@ -1,5 +1,6 @@
 import { PRIMARY, PRIMARY_HOVER } from '@/utils/colors';
-import React, { useState, useEffect } from 'react';
+import React, { useState, useMemo } from 'react';
+import { useTranslation } from 'react-i18next';
 import { Helmet } from 'react-helmet';
 import { motion } from 'framer-motion';
 import { Grid as LayoutGrid, ListUl as ListIcon, Calendar, AlertTriangle } from '@/components/BxIcon';
@@ -32,6 +33,7 @@ import {
 import { INVESTMENT_TYPES } from '@/utils/investmentTypes';
 
 const Investments = () => {
+  const { t } = useTranslation();
   const { investments, accounts, addInvestment, updateInvestment, deleteInvestment, settings, saveSettings } = useFinance();
   const { toast } = useToast();
   const [isDialogOpen, setIsDialogOpen] = useState(false);
@@ -42,10 +44,8 @@ const Investments = () => {
   const { items: sortedInvestments, requestSort, sortConfig } = useSortableList(investments);
 
   // Chart Controls
-  const [chartPeriod, setChartPeriod] = useState('mensal');
+  const [chartPeriod, setChartPeriod] = useState('monthly');
   const [displayMode, setDisplayMode] = useState('valor_atual'); // 'valor_atual' | 'rentabilidade'
-  const [chartData, setChartData] = useState([]);
-  const [isLoadingChart, setIsLoadingChart] = useState(false);
 
   const [formData, setFormData] = useState({
     name: '',
@@ -65,31 +65,24 @@ const Investments = () => {
   
   // Filter accounts suitable for funding investments
   const fundingAccounts = accounts.map(acc => ({
-    label: `${acc.name} (Saldo: ${formatCurrency(acc.balance)})`,
+    label: t('investments.funding_account_option', { name: acc.name, balance: formatCurrency(acc.balance) }),
     value: acc.id
   }));
-  fundingAccounts.unshift({ label: "Selecione uma conta (Opcional)", value: "" });
+  fundingAccounts.unshift({ label: t('investments.source_account_placeholder'), value: "" });
 
-  // Generate Chart Data Effect
-  useEffect(() => {
-    generateChartData();
-  }, [investments, chartPeriod, displayMode]);
-
-  const generateChartData = () => {
-    setIsLoadingChart(true);
-    
+  const chartData = useMemo(() => {
     // Calculate start date based on period
     const now = new Date();
     const startDate = new Date();
     
     switch(chartPeriod) {
-        case 'diario': startDate.setDate(now.getDate() - 1); break;
-        case 'semanal': startDate.setDate(now.getDate() - 7); break;
-        case 'quinzenal': startDate.setDate(now.getDate() - 15); break;
-        case 'mensal': startDate.setDate(now.getDate() - 30); break;
-        case 'trimestral': startDate.setDate(now.getDate() - 90); break;
-        case 'semestral': startDate.setDate(now.getDate() - 180); break;
-        case 'anual': startDate.setDate(now.getDate() - 365); break;
+        case 'daily': startDate.setDate(now.getDate() - 1); break;
+        case 'weekly': startDate.setDate(now.getDate() - 7); break;
+        case 'biweekly': startDate.setDate(now.getDate() - 15); break;
+        case 'monthly': startDate.setDate(now.getDate() - 30); break;
+        case 'quarterly': startDate.setDate(now.getDate() - 90); break;
+        case 'semiannual': startDate.setDate(now.getDate() - 180); break;
+        case 'yearly': startDate.setDate(now.getDate() - 365); break;
         default: startDate.setDate(now.getDate() - 30); // default month
     }
 
@@ -131,9 +124,8 @@ const Investments = () => {
         });
     }
 
-    setChartData(days);
-    setIsLoadingChart(false);
-  };
+    return days;
+  }, [investments, chartPeriod, displayMode]);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -146,10 +138,10 @@ const Investments = () => {
     try {
         if (editingInvestment) {
             await updateInvestment(editingInvestment.id, investmentData);
-            toast({ title: "Investimento atualizado com sucesso!" });
+            toast({ title: t('investments.updated_success') });
         } else {
             await addInvestment(investmentData);
-            toast({ title: "Investimento criado com sucesso!" });
+            toast({ title: t('investments.created_success') });
         }
         setIsDialogOpen(false);
         resetForm();
@@ -191,7 +183,7 @@ const Investments = () => {
   const handleDelete = async (id) => {
     await deleteInvestment(id);
     setDeleteId(null);
-    toast({ title: "Investimento excluído com sucesso!" });
+    toast({ title: t('investments.deleted_success') });
   };
   
 
@@ -200,14 +192,14 @@ const Investments = () => {
     <div className="space-y-6 pb-20 md:pb-0">
       <Helmet>
         <title>VindexValor - Investments</title>
-        <meta name="description" content="Acompanhe seus investimentos e rentabilidade" />
+        <meta name="description" content={t('investments.subtitle')} />
       </Helmet>
 
       {/* Header and Controls */}
       <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
         <div>
-          <h1 className="text-3xl font-bold text-gray-900 dark:text-gray-50 mb-2">Investments</h1>
-          <p className="text-gray-700 dark:text-gray-300">Acompanhe seus investimentos e rentabilidade</p>
+          <h1 className="text-3xl font-bold text-gray-900 dark:text-gray-50 mb-2">{t('investments.title')}</h1>
+          <p className="text-gray-700 dark:text-gray-300">{t('investments.subtitle')}</p>
         </div>
 
         <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-4 w-full md:w-auto">
@@ -235,15 +227,15 @@ const Investments = () => {
                     onClick={() => setDisplayMode('valor_atual')}
                     className={`px-3 py-1.5 text-xs font-medium rounded-md transition-all flex items-center gap-2 ${displayMode === 'valor_atual' ? 'bg-gray-100 dark:bg-vindex-bg text-gray-900 dark:text-gray-100 shadow-sm' : 'text-gray-500 hover:text-gray-700 dark:hover:text-gray-300'}`}
                  >
-                    <span className="hidden sm:inline">Valor Atual</span>
-                    <span className="sm:hidden">Valor</span>
+                    <span className="hidden sm:inline">{t('investments.display_current_value')}</span>
+                    <span className="sm:hidden">{t('common.amount')}</span>
                  </button>
                  <button
                     onClick={() => setDisplayMode('rentabilidade')}
                     className={`px-3 py-1.5 text-xs font-medium rounded-md transition-all flex items-center gap-2 ${displayMode === 'rentabilidade' ? 'bg-gray-100 dark:bg-vindex-bg text-gray-900 dark:text-gray-100 shadow-sm' : 'text-gray-500 hover:text-gray-700 dark:hover:text-gray-300'}`}
                  >
                     <TrendingUp size={14} />
-                    <span className="hidden sm:inline">Rentabilidade</span>
+                    <span className="hidden sm:inline">{t('investments.display_return')}</span>
                  </button>
             </div>
 
@@ -252,14 +244,14 @@ const Investments = () => {
               <button
                 onClick={() => setViewMode('list')}
                 className={`p-2 rounded-md transition-all ${viewMode === 'list' ? 'bg-gray-100 dark:bg-vindex-bg text-gray-900 dark:text-gray-100 shadow-sm' : 'text-gray-400 hover:text-gray-600 dark:hover:text-gray-300'}`}
-                title="Lista"
+                title={t('common.view_list')}
               >
                 <ListIcon size={20} />
               </button>
               <button
                 onClick={() => setViewMode('card')}
                 className={`p-2 rounded-md transition-all ${viewMode === 'card' ? 'bg-gray-100 dark:bg-vindex-bg text-gray-900 dark:text-gray-100 shadow-sm' : 'text-gray-400 hover:text-gray-600 dark:hover:text-gray-300'}`}
-                title="Cards"
+                title={t('common.view_card')}
               >
                 <LayoutGrid size={20} />
               </button>
@@ -275,24 +267,24 @@ const Investments = () => {
                 onMouseLeave={(e) => e.currentTarget.style.backgroundColor = PRIMARY}
               >
                 <Plus size={20} className="mr-2" />
-                <span className="hidden sm:inline">Novo Investimento</span>
-                <span className="sm:hidden">Nova</span>
+                <span className="hidden sm:inline">{t('investments.new')}</span>
+                <span className="sm:hidden">{t('common.new')}</span>
               </Button>
             </DialogTrigger>
             <DialogContent className="bg-white dark:bg-vindex-card text-gray-900 dark:text-gray-100 border-gray-200 dark:border-vindex-border rounded-xl">
               <DialogHeader>
-                <DialogTitle>{editingInvestment ? 'Editar Investimento' : 'Novo Investimento'}</DialogTitle>
+                <DialogTitle>{editingInvestment ? t('investments.edit') : t('investments.new')}</DialogTitle>
               </DialogHeader>
               <form onSubmit={handleSubmit} className="space-y-4">
                 <div>
-                  <Label htmlFor="name">Nome do Ativo</Label>
+                  <Label htmlFor="name">{t('investments.asset_name')}</Label>
                   <input
                     id="name"
                     type="text"
                     value={formData.name}
                     onChange={(e) => setFormData({ ...formData, name: e.target.value })}
                     className="w-full px-3 py-2 bg-white dark:bg-vindex-bg border border-gray-200 dark:border-vindex-border rounded-lg text-gray-900 dark:text-gray-100 focus:ring-2 focus:ring-vindex-success/50 outline-none"
-                    placeholder="Ex: PETR4, Tesouro Selic 2029"
+                    placeholder={t('investments.name_placeholder')}
                     required
                   />
                 </div>
@@ -314,20 +306,20 @@ const Investments = () => {
 
                 <div>
                    <SelectInput
-                      label="Conta de Origem (Para débito do valor)"
+                      label={t('investments.source_account')}
                       id="accountId"
                       value={formData.accountId}
                       options={fundingAccounts}
                       onChange={(e) => setFormData({ ...formData, accountId: e.target.value })}
                    />
                    <p className="text-xs text-gray-500 mt-1">
-                     * Selecione uma conta para debitar automaticamente o valor investido.
+                     {t('investments.source_account_hint')}
                    </p>
                 </div>
 
                 <div className="grid grid-cols-2 gap-4">
                     <div>
-                    <Label htmlFor="investedAmount">Valor Investido</Label>
+                    <Label htmlFor="investedAmount">{t('investments.invested_amount')}</Label>
                     <NumberInput
                         id="investedAmount"
                         value={formData.investedAmount}
@@ -336,7 +328,7 @@ const Investments = () => {
                     />
                     </div>
                     <div>
-                    <Label htmlFor="currentAmount">Valor Atual</Label>
+                    <Label htmlFor="currentAmount">{t('investments.current_amount')}</Label>
                     <NumberInput
                         id="currentAmount"
                         value={formData.currentAmount}
@@ -348,18 +340,18 @@ const Investments = () => {
 
                 <div>
                   <DatePicker
-                    label="Data de Compra"
+                    label={t('investments.purchase_date')}
                     value={formData.purchaseDate}
                     onChange={(e) => setFormData({ ...formData, purchaseDate: e.target.value })}
                   />
                 </div>
-                
+
                 <div className="flex gap-2 pt-4">
                   <Button type="submit" className="flex-1 bg-green-600 hover:bg-green-700 text-white dark:bg-vindex-success/20 dark:hover:bg-vindex-success/30 dark:text-vindex-success dark:border dark:border-vindex-success/50 rounded-lg">
-                    {editingInvestment ? 'Atualizar' : 'Criar'}
+                    {editingInvestment ? t('common.update') : t('common.create')}
                   </Button>
                   <Button type="button" variant="outline" onClick={() => setIsDialogOpen(false)} className="flex-1 border-gray-200 dark:border-vindex-border text-gray-900 dark:text-gray-100 hover:bg-gray-100 dark:hover:bg-vindex-bg rounded-lg">
-                    Cancelar
+                    {t('common.cancel')}
                   </Button>
                 </div>
               </form>
@@ -372,7 +364,7 @@ const Investments = () => {
       <div className="bg-yellow-50 dark:bg-yellow-900/20 border border-yellow-200 dark:border-yellow-900/50 rounded-lg p-4 flex items-center gap-3 animate-in fade-in slide-in-from-top-2">
         <AlertTriangle className="text-yellow-600 dark:text-yellow-500 w-5 h-5 flex-shrink-0" />
         <p className="text-sm text-yellow-800 dark:text-yellow-200 font-medium">
-          Esta funcionalidade ainda está em desenvolvimento
+          {t('investments.in_development')}
         </p>
       </div>
 
@@ -386,7 +378,7 @@ const Investments = () => {
 
       {/* Content Area: Table or Card Grid */}
       {sortedInvestments.length === 0 ? (
-        <EmptyState icon={TrendingUp} message="Você ainda não tem investimentos cadastrados." buttonLabel="Criar Primeiro Investimento" onButtonClick={() => { resetForm(); setIsDialogOpen(true); }} />
+        <EmptyState icon={TrendingUp} message={t('investments.empty')} buttonLabel={t('investments.create_first')} onButtonClick={() => { resetForm(); setIsDialogOpen(true); }} />
       ) : (
         <>
           {viewMode === 'card' ? (
@@ -417,14 +409,14 @@ const Investments = () => {
                 <table className="w-full">
                   <thead className="bg-gray-50 dark:bg-vindex-bg border-b border-gray-200 dark:border-vindex-border">
                     <tr>
-                      <SortableHeader label="Nome" column="name" sortConfig={sortConfig} onSort={requestSort} className="text-xs font-bold uppercase" />
-                      <SortableHeader label="Tipo" column="type" sortConfig={sortConfig} onSort={requestSort} className="text-xs font-bold uppercase" />
-                      <SortableHeader label="Subtipo" column="subtype" sortConfig={sortConfig} onSort={requestSort} className="text-xs font-bold uppercase" />
-                      <SortableHeader label="Investido" column="investedAmount" sortConfig={sortConfig} onSort={requestSort} className="text-xs font-bold uppercase" />
-                      <SortableHeader label="Atual" column="currentAmount" sortConfig={sortConfig} onSort={requestSort} className="text-xs font-bold uppercase" />
-                      <th className="px-6 py-3 text-left text-xs font-bold text-gray-700 dark:text-gray-300 uppercase">Rentabilidade</th>
-                      <SortableHeader label="Data Compra" column="purchaseDate" sortConfig={sortConfig} onSort={requestSort} className="text-xs font-bold uppercase" />
-                      <th className="px-6 py-3 text-left text-xs font-bold text-gray-700 dark:text-gray-300 uppercase">Ações</th>
+                      <SortableHeader label={t('investments.col_name')} column="name" sortConfig={sortConfig} onSort={requestSort} className="text-xs font-bold uppercase" />
+                      <SortableHeader label={t('investments.col_type')} column="type" sortConfig={sortConfig} onSort={requestSort} className="text-xs font-bold uppercase" />
+                      <SortableHeader label={t('investments.col_subtype')} column="subtype" sortConfig={sortConfig} onSort={requestSort} className="text-xs font-bold uppercase" />
+                      <SortableHeader label={t('investments.col_invested')} column="investedAmount" sortConfig={sortConfig} onSort={requestSort} className="text-xs font-bold uppercase" />
+                      <SortableHeader label={t('investments.col_current')} column="currentAmount" sortConfig={sortConfig} onSort={requestSort} className="text-xs font-bold uppercase" />
+                      <th className="px-6 py-3 text-left text-xs font-bold text-gray-700 dark:text-gray-300 uppercase">{t('investments.col_return')}</th>
+                      <SortableHeader label={t('investments.col_purchase_date')} column="purchaseDate" sortConfig={sortConfig} onSort={requestSort} className="text-xs font-bold uppercase" />
+                      <th className="px-6 py-3 text-left text-xs font-bold text-gray-700 dark:text-gray-300 uppercase">{t('common.actions')}</th>
                     </tr>
                   </thead>
                   <tbody className="divide-y divide-gray-200 dark:divide-vindex-border">
@@ -485,7 +477,7 @@ const Investments = () => {
       <DeleteConfirmationDialog
         open={!!deleteId}
         onOpenChange={() => setDeleteId(null)}
-        description="Tem certeza que deseja excluir este investimento? O valor investido será devolvido à conta de origem, se houver."
+        description={t('investments.delete_confirm')}
         onConfirm={() => handleDelete(deleteId)}
       />
     </div>

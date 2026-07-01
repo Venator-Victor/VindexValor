@@ -1,5 +1,6 @@
 import { PRIMARY, PRIMARY_HOVER, TEXT_SUCCESS, TEXT_DANGER } from '@/utils/colors';
 import React, { useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { Helmet } from 'react-helmet';
 import { motion } from 'framer-motion';
 import { Grid as LayoutGrid, ListUl as ListIcon, Repeat, Search } from '@/components/BxIcon';
@@ -25,6 +26,7 @@ import ColorPicker from '@/components/ui/ColorPicker';
 import IconSelector from '@/components/IconSelector';
 
 const Recurrences = () => {
+  const { t } = useTranslation();
   const { recurring, parcels, updateRecurring, deleteRecurring, addRecurring, settings, saveSettings, transactionTypes } = useFinance();
   const { categories, addCategory } = useCategories();
   const { toast } = useToast();
@@ -53,7 +55,7 @@ const Recurrences = () => {
   });
 
   const viewMode = settings.recurring_items_view_preference || 'list';
-  const currentPeriod = settings.recurring_items_period_preference || 'mensal';
+  const currentPeriod = settings.recurring_items_period_preference || 'monthly';
 
   const setViewMode = (mode) => {
     saveSettings({ recurring_items_view_preference: mode });
@@ -62,19 +64,19 @@ const Recurrences = () => {
   const handlePeriodChange = (e) => saveSettings({ recurring_items_period_preference: e.target.value });
 
   const statusOptions = [
-      { label: "Ativo", value: "active" },
-      { label: "Inativo", value: "inactive" }
+      { label: t('recurrences.status_active'), value: "active" },
+      { label: t('recurrences.status_inactive'), value: "inactive" }
   ];
 
   const categoryOptions = [
-      { label: "Selecione...", value: "" },
-      { label: "+ Nova Categoria", value: "__create_new__" },
+      { label: t('common.select_placeholder'), value: "" },
+      { label: t('recurrences.new_category_option'), value: "__create_new__" },
       ...categories.map(cat => ({ label: cat.name, value: cat.id }))
   ];
-  
+
   const typeOptions = [
-      { label: "Selecione o tipo", value: "" },
-      ...transactionTypes.map(t => ({ label: t.name, value: t.id }))
+      { label: t('recurrences.select_type_placeholder'), value: "" },
+      ...transactionTypes.map(tt => ({ label: tt.name, value: tt.id }))
   ];
 
   const filteredRecurring = recurring.filter(() => true);
@@ -101,11 +103,11 @@ const Recurrences = () => {
   const handleSubmit = (e) => {
     e.preventDefault();
     if (!formData.transaction_type_id) {
-       toast({ title: "Erro", description: "Por favor, selecione um tipo de transação (Salário, Assinatura ou Parcelamento)", variant: "destructive" });
+       toast({ title: t('common.error'), description: t('recurrences.select_type_error'), variant: "destructive" });
        return;
     }
-    
-    const typeObj = transactionTypes.find(t => t.id === formData.transaction_type_id);
+
+    const typeObj = transactionTypes.find(tt => tt.id === formData.transaction_type_id);
     const finalAmount = typeObj?.type === 'income' ? Math.abs(Number(formData.amount)) : -Math.abs(Number(formData.amount));
     const isParcelas = typeObj?.name === 'Parcelamento';
     const isActive = formData.status === 'active';
@@ -123,10 +125,10 @@ const Recurrences = () => {
 
     if (editingRecurring) {
       updateRecurring(editingRecurring.id, recurringData);
-      toast({ title: "Recorrência atualizada com sucesso!" });
+      toast({ title: t('recurrences.updated_success') });
     } else {
       addRecurring(recurringData);
-      toast({ title: "Solicitação enviada!", description: "Processando criação da recorrência..." });
+      toast({ title: t('recurrences.created_request'), description: t('recurrences.created_request_desc') });
     }
 
     setIsDialogOpen(false);
@@ -153,11 +155,11 @@ const Recurrences = () => {
     // Attempt to guess transaction_type_id based on name/amount (since recurrences might not store it directly, but mapped from transacoes if needed)
     let guessedTypeId = '';
     if (recurringItem.recurrence_type === 'installments') {
-       guessedTypeId = transactionTypes.find(t => t.name === 'Parcelamento')?.id || '';
+       guessedTypeId = transactionTypes.find(tt => tt.name === 'Parcelamento')?.id || '';
     } else if (Number(recurringItem.amount) > 0) {
-       guessedTypeId = transactionTypes.find(t => t.name === 'Salário')?.id || '';
+       guessedTypeId = transactionTypes.find(tt => tt.name === 'Salário')?.id || '';
     } else {
-       guessedTypeId = transactionTypes.find(t => t.name === 'Assinatura' || t.name === 'subscription')?.id || '';
+       guessedTypeId = transactionTypes.find(tt => tt.name === 'Assinatura' || tt.name === 'subscription')?.id || '';
     }
 
     setFormData({
@@ -176,13 +178,13 @@ const Recurrences = () => {
   const handleDelete = (id) => {
     deleteRecurring(id);
     setDeleteId(null);
-    toast({ title: "Recorrência excluída com sucesso!" });
+    toast({ title: t('recurrences.deleted_success') });
   };
 
   const toggleStatus = (recurringItem) => {
     const newStatus = recurringItem.status === 'active' ? 'inactive' : 'active';
     updateRecurring(recurringItem.id, { status: newStatus });
-    toast({ title: `Recorrência ${newStatus === 'active' ? 'ativada' : 'desativada'} com sucesso!` });
+    toast({ title: newStatus === 'active' ? t('recurrences.activated_success') : t('recurrences.deactivated_success') });
   };
   
   const handleCategoryChange = (e) => {
@@ -198,9 +200,9 @@ const Recurrences = () => {
       }
       const cat = categories.find(c => c.name === categoryName);
       if(cat) setFormData(prev => ({ ...prev, category_id: cat.id }));
-      else toast({ title: "Categoria criada", description: "Por favor, selecione a nova categoria na lista." });
+      else toast({ title: t('recurrences.category_created_title'), description: t('recurrences.category_created_desc') });
   };
-  
+
   const handleCreateCustomCategory = async (e) => {
     e.preventDefault();
     const newCat = await addCategory(newCategoryData);
@@ -208,7 +210,7 @@ const Recurrences = () => {
       setFormData(prev => ({ ...prev, category_id: newCat.id }));
       setIsCategoryDialogOpen(false);
       setNewCategoryData({ name: '', color: '#283768', icon: 'bx bx-tag' });
-      toast({ title: "Categoria criada com sucesso!" });
+      toast({ title: t('categories.created_success') });
     }
   };
 
@@ -217,14 +219,14 @@ const Recurrences = () => {
   return (
     <div className="space-y-6 pb-20 md:pb-0">
       <Helmet>
-        <title>VindexValor - Recorrências</title>
-        <meta name="description" content="Gerencie suas transações recorrentes" />
+        <title>VindexValor - {t('recurrences.title')}</title>
+        <meta name="description" content={t('recurrences.subtitle')} />
       </Helmet>
 
       <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
         <div>
-          <h1 className="text-3xl font-bold text-gray-900 dark:text-gray-50 mb-2">Recorrências</h1>
-          <p className="text-gray-700 dark:text-gray-300">Gerencie contas fixas, parcelamentos e salários</p>
+          <h1 className="text-3xl font-bold text-gray-900 dark:text-gray-50 mb-2">{t('recurrences.title')}</h1>
+          <p className="text-gray-700 dark:text-gray-300">{t('recurrences.subtitle')}</p>
         </div>
 
         <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-4 w-full md:w-auto">
@@ -252,18 +254,18 @@ const Recurrences = () => {
                     onMouseLeave={(e) => e.currentTarget.style.backgroundColor = PRIMARY}
                 >
                     <Plus size={20} className="mr-2" />
-                    <span className="hidden sm:inline">Nova Recorrência</span>
-                    <span className="sm:hidden">Nova</span>
+                    <span className="hidden sm:inline">{t('recurrences.new')}</span>
+                    <span className="sm:hidden">{t('recurrences.new_short')}</span>
                 </Button>
                 </DialogTrigger>
                 <DialogContent className="bg-white dark:bg-vindex-card text-gray-900 dark:text-gray-100 border-gray-200 dark:border-vindex-border rounded-xl max-h-[90vh] overflow-y-auto">
                 <DialogHeader>
-                    <DialogTitle>{editingRecurring ? 'Editar Recorrência' : 'Nova Recorrência'}</DialogTitle>
+                    <DialogTitle>{editingRecurring ? t('recurrences.edit') : t('recurrences.new')}</DialogTitle>
                 </DialogHeader>
                 <form onSubmit={handleSubmit} className="space-y-4">
                     <div>
                         <SelectInput
-                            label="Tipo de Recorrência *"
+                            label={t('recurrences.recurrence_type')}
                             id="transaction_type_id"
                             value={formData.transaction_type_id}
                             options={typeOptions}
@@ -271,21 +273,21 @@ const Recurrences = () => {
                         />
                     </div>
                     <div>
-                    <Label htmlFor="description">Descrição</Label>
+                    <Label htmlFor="description">{t('common.description')}</Label>
                     <input
                         id="description"
                         type="text"
-                        placeholder="Ex: Netflix, Aluguel, Compra TV"
+                        placeholder={t('recurrences.description_placeholder')}
                         value={formData.description}
                         onChange={(e) => setFormData({ ...formData, description: e.target.value })}
                         className="w-full px-3 py-2 bg-white dark:bg-vindex-bg border border-gray-200 dark:border-vindex-border rounded-lg text-gray-900 dark:text-gray-100 focus:ring-2 focus:ring-vindex-success/50 outline-none"
                         required
                     />
                     </div>
-                    
+
                     <div className="grid grid-cols-2 gap-4">
                        <div>
-                         <Label htmlFor="amount">Valor da Parcela/Mensalidade</Label>
+                         <Label htmlFor="amount">{t('recurrences.installment_amount')}</Label>
                          <div className="relative">
                            <span className="absolute left-3 top-2.5 text-gray-500 dark:text-gray-400 font-medium">R$</span>
                            <input
@@ -302,7 +304,7 @@ const Recurrences = () => {
                        </div>
                        <div>
                         <SelectInput
-                           label="Categoria"
+                           label={t('common.category')}
                            id="category"
                            value={formData.category_id}
                            options={categoryOptions}
@@ -314,7 +316,7 @@ const Recurrences = () => {
                     <div className="grid grid-cols-1 gap-4">
                        <div>
                          <SelectInput
-                            label="Frequência"
+                            label={t('common.frequency')}
                             id="frequency"
                             value={formData.frequency}
                             options={PERIOD_OPTIONS}
@@ -323,15 +325,15 @@ const Recurrences = () => {
                        </div>
                     </div>
 
-                    {formData.transaction_type_id && transactionTypes.find(t => t.id === formData.transaction_type_id)?.name === 'Parcelamento' && (
+                    {formData.transaction_type_id && transactionTypes.find(tt => tt.id === formData.transaction_type_id)?.name === 'Parcelamento' && (
                         <div className="animate-in fade-in slide-in-from-top-2 duration-300">
-                             <Label htmlFor="installment_count">Quantidade de Parcelas</Label>
-                             <input 
+                             <Label htmlFor="installment_count">{t('recurrences.installment_count')}</Label>
+                             <input
                                 id="installment_count"
                                 type="number"
                                 value={formData.installment_count}
                                 onChange={(e) => setFormData({ ...formData, installment_count: e.target.value })}
-                                placeholder="Ex: 12"
+                                placeholder={t('recurrences.installment_count_placeholder')}
                                 min={1}
                                 className="w-full px-3 py-2 bg-white dark:bg-vindex-bg border border-gray-200 dark:border-vindex-border rounded-lg text-gray-900 dark:text-gray-100 focus:ring-2 focus:ring-vindex-success/50 outline-none"
                              />
@@ -340,15 +342,15 @@ const Recurrences = () => {
 
                     <div className="grid grid-cols-2 gap-4">
                         <div>
-                            <DatePicker 
-                            label="Data de Início / Próxima Cobrança"
+                            <DatePicker
+                            label={t('recurrences.start_date')}
                             value={formData.nextDate}
                             onChange={(e) => setFormData({ ...formData, nextDate: e.target.value })}
                             />
                         </div>
                         <div>
                         <SelectInput
-                            label="Status"
+                            label={t('common.status')}
                             id="status"
                             value={formData.status}
                             options={statusOptions}
@@ -359,10 +361,10 @@ const Recurrences = () => {
 
                     <div className="flex gap-2 pt-4">
                     <Button type="submit" className="flex-1 bg-green-600 hover:bg-green-700 text-white dark:bg-vindex-success/20 dark:hover:bg-vindex-success/30 dark:text-vindex-success dark:border dark:border-vindex-success/50 rounded-lg">
-                        {editingRecurring ? 'Atualizar' : 'Criar'}
+                        {editingRecurring ? t('common.update') : t('common.create')}
                     </Button>
                     <Button type="button" variant="outline" onClick={() => setIsDialogOpen(false)} className="flex-1 border-gray-200 dark:border-vindex-border text-gray-900 dark:text-gray-100 hover:bg-gray-100 dark:hover:bg-vindex-bg rounded-lg">
-                        Cancelar
+                        {t('common.cancel')}
                     </Button>
                     </div>
                 </form>
@@ -383,14 +385,14 @@ const Recurrences = () => {
             <Dialog open={isCategoryDialogOpen} onOpenChange={setIsCategoryDialogOpen}>
                 <DialogContent className="bg-white dark:bg-vindex-card text-gray-900 dark:text-gray-100 border-gray-200 dark:border-vindex-border rounded-xl">
                   <DialogHeader>
-                      <DialogTitle>Nova Categoria Personalizada</DialogTitle>
+                      <DialogTitle>{t('recurrences.new_custom_category')}</DialogTitle>
                   </DialogHeader>
                   <form onSubmit={handleCreateCustomCategory} className="space-y-4">
                       <div>
-                        <Label>Nome</Label>
-                        <input 
-                            type="text" 
-                            value={newCategoryData.name} 
+                        <Label>{t('common.name')}</Label>
+                        <input
+                            type="text"
+                            value={newCategoryData.name}
                             onChange={(e) => setNewCategoryData({...newCategoryData, name: e.target.value})}
                             className="w-full px-3 py-2 bg-white dark:bg-vindex-bg border border-gray-200 dark:border-vindex-border rounded-lg text-gray-900 dark:text-gray-100 outline-none"
                             required
@@ -399,8 +401,8 @@ const Recurrences = () => {
                       <ColorPicker value={newCategoryData.color} onChange={(color) => setNewCategoryData({...newCategoryData, color})} />
                       <IconSelector selectedIcon={newCategoryData.icon} onSelect={(icon) => setNewCategoryData({...newCategoryData, icon})} />
                       <div className="flex gap-2 pt-2">
-                        <Button type="submit" className="flex-1 bg-primary text-primary-foreground hover:bg-primary/90">Criar</Button>
-                        <Button type="button" variant="outline" onClick={() => setIsCategoryDialogOpen(false)} className="flex-1">Cancelar</Button>
+                        <Button type="submit" className="flex-1 bg-primary text-primary-foreground hover:bg-primary/90">{t('common.create')}</Button>
+                        <Button type="button" variant="outline" onClick={() => setIsCategoryDialogOpen(false)} className="flex-1">{t('common.cancel')}</Button>
                       </div>
                   </form>
                 </DialogContent>
@@ -411,18 +413,18 @@ const Recurrences = () => {
       </div>
 
       <GaugeSummaryCard
-        leftLabel="Pago até agora"
+        leftLabel={t('recurrences.paid_so_far')}
         leftValue={formatCurrency(totalPaid)}
         gaugeValue={totalPaid}
         gaugeMax={totalDebt}
-        rightLabel="Falta pagar"
+        rightLabel={t('recurrences.left_to_pay')}
         rightValue={formatCurrency(totalPending)}
         rightClassName={totalPending === 0 ? TEXT_SUCCESS : TEXT_DANGER}
         mode="progress"
       />
 
       {sortedRecurring.length === 0 ? (
-        <EmptyState icon={Repeat} message="Você ainda não tem recorrências cadastradas." buttonLabel="Criar Primeira Recorrência" onButtonClick={() => { resetForm(); setIsDialogOpen(true); }} />
+        <EmptyState icon={Repeat} message={t('recurrences.empty')} buttonLabel={t('recurrences.create_first')} onButtonClick={() => { resetForm(); setIsDialogOpen(true); }} />
       ) : (
         <>
           {viewMode === 'card' ? (
@@ -441,13 +443,13 @@ const Recurrences = () => {
                 <table className="w-full">
                   <thead className="bg-gray-50 dark:bg-vindex-bg border-b border-gray-200 dark:border-vindex-border">
                     <tr>
-                      <SortableHeader label="Descrição" column="description" sortConfig={sortConfig} onSort={requestSort} className="text-xs font-bold uppercase" />
-                      <SortableHeader label="Tipo" column="recurrence_type" sortConfig={sortConfig} onSort={requestSort} className="text-xs font-bold uppercase" />
-                      <SortableHeader label="Valor" column="amount" sortConfig={sortConfig} onSort={requestSort} className="text-xs font-bold uppercase" />
-                      <SortableHeader label="Frequência" column="frequency" sortConfig={sortConfig} onSort={requestSort} className="text-xs font-bold uppercase" />
-                      <SortableHeader label="Próxima Cobrança" column="date" sortConfig={sortConfig} onSort={requestSort} className="text-xs font-bold uppercase" />
-                      <th className="px-6 py-3 text-left text-xs font-bold text-gray-700 dark:text-gray-300 uppercase">Status</th>
-                      <th className="px-6 py-3 text-left text-xs font-bold text-gray-700 dark:text-gray-300 uppercase">Ações</th>
+                      <SortableHeader label={t('recurrences.col_description')} column="description" sortConfig={sortConfig} onSort={requestSort} className="text-xs font-bold uppercase" />
+                      <SortableHeader label={t('recurrences.col_type')} column="recurrence_type" sortConfig={sortConfig} onSort={requestSort} className="text-xs font-bold uppercase" />
+                      <SortableHeader label={t('recurrences.col_amount')} column="amount" sortConfig={sortConfig} onSort={requestSort} className="text-xs font-bold uppercase" />
+                      <SortableHeader label={t('recurrences.col_frequency')} column="frequency" sortConfig={sortConfig} onSort={requestSort} className="text-xs font-bold uppercase" />
+                      <SortableHeader label={t('recurrences.col_next_billing')} column="date" sortConfig={sortConfig} onSort={requestSort} className="text-xs font-bold uppercase" />
+                      <th className="px-6 py-3 text-left text-xs font-bold text-gray-700 dark:text-gray-300 uppercase">{t('recurrences.col_status')}</th>
+                      <th className="px-6 py-3 text-left text-xs font-bold text-gray-700 dark:text-gray-300 uppercase">{t('recurrences.col_actions')}</th>
                     </tr>
                   </thead>
                   <tbody className="divide-y divide-gray-200 dark:divide-vindex-border">
@@ -456,7 +458,7 @@ const Recurrences = () => {
                         <td className="px-6 py-4 text-sm text-gray-900 dark:text-gray-100 font-medium">
                             <div className="flex flex-col">
                                 <span>{item.description}</span>
-                                <span className="text-xs text-gray-500">{item.categories?.name || 'Sem categoria'}</span>
+                                <span className="text-xs text-gray-500">{item.categories?.name || t('common.no_category')}</span>
                             </div>
                         </td>
                         <td className="px-6 py-4 text-sm text-gray-700 dark:text-gray-300">
@@ -486,7 +488,7 @@ const Recurrences = () => {
                                     : 'bg-gray-50 border-gray-200 dark:bg-vindex-bg/50 dark:border-vindex-border/50 text-gray-500 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-vindex-border'
                                 }`}
                             >
-                                {item.status === 'active' ? 'Ativo' : 'Inativo'}
+                                {item.status === 'active' ? t('recurrences.status_active') : t('recurrences.status_inactive')}
                             </button>
                         </td>
                         <td className="px-6 py-4">
@@ -512,7 +514,7 @@ const Recurrences = () => {
       <DeleteConfirmationDialog
         open={!!deleteId}
         onOpenChange={() => setDeleteId(null)}
-        description="Tem certeza que deseja excluir esta recorrência? Esta ação não pode ser desfeita."
+        description={t('recurrences.delete_confirm')}
         onConfirm={() => handleDelete(deleteId)}
       />
     </div>

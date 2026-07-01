@@ -13,16 +13,17 @@ export const useCategorySpending = (categoryId, period) => {
     let startDate = new Date();
 
     switch (period) {
-      case 'diario':
+      case 'daily':
         startDate.setHours(0, 0, 0, 0);
         break;
-      case 'semanal':
+      case 'weekly': {
         const day = startDate.getDay();
         const diff = startDate.getDate() - day;
         startDate.setDate(diff);
         startDate.setHours(0, 0, 0, 0);
         break;
-      case 'quinzenal':
+      }
+      case 'biweekly': {
         const currentDay = startDate.getDate();
         if (currentDay <= 15) {
           startDate.setDate(1);
@@ -31,7 +32,8 @@ export const useCategorySpending = (categoryId, period) => {
         }
         startDate.setHours(0, 0, 0, 0);
         break;
-      case 'mensal':
+      }
+      case 'monthly':
         startDate.setDate(1);
         startDate.setHours(0, 0, 0, 0);
         break;

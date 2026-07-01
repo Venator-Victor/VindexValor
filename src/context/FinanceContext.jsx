@@ -48,7 +48,7 @@ export const FinanceProvider = ({ children }) => {
     currency: 'BRL',
     language: 'pt-BR',
     transactions_view_preference: 'list',
-    categories_period_preference: 'mensal',
+    categories_period_preference: 'monthly',
     accounts_view_preference: 'card'
   });
   
@@ -56,18 +56,6 @@ export const FinanceProvider = ({ children }) => {
   const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(() => localStorage.getItem('sidebarCollapsed') === 'true');
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
-
-  useEffect(() => {
-    if (user && user.id && session) {
-      fetchAllData();
-    }
-  }, [user, session]);
-
-  useEffect(() => {
-    if (settings?.language) {
-      i18n.changeLanguage(settings.language);
-    }
-  }, [settings?.language]);
 
   const fetchAllData = async () => {
     if (!user || !user.id) return;
@@ -134,6 +122,19 @@ export const FinanceProvider = ({ children }) => {
       setIsLoading(false);
     }
   };
+
+  useEffect(() => {
+    if (user && user.id && session) {
+      // eslint-disable-next-line react-hooks/set-state-in-effect -- fetches all user data from Supabase when auth state changes; setIsLoading(true) runs before the first await, the standard data-fetching pattern.
+      fetchAllData();
+    }
+  }, [user, session]);
+
+  useEffect(() => {
+    if (settings?.language) {
+      i18n.changeLanguage(settings.language);
+    }
+  }, [settings?.language]);
 
   const fetchRecurring = async () => {
     if (!user) return;

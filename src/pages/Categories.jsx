@@ -1,5 +1,6 @@
 import { PRIMARY, PRIMARY_HOVER } from '@/utils/colors';
 import React, { useState, useMemo } from 'react';
+import { useTranslation } from 'react-i18next';
 import { Helmet } from 'react-helmet';
 import { motion, AnimatePresence } from 'framer-motion';
 import BxIcon, { Grid as LayoutGrid, ListUl as ListIcon, Plus, Folder, TrashAlt as Trash2, Edit as Edit2 } from '@/components/BxIcon';
@@ -23,6 +24,7 @@ import { PERIOD_OPTIONS, CHART_PERIOD_OPTIONS } from '@/utils/periodOptions';
 import CategoryDetailModal from '@/components/CategoryDetailModal';
 
 const Categories = () => {
+  const { t } = useTranslation();
   const {
     categories,
     transactions,
@@ -66,7 +68,7 @@ const Categories = () => {
     }
   };
   
-  const currentPeriod = settings?.categories_period_preference || 'mensal';
+  const currentPeriod = settings?.categories_period_preference || 'monthly';
 
   // Calculate dynamic spending based on global period preference
   const categoriesWithDynamicSpending = categories.map(cat => ({
@@ -95,10 +97,10 @@ const Categories = () => {
     };
     if (editingCategory && updateCategory) {
       updateCategory(editingCategory.id, categoryData);
-      toast({ title: "Categoria atualizada com sucesso!" });
+      toast({ title: t('categories.updated_success') });
     } else if (addCategory) {
       addCategory(categoryData);
-      toast({ title: "Categoria criada com sucesso!" });
+      toast({ title: t('categories.created_success') });
     }
     setIsDialogOpen(false);
     resetForm();
@@ -136,8 +138,8 @@ const Categories = () => {
     const transactionCount = transactions.filter(t => t.category_id === category.id || t.categories?.name === category.name || t.category === category.name).length;
     if (transactionCount > 0) {
       toast({
-        title: "Não é possível excluir",
-        description: `Esta categoria possui ${transactionCount} transação(ões) associada(s). Remova-as primeiro.`,
+        title: t('categories.cannot_delete_title'),
+        description: t('categories.cannot_delete_desc', { count: transactionCount }),
         variant: "destructive"
       });
       setDeleteId(null);
@@ -145,7 +147,7 @@ const Categories = () => {
     }
     if (deleteCategory) {
       deleteCategory(id);
-      toast({ title: "Categoria excluída com sucesso!" });
+      toast({ title: t('categories.deleted_success') });
     }
     setDeleteId(null);
     setSelectedDetailCategory(null);
@@ -161,14 +163,14 @@ const Categories = () => {
     <div className="space-y-6 pb-20 md:pb-0">
       <Helmet>
         <title>VindexValor - Categories</title>
-        <meta name="description" content="Organize suas transações com categorias personalizadas" />
+        <meta name="description" content={t('categories.subtitle')} />
       </Helmet>
 
       {/* Header and Controls */}
       <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
         <div>
-          <h1 className="text-3xl font-bold text-gray-900 dark:text-gray-50 mb-2">Categories</h1>
-          <p className="text-gray-700 dark:text-gray-300">Orçamento mensal por categoria</p>
+          <h1 className="text-3xl font-bold text-gray-900 dark:text-gray-50 mb-2">{t('categories.title')}</h1>
+          <p className="text-gray-700 dark:text-gray-300">{t('categories.subtitle')}</p>
         </div>
         
         <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-4 w-full md:w-auto">
@@ -193,33 +195,33 @@ const Categories = () => {
             
             <Button onClick={() => setIsDefaultModalOpen(true)} className="border-none text-gray-900 rounded-lg flex-1 sm:flex-none whitespace-nowrap transition-colors" style={{ backgroundColor: PRIMARY }} onMouseEnter={e => e.currentTarget.style.backgroundColor = PRIMARY_HOVER} onMouseLeave={e => e.currentTarget.style.backgroundColor = PRIMARY}>
               <Plus className="mr-2 h-5 w-5" />
-              <span className="hidden sm:inline">Nova Categoria</span>
-              <span className="sm:hidden">Nova</span>
+              <span className="hidden sm:inline">{t('categories.new')}</span>
+              <span className="sm:hidden">{t('common.new')}</span>
             </Button>
           </div>
         </div>
       </div>
 
       <GaugeSummaryCard
-        leftLabel="Utilização Total"
+        leftLabel={t('categories.total_usage')}
         leftValue={formatCurrency(totalSpent)}
         gaugeValue={totalSpent}
         gaugeMax={totalBudget}
-        rightLabel="Orçamento Total"
+        rightLabel={t('categories.total_budget')}
         rightValue={formatCurrency(totalBudget)}
         rightClassName="text-2xl font-bold text-primary"
       />
 
       {/* Categories List/Grid */}
       <div className="flex justify-between items-center mb-4 mt-6">
-         <h2 className="text-lg font-semibold text-gray-900 dark:text-gray-50">Minhas Categories</h2>
+         <h2 className="text-lg font-semibold text-gray-900 dark:text-gray-50">{t('categories.my_categories')}</h2>
          <span className="text-sm text-gray-700 dark:text-gray-300 bg-gray-100 dark:bg-vindex-bg px-2 py-1 rounded">
-            Visualizando gastos: <span className="font-semibold capitalize text-gray-900 dark:text-gray-100">{currentPeriod}</span>
+            {t('categories.viewing_expenses')} <span className="font-semibold capitalize text-gray-900 dark:text-gray-100">{currentPeriod}</span>
          </span>
       </div>
-      
+
       {sortedCategories.length === 0 ? (
-        <EmptyState icon={Folder} message="Você ainda não tem categorias cadastradas." buttonLabel="Criar Primeira Categoria" onButtonClick={() => setIsDefaultModalOpen(true)} />
+        <EmptyState icon={Folder} message={t('categories.empty')} buttonLabel={t('categories.create_first')} onButtonClick={() => setIsDefaultModalOpen(true)} />
       ) : (
         <>
            {/* Grid View */}
@@ -248,13 +250,13 @@ const Categories = () => {
                             
                             <div className="text-left flex-grow overflow-hidden">
                               <h3 className="text-sm font-bold text-gray-900 dark:text-gray-50 leading-tight break-words" title={category.name}>{category.name}</h3>
-                              <p className="text-xs text-gray-700 dark:text-gray-300">{transactionCount} transações</p>
+                              <p className="text-xs text-gray-700 dark:text-gray-300">{t('categories.transaction_count', { count: transactionCount })}</p>
                             </div>
                         </div>
 
                         <div className="w-full p-3 bg-gray-50 dark:bg-vindex-bg rounded-lg border border-gray-100 dark:border-vindex-border flex items-center justify-between mt-3">
                           <div className="text-left">
-                            <span className="text-[10px] text-gray-700 dark:text-gray-300 block">Gasto Atual</span>
+                            <span className="text-[10px] text-gray-700 dark:text-gray-300 block">{t('categories.current_spending')}</span>
                             <span className="text-lg font-bold text-gray-900 dark:text-gray-50 block">{formatCurrency(category.currentSpending)}</span>
                           </div>
                         </div>
@@ -262,11 +264,11 @@ const Categories = () => {
                        <div className="flex gap-2 w-full mt-4">
                          <Button size="sm" onClick={(e) => handleEdit(category, e)} className="flex-1 h-8 text-xs font-medium border-none hover:opacity-90 transition-opacity text-gray-900" style={{ backgroundColor: PRIMARY }}>
                            <Edit2 className="w-3 h-3 mr-1" />
-                           Editar
+                           {t('common.edit')}
                          </Button>
                          <Button size="sm" variant="outline" onClick={(e) => { e.stopPropagation(); setDeleteId(category.id); }} className="flex-1 h-8 text-xs font-medium bg-transparent hover:text-black transition-colors" style={{ borderColor: PRIMARY, color: PRIMARY }} onMouseEnter={e => { e.currentTarget.style.backgroundColor = PRIMARY; e.currentTarget.style.color = '#000'; }} onMouseLeave={e => { e.currentTarget.style.backgroundColor = 'transparent'; e.currentTarget.style.color = PRIMARY; }}>
                            <Trash2 className="w-3 h-3 mr-1" />
-                           Excluir
+                           {t('common.delete')}
                          </Button>
                        </div>
                      </motion.div>
@@ -283,12 +285,12 @@ const Categories = () => {
                    <table className="w-full text-sm">
                       <thead className="bg-gray-50 dark:bg-vindex-bg border-b border-gray-200 dark:border-vindex-border">
                          <tr>
-                            <SortableHeader label="Categoria" column="name" sortConfig={sortConfig} onSort={requestSort} />
-                            <th className="px-6 py-3 text-left font-medium text-gray-700 dark:text-gray-300">Transações</th>
-                            <th className="px-6 py-3 text-left font-medium text-gray-700 dark:text-gray-300">Utilização</th>
-                            <SortableHeader label="Orçamento" column="spending_limit" sortConfig={sortConfig} onSort={requestSort} />
-                            <SortableHeader label="Período" column="budget_period" sortConfig={sortConfig} onSort={requestSort} />
-                            <th className="px-6 py-3 text-right font-medium text-gray-700 dark:text-gray-300">Ações</th>
+                            <SortableHeader label={t('categories.col_category')} column="name" sortConfig={sortConfig} onSort={requestSort} />
+                            <th className="px-6 py-3 text-left font-medium text-gray-700 dark:text-gray-300">{t('categories.col_transactions')}</th>
+                            <th className="px-6 py-3 text-left font-medium text-gray-700 dark:text-gray-300">{t('categories.col_usage')}</th>
+                            <SortableHeader label={t('categories.col_budget')} column="spending_limit" sortConfig={sortConfig} onSort={requestSort} />
+                            <SortableHeader label={t('categories.col_period')} column="budget_period" sortConfig={sortConfig} onSort={requestSort} />
+                            <th className="px-6 py-3 text-right font-medium text-gray-700 dark:text-gray-300">{t('common.actions')}</th>
                          </tr>
                       </thead>
                       <tbody className="divide-y divide-gray-200 dark:divide-vindex-border">
@@ -365,35 +367,35 @@ const Categories = () => {
         <DialogContent className="bg-white dark:bg-vindex-card text-gray-900 dark:text-gray-100 border-gray-200 dark:border-vindex-border rounded-xl max-h-[90vh] overflow-y-auto sm:max-w-[500px]">
           <DialogHeader>
             <DialogTitle>
-               {editingCategory ? 'Editar Categoria' : 'Nova Categoria'}
+               {editingCategory ? t('categories.edit') : t('categories.new')}
             </DialogTitle>
           </DialogHeader>
-          
+
           <form onSubmit={handleSubmit} className="space-y-4">
             <div>
-              <Label htmlFor="name">Nome</Label>
+              <Label htmlFor="name">{t('common.name')}</Label>
               <input id="name" type="text" value={formData.name} onChange={e => setFormData({ ...formData, name: e.target.value })} className="w-full px-3 py-2 bg-gray-50 dark:bg-vindex-bg border border-gray-200 dark:border-vindex-border rounded-lg text-gray-900 dark:text-gray-100" required />
             </div>
 
             <div className="flex flex-col sm:flex-row gap-4">
               <div className="flex-1">
-                <Label htmlFor="spending_limit">Orçamento (Opcional)</Label>
+                <Label htmlFor="spending_limit">{t('categories.budget_optional')}</Label>
                 <NumberInput id="spending_limit" value={formData.spending_limit} onChange={e => setFormData({ ...formData, spending_limit: e.target.value })} />
               </div>
               <div className="flex-1">
-                <SelectInput label="Período do Orçamento" id="budget_period" value={formData.budget_period} options={PERIOD_OPTIONS} onChange={e => setFormData({ ...formData, budget_period: e.target.value })} />
+                <SelectInput label={t('categories.budget_period')} id="budget_period" value={formData.budget_period} options={PERIOD_OPTIONS} onChange={e => setFormData({ ...formData, budget_period: e.target.value })} />
               </div>
             </div>
-            
+
             <ColorPicker value={formData.color} onChange={color => setFormData({ ...formData, color })} />
             <IconSelector selectedIcon={formData.icon} onSelect={icon => setFormData({ ...formData, icon })} />
 
             <div className="flex gap-2 pt-4">
               <Button type="submit" className="flex-1 font-medium rounded-lg border-none hover:text-white transition-colors text-black" style={{ backgroundColor: PRIMARY }}>
-                {editingCategory ? 'Atualizar' : 'Criar'}
+                {editingCategory ? t('common.update') : t('common.create')}
               </Button>
               <Button type="button" variant="outline" onClick={() => setIsDialogOpen(false)} className="flex-1 rounded-lg transition-colors bg-transparent hover:text-black" style={{ borderColor: PRIMARY, color: PRIMARY }} onMouseEnter={e => { e.currentTarget.style.backgroundColor = PRIMARY; e.currentTarget.style.color = '#000'; }} onMouseLeave={e => { e.currentTarget.style.backgroundColor = 'transparent'; e.currentTarget.style.color = PRIMARY; }}>
-                Cancelar
+                {t('common.cancel')}
               </Button>
             </div>
           </form>
@@ -403,7 +405,7 @@ const Categories = () => {
       <DeleteConfirmationDialog
         open={!!deleteId}
         onOpenChange={() => setDeleteId(null)}
-        description="Tem certeza que deseja excluir esta categoria? Esta ação não pode ser desfeita."
+        description={t('categories.delete_confirm')}
         onConfirm={(e) => handleDelete(deleteId, e)}
       />
     </div>

@@ -1,11 +1,13 @@
 import React, { useMemo } from 'react';
+import { useTranslation } from 'react-i18next';
 import { formatCurrency } from '@/utils/calculations';
 import { motion } from 'framer-motion';
 import { Calendar as CalendarClock } from '@/components/BxIcon';
 import { CalendarCheck } from '@/components/BxIcon';
 
 const UpcomingRecurrencesSection = ({ recurrences, selectedPeriod }) => {
-  
+  const { t } = useTranslation();
+
   // Filter recurrences based on selected period window
   const upcoming = useMemo(() => {
     const today = new Date();
@@ -14,7 +16,7 @@ const UpcomingRecurrencesSection = ({ recurrences, selectedPeriod }) => {
     // Define end date based on period
     const endDate = new Date(today);
     switch(selectedPeriod) {
-        case 'Diário': endDate.setDate(today.getDate() + 1); break;
+        case 'daily': endDate.setDate(today.getDate() + 1); break;
         case 'weekly': endDate.setDate(today.getDate() + 7); break;
         case 'biweekly': endDate.setDate(today.getDate() + 15); break;
         case 'monthly': endDate.setMonth(today.getMonth() + 1); break;
@@ -38,8 +40,8 @@ const UpcomingRecurrencesSection = ({ recurrences, selectedPeriod }) => {
   }, [recurrences, selectedPeriod]);
 
   const formatDate = (dateString) => {
-    if (!dateString) return 'Data indefinida';
-    const date = new Date(dateString + 'T12:00:00'); 
+    if (!dateString) return t('dashboard.undefined_date');
+    const date = new Date(dateString + 'T12:00:00');
     return date.toLocaleDateString('pt-BR', { day: '2-digit', month: 'short' });
   };
 
@@ -48,14 +50,16 @@ const UpcomingRecurrencesSection = ({ recurrences, selectedPeriod }) => {
     today.setHours(0,0,0,0);
     const target = new Date(dateString + 'T12:00:00');
     target.setHours(0,0,0,0);
-    
+
     const diffTime = target - today;
-    const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
-    
-    if (diffDays < 0) return 'Atrasado';
-    if (diffDays === 0) return 'Hoje';
-    if (diffDays === 1) return 'Amanhã';
-    return `Em ${diffDays} dias`;
+    return Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+  };
+
+  const formatDaysUntil = (diffDays) => {
+    if (diffDays < 0) return t('dashboard.overdue');
+    if (diffDays === 0) return t('dashboard.today');
+    if (diffDays === 1) return t('dashboard.tomorrow');
+    return t('dashboard.in_days', { count: diffDays });
   };
 
   return (
@@ -63,7 +67,7 @@ const UpcomingRecurrencesSection = ({ recurrences, selectedPeriod }) => {
       <div className="flex items-center justify-between mb-6">
         <h3 className="text-lg font-bold text-gray-900 dark:text-gray-50 flex items-center gap-2">
             <CalendarClock className="w-5 h-5 text-orange-500" />
-            Próximas Recorrências
+            {t('dashboard.upcoming_recurrences_title')}
         </h3>
         <span className="text-xs font-medium px-2 py-1 bg-gray-100 dark:bg-gray-800 rounded-md text-gray-500 dark:text-gray-400">
             {selectedPeriod}
@@ -73,9 +77,10 @@ const UpcomingRecurrencesSection = ({ recurrences, selectedPeriod }) => {
       <div className="space-y-4">
         {upcoming.length > 0 ? (
           upcoming.map((item, index) => {
-            const daysText = getDaysUntil(item.next_date);
-            const isLate = daysText === 'Atrasado';
-            const isToday = daysText === 'Hoje';
+            const diffDays = getDaysUntil(item.next_date);
+            const daysText = formatDaysUntil(diffDays);
+            const isLate = diffDays < 0;
+            const isToday = diffDays === 0;
 
             return (
               <motion.div
@@ -120,7 +125,7 @@ const UpcomingRecurrencesSection = ({ recurrences, selectedPeriod }) => {
         ) : (
           <div className="flex flex-col items-center justify-center h-48 text-gray-400">
             <CalendarCheck size={40} className="mb-2" />
-            <p className="text-sm">Sem recorrências previstas</p>
+            <p className="text-sm">{t('dashboard.no_recurrences')}</p>
           </div>
         )}
       </div>

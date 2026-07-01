@@ -1,4 +1,5 @@
 import React, { useState, useMemo } from 'react';
+import { useTranslation } from 'react-i18next';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
 import { DEFAULT_CATEGORIES } from '@/utils/defaultCategories';
@@ -8,6 +9,7 @@ import { Plus, RefreshCw as Loader2 } from '@/components/BxIcon';
 import BxIcon from '@/components/BxIcon';
 
 const DefaultCategoriesModal = ({ isOpen, onClose, onCreateCustom, onSuccess }) => {
+  const { t } = useTranslation();
   const { addCategory } = useFinance();
   const { toast } = useToast();
   const [loadingId, setLoadingId] = useState(null);
@@ -24,10 +26,10 @@ const DefaultCategoriesModal = ({ isOpen, onClose, onCreateCustom, onSuccess }) 
         color: category.color,
         icon: category.icon,
         spending_limit: null,
-        budget_period: 'mensal'
+        budget_period: 'monthly'
       });
       
-      toast({ title: "Categoria criada com sucesso!" });
+      toast({ title: t('categories.created_success') });
       
       if (onSuccess) {
         // Pass the newCategory object as second argument for immediate access to ID
@@ -47,7 +49,7 @@ const DefaultCategoriesModal = ({ isOpen, onClose, onCreateCustom, onSuccess }) 
       <DialogContent className="sm:max-w-4xl max-h-[85vh] overflow-y-auto bg-white dark:bg-vindex-card">
         <DialogHeader>
           <DialogTitle className="text-xl font-bold text-gray-900 dark:text-vindex-text">
-            Escolha uma categoria
+            {t('categories.choose_category')}
           </DialogTitle>
         </DialogHeader>
         
@@ -85,7 +87,7 @@ const DefaultCategoriesModal = ({ isOpen, onClose, onCreateCustom, onSuccess }) 
             className="w-full sm:w-auto border-dashed border-2 hover:bg-gray-50 dark:hover:bg-vindex-bg dark:text-vindex-text dark:border-vindex-border"
           >
             <Plus className="mr-2 h-4 w-4" />
-            Criar Nova Categoria Personalizada
+            {t('categories.create_custom')}
           </Button>
         </div>
       </DialogContent>
