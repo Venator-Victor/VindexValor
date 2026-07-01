@@ -57,6 +57,18 @@ export const FinanceProvider = ({ children }) => {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
 
+  const toggleSidebar = () => {
+    setIsSidebarCollapsed(prev => {
+      const next = !prev;
+      localStorage.setItem('sidebarCollapsed', String(next));
+      return next;
+    });
+  };
+
+  const toggleMobileMenu = () => {
+    setIsMobileMenuOpen(prev => !prev);
+  };
+
   const fetchAllData = async () => {
     if (!user || !user.id) return;
     setIsLoading(true);
@@ -575,8 +587,10 @@ export const FinanceProvider = ({ children }) => {
     isLoading,
     isSidebarCollapsed,
     setIsSidebarCollapsed,
+    toggleSidebar,
     isMobileMenuOpen,
     setIsMobileMenuOpen,
+    toggleMobileMenu,
     exchangeRates: combinedExchangeRates,
     isRatesLoading,
     refreshExchangeRates,

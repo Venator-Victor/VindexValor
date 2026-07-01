@@ -225,7 +225,6 @@ const Settings = () => {
                 >
                   <option value="pt-BR">{t('settings.language_pt')}</option>
                   <option value="en-US">{t('settings.language_en')}</option>
-                  <option value="es-ES">{t('settings.language_es')}</option>
                 </select>
               </div>
               <Button onClick={handleSave} className="bg-primary/10 hover:bg-primary/20 text-primary border border-primary/30 rounded-lg">
