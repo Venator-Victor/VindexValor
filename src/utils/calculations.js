@@ -23,6 +23,66 @@ export const calculateMonthlyExpenses = (transactions, month) => {
   );
 };
 
+export const getPeriodStartDate = (period, referenceDate = new Date()) => {
+  const startDate = new Date(referenceDate);
+  switch (period) {
+    case 'daily':
+      startDate.setHours(0, 0, 0, 0);
+      break;
+    case 'weekly': {
+      const diff = startDate.getDate() - startDate.getDay();
+      startDate.setDate(diff);
+      startDate.setHours(0, 0, 0, 0);
+      break;
+    }
+    case 'biweekly':
+      startDate.setDate(startDate.getDate() <= 15 ? 1 : 16);
+      startDate.setHours(0, 0, 0, 0);
+      break;
+    case 'quarterly':
+      startDate.setMonth(startDate.getMonth() - (startDate.getMonth() % 3), 1);
+      startDate.setHours(0, 0, 0, 0);
+      break;
+    case 'semiannual':
+      startDate.setMonth(startDate.getMonth() - (startDate.getMonth() % 6), 1);
+      startDate.setHours(0, 0, 0, 0);
+      break;
+    case 'yearly':
+      startDate.setMonth(0, 1);
+      startDate.setHours(0, 0, 0, 0);
+      break;
+    case 'monthly':
+    default:
+      startDate.setDate(1);
+      startDate.setHours(0, 0, 0, 0);
+  }
+  return startDate;
+};
+
+// Returns both expense-only spending (for budget tracking) and total activity
+// (all transaction types) for a category within the given period, since categories
+// without an active budget (e.g. income categories) are better summarized by total
+// movement than by "spending".
+export const calculateCategoryActivity = (categoryId, period, transactions) => {
+  if (!categoryId || !transactions) return { spending: 0, total: 0 };
+
+  const now = new Date();
+  const startDate = getPeriodStartDate(period, now);
+
+  return transactions
+    .filter(t => {
+      if (t.category_id !== categoryId) return false;
+      const tDate = new Date(t.date + 'T12:00:00');
+      return tDate >= startDate && tDate <= now;
+    })
+    .reduce((acc, t) => {
+      const amount = Math.abs(Number(t.amount));
+      acc.total += amount;
+      if (t.type === 'expense') acc.spending += amount;
+      return acc;
+    }, { spending: 0, total: 0 });
+};
+
 export const calculateSpendingByCategory = (transactions) => {
   const spending = {};
   transactions

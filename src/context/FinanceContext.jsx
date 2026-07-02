@@ -19,6 +19,14 @@ const mapInvestment = (row) => ({
   accountId: row.account_id,
 });
 
+const mapGoal = (row) => ({
+  ...row,
+  targetAmount: row.target_amount,
+  contributionValue: row.contribution_value,
+  periodFrequency: row.period_frequency,
+  accountReservations: row.account_reservations || [],
+});
+
 
 export const useFinance = () => {
   const context = useContext(FinanceContext);
@@ -84,7 +92,8 @@ export const FinanceProvider = ({ children }) => {
         { data: parcelsData, error: parcelsError },
         { data: txTypesData },
         { data: invData, error: invError },
-        { data: balancesData }
+        { data: balancesData },
+        { data: goalsData, error: goalsError }
       ] = await Promise.all([
         supabase.from('transactions').select(`*, categories ( id, name, color, icon ), account:accounts!fk_transacoes_conta ( id, name, type, color, currency, crypto_symbol ), destination_account:accounts!fk_transacoes_conta_destino ( id, name, type, currency, crypto_symbol ), invoices(id, invoice_number)`).eq('user_id', user.id).order('date', { ascending: false }),
         supabase.from('accounts').select('id, user_id, name, type, bank, balance, color, created_at, icon, account_subtype, credit_limit, closing_date, due_date, investment_type, expected_return, reload_value, reload_date, total_amount, interest_rate, term_months, amortization_type, holders, initial_balance, currency, crypto_symbol').eq('user_id', user.id),
@@ -95,7 +104,8 @@ export const FinanceProvider = ({ children }) => {
         supabase.from('recurring_installments').select('*').eq('user_id', user.id),
         supabase.from('transaction_types').select('*'),
         supabase.from('investments').select('*').eq('user_id', user.id).order('purchase_date', { ascending: false }),
-        supabase.rpc('get_account_balances')
+        supabase.rpc('get_account_balances'),
+        supabase.from('goals').select('*').eq('user_id', user.id).order('created_at', { ascending: false })
       ]);
 
       if (transError) console.error("Error fetching transactions:", transError);
@@ -106,6 +116,7 @@ export const FinanceProvider = ({ children }) => {
       if (recurringError) console.error("Error fetching recurring:", recurringError);
       if (parcelsError) console.error("Error fetching parcels:", parcelsError);
       if (invError) console.error("Error fetching investments:", invError);
+      if (goalsError) console.error("Error fetching goals:", goalsError);
 
       setTransactions(transData || []);
       setAccounts(accData || []);
@@ -115,6 +126,7 @@ export const FinanceProvider = ({ children }) => {
       setParcels(parcelsData || []);
       setTransactionTypes(txTypesData || []);
       setInvestments((invData || []).map(mapInvestment));
+      setGoals((goalsData || []).map(mapGoal));
       if (balancesData) {
         setAccountBalances(Object.fromEntries(balancesData.map(b => [b.account_id, b.balance])));
       }
@@ -506,6 +518,54 @@ export const FinanceProvider = ({ children }) => {
     return true;
   };
 
+  // Goal Operations
+  const buildGoalPayload = (data) => {
+    const accountReservations = data.accountReservations || [];
+    const reservedAmount = accountReservations.reduce((sum, r) => sum + Number(r.amount || 0), 0);
+    return {
+      name: sanitizeUserInput(data.name),
+      goal_type: data.goal_type,
+      target_amount: Number(data.targetAmount) || 0,
+      contribution_value: Number(data.contributionValue) || 0,
+      period_frequency: data.periodFrequency || 'monthly',
+      accumulated_amount: Number(data.accumulated_amount) || 0,
+      reserved_amount: reservedAmount,
+      deadline: data.deadline || null,
+      description: data.description ? sanitizeUserInput(data.description) : null,
+      color: data.color,
+      icon: data.icon,
+      account_reservations: accountReservations,
+      reserved_account_id: accountReservations[0]?.account_id || null
+    };
+  };
+
+  const addGoal = async (data) => {
+    if (!user) throw new Error("Usuário não autenticado");
+    const { data: row, error } = await supabase.from('goals').insert({
+      user_id: user.id,
+      ...buildGoalPayload(data)
+    }).select().single();
+    if (error) throw error;
+    setGoals(prev => [mapGoal(row), ...prev]);
+    return mapGoal(row);
+  };
+
+  const updateGoal = async (id, data) => {
+    if (!user) throw new Error("Usuário não autenticado");
+    const { data: row, error } = await supabase.from('goals').update(buildGoalPayload(data)).eq('id', id).eq('user_id', user.id).select().single();
+    if (error) throw error;
+    setGoals(prev => prev.map(g => g.id === id ? mapGoal(row) : g));
+    return mapGoal(row);
+  };
+
+  const deleteGoal = async (id) => {
+    if (!user) throw new Error("Usuário não autenticado");
+    const { error } = await supabase.from('goals').delete().eq('id', id).eq('user_id', user.id);
+    if (error) throw error;
+    setGoals(prev => prev.filter(g => g.id !== id));
+    return true;
+  };
+
   // Transaction Operations
   const createTransaction = async (formData) => {
     if (!user) throw new Error("Usuário não autenticado");
@@ -620,7 +680,10 @@ export const FinanceProvider = ({ children }) => {
     fetchParcels,
     addInvestment,
     updateInvestment,
-    deleteInvestment
+    deleteInvestment,
+    addGoal,
+    updateGoal,
+    deleteGoal
   };
 
   return <FinanceContext.Provider value={value}>{children}</FinanceContext.Provider>;

@@ -27,7 +27,7 @@ const CategoryDetailModal = ({ isOpen, onClose, category, transactions, onEdit, 
 
   if (!category) return null;
 
-  const hasLimit = category.spending_limit > 0;
+  const hasLimit = category.budget_enabled && category.spending_limit > 0;
   const currentSpending = totalExpense; // Usually categories track expenses against a budget
   const percentage = hasLimit ? Math.min((currentSpending / category.spending_limit) * 100, 100).toFixed(0) : 0;
 

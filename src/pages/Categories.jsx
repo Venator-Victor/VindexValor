@@ -16,7 +16,8 @@ import ColorPicker from '@/components/ui/ColorPicker';
 import IconSelector from '@/components/IconSelector';
 import SelectInput from '@/components/ui/SelectInput';
 import NumberInput from '@/components/ui/NumberInput';
-import { formatCurrency } from '@/utils/calculations';
+import { Switch } from '@/components/ui/switch';
+import { formatCurrency, calculateCategoryActivity } from '@/utils/calculations';
 import DefaultCategoriesModal from '@/components/DefaultCategoriesModal';
 import GaugeSummaryCard from '@/components/GaugeSummaryCard';
 import { useSortableList } from '@/hooks/useSortableList';
@@ -32,8 +33,7 @@ const Categories = () => {
     updateCategory,
     deleteCategory,
     settings,
-    saveSettings,
-    calculateSpendingForCategory
+    saveSettings
   } = useFinance();
   
   const { toast } = useToast();
@@ -52,7 +52,8 @@ const Categories = () => {
     color: '#283768',
     icon: 'bx bx-tag',
     spending_limit: '',
-    budget_period: 'monthly'
+    budget_period: 'monthly',
+    budget_enabled: true
   });
   
 
@@ -71,10 +72,16 @@ const Categories = () => {
   const currentPeriod = settings?.categories_period_preference || 'monthly';
 
   // Calculate dynamic spending based on global period preference
-  const categoriesWithDynamicSpending = categories.map(cat => ({
-    ...cat,
-    currentSpending: calculateSpendingForCategory ? calculateSpendingForCategory(cat.name, currentPeriod, transactions) : 0
-  }));
+  const categoriesWithDynamicSpending = categories.map(cat => {
+    const { spending, total } = calculateCategoryActivity(cat.id, currentPeriod, transactions);
+    const hasBudget = cat.budget_enabled && cat.spending_limit > 0;
+    return {
+      ...cat,
+      currentSpending: spending,
+      totalActivity: total,
+      hasBudget
+    };
+  });
 
   // Sorting Hook
   const {
@@ -84,7 +91,7 @@ const Categories = () => {
   } = useSortableList(categoriesWithDynamicSpending);
 
   // Calculate totals for Chart
-  const activeCategories = sortedCategories.filter(cat => cat.spending_limit && cat.spending_limit > 0);
+  const activeCategories = sortedCategories.filter(cat => cat.hasBudget);
   const totalSpent = activeCategories.reduce((acc, cat) => acc + (cat.currentSpending || 0), 0);
   const totalBudget = activeCategories.reduce((acc, cat) => acc + (cat.spending_limit || 0), 0);
   
@@ -92,8 +99,9 @@ const Categories = () => {
     e.preventDefault();
     const categoryData = {
       ...formData,
-      spending_limit: formData.spending_limit ? Number(formData.spending_limit) : null,
-      budget_period: formData.budget_period
+      spending_limit: formData.budget_enabled && formData.spending_limit ? Number(formData.spending_limit) : null,
+      budget_period: formData.budget_period,
+      budget_enabled: formData.budget_enabled
     };
     if (editingCategory && updateCategory) {
       updateCategory(editingCategory.id, categoryData);
@@ -112,11 +120,12 @@ const Categories = () => {
       color: '#283768',
       icon: 'bx bx-tag',
       spending_limit: '',
-      budget_period: 'monthly'
+      budget_period: 'monthly',
+      budget_enabled: true
     });
     setEditingCategory(null);
   };
-  
+
   const handleEdit = (category, e) => {
     if (e) e.stopPropagation();
     setEditingCategory(category);
@@ -125,7 +134,8 @@ const Categories = () => {
       color: category.color,
       icon: category.icon,
       spending_limit: category.spending_limit || '',
-      budget_period: category.budget_period || 'monthly'
+      budget_period: category.budget_period || 'monthly',
+      budget_enabled: category.budget_enabled !== false
     });
     setIsDialogOpen(true);
   };
@@ -256,8 +266,8 @@ const Categories = () => {
 
                         <div className="w-full p-3 bg-gray-50 dark:bg-vindex-bg rounded-lg border border-gray-100 dark:border-vindex-border flex items-center justify-between mt-3">
                           <div className="text-left">
-                            <span className="text-[10px] text-gray-700 dark:text-gray-300 block">{t('categories.current_spending')}</span>
-                            <span className="text-lg font-bold text-gray-900 dark:text-gray-50 block">{formatCurrency(category.currentSpending)}</span>
+                            <span className="text-[10px] text-gray-700 dark:text-gray-300 block">{category.hasBudget ? t('categories.current_spending') : t('categories.total_moved')}</span>
+                            <span className="text-lg font-bold text-gray-900 dark:text-gray-50 block">{formatCurrency(category.hasBudget ? category.currentSpending : category.totalActivity)}</span>
                           </div>
                         </div>
 
@@ -296,8 +306,8 @@ const Categories = () => {
                       <tbody className="divide-y divide-gray-200 dark:divide-vindex-border">
                          {sortedCategories.map(category => {
                             const transactionCount = transactions.filter(t => t.category_id === category.id || t.categories?.name === category.name || t.category === category.name).length;
-                            const hasLimit = category.spending_limit > 0;
-                            
+                            const hasLimit = category.hasBudget;
+
                             return (
                                <tr key={category.id} onClick={() => handleCardClick(category)} className="cursor-pointer transition-colors" onMouseEnter={e => e.currentTarget.style.backgroundColor = PRIMARY + '18'} onMouseLeave={e => e.currentTarget.style.backgroundColor = ''}>
                                   <td className="px-6 py-4">
@@ -312,7 +322,7 @@ const Categories = () => {
                                      {transactionCount}
                                   </td>
                                   <td className="px-6 py-4 font-medium text-gray-900 dark:text-gray-50">
-                                     {formatCurrency(category.currentSpending)}
+                                     {formatCurrency(hasLimit ? category.currentSpending : category.totalActivity)}
                                   </td>
                                   <td className="px-6 py-4 text-gray-700 dark:text-gray-300">
                                      {hasLimit ? <span>{formatCurrency(category.spending_limit)}</span> : '-'}
@@ -377,13 +387,22 @@ const Categories = () => {
               <input id="name" type="text" value={formData.name} onChange={e => setFormData({ ...formData, name: e.target.value })} className="w-full px-3 py-2 bg-gray-50 dark:bg-vindex-bg border border-gray-200 dark:border-vindex-border rounded-lg text-gray-900 dark:text-gray-100" required />
             </div>
 
+            <div className="flex items-center justify-between p-3 bg-gray-50 dark:bg-vindex-bg rounded-lg border border-gray-200 dark:border-vindex-border">
+              <Label htmlFor="budget_enabled" className="cursor-pointer">{t('categories.enable_budget')}</Label>
+              <Switch
+                id="budget_enabled"
+                checked={formData.budget_enabled}
+                onCheckedChange={checked => setFormData({ ...formData, budget_enabled: checked })}
+              />
+            </div>
+
             <div className="flex flex-col sm:flex-row gap-4">
               <div className="flex-1">
                 <Label htmlFor="spending_limit">{t('categories.budget_optional')}</Label>
-                <NumberInput id="spending_limit" value={formData.spending_limit} onChange={e => setFormData({ ...formData, spending_limit: e.target.value })} />
+                <NumberInput id="spending_limit" value={formData.spending_limit} onChange={e => setFormData({ ...formData, spending_limit: e.target.value })} disabled={!formData.budget_enabled} />
               </div>
               <div className="flex-1">
-                <SelectInput label={t('categories.budget_period')} id="budget_period" value={formData.budget_period} options={PERIOD_OPTIONS} onChange={e => setFormData({ ...formData, budget_period: e.target.value })} />
+                <SelectInput label={t('categories.budget_period')} id="budget_period" value={formData.budget_period} options={PERIOD_OPTIONS} onChange={e => setFormData({ ...formData, budget_period: e.target.value })} disabled={!formData.budget_enabled} />
               </div>
             </div>
 

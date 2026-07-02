@@ -14,6 +14,7 @@ import { useTheme } from '@/context/ThemeContext';
 import { formatCurrency } from '@/utils/calculations';
 import { RefreshCw as Loader2 } from '@/components/BxIcon';
 import { useTranslation } from 'react-i18next';
+import { motion } from 'framer-motion';
 const BudgetConsumptionChart = ({ selectedPeriod, filteredTransactions }) => {
   const { t } = useTranslation();
   const { categories, isLoading } = useFinance();
@@ -23,7 +24,7 @@ const BudgetConsumptionChart = ({ selectedPeriod, filteredTransactions }) => {
   // 1. Calculate Total Planned Budget proportional to the period
   const totalPeriodBudget = useMemo(() => {
     // Sum monthly limits
-    const monthlyTotal = categories.reduce((sum, cat) => sum + Number(cat.spending_limit || 0), 0);
+    const monthlyTotal = categories.reduce((sum, cat) => sum + (cat.budget_enabled ? Number(cat.spending_limit || 0) : 0), 0);
     
     // Adjust based on period (approximation)
     switch(selectedPeriod) {
@@ -126,7 +127,11 @@ const BudgetConsumptionChart = ({ selectedPeriod, filteredTransactions }) => {
   }
 
   return (
-    <div className="relative h-[350px] w-full bg-white dark:bg-vindex-card rounded-xl border border-gray-200 dark:border-vindex-border shadow-sm overflow-hidden flex flex-col">
+    <motion.div
+      initial={{ opacity: 0, y: 20 }}
+      animate={{ opacity: 1, y: 0 }}
+      className="relative h-[350px] w-full bg-white dark:bg-vindex-card rounded-xl border border-gray-200 dark:border-vindex-border shadow-sm overflow-hidden flex flex-col"
+    >
       {/* Centered Text Overlay */}
       <div className="absolute top-0 left-0 right-0 z-10 flex flex-col items-center justify-center pt-8 pointer-events-none">
         <h3 className="text-3xl font-bold text-gray-900 dark:text-gray-50 tracking-tight">
@@ -194,7 +199,7 @@ const BudgetConsumptionChart = ({ selectedPeriod, filteredTransactions }) => {
           </ComposedChart>
         </ResponsiveContainer>
       </div>
-    </div>
+    </motion.div>
   );
 };
 

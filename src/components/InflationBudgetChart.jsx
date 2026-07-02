@@ -81,7 +81,7 @@ const InflationBudgetChart = () => {
 
   // 1. Calculate Base Nominal Budget (Sum of current category limits)
   const totalNominalBudget = useMemo(() => {
-    return categories.reduce((sum, cat) => sum + Number(cat.spending_limit || 0), 0);
+    return categories.reduce((sum, cat) => sum + (cat.budget_enabled ? Number(cat.spending_limit || 0) : 0), 0);
   }, [categories]);
 
   // 2. Generate Last 12 Months & Fetch Data

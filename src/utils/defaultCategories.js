@@ -2,7 +2,7 @@ export const DEFAULT_CATEGORIES = [
   { id: 'vestuario', name: 'Vestuário', icon: 'bx bx-closet', color: '#EC4899', description: 'Roupas e acessórios' },
   { id: 'moradia', name: 'Moradia', icon: 'bx bx-home', color: '#3B82F6', description: 'Custos de casa' },
   { id: 'impostos', name: 'Impostos', icon: 'bx bx-money', color: '#EF4444', description: 'Taxas e tributos' },
-  { id: 'salario', name: 'Salário', icon: 'bx bx-dollar-circle', color: '#10B981', description: 'Renda principal' },
+  { id: 'salario', name: 'Salário', icon: 'bx bx-dollar-circle', color: '#10B981', description: 'Renda principal', budgetEnabled: false },
   { id: 'seguro', name: 'Seguro', icon: 'bx bx-shield', color: '#6366F1', description: 'Seguros diversos' },
   { id: 'aluguel', name: 'Aluguel', icon: 'bx bx-building-house', color: '#8B5CF6', description: 'Aluguel mensal' },
   { id: 'assinaturas', name: 'Assinaturas', icon: 'bx bx-calendar-star', color: '#F59E0B', description: 'Serviços recorrentes' },
@@ -20,7 +20,7 @@ export const DEFAULT_CATEGORIES = [
   { id: 'cuidados_pessoais', name: 'Cuidados Pessoais', icon: 'bx bx-face', color: '#FF7043', description: 'Produtos de higiene e beleza' },
   { id: 'educacao', name: 'Educação', icon: 'bx bx-book-open', color: '#9C27B0', description: 'Cursos, livros e mensalidades' },
   { id: 'familia_filhos', name: 'Família e Filhos', icon: 'bx bx-child', color: '#00BCD4', description: 'Despesas com a família e crianças' },
-  { id: 'investments', name: 'Investimentos', icon: 'bx bx-trending-up', color: '#4CAF50', description: 'Aplicações financeiras' },
+  { id: 'investments', name: 'Investimentos', icon: 'bx bx-trending-up', color: '#4CAF50', description: 'Aplicações financeiras', budgetEnabled: false },
   { id: 'lazer_hobbies', name: 'Lazer e Hobbies', icon: 'bx bx-game', color: '#E91E63', description: 'Entretenimento e passatempos' },
   { id: 'animais_estimacao', name: 'Animais de Estimação', icon: 'bx bx-paw', color: '#8D6E63', description: 'Despesas com pets' },
   { id: 'presentes_doacoes', name: 'Presentes e Doações', icon: 'bx bx-gift', color: '#607D8B', description: 'Presentes e contribuições' },
@@ -28,5 +28,4 @@ export const DEFAULT_CATEGORIES = [
   { id: 'trabalho', name: 'Trabalho', icon: 'bx bx-briefcase', color: '#795548', description: 'Despesas relacionadas ao trabalho' },
   { id: 'transporte', name: 'Transporte', icon: 'bx bx-bus', color: '#3F51B5', description: 'Passagens, taxi, apps de transporte' },
   { id: 'viagem', name: 'Viagem', icon: 'bx bx-plane-alt', color: '#03A9F4', description: 'Passagens, hospedagem e passeios' },
-  { id: 'jogos', name: 'Jogos', icon: 'bx bx-joystick', color: '#673AB7', description: 'Jogos eletrônicos e de tabuleiro' },
 ];

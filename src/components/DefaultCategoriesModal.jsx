@@ -26,7 +26,8 @@ const DefaultCategoriesModal = ({ isOpen, onClose, onCreateCustom, onSuccess }) 
         color: category.color,
         icon: category.icon,
         spending_limit: null,
-        budget_period: 'monthly'
+        budget_period: 'monthly',
+        budget_enabled: category.budgetEnabled !== false
       });
       
       toast({ title: t('categories.created_success') });
