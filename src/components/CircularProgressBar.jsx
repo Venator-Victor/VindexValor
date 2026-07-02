@@ -16,7 +16,7 @@ const CircularProgressBar = ({ current, max, size = 60, strokeWidth = 5, showBud
     return DANGER; // Red
   };
 
-  const color = getColor((current / max) * 100);
+  const color = getColor(percentage);
 
   return (
     <div className="flex items-center gap-4">
@@ -48,7 +48,7 @@ const CircularProgressBar = ({ current, max, size = 60, strokeWidth = 5, showBud
         </svg>
         <div className="absolute inset-0 flex items-center justify-center">
           <span className={`text-[10px] font-bold ${isOverLimit ? 'text-red-500' : 'text-gray-700 dark:text-gray-200'}`}>
-            {Math.round((current / max) * 100)}%
+            {Math.round(percentage)}%
           </span>
         </div>
       </div>

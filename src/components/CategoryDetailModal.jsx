@@ -19,17 +19,19 @@ const CategoryDetailModal = ({ isOpen, onClose, category, transactions, onEdit, 
 
   const { totalIncome, totalExpense } = useMemo(() => {
     return categoryTransactions.reduce((acc, t) => {
-      if (t.type === 'income') acc.totalIncome += Math.abs(t.amount);
-      if (t.type === 'expense') acc.totalExpense += Math.abs(t.amount);
+      const amount = Math.abs(Number(t.amount) || 0);
+      if (t.type === 'income') acc.totalIncome += amount;
+      if (t.type === 'expense') acc.totalExpense += amount;
       return acc;
     }, { totalIncome: 0, totalExpense: 0 });
   }, [categoryTransactions]);
 
   if (!category) return null;
 
-  const hasLimit = category.budget_enabled && category.spending_limit > 0;
+  const spendingLimit = Number(category.spending_limit) || 0;
+  const hasLimit = category.budget_enabled && spendingLimit > 0;
   const currentSpending = totalExpense; // Usually categories track expenses against a budget
-  const percentage = hasLimit ? Math.min((currentSpending / category.spending_limit) * 100, 100).toFixed(0) : 0;
+  const percentage = hasLimit ? Math.min((currentSpending / spendingLimit) * 100, 100).toFixed(0) : 0;
 
   return (
     <Dialog open={isOpen} onOpenChange={(open) => !open && onClose()}>
@@ -70,13 +72,13 @@ const CategoryDetailModal = ({ isOpen, onClose, category, transactions, onEdit, 
               <div>
                 <p className="text-sm font-medium">{t('categories.budget_of_period', { period: t(`period.${category.budget_period}`) })}</p>
                 <p className="text-muted-foreground text-xs mt-1">
-                  {t('categories.spent_of_total', { spent: formatCurrency(currentSpending), total: formatCurrency(category.spending_limit) })}
+                  {t('categories.spent_of_total', { spent: formatCurrency(currentSpending), total: formatCurrency(spendingLimit) })}
                 </p>
               </div>
               <div className="flex items-center gap-3">
-                <CircularProgressBar 
-                  current={currentSpending} 
-                  max={category.spending_limit} 
+                <CircularProgressBar
+                  current={currentSpending}
+                  max={spendingLimit}
                   size={50} 
                   showBudget={false} 
                   strokeWidth={5} 

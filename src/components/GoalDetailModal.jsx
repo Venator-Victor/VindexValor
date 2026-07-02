@@ -18,12 +18,9 @@ const GoalDetailModal = ({ isOpen, onClose, goal, onEdit, onDelete }) => {
 
   const isTargetMode = goal.goal_type === 'target_value';
   const reservations = goal.accountReservations || [];
-  const targetValue = isTargetMode ? goal.targetAmount : goal.contributionValue;
-
-  let percentage = 0;
-  if (targetValue > 0) {
-    percentage = Math.min((goal.accumulated_amount / targetValue) * 100, 100);
-  }
+  const accumulated = Number(goal.accumulated_amount) || 0;
+  const targetValue = Number(isTargetMode ? goal.targetAmount : goal.contributionValue) || 0;
+  const percentage = targetValue > 0 ? Math.min((accumulated / targetValue) * 100, 100) : 0;
 
   const isAchieved = isTargetMode && percentage >= 100;
   const isOverdue = goal.deadline && isPast(parseISO(goal.deadline)) && !isAchieved;
@@ -53,7 +50,7 @@ const GoalDetailModal = ({ isOpen, onClose, goal, onEdit, onDelete }) => {
           <div className="grid grid-cols-2 gap-4 mb-4">
             <div className="bg-green-50 dark:bg-green-900/20 p-3 rounded-lg border border-green-100 dark:border-green-900/30">
               <p className="text-xs text-green-700 dark:text-green-400 mb-1">{t('goals.accumulated')}</p>
-              <p className="text-lg font-bold text-green-700 dark:text-green-400">{formatCurrency(goal.accumulated_amount)}</p>
+              <p className="text-lg font-bold text-green-700 dark:text-green-400">{formatCurrency(accumulated)}</p>
             </div>
             <div className="bg-muted/30 p-3 rounded-lg border border-border">
               <p className="text-xs text-muted-foreground mb-1">{isTargetMode ? t('goals.target_total') : t('goals.target_period')}</p>
@@ -74,7 +71,7 @@ const GoalDetailModal = ({ isOpen, onClose, goal, onEdit, onDelete }) => {
             </div>
             <div className="flex items-center gap-3">
               <CircularProgressBar
-                current={goal.accumulated_amount}
+                current={accumulated}
                 max={targetValue}
                 size={50}
                 showBudget={false}

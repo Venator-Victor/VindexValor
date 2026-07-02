@@ -76,7 +76,7 @@ export const calculateCategoryActivity = (categoryId, period, transactions) => {
       return tDate >= startDate && tDate <= now;
     })
     .reduce((acc, t) => {
-      const amount = Math.abs(Number(t.amount));
+      const amount = Math.abs(Number(t.amount) || 0);
       acc.total += amount;
       if (t.type === 'expense') acc.spending += amount;
       return acc;

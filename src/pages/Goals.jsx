@@ -110,13 +110,13 @@ const Goals = () => {
 
   // --- List View Helper ---
   const calculateProgress = (goal) => {
+      const accumulated = Number(goal.accumulated_amount) || 0;
       const isTargetMode = goal.goal_type === 'target_value';
-      if (isTargetMode && goal.targetAmount > 0) {
-          return Math.min((goal.accumulated_amount / goal.targetAmount) * 100, 100);
-      } else if (!isTargetMode && goal.contributionValue > 0 && goal.targetAmount > 0) {
-          return Math.min((goal.accumulated_amount / goal.targetAmount) * 100, 100);
+      const target = Number(isTargetMode ? goal.targetAmount : goal.contributionValue) || 0;
+      if (target > 0) {
+          return Math.min((accumulated / target) * 100, 100);
       }
-      return 0; 
+      return 0;
   };
   
   // Helper for small gauge in table

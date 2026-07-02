@@ -9,18 +9,11 @@ import BxIcon from '@/components/BxIcon';
 const MetaProgressCard = ({ goal, index = 0, onClick }) => {
   const { t } = useTranslation();
   const isTargetMode = goal.goal_type === 'target_value';
-  
+
   // Calculate percentage
-  let percentage = 0;
-  if (isTargetMode && goal.targetAmount > 0) {
-      percentage = Math.min((goal.accumulated_amount / goal.targetAmount) * 100, 100);
-  } else if (!isTargetMode && goal.contributionValue > 0) {
-      if (goal.targetAmount > 0) {
-          percentage = Math.min((goal.accumulated_amount / goal.targetAmount) * 100, 100);
-      } else {
-          percentage = 0; 
-      }
-  }
+  const accumulated = Number(goal.accumulated_amount) || 0;
+  const target = Number(isTargetMode ? goal.targetAmount : goal.contributionValue) || 0;
+  const percentage = target > 0 ? Math.min((accumulated / target) * 100, 100) : 0;
 
   const isAchieved = isTargetMode && percentage >= 100;
   const isOverdue = goal.deadline && isPast(parseISO(goal.deadline)) && !isAchieved;
@@ -49,7 +42,7 @@ const MetaProgressCard = ({ goal, index = 0, onClick }) => {
       onClick={() => onClick && onClick(goal)}
       onMouseEnter={e => { if (!isOverdue) e.currentTarget.style.borderColor = PRIMARY; }}
       onMouseLeave={e => { if (!isOverdue) e.currentTarget.style.borderColor = ''; }}
-      className={`bg-white dark:bg-vindex-card rounded-xl p-4 sm:p-5 border shadow-sm hover:shadow-md transition-all relative flex flex-col justify-between h-full min-h-[160px] cursor-pointer
+      className={`bg-white dark:bg-vindex-card rounded-xl p-4 sm:p-5 border shadow-sm hover:shadow-md transition-shadow relative flex flex-col justify-between h-full min-h-[160px] cursor-pointer
         ${isOverdue ? 'border-red-200 dark:border-red-900/50' : 'border-gray-200 dark:border-vindex-border'}
       `}
     >
