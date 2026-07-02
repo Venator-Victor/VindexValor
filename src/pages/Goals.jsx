@@ -4,12 +4,11 @@ import { useTranslation } from 'react-i18next';
 import { Helmet } from 'react-helmet';
 import { AnimatePresence, motion } from 'framer-motion';
 import { Target, Grid as LayoutGrid, ListUl as List, Calendar } from '@/components/BxIcon';
-import BxIcon, { Plus, Pencil, Trash } from '@/components/BxIcon';
+import BxIcon, { Plus, Edit as Edit2, TrashAlt as Trash2 } from '@/components/BxIcon';
 import { useFinance } from '@/context/FinanceContext';
 import { useTheme } from '@/context/ThemeContext';
 import { Button } from '@/components/ui/button';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
-import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from '@/components/ui/alert-dialog';
 import {
   Select,
   SelectContent,
@@ -21,6 +20,8 @@ import MetaForm from '@/components/MetaForm';
 import MetaProgressCard from '@/components/MetaProgressCard';
 import MetaCategorySelector from '@/components/MetaCategorySelector';
 import GaugeSummaryCard from '@/components/GaugeSummaryCard';
+import DeleteConfirmationDialog from '@/components/DeleteConfirmationDialog';
+import GoalDetailModal from '@/components/GoalDetailModal';
 import { useToast } from '@/components/ui/use-toast';
 import { formatCurrency } from '@/utils/calculations';
 import { differenceInDays, parseISO, isPast } from 'date-fns';
@@ -33,7 +34,8 @@ const Goals = () => {
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [editingGoal, setEditingGoal] = useState(null);
   const [deleteId, setDeleteId] = useState(null);
-  
+  const [selectedDetailGoal, setSelectedDetailGoal] = useState(null);
+
   // Filter States
   const [selectedPeriod, setSelectedPeriod] = useState('mensal');
   const [filterType, setFilterType] = useState('target_value'); // 'target_value' (Meta Fixa) | 'monthly_value' (Meta Recorrente)
@@ -87,6 +89,10 @@ const Goals = () => {
     setEditingGoal(goal);
     setCreationStep('form');
     setIsDialogOpen(true);
+  };
+
+  const handleCardClick = (goal) => {
+    setSelectedDetailGoal(goal);
   };
 
   const handleCategorySelect = (category) => {
@@ -319,8 +325,7 @@ const Goals = () => {
                         key={goal.id}
                         goal={goal}
                         index={index}
-                        onEdit={openEditModal}
-                        onDelete={setDeleteId}
+                        onClick={handleCardClick}
                     />
                     ))}
                 </AnimatePresence>
@@ -329,19 +334,19 @@ const Goals = () => {
                 // --- LIST VIEW ---
                 <div className="bg-white dark:bg-vindex-card rounded-xl border border-gray-200 dark:border-vindex-border overflow-hidden shadow-sm">
                     <div className="overflow-x-auto">
-                        <table className="w-full text-sm text-left">
-                            <thead className="bg-gray-50 dark:bg-vindex-bg/50 text-gray-500 dark:text-gray-400 font-medium border-b border-gray-100 dark:border-vindex-border">
+                        <table className="w-full text-sm">
+                            <thead className="bg-gray-50 dark:bg-vindex-bg border-b border-gray-200 dark:border-vindex-border">
                                 <tr>
-                                    <th className="px-6 py-4">{t('goals.col_name')}</th>
-                                    <th className="px-6 py-4">{t('goals.col_type')}</th>
-                                    <th className="px-6 py-4">{t('goals.col_progress')}</th>
-                                    <th className="px-6 py-4">{t('goals.col_accumulated')}</th>
-                                    <th className="px-6 py-4">{t('goals.col_target')}</th>
-                                    <th className="px-6 py-4">{t('goals.col_deadline')}</th>
-                                    <th className="px-6 py-4 text-right">{t('goals.col_actions')}</th>
+                                    <th className="px-6 py-3 text-left font-medium text-gray-700 dark:text-gray-300">{t('goals.col_name')}</th>
+                                    <th className="px-6 py-3 text-left font-medium text-gray-700 dark:text-gray-300">{t('goals.col_type')}</th>
+                                    <th className="px-6 py-3 text-left font-medium text-gray-700 dark:text-gray-300">{t('goals.col_progress')}</th>
+                                    <th className="px-6 py-3 text-left font-medium text-gray-700 dark:text-gray-300">{t('goals.col_accumulated')}</th>
+                                    <th className="px-6 py-3 text-left font-medium text-gray-700 dark:text-gray-300">{t('goals.col_target')}</th>
+                                    <th className="px-6 py-3 text-left font-medium text-gray-700 dark:text-gray-300">{t('goals.col_deadline')}</th>
+                                    <th className="px-6 py-3 text-right font-medium text-gray-700 dark:text-gray-300">{t('goals.col_actions')}</th>
                                 </tr>
                             </thead>
-                            <tbody className="divide-y divide-gray-100 dark:divide-vindex-border">
+                            <tbody className="divide-y divide-gray-200 dark:divide-vindex-border">
                                 {filteredGoals.map((goal) => {
                                     const progress = calculateProgress(goal);
                                     const isTarget = goal.goal_type === 'target_value';
@@ -349,19 +354,19 @@ const Goals = () => {
                                     const isOverdue = goal.deadline && isPast(parseISO(goal.deadline));
 
                                     return (
-                                        <tr key={goal.id} className="hover:bg-gray-50 dark:hover:bg-vindex-bg/20 transition-colors">
+                                        <tr key={goal.id} onClick={() => handleCardClick(goal)} className="cursor-pointer transition-colors" onMouseEnter={e => e.currentTarget.style.backgroundColor = PRIMARY + '18'} onMouseLeave={e => e.currentTarget.style.backgroundColor = ''}>
                                             <td className="px-6 py-4">
                                                 <div className="flex items-center gap-3">
-                                                    <div 
+                                                    <div
                                                         className="w-8 h-8 rounded-lg flex items-center justify-center text-lg"
-                                                        style={{ 
-                                                            backgroundColor: goal.color + '22', 
+                                                        style={{
+                                                            backgroundColor: goal.color + '22',
                                                             color: goal.color
                                                         }}
                                                     >
                                                         <BxIcon iconClass={`bx ${goal.icon || 'bx-target-lock'}`} size={18} />
                                                     </div>
-                                                    <span className="font-semibold text-gray-900 dark:text-gray-100">{goal.name}</span>
+                                                    <span className="font-medium text-gray-900 dark:text-gray-50">{goal.name}</span>
                                                 </div>
                                             </td>
                                             <td className="px-6 py-4">
@@ -399,22 +404,28 @@ const Goals = () => {
                                                 )}
                                             </td>
                                             <td className="px-6 py-4 text-right">
-                                                <div className="flex justify-end gap-1">
-                                                    <Button 
-                                                        size="icon" 
-                                                        variant="ghost" 
-                                                        onClick={() => openEditModal(goal)}
-                                                        className="h-8 w-8 text-gray-500 hover:text-gray-900 dark:text-gray-400 dark:hover:text-gray-100"
+                                                <div className="flex justify-end gap-2">
+                                                    <Button
+                                                        size="icon"
+                                                        variant="outline"
+                                                        onClick={(e) => { e.stopPropagation(); openEditModal(goal); }}
+                                                        className="h-8 w-8 rounded-lg border transition-colors bg-transparent"
+                                                        style={{ borderColor: PRIMARY, color: PRIMARY }}
+                                                        onMouseEnter={e => { e.currentTarget.style.backgroundColor = PRIMARY; e.currentTarget.style.color = '#000'; }}
+                                                        onMouseLeave={e => { e.currentTarget.style.backgroundColor = 'transparent'; e.currentTarget.style.color = PRIMARY; }}
                                                     >
-                                                        <Pencil size={14} />
+                                                        <Edit2 className="h-4 w-4" />
                                                     </Button>
-                                                    <Button 
-                                                        size="icon" 
-                                                        variant="ghost" 
-                                                        onClick={() => setDeleteId(goal.id)}
-                                                        className="h-8 w-8 text-gray-500 hover:text-red-600 dark:text-gray-400 dark:hover:text-red-400"
+                                                    <Button
+                                                        size="icon"
+                                                        variant="outline"
+                                                        onClick={(e) => { e.stopPropagation(); setDeleteId(goal.id); }}
+                                                        className="h-8 w-8 rounded-lg border transition-colors bg-transparent"
+                                                        style={{ borderColor: DANGER, color: DANGER }}
+                                                        onMouseEnter={e => { e.currentTarget.style.backgroundColor = DANGER; e.currentTarget.style.color = '#fff'; }}
+                                                        onMouseLeave={e => { e.currentTarget.style.backgroundColor = 'transparent'; e.currentTarget.style.color = DANGER; }}
                                                     >
-                                                        <Trash size={14} />
+                                                        <Trash2 className="h-4 w-4" />
                                                     </Button>
                                                 </div>
                                             </td>
@@ -429,30 +440,23 @@ const Goals = () => {
         </>
       )}
 
-      <AlertDialog open={!!deleteId} onOpenChange={() => setDeleteId(null)}>
-        <AlertDialogContent className="bg-white dark:bg-vindex-card text-gray-900 dark:text-gray-100 border-gray-200 dark:border-vindex-border rounded-xl">
-          <AlertDialogHeader>
-            <AlertDialogTitle>{t('goals.delete_title')}</AlertDialogTitle>
-            <AlertDialogDescription className="text-gray-600 dark:text-gray-400">
-              {t('goals.delete_desc')}
-            </AlertDialogDescription>
-          </AlertDialogHeader>
-          <AlertDialogFooter>
-            <AlertDialogCancel className="bg-gray-100 dark:bg-vindex-bg hover:bg-gray-200 dark:hover:bg-vindex-bg/80 border-gray-200 dark:border-vindex-border text-gray-900 dark:text-gray-100 rounded-lg">
-              {t('common.cancel')}
-            </AlertDialogCancel>
-            <AlertDialogAction
-              onClick={() => {
-                deleteGoal(deleteId);
-                setDeleteId(null);
-              }}
-              className="bg-red-600 hover:bg-red-700 dark:bg-vindex-danger dark:hover:bg-vindex-danger/90 rounded-lg text-white"
-            >
-              {t('common.delete')}
-            </AlertDialogAction>
-          </AlertDialogFooter>
-        </AlertDialogContent>
-      </AlertDialog>
+      <GoalDetailModal
+        isOpen={!!selectedDetailGoal}
+        onClose={() => setSelectedDetailGoal(null)}
+        goal={selectedDetailGoal}
+        onEdit={(goal) => openEditModal(goal)}
+        onDelete={(id) => { setSelectedDetailGoal(null); setDeleteId(id); }}
+      />
+
+      <DeleteConfirmationDialog
+        open={!!deleteId}
+        onOpenChange={() => setDeleteId(null)}
+        description={t('goals.delete_desc')}
+        onConfirm={() => {
+          deleteGoal(deleteId);
+          setDeleteId(null);
+        }}
+      />
     </div>
   );
 };

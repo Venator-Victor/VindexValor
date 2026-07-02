@@ -1,4 +1,4 @@
-import { PRIMARY, PRIMARY_HOVER } from '@/utils/colors';
+import { PRIMARY, PRIMARY_HOVER, SUCCESS, DANGER } from '@/utils/colors';
 import React, { useState, useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Helmet } from 'react-helmet';
@@ -223,13 +223,6 @@ const Categories = () => {
       />
 
       {/* Categories List/Grid */}
-      <div className="flex justify-between items-center mb-4 mt-6">
-         <h2 className="text-lg font-semibold text-gray-900 dark:text-gray-50">{t('categories.my_categories')}</h2>
-         <span className="text-sm text-gray-700 dark:text-gray-300 bg-gray-100 dark:bg-vindex-bg px-2 py-1 rounded">
-            {t('categories.viewing_expenses')} <span className="font-semibold capitalize text-gray-900 dark:text-gray-100">{currentPeriod}</span>
-         </span>
-      </div>
-
       {sortedCategories.length === 0 ? (
         <EmptyState icon={Folder} message={t('categories.empty')} buttonLabel={t('categories.create_first')} onButtonClick={() => setIsDefaultModalOpen(true)} />
       ) : (
@@ -270,17 +263,6 @@ const Categories = () => {
                             <span className="text-lg font-bold text-gray-900 dark:text-gray-50 block">{formatCurrency(category.hasBudget ? category.currentSpending : category.totalActivity)}</span>
                           </div>
                         </div>
-
-                       <div className="flex gap-2 w-full mt-4">
-                         <Button size="sm" onClick={(e) => handleEdit(category, e)} className="flex-1 h-8 text-xs font-medium border-none hover:opacity-90 transition-opacity text-gray-900" style={{ backgroundColor: PRIMARY }}>
-                           <Edit2 className="w-3 h-3 mr-1" />
-                           {t('common.edit')}
-                         </Button>
-                         <Button size="sm" variant="outline" onClick={(e) => { e.stopPropagation(); setDeleteId(category.id); }} className="flex-1 h-8 text-xs font-medium bg-transparent hover:text-black transition-colors" style={{ borderColor: PRIMARY, color: PRIMARY }} onMouseEnter={e => { e.currentTarget.style.backgroundColor = PRIMARY; e.currentTarget.style.color = '#000'; }} onMouseLeave={e => { e.currentTarget.style.backgroundColor = 'transparent'; e.currentTarget.style.color = PRIMARY; }}>
-                           <Trash2 className="w-3 h-3 mr-1" />
-                           {t('common.delete')}
-                         </Button>
-                       </div>
                      </motion.div>
                     );
                  })}
@@ -332,10 +314,26 @@ const Categories = () => {
                                   </td>
                                   <td className="px-6 py-4 text-right">
                                      <div className="flex justify-end gap-2">
-                                        <Button size="sm" onClick={(e) => handleEdit(category, e)} className="h-8 w-8 p-0 rounded-lg text-gray-900" style={{ backgroundColor: PRIMARY }}>
+                                        <Button
+                                           size="sm"
+                                           variant="outline"
+                                           onClick={(e) => handleEdit(category, e)}
+                                           className="h-8 w-8 p-0 rounded-lg border transition-colors bg-transparent"
+                                           style={{ borderColor: PRIMARY, color: PRIMARY }}
+                                           onMouseEnter={e => { e.currentTarget.style.backgroundColor = PRIMARY; e.currentTarget.style.color = '#000'; }}
+                                           onMouseLeave={e => { e.currentTarget.style.backgroundColor = 'transparent'; e.currentTarget.style.color = PRIMARY; }}
+                                        >
                                            <Edit2 className="h-4 w-4" />
                                         </Button>
-                                        <Button size="sm" variant="outline" onClick={(e) => { e.stopPropagation(); setDeleteId(category.id); }} className="h-8 w-8 p-0 rounded-lg hover:text-black transition-colors" style={{ borderColor: PRIMARY, color: PRIMARY }} onMouseEnter={e => { e.currentTarget.style.backgroundColor = PRIMARY; e.currentTarget.style.color = '#000'; }} onMouseLeave={e => { e.currentTarget.style.backgroundColor = 'transparent'; e.currentTarget.style.color = PRIMARY; }}>
+                                        <Button
+                                           size="sm"
+                                           variant="outline"
+                                           onClick={(e) => { e.stopPropagation(); setDeleteId(category.id); }}
+                                           className="h-8 w-8 p-0 rounded-lg border transition-colors bg-transparent"
+                                           style={{ borderColor: DANGER, color: DANGER }}
+                                           onMouseEnter={e => { e.currentTarget.style.backgroundColor = DANGER; e.currentTarget.style.color = '#fff'; }}
+                                           onMouseLeave={e => { e.currentTarget.style.backgroundColor = 'transparent'; e.currentTarget.style.color = DANGER; }}
+                                        >
                                            <Trash2 className="h-4 w-4" />
                                         </Button>
                                      </div>
@@ -410,10 +408,25 @@ const Categories = () => {
             <IconSelector selectedIcon={formData.icon} onSelect={icon => setFormData({ ...formData, icon })} />
 
             <div className="flex gap-2 pt-4">
-              <Button type="submit" className="flex-1 font-medium rounded-lg border-none hover:text-white transition-colors text-black" style={{ backgroundColor: PRIMARY }}>
+              <Button
+                type="submit"
+                variant="outline"
+                className="flex-1 font-medium rounded-lg transition-colors bg-transparent"
+                style={{ borderColor: SUCCESS, color: SUCCESS }}
+                onMouseEnter={e => { e.currentTarget.style.backgroundColor = SUCCESS; e.currentTarget.style.color = '#fff'; }}
+                onMouseLeave={e => { e.currentTarget.style.backgroundColor = 'transparent'; e.currentTarget.style.color = SUCCESS; }}
+              >
                 {editingCategory ? t('common.update') : t('common.create')}
               </Button>
-              <Button type="button" variant="outline" onClick={() => setIsDialogOpen(false)} className="flex-1 rounded-lg transition-colors bg-transparent hover:text-black" style={{ borderColor: PRIMARY, color: PRIMARY }} onMouseEnter={e => { e.currentTarget.style.backgroundColor = PRIMARY; e.currentTarget.style.color = '#000'; }} onMouseLeave={e => { e.currentTarget.style.backgroundColor = 'transparent'; e.currentTarget.style.color = PRIMARY; }}>
+              <Button
+                type="button"
+                variant="outline"
+                onClick={() => setIsDialogOpen(false)}
+                className="flex-1 rounded-lg border transition-colors bg-transparent"
+                style={{ borderColor: PRIMARY, color: PRIMARY }}
+                onMouseEnter={e => { e.currentTarget.style.backgroundColor = PRIMARY; e.currentTarget.style.color = '#000'; }}
+                onMouseLeave={e => { e.currentTarget.style.backgroundColor = 'transparent'; e.currentTarget.style.color = PRIMARY; }}
+              >
                 {t('common.cancel')}
               </Button>
             </div>

@@ -3,11 +3,10 @@ import React from 'react';
 import { useTranslation } from 'react-i18next';
 import { motion } from 'framer-motion';
 import { formatCurrency } from '@/utils/calculations';
-import { Button } from '@/components/ui/button';
 import { differenceInDays, isPast, parseISO } from 'date-fns';
-import BxIcon, { Pencil, Trash } from '@/components/BxIcon';
+import BxIcon from '@/components/BxIcon';
 
-const MetaProgressCard = ({ goal, onEdit, onDelete, index = 0 }) => {
+const MetaProgressCard = ({ goal, index = 0, onClick }) => {
   const { t } = useTranslation();
   const isTargetMode = goal.goal_type === 'target_value';
   
@@ -47,7 +46,10 @@ const MetaProgressCard = ({ goal, onEdit, onDelete, index = 0 }) => {
       animate={{ opacity: 1, y: 0 }}
       exit={{ opacity: 0, scale: 0.9 }}
       transition={{ delay: index * 0.1 }}
-      className={`bg-white dark:bg-vindex-card rounded-xl p-4 sm:p-5 border shadow-sm hover:shadow-md transition-all relative group flex flex-col justify-between h-full min-h-[160px]
+      onClick={() => onClick && onClick(goal)}
+      onMouseEnter={e => { if (!isOverdue) e.currentTarget.style.borderColor = PRIMARY; }}
+      onMouseLeave={e => { if (!isOverdue) e.currentTarget.style.borderColor = ''; }}
+      className={`bg-white dark:bg-vindex-card rounded-xl p-4 sm:p-5 border shadow-sm hover:shadow-md transition-all relative flex flex-col justify-between h-full min-h-[160px] cursor-pointer
         ${isOverdue ? 'border-red-200 dark:border-red-900/50' : 'border-gray-200 dark:border-vindex-border'}
       `}
     >
@@ -134,27 +136,6 @@ const MetaProgressCard = ({ goal, onEdit, onDelete, index = 0 }) => {
            </p>
         </div>
       </div>
-
-      {/* Hover Actions */}
-      <div className="absolute top-2 right-2 flex gap-1 opacity-0 group-hover:opacity-100 transition-opacity bg-white/90 dark:bg-vindex-card/90 backdrop-blur-sm rounded-lg p-1 z-10 border border-gray-100 dark:border-vindex-border shadow-sm">
-          <Button 
-            size="icon" 
-            variant="ghost" 
-            onClick={() => onEdit(goal)} 
-            className="h-7 w-7 hover:bg-gray-100 dark:hover:bg-vindex-border text-gray-500 hover:text-gray-900 dark:text-gray-400 dark:hover:text-gray-100"
-          >
-            <Pencil size={14} />
-          </Button>
-          <Button 
-            size="icon" 
-            variant="ghost" 
-            onClick={() => onDelete(goal.id)} 
-            className="h-7 w-7 hover:bg-red-50 dark:hover:bg-red-900/20 text-gray-500 hover:text-red-600 dark:text-gray-400 dark:hover:text-red-400"
-          >
-            <Trash size={14} />
-          </Button>
-      </div>
-
     </motion.div>
   );
 };

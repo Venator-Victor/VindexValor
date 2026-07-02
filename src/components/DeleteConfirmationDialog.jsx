@@ -4,6 +4,7 @@ import {
   AlertDialogContent, AlertDialogDescription, AlertDialogFooter,
   AlertDialogHeader, AlertDialogTitle,
 } from '@/components/ui/alert-dialog';
+import { PRIMARY, DANGER } from '@/utils/colors';
 
 const DeleteConfirmationDialog = ({ open, onOpenChange, description, onConfirm }) => (
   <AlertDialog open={open} onOpenChange={onOpenChange}>
@@ -14,11 +15,22 @@ const DeleteConfirmationDialog = ({ open, onOpenChange, description, onConfirm }
           {description}
         </AlertDialogDescription>
       </AlertDialogHeader>
-      <AlertDialogFooter>
-        <AlertDialogCancel className="bg-gray-100 dark:bg-vindex-bg hover:bg-gray-200 dark:hover:bg-vindex-bg/80 border-gray-200 dark:border-vindex-border text-gray-900 dark:text-gray-100 rounded-lg">
+      <AlertDialogFooter className="flex-row gap-2 sm:justify-stretch">
+        <AlertDialogCancel
+          className="mt-0 flex-1 rounded-lg focus:ring-0 focus:ring-offset-0"
+          style={{ borderColor: PRIMARY, color: PRIMARY, backgroundColor: 'transparent' }}
+          onMouseEnter={e => { e.currentTarget.style.backgroundColor = PRIMARY; e.currentTarget.style.color = '#000'; }}
+          onMouseLeave={e => { e.currentTarget.style.backgroundColor = 'transparent'; e.currentTarget.style.color = PRIMARY; }}
+        >
           Cancelar
         </AlertDialogCancel>
-        <AlertDialogAction onClick={onConfirm} className="bg-destructive hover:bg-destructive/90 rounded-lg text-white">
+        <AlertDialogAction
+          onClick={onConfirm}
+          className="flex-1 rounded-lg border"
+          style={{ borderColor: DANGER, color: DANGER, backgroundColor: 'transparent' }}
+          onMouseEnter={e => { e.currentTarget.style.backgroundColor = DANGER; e.currentTarget.style.color = '#fff'; }}
+          onMouseLeave={e => { e.currentTarget.style.backgroundColor = 'transparent'; e.currentTarget.style.color = DANGER; }}
+        >
           Excluir
         </AlertDialogAction>
       </AlertDialogFooter>

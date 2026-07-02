@@ -6,7 +6,7 @@ import { formatCurrency } from '@/utils/calculations';
 import CircularProgressBar from '@/components/CircularProgressBar';
 import { ArrowDownRight, ArrowUpRight, Edit as Edit2, TrashAlt as Trash2 } from '@/components/BxIcon';
 import BxIcon from '@/components/BxIcon';
-import { PRIMARY } from '@/utils/colors';
+import { PRIMARY, DANGER } from '@/utils/colors';
 
 const CategoryDetailModal = ({ isOpen, onClose, category, transactions, onEdit, onDelete }) => {
   const { t } = useTranslation();
@@ -37,7 +37,7 @@ const CategoryDetailModal = ({ isOpen, onClose, category, transactions, onEdit, 
         <div className="p-6 border-b border-border pb-4 flex flex-col shrink-0">
           <div className="flex items-center justify-between mb-4">
             <div className="flex items-center gap-3">
-              <div 
+              <div
                 className="w-12 h-12 rounded-xl flex items-center justify-center border"
                 style={{ backgroundColor: category.color + '22', borderColor: category.color + '44' }}
               >
@@ -47,31 +47,6 @@ const CategoryDetailModal = ({ isOpen, onClose, category, transactions, onEdit, 
                 <DialogTitle className="text-xl font-bold">{category.name}</DialogTitle>
                 <p className="text-sm text-muted-foreground">{t('categories.transaction_count', { count: categoryTransactions.length })}</p>
               </div>
-            </div>
-            <div className="flex gap-2">
-              <Button
-                size="sm"
-                variant="outline"
-                onClick={() => { onClose(); onEdit(category); }}
-                className="gap-1"
-                style={{ borderColor: PRIMARY, color: PRIMARY }}
-                onMouseEnter={e => { e.currentTarget.style.backgroundColor = PRIMARY; e.currentTarget.style.color = '#000'; }}
-                onMouseLeave={e => { e.currentTarget.style.backgroundColor = 'transparent'; e.currentTarget.style.color = PRIMARY; }}
-              >
-                <Edit2 className="w-3.5 h-3.5" />
-                {t('common.edit')}
-              </Button>
-              {onDelete && (
-                <Button
-                  size="sm"
-                  variant="outline"
-                  onClick={() => onDelete(category.id)}
-                  className="gap-1 text-destructive border-destructive hover:bg-destructive hover:text-destructive-foreground"
-                >
-                  <Trash2 className="w-3.5 h-3.5" />
-                  {t('common.delete')}
-                </Button>
-              )}
             </div>
           </div>
 
@@ -112,6 +87,35 @@ const CategoryDetailModal = ({ isOpen, onClose, category, transactions, onEdit, 
               </div>
             </div>
           )}
+
+          <div className="flex gap-2 mt-4">
+            <Button
+              size="sm"
+              variant="outline"
+              onClick={() => { onClose(); onEdit(category); }}
+              className="flex-1 gap-1"
+              style={{ borderColor: PRIMARY, color: PRIMARY }}
+              onMouseEnter={e => { e.currentTarget.style.backgroundColor = PRIMARY; e.currentTarget.style.color = '#000'; }}
+              onMouseLeave={e => { e.currentTarget.style.backgroundColor = 'transparent'; e.currentTarget.style.color = PRIMARY; }}
+            >
+              <Edit2 className="w-3.5 h-3.5" />
+              {t('common.edit')}
+            </Button>
+            {onDelete && (
+              <Button
+                size="sm"
+                variant="outline"
+                onClick={() => onDelete(category.id)}
+                className="flex-1 gap-1"
+                style={{ borderColor: DANGER, color: DANGER }}
+                onMouseEnter={e => { e.currentTarget.style.backgroundColor = DANGER; e.currentTarget.style.color = '#fff'; }}
+                onMouseLeave={e => { e.currentTarget.style.backgroundColor = 'transparent'; e.currentTarget.style.color = DANGER; }}
+              >
+                <Trash2 className="w-3.5 h-3.5" />
+                {t('common.delete')}
+              </Button>
+            )}
+          </div>
         </div>
 
         <div className="flex-1 overflow-y-auto p-6 pt-2">
