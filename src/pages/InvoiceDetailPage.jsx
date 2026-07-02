@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useParams, useNavigate } from 'react-router-dom';
 import { Helmet } from 'react-helmet';
+import { motion } from 'framer-motion';
 import { ArrowLeft, Plus, AlertCircle, Wallet, Link as Link2, TrashAlt as Trash2, ArrowDownRight, ArrowUpRight, Sigma } from '@/components/BxIcon';
 import { useFinance } from '@/context/FinanceContext';
 import { useAuth } from '@/context/SupabaseAuthContext';
@@ -245,21 +246,30 @@ const InvoiceDetailPage = () => {
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-        <div className="bg-card p-5 rounded-xl border shadow-sm flex flex-col justify-center">
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          className="bg-card p-5 rounded-xl border shadow-sm flex flex-col justify-center"
+        >
           <div className="flex items-center gap-2 text-red-600 dark:text-red-400 mb-1">
             <ArrowDownRight className="w-4 h-4" />
             <span className="text-sm font-medium">{t('invoice_detail.total_outflows')}</span>
           </div>
           <p className="text-2xl font-bold text-red-600 dark:text-red-400">{formatCurrency(totalSaidas)}</p>
-        </div>
+        </motion.div>
 
-        <div className="bg-card p-5 rounded-xl border shadow-sm flex flex-col justify-center">
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.05 }}
+          className="bg-card p-5 rounded-xl border shadow-sm flex flex-col justify-center"
+        >
           <div className="flex items-center gap-2 text-foreground mb-1">
             <Sigma className="w-4 h-4" />
             <span className="text-sm font-medium">{t('invoice_detail.net_total')}</span>
           </div>
           <p className={`text-2xl font-bold ${calcTotalColor}`}>{formatCurrency(calculatedTotal)}</p>
-        </div>
+        </motion.div>
       </div>
 
       <div className="bg-muted/30 p-5 rounded-xl border">

@@ -429,8 +429,15 @@ const Recurrences = () => {
         <>
           {viewMode === 'card' ? (
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-              {sortedRecurring.map(item => (
-                <RecorrenciaCard key={item.id} item={item} onEdit={handleEdit} onDelete={() => setDeleteId(item.id)} onToggleStatus={toggleStatus} />
+              {sortedRecurring.map((item, index) => (
+                <motion.div
+                  key={item.id}
+                  initial={{ opacity: 0, y: 20 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ delay: index * 0.05 }}
+                >
+                  <RecorrenciaCard item={item} onEdit={handleEdit} onDelete={() => setDeleteId(item.id)} onToggleStatus={toggleStatus} />
+                </motion.div>
               ))}
             </div>
           ) : (
