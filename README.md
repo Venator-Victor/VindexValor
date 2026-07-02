@@ -27,6 +27,34 @@ Future plans include desktop and mobile applications, offline support, advanced 
 | date-fns | 4.3.0 |
 | Radix UI | various |
 
+## Self-Hosting
+
+VindexValor doesn't require the official hosted backend. Since it's built on [Supabase](https://supabase.com), you can run your own instance — hosted on Supabase's cloud or fully [self-hosted via Docker](https://supabase.com/docs/guides/self-hosting) — and keep complete control over where your financial data lives.
+
+1. Fork this repository.
+2. Create a Supabase project (hosted or self-hosted) and install the [Supabase CLI](https://supabase.com/docs/guides/cli).
+3. Link your project and apply the database schema:
+   ```bash
+   npx supabase link --project-ref <your-project-ref>
+   npx supabase db push
+   ```
+4. Deploy the Edge Functions (used for server-side balance/goal/recurring calculations and inflation data):
+   ```bash
+   for fn in supabase/functions/*/; do
+     name=$(basename "$fn")
+     [ "$name" = "_shared" ] && continue
+     npx supabase functions deploy "$name"
+   done
+   ```
+5. Set your own credentials in `.env`:
+   ```
+   VITE_SUPABASE_URL=https://<your-project-ref>.supabase.co
+   VITE_SUPABASE_ANON_KEY=<your-anon-key>
+   ```
+6. Build and deploy the frontend (`npm run build`) to any static host.
+
+Each self-hosted instance is fully isolated — your data never touches the official VindexValor infrastructure.
+
 ## Authors
 
 VenatorVictor
