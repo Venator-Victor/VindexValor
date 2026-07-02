@@ -68,7 +68,7 @@ const CategoryDetailModal = ({ isOpen, onClose, category, transactions, onEdit, 
           {hasLimit && (
             <div className="bg-muted/30 p-4 rounded-xl border border-border flex items-center justify-between gap-4">
               <div>
-                <p className="text-sm font-medium">{t('categories.budget_of_period', { period: category.budget_period })}</p>
+                <p className="text-sm font-medium">{t('categories.budget_of_period', { period: t(`period.${category.budget_period}`) })}</p>
                 <p className="text-muted-foreground text-xs mt-1">
                   {t('categories.spent_of_total', { spent: formatCurrency(currentSpending), total: formatCurrency(category.spending_limit) })}
                 </p>

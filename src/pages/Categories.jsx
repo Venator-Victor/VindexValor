@@ -310,7 +310,7 @@ const Categories = () => {
                                      {hasLimit ? <span>{formatCurrency(category.spending_limit)}</span> : '-'}
                                   </td>
                                   <td className="px-6 py-4 text-gray-700 dark:text-gray-300">
-                                     {hasLimit ? <span className="text-xs capitalize">{category.budget_period}</span> : '-'}
+                                     {hasLimit ? <span className="text-xs">{t(`period.${category.budget_period}`)}</span> : '-'}
                                   </td>
                                   <td className="px-6 py-4 text-right">
                                      <div className="flex justify-end gap-2">

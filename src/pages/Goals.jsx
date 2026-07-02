@@ -386,7 +386,7 @@ const Goals = () => {
                                             <td className="px-6 py-4 text-gray-600 dark:text-gray-300">
                                                 {isTarget 
                                                     ? formatCurrency(goal.targetAmount) 
-                                                    : <span title={t('goals.contribution_value')}>{formatCurrency(goal.contributionValue)} <span className="text-xs text-gray-400">/ {goal.periodFrequency}</span></span>
+                                                    : <span title={t('goals.contribution_value')}>{formatCurrency(goal.contributionValue)} <span className="text-xs text-gray-400">/ {t(`period.${goal.periodFrequency}`)}</span></span>
                                                 }
                                             </td>
                                             <td className="px-6 py-4">
