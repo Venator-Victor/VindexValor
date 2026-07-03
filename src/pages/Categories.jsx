@@ -262,6 +262,12 @@ const Categories = () => {
                             <span className="text-[10px] text-gray-700 dark:text-gray-300 block">{category.hasBudget ? t('categories.current_spending') : t('categories.total_moved')}</span>
                             <span className="text-lg font-bold text-gray-900 dark:text-gray-50 block">{formatCurrency(category.hasBudget ? category.currentSpending : category.totalActivity)}</span>
                           </div>
+                          {category.hasBudget && (
+                            <div className="text-right">
+                              <span className="text-[10px] text-gray-700 dark:text-gray-300 block">{t('categories.col_budget')}</span>
+                              <span className="text-lg font-bold text-gray-900 dark:text-gray-50 block">{formatCurrency(category.spending_limit)}</span>
+                            </div>
+                          )}
                         </div>
                      </motion.div>
                     );
