@@ -834,6 +834,7 @@
     "years_count_plural": "{{count}} anos",
     "interest_overtakes": "Juros superam capital",
     "year_label": "ano {{year}}",
+    "year_unit": "a",
     "interest_over_capital": "Juros > Capital"
   },
 

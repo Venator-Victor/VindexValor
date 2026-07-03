@@ -834,6 +834,7 @@
     "years_count_plural": "{{count}} years",
     "interest_overtakes": "Interest overtakes capital",
     "year_label": "year {{year}}",
+    "year_unit": "y",
     "interest_over_capital": "Interest > Capital"
   },
 

@@ -29,12 +29,12 @@ const InflationSimulator = () => {
     return Array.from({ length: years }, (_, i) => {
       const y = i + 1;
       return {
-        year: `${y}a`,
+        year: `${y}${t('investment_sim.year_unit')}`,
         needed: parseFloat((currentValue * Math.pow(1 + inflationRate / 100, y)).toFixed(2)),
         invested: parseFloat((currentValue * Math.pow(1 + returnRate / 100, y)).toFixed(2)),
       };
     });
-  }, [currentValue, inflationRate, returnRate, years]);
+  }, [currentValue, inflationRate, returnRate, years, t]);
 
   const finalNeeded = chartData.at(-1)?.needed ?? currentValue;
   const finalInvested = chartData.at(-1)?.invested ?? currentValue;

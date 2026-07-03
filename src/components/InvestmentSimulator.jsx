@@ -42,12 +42,12 @@ const InvestmentSimulator = () => {
       const interest = total - invested;
 
       return {
-        year: `${y}a`,
+        year: `${y}${t('investment_sim.year_unit')}`,
         invested: parseFloat(invested.toFixed(2)),
         interest: parseFloat(Math.max(0, interest).toFixed(2)),
       };
     });
-  }, [initialDeposit, monthlyAmount, annualReturn, years]);
+  }, [initialDeposit, monthlyAmount, annualReturn, years, t]);
 
   // Find year where compound interest first overtakes total capital
   const crossoverPoint = chartData.find(d => d.interest >= d.invested);
@@ -138,7 +138,7 @@ const InvestmentSimulator = () => {
               className="w-full accent-vindex-success cursor-pointer"
             />
             <div className="flex justify-between text-xs text-gray-400 dark:text-gray-600 mt-0.5">
-              <span>1a</span><span>50a</span><span>100a</span>
+              <span>{`1${t('investment_sim.year_unit')}`}</span><span>{`50${t('investment_sim.year_unit')}`}</span><span>{`100${t('investment_sim.year_unit')}`}</span>
             </div>
           </div>
 
@@ -172,7 +172,7 @@ const InvestmentSimulator = () => {
             {crossoverPoint && (
               <div className="p-3 flex justify-between items-center border-t border-gray-100 dark:border-vindex-border/50 bg-emerald-50/50 dark:bg-emerald-900/5">
                 <span className="text-gray-500 dark:text-gray-400">{t('investment_sim.interest_overtakes')}</span>
-                <span className="font-semibold text-vindex-success">{t('investment_sim.year_label', { year: crossoverPoint.year.replace('a', '') })}</span>
+                <span className="font-semibold text-vindex-success">{t('investment_sim.year_label', { year: crossoverPoint.year.replace(t('investment_sim.year_unit'), '') })}</span>
               </div>
             )}
           </div>
