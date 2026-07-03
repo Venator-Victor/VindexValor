@@ -14,7 +14,7 @@ import { PERIOD_OPTIONS } from '@/utils/periodOptions';
 import { TrashAlt as Trash2, Plus, AlertCircle } from '@/components/BxIcon';
 import { useToast } from '@/components/ui/use-toast';
 
-const MetaForm = ({ initialData, initialName, onSubmit, onCancel }) => {
+const MetaForm = ({ initialData, initialName, initialIcon, initialColor, onSubmit, onCancel }) => {
   const { t } = useTranslation();
   const { accounts } = useFinance();
   const { toast } = useToast();
@@ -68,7 +68,12 @@ const MetaForm = ({ initialData, initialName, onSubmit, onCancel }) => {
         }]);
       }
     } else if (initialName) {
-      setFormData(prev => ({ ...prev, name: initialName }));
+      setFormData(prev => ({
+        ...prev,
+        name: initialName,
+        color: initialColor || prev.color,
+        icon: initialIcon || prev.icon
+      }));
     }
   }
 

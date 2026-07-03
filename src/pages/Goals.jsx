@@ -43,6 +43,8 @@ const Goals = () => {
   // State for creation flow
   const [creationStep, setCreationStep] = useState('selector'); // 'selector' | 'form'
   const [selectedCategoryName, setSelectedCategoryName] = useState('');
+  const [selectedCategoryIcon, setSelectedCategoryIcon] = useState('');
+  const [selectedCategoryColor, setSelectedCategoryColor] = useState('');
 
   const handleCreate = (data) => {
     const goalData = {
@@ -76,12 +78,16 @@ const Goals = () => {
     setEditingGoal(null);
     setCreationStep('selector');
     setSelectedCategoryName('');
+    setSelectedCategoryIcon('');
+    setSelectedCategoryColor('');
   };
 
   const openNewGoalModal = () => {
     setEditingGoal(null);
     setCreationStep('selector');
     setSelectedCategoryName('');
+    setSelectedCategoryIcon('');
+    setSelectedCategoryColor('');
     setIsDialogOpen(true);
   };
 
@@ -97,11 +103,15 @@ const Goals = () => {
 
   const handleCategorySelect = (category) => {
     setSelectedCategoryName(category.name);
+    setSelectedCategoryIcon(category.icon);
+    setSelectedCategoryColor(category.color);
     setCreationStep('form');
   };
 
   const handleCustomSelect = () => {
     setSelectedCategoryName('');
+    setSelectedCategoryIcon('');
+    setSelectedCategoryColor('');
     setCreationStep('form');
   };
 
@@ -240,19 +250,20 @@ const Goals = () => {
                     onMouseLeave={(e) => e.currentTarget.style.backgroundColor = CYAN_COLOR}
                 >
                     <Plus size={20} className="sm:mr-2" />
-                    <span className="hidden sm:inline">{t('goals.new_short')}</span>
+                    <span className="hidden sm:inline">{t('goals.new')}</span>
+                    <span className="sm:hidden">{t('goals.new_short')}</span>
                 </Button>
             </div>
         </div>
 
         <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
-          <DialogContent className="bg-white dark:bg-vindex-card text-gray-900 dark:text-gray-100 border-gray-200 dark:border-vindex-border rounded-xl max-h-[90vh] overflow-y-auto sm:max-w-[600px] p-0 gap-0">
+          <DialogContent className={`bg-white dark:bg-vindex-card text-gray-900 dark:text-gray-100 border-gray-200 dark:border-vindex-border rounded-xl max-h-[90vh] overflow-y-auto p-0 gap-0 ${creationStep === 'selector' && !editingGoal ? 'sm:max-w-4xl' : 'sm:max-w-[600px]'}`}>
             <div className="p-6 border-b border-gray-100 dark:border-gray-800">
                 <DialogHeader>
-                    <DialogTitle>
+                    <DialogTitle className={creationStep === 'selector' && !editingGoal ? 'text-xl font-bold text-gray-900 dark:text-vindex-text' : undefined}>
                         {editingGoal
                             ? t('goals.edit')
-                            : (creationStep === 'selector' ? t('goals.new') : t('goals.details'))
+                            : (creationStep === 'selector' ? t('goals.selector_title') : t('goals.details'))
                         }
                     </DialogTitle>
                 </DialogHeader>
@@ -265,9 +276,11 @@ const Goals = () => {
                         onCustomSelect={handleCustomSelect}
                     />
                 ) : (
-                    <MetaForm 
+                    <MetaForm
                         initialData={editingGoal}
                         initialName={selectedCategoryName}
+                        initialIcon={selectedCategoryIcon}
+                        initialColor={selectedCategoryColor}
                         onSubmit={editingGoal ? handleUpdate : handleCreate}
                         onCancel={resetAndClose}
                     />

@@ -1,59 +1,56 @@
 import React from 'react';
 import { useTranslation } from 'react-i18next';
-import { motion } from 'framer-motion';
 import { Button } from '@/components/ui/button';
 import BxIcon, { Plus } from '@/components/BxIcon';
 
 const CATEGORIES = [
-  { id: 'emergency', name: 'Fundo de Emergência', icon: 'bx-shield-quarter', color: 'text-red-500', bg: 'bg-red-50 dark:bg-red-900/20' },
-  { id: 'retirement', name: 'Aposentadoria', icon: 'bx-user-voice', color: 'text-blue-500', bg: 'bg-blue-50 dark:bg-blue-900/20' },
-  { id: 'car', name: 'Carro', icon: 'bx-car', color: 'text-orange-500', bg: 'bg-orange-50 dark:bg-orange-900/20' },
-  { id: 'home', name: 'Casa', icon: 'bx-home', color: 'text-green-500', bg: 'bg-green-50 dark:bg-green-900/20' },
-  { id: 'travel', name: 'Viagem', icon: 'bx-plane', color: 'text-cyan-500', bg: 'bg-cyan-50 dark:bg-cyan-900/20' },
-  { id: 'education', name: 'Educação', icon: 'bx-graduation', color: 'text-yellow-500', bg: 'bg-yellow-50 dark:bg-yellow-900/20' },
-  { id: 'medical', name: 'Gastos Médicos', icon: 'bx-pulse', color: 'text-pink-500', bg: 'bg-pink-50 dark:bg-pink-900/20' },
-  { id: 'event', name: 'Evento', icon: 'bx-calendar-event', color: 'text-indigo-500', bg: 'bg-indigo-50 dark:bg-indigo-900/20' },
-  { id: 'debt', name: 'Dívida', icon: 'bx-credit-card', color: 'text-slate-500', bg: 'bg-slate-50 dark:bg-slate-900/20' },
+  { id: 'emergency', name: 'Fundo de Emergência', description: 'Reserva para imprevistos', icon: 'bx-shield-quarter', color: '#EF4444' },
+  { id: 'retirement', name: 'Aposentadoria', description: 'Planeje seu futuro', icon: 'bx-user-voice', color: '#3B82F6' },
+  { id: 'car', name: 'Carro', description: 'Compra ou troca de veículo', icon: 'bx-car', color: '#F97316' },
+  { id: 'home', name: 'Casa', description: 'Entrada ou reforma do imóvel', icon: 'bx-home', color: '#10B981' },
+  { id: 'travel', name: 'Viagem', description: 'Economize para sua próxima viagem', icon: 'bx-plane', color: '#06B6D4' },
+  { id: 'education', name: 'Educação', description: 'Cursos e capacitação', icon: 'bx-graduation', color: '#EAB308' },
+  { id: 'medical', name: 'Gastos Médicos', description: 'Procedimentos e emergências de saúde', icon: 'bx-pulse', color: '#EC4899' },
+  { id: 'event', name: 'Evento', description: 'Casamento, festa ou celebração', icon: 'bx-calendar-event', color: '#6366F1' },
+  { id: 'debt', name: 'Dívida', description: 'Quite suas dívidas', icon: 'bx-credit-card', color: '#64748B' },
+  { id: 'investment', name: 'Investimento', description: 'Invista uma quantia todo mês', icon: 'bx-trending-up', color: '#22C55E' },
+  { id: 'business', name: 'Negócio Próprio', description: 'Empreenda ou abra um negócio', icon: 'bx-store', color: '#8B5CF6' },
+  { id: 'electronics', name: 'Eletrônicos', description: 'Celular, notebook e gadgets', icon: 'bx-laptop', color: '#14B8A6' },
 ];
 
 const MetaCategorySelector = ({ onSelect, onCustomSelect }) => {
   const { t } = useTranslation();
   return (
-    <div className="space-y-6">
-      <div className="text-center mb-6">
-        <h3 className="text-lg font-semibold text-gray-900 dark:text-gray-100">{t('goals.selector_title')}</h3>
-        <p className="text-sm text-gray-500 dark:text-gray-400">{t('goals.selector_subtitle')}</p>
-      </div>
-
-      <div className="grid grid-cols-2 sm:grid-cols-3 gap-3 max-h-[400px] overflow-y-auto pr-2">
-        {CATEGORIES.map((cat, index) => (
-          <motion.button
+    <div>
+      <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4 py-4">
+        {CATEGORIES.map((cat) => (
+          <button
             key={cat.id}
-            initial={{ opacity: 0, y: 10 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: index * 0.05 }}
             onClick={() => onSelect(cat)}
-            className={`flex flex-col items-center justify-center p-4 rounded-xl border transition-all hover:scale-[1.02] active:scale-95 text-center h-[110px] gap-3 group
-              ${cat.bg} border-transparent hover:border-gray-200 dark:hover:border-gray-700
-            `}
+            className="flex flex-col items-center justify-center p-4 rounded-xl border border-gray-200 dark:border-vindex-border hover:bg-gray-50 dark:hover:bg-vindex-bg transition-all hover:scale-105 relative group bg-white dark:bg-vindex-card h-full min-h-[160px]"
           >
-            <div className={`text-3xl ${cat.color} group-hover:scale-110 transition-transform duration-300`}>
-              <BxIcon iconClass={`bx ${cat.icon}`} size={28} />
+            <div
+              className="w-12 h-12 rounded-full flex items-center justify-center text-2xl mb-3 shadow-sm transition-transform group-hover:scale-110 flex-shrink-0"
+              style={{ backgroundColor: cat.color + '22', color: cat.color }}
+            >
+              <BxIcon iconClass={`bx ${cat.icon}`} size={24} />
             </div>
-            <span className="text-xs font-medium text-gray-700 dark:text-gray-200 leading-tight">
-              {cat.name}
-            </span>
-          </motion.button>
+            <span className="font-semibold text-gray-900 dark:text-vindex-text text-sm sm:text-base text-center line-clamp-2 leading-tight h-[40px] flex items-center justify-center">{cat.name}</span>
+            <span className="text-xs text-gray-500 dark:text-vindex-text/60 mt-1 text-center line-clamp-2 px-1">{cat.description}</span>
+
+            {/* Hover effect indicator */}
+            <div className="absolute inset-0 border-2 border-transparent group-hover:border-primary/10 rounded-xl transition-colors pointer-events-none" />
+          </button>
         ))}
       </div>
 
-      <div className="pt-4 border-t border-gray-100 dark:border-gray-800">
-        <Button 
-          variant="outline" 
+      <div className="flex justify-center pt-6 border-t border-gray-200 dark:border-vindex-border mt-2">
+        <Button
           onClick={onCustomSelect}
-          className="w-full h-12 border-dashed border-2 hover:bg-gray-50 dark:hover:bg-gray-800/50 text-gray-600 dark:text-gray-300 gap-2"
+          variant="outline"
+          className="w-full sm:w-auto border-dashed border-2 hover:bg-gray-50 dark:hover:bg-vindex-bg dark:text-vindex-text dark:border-vindex-border"
         >
-          <Plus size={18} />
+          <Plus className="mr-2 h-4 w-4" />
           {t('goals.create_custom_action')}
         </Button>
       </div>
