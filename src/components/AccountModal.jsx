@@ -184,13 +184,13 @@ const AccountModal = ({ isOpen, onClose, accountToEdit, initialData }) => {
   };
 
   const typeOptions = [
-    { label: "Conta Corrente (checking)", value: "Conta Corrente" },
-    { label: "Cartão de Crédito (credit_card)", value: "Cartão de Crédito" },
-    { label: "Poupança (savings)", value: "Poupança" },
-    { label: "Investimentos (investment)", value: "Investimentos" },
-    { label: "Criptomoeda (crypto)", value: "Criptomoeda" },
-    { label: "Dinheiro (cash)", value: "Dinheiro" },
-    { label: "Outros (other)", value: "Outros" }
+    { label: "Conta Corrente", value: "Conta Corrente" },
+    { label: "Cartão de Crédito", value: "Cartão de Crédito" },
+    { label: "Poupança", value: "Poupança" },
+    { label: "Investimentos", value: "Investimentos" },
+    { label: "Criptomoeda", value: "Criptomoeda" },
+    { label: "Dinheiro", value: "Dinheiro" },
+    { label: "Outros", value: "Outros" }
   ];
 
   const getSymbolFallback = (currencyCode) => {
@@ -205,7 +205,7 @@ const AccountModal = ({ isOpen, onClose, accountToEdit, initialData }) => {
     <Dialog open={isOpen} onOpenChange={(open) => {
       if (!open && !isSubmitting) onClose();
     }}>
-      <DialogContent className="sm:max-w-[450px]">
+      <DialogContent className="max-h-[90vh] overflow-y-auto sm:max-w-[500px]">
         <DialogHeader>
           <DialogTitle>{accountToEdit ? 'Editar Conta' : 'Nova Conta'}</DialogTitle>
         </DialogHeader>
