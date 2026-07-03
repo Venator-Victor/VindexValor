@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Helmet } from 'react-helmet';
 import { useTranslation } from 'react-i18next';
 import { motion } from 'framer-motion';
@@ -18,6 +18,20 @@ const Settings = () => {
   const { theme, toggleTheme, setTheme } = useTheme();
   const { toast } = useToast();
   const [activeTab, setActiveTab] = useState('conta');
+  const [pendingTheme, setPendingTheme] = useState(theme);
+  const [pendingLanguage, setPendingLanguage] = useState(settings.language);
+
+  // Keep the pending selections in sync with the persisted values whenever
+  // they change from outside this form (initial load, another tab/device).
+  useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect -- syncs the editable draft with the persisted theme/language once they arrive from Supabase or change elsewhere, not derived render state
+    setPendingTheme(theme);
+  }, [theme]);
+
+  useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect -- syncs the editable draft with the persisted theme/language once they arrive from Supabase or change elsewhere, not derived render state
+    setPendingLanguage(settings.language);
+  }, [settings.language]);
 
   const tabs = [
     { id: 'conta', label: t('settings.tab_account'), Icon: User },
@@ -27,16 +41,21 @@ const Settings = () => {
   ];
 
   const handleSave = async () => {
-    // Prepare settings object to save
+    // Theme is only applied (and persisted) when the user confirms the save
+    if (pendingTheme !== theme) {
+      await setTheme(pendingTheme);
+    }
+
+    // Prepare remaining settings to save; saveSettings applies language
+    // (via FinanceContext's i18n effect) as part of persisting it
     const settingsToSave = {
-      theme: theme, // Save current theme from ThemeContext
       currency: settings.currency,
-      language: settings.language
+      language: pendingLanguage
     };
-    
+
     // saveSettings now handles upsert logic internally to prevent duplicate key errors (23505)
     const success = await saveSettings(settingsToSave);
-    
+
     if (!success) {
       console.warn("Settings save failed, check logs for details.");
     }
@@ -179,9 +198,9 @@ const Settings = () => {
                 <Label>{t('settings.theme_label')}</Label>
                 <div className="flex gap-4 mt-2">
                   <button
-                    onClick={() => setTheme('dark')}
+                    onClick={() => setPendingTheme('dark')}
                     className={`flex items-center gap-2 px-4 py-2 rounded-lg transition-all ${
-                      theme === 'dark'
+                      pendingTheme === 'dark'
                         ? 'bg-vindex-border text-primary border border-vindex-border'
                         : 'bg-gray-100 dark:bg-vindex-bg text-gray-500 dark:text-vindex-text/60 hover:bg-gray-200 dark:hover:bg-vindex-border/50'
                     }`}
@@ -190,9 +209,9 @@ const Settings = () => {
                     {t('settings.theme_dark')}
                   </button>
                   <button
-                    onClick={() => setTheme('light')}
+                    onClick={() => setPendingTheme('light')}
                     className={`flex items-center gap-2 px-4 py-2 rounded-lg transition-all ${
-                      theme === 'light'
+                      pendingTheme === 'light'
                         ? 'bg-blue-100 text-blue-600 border border-blue-200'
                         : 'bg-gray-100 dark:bg-vindex-bg text-gray-500 dark:text-vindex-text/60 hover:bg-gray-200 dark:hover:bg-vindex-border/50'
                     }`}
@@ -219,8 +238,8 @@ const Settings = () => {
                 <Label htmlFor="language">{t('settings.language_label')}</Label>
                 <select
                   id="language"
-                  value={settings.language}
-                  onChange={(e) => setSettings({ ...settings, language: e.target.value })}
+                  value={pendingLanguage}
+                  onChange={(e) => setPendingLanguage(e.target.value)}
                   className="w-full px-3 py-2 bg-gray-50 dark:bg-vindex-bg border border-gray-200 dark:border-vindex-border rounded-lg text-gray-900 dark:text-vindex-text"
                 >
                   <option value="pt-BR">{t('settings.language_pt')}</option>
