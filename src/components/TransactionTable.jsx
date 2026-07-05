@@ -1,4 +1,5 @@
 import React, { useState, useMemo } from 'react';
+import { useTranslation } from 'react-i18next';
 import { formatCurrencyWithSymbol } from '@/utils/calculations';
 import { Edit, Trash, ArrowDownUp as ArrowUpDown, ArrowUp, ArrowDown } from '@/components/BxIcon';
 import { Checkbox } from '@/components/ui/checkbox';
@@ -11,6 +12,7 @@ const SortIcon = ({ column, sortConfig }) => {
 };
 
 const TransactionTable = ({ transactions, onEdit, onDelete, selectedIds, onSelectionChange }) => {
+  const { t } = useTranslation();
   const [sortConfig, setSortConfig] = useState({ key: 'date', direction: 'desc' });
 
   const toggleSelectAll = () => {
@@ -94,65 +96,65 @@ const TransactionTable = ({ transactions, onEdit, onDelete, selectedIds, onSelec
                   />
                 </th>
                 <th className="p-3 font-medium cursor-pointer hover:bg-muted/80 transition-colors" onClick={() => handleSort('date')}>
-                  <div className="flex items-center">Data <SortIcon column="date" sortConfig={sortConfig} /></div>
+                  <div className="flex items-center">{t('common.date')} <SortIcon column="date" sortConfig={sortConfig} /></div>
                 </th>
                 <th className="p-3 font-medium cursor-pointer hover:bg-muted/80 transition-colors" onClick={() => handleSort('description')}>
-                  <div className="flex items-center">Descrição <SortIcon column="description" sortConfig={sortConfig} /></div>
+                  <div className="flex items-center">{t('common.description')} <SortIcon column="description" sortConfig={sortConfig} /></div>
                 </th>
                 <th className="p-3 font-medium cursor-pointer hover:bg-muted/80 transition-colors" onClick={() => handleSort('category')}>
-                  <div className="flex items-center">Categoria <SortIcon column="category" sortConfig={sortConfig} /></div>
+                  <div className="flex items-center">{t('common.category')} <SortIcon column="category" sortConfig={sortConfig} /></div>
                 </th>
                 <th className="p-3 font-medium cursor-pointer hover:bg-muted/80 transition-colors" onClick={() => handleSort('account')}>
-                  <div className="flex items-center">Conta <SortIcon column="account" sortConfig={sortConfig} /></div>
+                  <div className="flex items-center">{t('common.account')} <SortIcon column="account" sortConfig={sortConfig} /></div>
                 </th>
                 <th className="p-3 font-medium cursor-pointer hover:bg-muted/80 transition-colors text-right" onClick={() => handleSort('amount')}>
-                  <div className="flex items-center justify-end">Valor <SortIcon column="amount" sortConfig={sortConfig} /></div>
+                  <div className="flex items-center justify-end">{t('common.amount')} <SortIcon column="amount" sortConfig={sortConfig} /></div>
                 </th>
-                <th className="p-3 font-medium text-center w-20">Ações</th>
+                <th className="p-3 font-medium text-center w-20">{t('common.actions')}</th>
               </tr>
             </thead>
             <tbody className="divide-y">
-              {sortedTransactions.map(t => {
-                const valColor = t.amount < 0 ? 'text-red-600 dark:text-red-400' : t.amount > 0 ? 'text-green-600 dark:text-green-400' : 'text-foreground';
+              {sortedTransactions.map(tx => {
+                const valColor = tx.amount < 0 ? 'text-red-600 dark:text-red-400' : tx.amount > 0 ? 'text-green-600 dark:text-green-400' : 'text-foreground';
 
                 return (
-                  <tr key={t.id} className={`hover:bg-muted/30 transition-colors ${selectedIds.includes(t.id) ? 'bg-primary/5 dark:bg-primary/10' : ''}`}>
+                  <tr key={tx.id} className={`hover:bg-muted/30 transition-colors ${selectedIds.includes(tx.id) ? 'bg-primary/5 dark:bg-primary/10' : ''}`}>
                     <td className="p-3">
-                      <Checkbox 
-                        checked={selectedIds.includes(t.id)}
-                        onCheckedChange={() => toggleSelect(t.id)}
+                      <Checkbox
+                        checked={selectedIds.includes(tx.id)}
+                        onCheckedChange={() => toggleSelect(tx.id)}
                       />
                     </td>
-                    <td className="p-3 whitespace-nowrap text-muted-foreground">{formatDate(t.date)}</td>
-                    <td className="p-3 font-medium truncate max-w-[150px]" title={t.description || t.name}>
-                      {t.description || t.name}
-                      {t.is_recurring && <History size={16} className="ml-2 text-primary" title="Transação Recorrente" />}
-                      {t.type === 'payment' && <span className="ml-2 text-[10px] bg-purple-100 text-purple-800 px-2 py-0.5 rounded-full whitespace-nowrap">Pagamento</span>}
+                    <td className="p-3 whitespace-nowrap text-muted-foreground">{formatDate(tx.date)}</td>
+                    <td className="p-3 font-medium truncate max-w-[150px]" title={tx.description || tx.name}>
+                      {tx.description || tx.name}
+                      {tx.is_recurring && <History size={16} className="ml-2 text-primary" title={t('transactions.recurring_transaction_title')} />}
+                      {tx.type === 'payment' && <span className="ml-2 text-[10px] bg-purple-100 text-purple-800 px-2 py-0.5 rounded-full whitespace-nowrap">{t('transactions.type_payment')}</span>}
                     </td>
                     <td className="p-3">
                       <div className="flex items-center gap-2">
-                        {t.categories ? (
+                        {tx.categories ? (
                           <>
-                            <div className="w-3 h-3 rounded-full shrink-0" style={{ backgroundColor: t.categories.color }}></div>
-                            <span className="truncate max-w-[100px]">{t.categories.name}</span>
+                            <div className="w-3 h-3 rounded-full shrink-0" style={{ backgroundColor: tx.categories.color }}></div>
+                            <span className="truncate max-w-[100px]">{tx.categories.name}</span>
                           </>
                         ) : (
-                          <span className="text-muted-foreground text-xs">Sem categoria</span>
+                          <span className="text-muted-foreground text-xs">{t('common.no_category')}</span>
                         )}
                       </div>
                     </td>
                     <td className="p-3">
-                      <span className="truncate max-w-[100px] block text-muted-foreground">{t.account?.name || 'N/A'}</span>
+                      <span className="truncate max-w-[100px] block text-muted-foreground">{tx.account?.name || 'N/A'}</span>
                     </td>
                     <td className={`p-3 text-right font-bold whitespace-nowrap ${valColor}`}>
-                      {formatCurrencyWithSymbol(t.amount, t.account?.currency || 'BRL')}
+                      {formatCurrencyWithSymbol(tx.amount, tx.account?.currency || 'BRL')}
                     </td>
                     <td className="p-3">
                       <div className="flex items-center justify-center gap-2">
-                        <button onClick={() => onEdit(t)} className="p-1.5 rounded-md text-muted-foreground hover:text-primary hover:bg-primary/10 transition-colors" title="Editar">
+                        <button onClick={() => onEdit(tx)} className="p-1.5 rounded-md text-muted-foreground hover:text-primary hover:bg-primary/10 transition-colors" title={t('common.edit')}>
                           <Edit className="w-4 h-4" />
                         </button>
-                        <button onClick={() => onDelete(t.id)} className="p-1.5 rounded-md text-muted-foreground hover:text-destructive hover:bg-destructive/10 transition-colors" title="Excluir">
+                        <button onClick={() => onDelete(tx.id)} className="p-1.5 rounded-md text-muted-foreground hover:text-destructive hover:bg-destructive/10 transition-colors" title={t('common.delete')}>
                           <Trash className="w-4 h-4" />
                         </button>
                       </div>

@@ -1,10 +1,13 @@
 import React, { useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { Label } from '@/components/ui/label';
 import { cn } from '@/lib/utils';
 import { Check, Plus } from '@/components/BxIcon';
 import { motion } from 'framer-motion';
 
-const ColorPicker = ({ value, onChange, label = "Cor de Identificação", className }) => {
+const ColorPicker = ({ value, onChange, label, className }) => {
+  const { t } = useTranslation();
+  const resolvedLabel = label ?? t('common.identification_color');
   const [customColor, setCustomColor] = useState('#000000');
   
   // Organized from Warm to Cool, ending with Neutrals
@@ -28,7 +31,7 @@ const ColorPicker = ({ value, onChange, label = "Cor de Identificação", classN
 
   return (
     <div className={cn("space-y-3", className)}>
-      <Label className="text-sm font-medium text-gray-700 dark:text-vindex-text/80">{label}</Label>
+      <Label className="text-sm font-medium text-gray-700 dark:text-vindex-text/80">{resolvedLabel}</Label>
       
       {/* 
          Grid Layout:
@@ -81,8 +84,8 @@ const ColorPicker = ({ value, onChange, label = "Cor de Identificação", classN
                   setCustomColor(e.target.value);
                   onChange(e.target.value);
               }}
-              className="absolute inset-0 w-full h-full opacity-0 cursor-pointer z-10" 
-              title="Cor Personalizada"
+              className="absolute inset-0 w-full h-full opacity-0 cursor-pointer z-10"
+              title={t('common.custom_color')}
            />
         </div>
       </div>

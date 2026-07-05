@@ -1,4 +1,5 @@
 import React, { useState, useRef } from 'react';
+import { useTranslation } from 'react-i18next';
 import { Button } from '@/components/ui/button';
 import SelectInput from '@/components/ui/SelectInput';
 import { useFinance } from '@/context/FinanceContext';
@@ -10,6 +11,7 @@ import ColumnMappingStep from './ColumnMappingStep';
 
 // step: 'upload' | 'mapping' | 'processing' | 'completed'
 const CSVImportFlowFaturas = ({ onSuccess, onCancel }) => {
+  const { t, i18n } = useTranslation();
   const { accounts, createInvoice } = useFinance();
   const { parseFilesRaw, autoDetectMapping, applyMapping, importData } = useInvoiceCSVImport();
   const { toast } = useToast();
@@ -48,7 +50,7 @@ const CSVImportFlowFaturas = ({ onSuccess, onCancel }) => {
   const handleProceedToMapping = async () => {
     if (selectedFiles.length === 0) return;
     if (!selectedAccountForAuto) {
-      toast({ title: 'Atenção', description: 'Selecione uma conta de cartão de crédito.', variant: 'destructive' });
+      toast({ title: t('invoices.import_select_account_title'), description: t('invoices.import_select_account_desc'), variant: 'destructive' });
       return;
     }
     try {
@@ -57,7 +59,7 @@ const CSVImportFlowFaturas = ({ onSuccess, onCancel }) => {
       setMapping(autoDetectMapping(headers));
       setStep('mapping');
     } catch (err) {
-      toast({ title: 'Erro', description: err.message || 'Erro ao ler arquivo.', variant: 'destructive' });
+      toast({ title: t('invoices.import_generic_error_title'), description: err.message || t('invoices.import_read_file_error'), variant: 'destructive' });
     }
   };
 
@@ -79,19 +81,19 @@ const CSVImportFlowFaturas = ({ onSuccess, onCancel }) => {
         const { data: rawData } = await parseFilesRaw([file]);
         const parsedData = applyMapping(rawData, mapping);
 
-        if (parsedData.length === 0) throw new Error('Nenhum dado válido encontrado no arquivo.');
+        if (parsedData.length === 0) throw new Error(t('invoices.import_no_valid_data'));
 
         const dates = parsedData.map(m => new Date(m.data)).filter(d => !isNaN(d.getTime()));
-        let autoFaturaName = 'Fatura Importada';
+        let autoFaturaName = t('invoices.default_name_fallback');
         let minDateStr = new Date().toISOString().split('T')[0];
         let maxDateStr = new Date().toISOString().split('T')[0];
 
         if (dates.length > 0) {
           const earliest = new Date(Math.min(...dates));
           const nextMonthDate = new Date(earliest.getUTCFullYear(), earliest.getUTCMonth() + 1, 1);
-          const monthStr = nextMonthDate.toLocaleString('pt-BR', { month: 'short', timeZone: 'UTC' });
+          const monthStr = nextMonthDate.toLocaleString(i18n.language, { month: 'short', timeZone: 'UTC' });
           const yearStr = nextMonthDate.getUTCFullYear();
-          autoFaturaName = `Fatura ${monthStr.charAt(0).toUpperCase() + monthStr.slice(1)}/${yearStr}`;
+          autoFaturaName = `${t('invoices.default_name_prefix')} ${monthStr.charAt(0).toUpperCase() + monthStr.slice(1)}/${yearStr}`;
           minDateStr = earliest.toISOString().split('T')[0];
           maxDateStr = nextMonthDate.toISOString().split('T')[0];
         }
@@ -104,13 +106,13 @@ const CSVImportFlowFaturas = ({ onSuccess, onCancel }) => {
           status: 'open',
         });
 
-        if (!newFatura?.id) throw new Error('Erro ao criar fatura no banco de dados.');
+        if (!newFatura?.id) throw new Error(t('invoices.import_create_error'));
 
         const { count } = await importData(newFatura.id, parsedData);
         resultItem = { ...resultItem, status: 'success', count };
         successCount++;
       } catch (err) {
-        resultItem.error = err.message || 'Erro desconhecido ao processar arquivo.';
+        resultItem.error = err.message || t('invoices.import_unknown_file_error');
         errorCount++;
       }
 
@@ -120,8 +122,8 @@ const CSVImportFlowFaturas = ({ onSuccess, onCancel }) => {
 
     setStep('completed');
     toast({
-      title: 'Processamento em Lote Concluído',
-      description: `${successCount} faturas importadas com sucesso, ${errorCount} erros.`,
+      title: t('invoices.import_batch_title'),
+      description: t('invoices.import_batch_desc', { success: successCount, errors: errorCount }),
       variant: errorCount > 0 ? 'destructive' : 'default',
     });
 
@@ -158,12 +160,12 @@ const CSVImportFlowFaturas = ({ onSuccess, onCancel }) => {
       <div className="p-1">
         <div className={`border-2 border-dashed border-border rounded-xl p-6 md:p-8 text-center flex flex-col items-center justify-center bg-muted/30 transition-all ${isProcessing ? 'opacity-50 pointer-events-none' : ''}`}>
           <UploadCloud className="w-12 h-12 text-muted-foreground mb-4" />
-          <h3 className="text-lg font-medium text-foreground mb-2">Importar Faturas em Lote</h3>
+          <h3 className="text-lg font-medium text-foreground mb-2">{t('invoices.import_bulk_title')}</h3>
           <p className="text-sm text-muted-foreground mb-4 max-w-md">
-            Selecione múltiplos arquivos CSV. Você poderá confirmar o mapeamento de colunas antes do processamento.
+            {t('invoices.import_bulk_desc')}
           </p>
           <Button onClick={() => fileInputRef.current?.click()} disabled={isProcessing}>
-            Selecionar Arquivos CSV
+            {t('invoices.import_select_files_button')}
           </Button>
           <input type="file" accept=".csv" multiple className="hidden" ref={fileInputRef} onChange={handleFileSelected} />
         </div>
@@ -171,7 +173,7 @@ const CSVImportFlowFaturas = ({ onSuccess, onCancel }) => {
         {selectedFiles.length > 0 && (
           <div className="mt-6 space-y-4">
             <div className="bg-card p-4 rounded-xl border">
-              <h4 className="font-semibold text-sm mb-3">Arquivos Selecionados ({selectedFiles.length})</h4>
+              <h4 className="font-semibold text-sm mb-3">{t('invoices.import_selected_files_title', { count: selectedFiles.length })}</h4>
               <ul className="space-y-2 max-h-[200px] overflow-y-auto custom-scrollbar pr-2">
                 {selectedFiles.map((file, idx) => (
                   <li key={`${file.name}-${idx}`} className={`flex items-center justify-between p-2 rounded-lg border text-sm ${isProcessing && currentFileIndex === idx ? 'border-primary bg-primary/5' : 'bg-background'}`}>
@@ -194,11 +196,11 @@ const CSVImportFlowFaturas = ({ onSuccess, onCancel }) => {
 
             <div className="bg-card p-4 rounded-xl border">
               <SelectInput
-                label="Conta de Cartão de Crédito para Novas Faturas *"
+                label={t('invoices.import_credit_card_account_label')}
                 value={selectedAccountForAuto}
                 onChange={(e) => setSelectedAccountForAuto(e.target.value)}
                 options={[
-                  { label: 'Selecione o cartão...', value: '' },
+                  { label: t('invoices.import_select_card_placeholder'), value: '' },
                   ...creditCardAccounts.map(a => ({ label: a.name, value: a.id })),
                 ]}
                 disabled={isProcessing}
@@ -212,14 +214,14 @@ const CSVImportFlowFaturas = ({ onSuccess, onCancel }) => {
           <div className="mt-4 p-4 bg-primary/10 rounded-xl flex items-center justify-center gap-3">
             <Loader2 className="w-5 h-5 text-primary animate-spin" />
             <span className="font-medium text-primary">
-              Processando arquivo {currentFileIndex + 1} de {selectedFiles.length}...
+              {t('invoices.import_processing_status', { current: currentFileIndex + 1, total: selectedFiles.length })}
             </span>
           </div>
         )}
 
         <div className="mt-6 flex flex-col-reverse sm:flex-row justify-end gap-3">
           <Button variant="outline" onClick={onCancel} disabled={isProcessing} className="w-full sm:w-auto">
-            Cancelar
+            {t('common.cancel')}
           </Button>
           {selectedFiles.length > 0 && (
             <Button
@@ -227,7 +229,7 @@ const CSVImportFlowFaturas = ({ onSuccess, onCancel }) => {
               disabled={isProcessing || !selectedAccountForAuto}
               className="w-full sm:w-auto"
             >
-              Continuar para Mapeamento
+              {t('invoices.import_continue_to_mapping')}
             </Button>
           )}
         </div>

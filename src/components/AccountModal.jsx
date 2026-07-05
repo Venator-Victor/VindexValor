@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
 import { Label } from '@/components/ui/label';
@@ -14,6 +15,7 @@ import { ACCOUNT_SUBTYPE_MAP, VALID_SUBTYPES } from '@/utils/accountMappings';
 import { validateCreditCardAccount } from '@/utils/accountValidation';
 
 const AccountModal = ({ isOpen, onClose, accountToEdit, initialData }) => {
+  const { t } = useTranslation();
   const { addAccount, updateAccount, createAccount } = useFinance();
   const { toast } = useToast();
   
@@ -93,23 +95,23 @@ const AccountModal = ({ isOpen, onClose, accountToEdit, initialData }) => {
     e.preventDefault();
     
     if (!formData.name.trim()) {
-      toast({ title: "Campo obrigatório", description: "O nome da conta é obrigatório.", variant: "destructive" });
+      toast({ title: t('common.required_field'), description: t('accounts.name_required_desc'), variant: "destructive" });
       return;
     }
 
     if (!formData.account_subtype || !VALID_SUBTYPES.includes(formData.account_subtype)) {
-      toast({ title: "Erro de Validação", description: "O subtipo de conta é inválido ou está ausente.", variant: "destructive" });
+      toast({ title: t('common.validation_error'), description: t('accounts.subtype_invalid_desc'), variant: "destructive" });
       return;
     }
 
     if (!formData.currency) {
-      toast({ title: "Campo obrigatório", description: "A moeda é obrigatória.", variant: "destructive" });
+      toast({ title: t('common.required_field'), description: t('accounts.currency_required_desc'), variant: "destructive" });
       return;
     }
 
     if (formData.type === 'Cartão de Crédito') {
       if (!validateDay(formData.closing_date) || !validateDay(formData.due_date)) {
-        toast({ title: "Erro de Validação", description: "Os dias de abertura e fechamento devem estar entre 1 e 31.", variant: "destructive" });
+        toast({ title: t('common.validation_error'), description: t('accounts.credit_card_days_invalid_desc'), variant: "destructive" });
         return;
       }
     }
@@ -133,7 +135,7 @@ const AccountModal = ({ isOpen, onClose, accountToEdit, initialData }) => {
 
     const validation = validateCreditCardAccount(payload);
     if (!validation.isValid) {
-      toast({ title: "Erro de Validação", description: validation.error, variant: "destructive" });
+      toast({ title: t('common.validation_error'), description: validation.error, variant: "destructive" });
       return;
     }
 
@@ -141,20 +143,20 @@ const AccountModal = ({ isOpen, onClose, accountToEdit, initialData }) => {
     try {
       if (accountToEdit) {
         await updateAccount(accountToEdit.id, payload);
-        toast({ title: "Conta atualizada com sucesso!" });
+        toast({ title: t('accounts.updated_success') });
       } else {
         const saveFn = addAccount || createAccount;
-        if (!saveFn) throw new Error("Função de salvamento não encontrada");
+        if (!saveFn) throw new Error(t('accounts.save_function_missing'));
         await saveFn(payload);
-        toast({ title: "Conta criada com sucesso!" });
+        toast({ title: t('accounts.created_success') });
       }
       onClose();
     } catch (error) {
       console.error("AccountModal: Erro ao salvar", error);
-      toast({ 
-        title: "Erro ao salvar conta", 
-        description: error?.message || "Erro desconhecido. Verifique o console.", 
-        variant: "destructive" 
+      toast({
+        title: t('common.save_error'),
+        description: error?.message || t('accounts.save_error_desc'),
+        variant: "destructive"
       });
     } finally {
       setIsSubmitting(false);
@@ -184,13 +186,13 @@ const AccountModal = ({ isOpen, onClose, accountToEdit, initialData }) => {
   };
 
   const typeOptions = [
-    { label: "Conta Corrente", value: "Conta Corrente" },
-    { label: "Cartão de Crédito", value: "Cartão de Crédito" },
-    { label: "Poupança", value: "Poupança" },
-    { label: "Investimentos", value: "Investimentos" },
-    { label: "Criptomoeda", value: "Criptomoeda" },
-    { label: "Dinheiro", value: "Dinheiro" },
-    { label: "Outros", value: "Outros" }
+    { label: t('accounts.type_checking'), value: "Conta Corrente" },
+    { label: t('accounts.type_credit_card'), value: "Cartão de Crédito" },
+    { label: t('accounts.type_savings'), value: "Poupança" },
+    { label: t('accounts.type_investment'), value: "Investimentos" },
+    { label: t('accounts.type_crypto'), value: "Criptomoeda" },
+    { label: t('accounts.type_cash'), value: "Dinheiro" },
+    { label: t('accounts.type_other'), value: "Outros" }
   ];
 
   const getSymbolFallback = (currencyCode) => {
@@ -207,12 +209,12 @@ const AccountModal = ({ isOpen, onClose, accountToEdit, initialData }) => {
     }}>
       <DialogContent className="max-h-[90vh] overflow-y-auto sm:max-w-[500px]">
         <DialogHeader>
-          <DialogTitle>{accountToEdit ? 'Editar Conta' : 'Nova Conta'}</DialogTitle>
+          <DialogTitle>{accountToEdit ? t('accounts.edit_title') : t('accounts.new')}</DialogTitle>
         </DialogHeader>
-        
+
         <form onSubmit={handleSubmit} className="space-y-4">
           <div>
-            <Label htmlFor="name">Nome da Conta *</Label>
+            <Label htmlFor="name">{t('accounts.name_label')}</Label>
             <input
               id="name"
               required
@@ -225,7 +227,7 @@ const AccountModal = ({ isOpen, onClose, accountToEdit, initialData }) => {
           <div className="grid grid-cols-2 gap-4">
             <div>
               <SelectInput
-                label="Tipo de Conta *"
+                label={t('accounts.type_label')}
                 value={formData.type}
                 onChange={handleTypeChange}
                 options={typeOptions}
@@ -234,7 +236,7 @@ const AccountModal = ({ isOpen, onClose, accountToEdit, initialData }) => {
             </div>
             <div>
               <SelectInput
-                label="Moeda *"
+                label={t('accounts.currency_label')}
                 value={formData.currency}
                 onChange={handleCurrencyChange}
                 options={formData.type === 'Criptomoeda' ? CRYPTO_OPTIONS : FIAT_OPTIONS}
@@ -247,7 +249,7 @@ const AccountModal = ({ isOpen, onClose, accountToEdit, initialData }) => {
           {formData.type === 'Cartão de Crédito' && (
             <div className="grid grid-cols-2 gap-4">
               <div>
-                <Label htmlFor="closing_date">Dia de Abertura</Label>
+                <Label htmlFor="closing_date">{t('accounts.opening_day_label')}</Label>
                 <input
                   id="closing_date"
                   type="number"
@@ -260,7 +262,7 @@ const AccountModal = ({ isOpen, onClose, accountToEdit, initialData }) => {
                 />
               </div>
               <div>
-                <Label htmlFor="due_date">Dia de Fechamento</Label>
+                <Label htmlFor="due_date">{t('accounts.closing_day_label')}</Label>
                 <input
                   id="due_date"
                   type="number"
@@ -277,7 +279,7 @@ const AccountModal = ({ isOpen, onClose, accountToEdit, initialData }) => {
 
           <div className="grid grid-cols-2 gap-4">
             <div>
-              <Label htmlFor="bank">Instituição (Opcional)</Label>
+              <Label htmlFor="bank">{t('accounts.institution_optional_label')}</Label>
               <input
                 id="bank"
                 className="w-full px-3 py-2 bg-background border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary/50 mt-1 text-foreground"
@@ -287,7 +289,7 @@ const AccountModal = ({ isOpen, onClose, accountToEdit, initialData }) => {
             </div>
             {formData.type === 'Cartão de Crédito' ? (
               <div>
-                <Label htmlFor="credit_limit">Limite do Cartão *</Label>
+                <Label htmlFor="credit_limit">{t('accounts.credit_limit_label')}</Label>
                 <div className="mt-1">
                   <NumberInput
                     id="credit_limit"
@@ -300,7 +302,7 @@ const AccountModal = ({ isOpen, onClose, accountToEdit, initialData }) => {
               </div>
             ) : (
               <div>
-                <Label htmlFor="initial_balance">Saldo Inicial</Label>
+                <Label htmlFor="initial_balance">{t('accounts.initial_balance')}</Label>
                 <div className="mt-1">
                   <NumberInput
                     id="initial_balance"
@@ -315,8 +317,8 @@ const AccountModal = ({ isOpen, onClose, accountToEdit, initialData }) => {
           
           {formData.type === 'Criptomoeda' && (
             <div>
-              <Label htmlFor="manualRate">Cotação Atualizada (em BRL)</Label>
-              <div className="text-xs text-muted-foreground mb-1">Usada para calcular o valor patrimonial</div>
+              <Label htmlFor="manualRate">{t('accounts.crypto_rate_label')}</Label>
+              <div className="text-xs text-muted-foreground mb-1">{t('accounts.crypto_rate_hint')}</div>
               <NumberInput
                 id="manualRate"
                 value={formData.manual_rate}
@@ -338,9 +340,9 @@ const AccountModal = ({ isOpen, onClose, accountToEdit, initialData }) => {
           />
 
           <DialogFooter className="mt-4">
-            <Button type="button" variant="outline" onClick={onClose} disabled={isSubmitting}>Cancelar</Button>
+            <Button type="button" variant="outline" onClick={onClose} disabled={isSubmitting}>{t('common.cancel')}</Button>
             <Button type="submit" disabled={isSubmitting}>
-              {isSubmitting ? 'Salvando...' : 'Salvar'}
+              {isSubmitting ? t('common.saving') : t('common.save')}
             </Button>
           </DialogFooter>
         </form>

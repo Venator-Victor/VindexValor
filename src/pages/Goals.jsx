@@ -27,7 +27,7 @@ import { formatCurrency } from '@/utils/calculations';
 import { differenceInDays, parseISO, isPast } from 'date-fns';
 
 const Goals = () => {
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
   const { goals, addGoal, updateGoal, deleteGoal } = useFinance();
   const { goalsViewMode, setGoalsViewPreference } = useTheme();
   
@@ -406,7 +406,7 @@ const Goals = () => {
                                                 {goal.deadline ? (
                                                     <div className="flex flex-col">
                                                         <span className={`text-sm ${isOverdue ? 'text-red-500 font-medium' : 'text-gray-600 dark:text-gray-300'}`}>
-                                                            {new Date(goal.deadline).toLocaleDateString('pt-BR')}
+                                                            {new Date(goal.deadline).toLocaleDateString(i18n.language)}
                                                         </span>
                                                         <span className="text-xs text-gray-400">
                                                             {isOverdue ? t('goals.overdue') : t('goals.days_left', { count: daysLeft })}

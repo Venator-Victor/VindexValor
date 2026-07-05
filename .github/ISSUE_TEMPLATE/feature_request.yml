@@ -1,0 +1,44 @@
+name: "✨ Feature request / Sugestão de funcionalidade"
+description: "Suggest an idea for VindexValor / Sugira uma ideia para o VindexValor"
+title: "[Feature]: "
+labels: ["enhancement"]
+body:
+  - type: textarea
+    id: problem
+    attributes:
+      label: "Is your feature request related to a problem? / Sua sugestão está relacionada a um problema?"
+      description: "A clear and concise description of what the problem is. Ex. I'm always frustrated when [...] / Uma descrição clara e concisa do problema. Ex. Fico sempre frustrado quando [...]"
+    validations:
+      required: true
+
+  - type: textarea
+    id: solution
+    attributes:
+      label: "Describe the solution you'd like / Descreva a solução que você gostaria"
+      description: "A clear and concise description of what you want to happen. / Uma descrição clara e concisa do que você gostaria que acontecesse."
+    validations:
+      required: true
+
+  - type: textarea
+    id: alternatives
+    attributes:
+      label: "Describe alternatives you've considered / Descreva alternativas que você considerou"
+      description: "A clear and concise description of any alternative solutions or features you've considered. / Uma descrição clara e concisa de quaisquer soluções ou funcionalidades alternativas que você considerou."
+    validations:
+      required: false
+
+  - type: textarea
+    id: additional-context
+    attributes:
+      label: "Additional context / Contexto adicional"
+      description: "Add any other context or screenshots about the feature request here. / Adicione qualquer outro contexto ou capturas de tela sobre a sugestão aqui."
+    validations:
+      required: false
+
+  - type: checkboxes
+    id: checklist
+    attributes:
+      label: "Checklist"
+      options:
+        - label: "I searched existing issues and this feature hasn't been requested yet / Procurei nas issues existentes e essa funcionalidade ainda não foi sugerida"
+          required: true

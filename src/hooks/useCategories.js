@@ -1,9 +1,11 @@
+import { useTranslation } from 'react-i18next';
 import { useFinance } from '@/context/FinanceContext';
 import { useAuth } from '@/context/SupabaseAuthContext';
 import { useToast } from '@/components/ui/use-toast';
 import { logSecurityEvent } from '@/utils/securityUtils';
 
 export const useCategories = () => {
+  const { t } = useTranslation();
   const { categories, addCategory, deleteCategory } = useFinance();
   const { user } = useAuth();
   const { toast } = useToast();
@@ -21,7 +23,7 @@ export const useCategories = () => {
   const getCategoriesWithNone = () => {
     if (!user) return [];
     return [
-      { id: 'none', name: 'Nenhuma', color: '#9CA3AF', icon: 'bx bx-x' },
+      { id: 'none', name: t('common.none_option'), color: '#9CA3AF', icon: 'bx bx-x' },
       ...categories
     ];
   };
@@ -29,7 +31,7 @@ export const useCategories = () => {
   const createCategory = async (categoryData) => {
     if (!user) {
       logSecurityEvent('UNAUTHORIZED_CATEGORY_CREATE', null, { action: 'createCategory' });
-      toast({ title: 'Acesso Negado', description: 'Usuário não autenticado.', variant: 'destructive' });
+      toast({ title: t('common.access_denied'), description: t('common.user_not_authenticated'), variant: 'destructive' });
       return false;
     }
     try {
@@ -44,7 +46,7 @@ export const useCategories = () => {
   const safeDeleteCategory = async (id) => {
     if (!user) {
       logSecurityEvent('UNAUTHORIZED_CATEGORY_DELETE', null, { categoryId: id });
-      toast({ title: 'Acesso Negado', description: 'Usuário não autenticado.', variant: 'destructive' });
+      toast({ title: t('common.access_denied'), description: t('common.user_not_authenticated'), variant: 'destructive' });
       return;
     }
     await deleteCategory(id);

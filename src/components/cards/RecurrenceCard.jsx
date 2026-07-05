@@ -7,7 +7,7 @@ import { useToast } from '@/components/ui/use-toast';
 import { Pencil, Trash, Clock5, Check, Checks } from '@/components/BxIcon';
 
 const RecurrenceCard = ({ item, onEdit, onDelete, onToggleStatus }) => {
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
   const { parcels, payParcel, processRecurring } = useFinance();
   const { toast } = useToast();
   const [isProcessing, setIsProcessing] = useState(false);
@@ -120,7 +120,7 @@ const RecurrenceCard = ({ item, onEdit, onDelete, onToggleStatus }) => {
                 <div className="flex flex-col">
                    <span className="text-[10px] text-gray-400 uppercase tracking-wider font-semibold">{t('recurrences.next_label')}</span>
                    <span className="text-sm font-bold text-gray-700 dark:text-gray-200">
-                      {item.next_date ? new Date(item.next_date).toLocaleDateString('pt-BR') : '—'}
+                      {item.next_date ? new Date(item.next_date).toLocaleDateString(i18n.language) : '—'}
                    </span>
                 </div>
                 <button

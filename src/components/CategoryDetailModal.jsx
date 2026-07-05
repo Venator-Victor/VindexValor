@@ -9,7 +9,7 @@ import BxIcon from '@/components/BxIcon';
 import { PRIMARY, DANGER } from '@/utils/colors';
 
 const CategoryDetailModal = ({ isOpen, onClose, category, transactions, onEdit, onDelete }) => {
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
   const categoryTransactions = useMemo(() => {
     if (!category || !transactions) return [];
     return transactions
@@ -134,7 +134,7 @@ const CategoryDetailModal = ({ isOpen, onClose, category, transactions, onEdit, 
                       {t.description || '-'}
                     </p>
                     <p className="text-xs text-muted-foreground">
-                      {new Date(t.date).toLocaleDateString('pt-BR', { timeZone: 'UTC' })}
+                      {new Date(t.date).toLocaleDateString(i18n.language, { timeZone: 'UTC' })}
                     </p>
                   </div>
                   <div

@@ -1,5 +1,6 @@
 import { PRIMARY, PRIMARY_HOVER, SUCCESS, DANGER, DANGER_DARK, WARNING, INFO, successAlpha, dangerAlpha, infoAlpha, primaryAlpha, chartGrid, chartTooltipBg, chartTooltipBorder, chartText, chartCursor } from '@/utils/colors';
 import React, { useState, useEffect, useMemo } from 'react';
+import { useTranslation } from 'react-i18next';
 import { 
   LineChart, 
   Line, 
@@ -18,6 +19,7 @@ import { motion } from 'framer-motion';
 import { Button } from '@/components/ui/button';
 
 const CustomTooltip = ({ active, payload }) => {
+  const { t } = useTranslation();
   if (active && payload && payload.length) {
     const data = payload[0]?.payload;
 
@@ -32,9 +34,9 @@ const CustomTooltip = ({ active, payload }) => {
     return (
       <div className="bg-white dark:bg-vindex-card p-3 border border-gray-200 dark:border-vindex-border shadow-lg rounded-xl text-sm z-50">
         <p className="font-semibold text-gray-900 dark:text-gray-100 mb-2 capitalize flex items-center gap-2">
-          {data?.fullName || 'Data'}
+          {data?.fullName || t('inflation.data_label_fallback')}
           {data?.isEstimated && (
-            <span className="text-[10px] bg-amber-100 text-amber-700 px-1.5 py-0.5 rounded-full font-normal">Est.</span>
+            <span className="text-[10px] bg-amber-100 text-amber-700 px-1.5 py-0.5 rounded-full font-normal">{t('inflation.estimated_badge')}</span>
           )}
         </p>
 
@@ -42,7 +44,7 @@ const CustomTooltip = ({ active, payload }) => {
           <div className="flex items-center gap-2">
             <div className="w-2 h-2 rounded-full bg-blue-500" />
             <div className="flex flex-col">
-              <span className="text-xs text-gray-500 dark:text-gray-400">Orçamento Nominal</span>
+              <span className="text-xs text-gray-500 dark:text-gray-400">{t('inflation.budget_nominal')}</span>
               <span className="font-mono font-bold text-blue-600 dark:text-blue-400">
                 {isValidNominal ? formatCurrency(nominalValue) : 'N/A'}
               </span>
@@ -52,7 +54,7 @@ const CustomTooltip = ({ active, payload }) => {
           <div className="flex items-center gap-2">
             <div className="w-2 h-2 rounded-full bg-red-500" />
             <div className="flex flex-col">
-              <span className="text-xs text-gray-500 dark:text-gray-400">Orçamento Corrigido</span>
+              <span className="text-xs text-gray-500 dark:text-gray-400">{t('inflation.budget_corrected')}</span>
               <span className="font-mono font-bold text-red-600 dark:text-red-400">
                 {isValidCorrected ? formatCurrency(correctedValue) : 'N/A'}
               </span>
@@ -60,7 +62,7 @@ const CustomTooltip = ({ active, payload }) => {
           </div>
 
            <div className="pt-2 mt-2 border-t border-gray-100 dark:border-gray-800 text-xs text-gray-400">
-              Inflação no mês: <span className="font-medium text-gray-600 dark:text-gray-300">{isValidInflation ? inflationRate.toFixed(2) : 'N/A'}%</span>
+              {t('inflation.rate_this_month')} <span className="font-medium text-gray-600 dark:text-gray-300">{isValidInflation ? inflationRate.toFixed(2) : 'N/A'}%</span>
            </div>
         </div>
       </div>
@@ -70,6 +72,7 @@ const CustomTooltip = ({ active, payload }) => {
 };
 
 const InflationBudgetChart = () => {
+  const { t, i18n } = useTranslation();
   const { categories, isLoading: isFinanceLoading } = useFinance();
   const { theme } = useTheme();
   const isDark = theme === 'dark';
@@ -104,8 +107,8 @@ const InflationBudgetChart = () => {
         months.push({
           month: d.getMonth() + 1,
           year: d.getFullYear(),
-          name: d.toLocaleDateString('pt-BR', { month: 'short' }).replace('.', ''),
-          fullName: d.toLocaleDateString('pt-BR', { month: 'long', year: 'numeric' })
+          name: d.toLocaleDateString(i18n.language, { month: 'short' }).replace('.', ''),
+          fullName: d.toLocaleDateString(i18n.language, { month: 'long', year: 'numeric' })
         });
       }
 
@@ -125,7 +128,7 @@ const InflationBudgetChart = () => {
           }
         });
 
-        if (apiError) throw new Error(apiError.message || 'Erro na comunicação com o servidor');
+        if (apiError) throw new Error(apiError.message || t('inflation.communication_error'));
         if (responseData?.error) throw new Error(responseData.error);
         
         // Validate response format
@@ -169,7 +172,7 @@ const InflationBudgetChart = () => {
 
       } catch (err) {
         if (isMounted) {
-          setError(err.message || 'Não foi possível carregar os dados históricos.');
+          setError(err.message || t('inflation.load_error_desc'));
         }
       } finally {
         if (isMounted) {
@@ -183,7 +186,7 @@ const InflationBudgetChart = () => {
     return () => {
       isMounted = false;
     };
-  }, [totalNominalBudget, isFinanceLoading, retryCount]);
+  }, [totalNominalBudget, isFinanceLoading, retryCount, i18n.language, t]);
 
   const handleRetry = () => {
     setRetryCount(prev => prev + 1);
@@ -207,17 +210,17 @@ const InflationBudgetChart = () => {
         <div className="bg-red-50 dark:bg-red-900/20 p-3 rounded-full mb-4">
           <AlertCircle className="w-8 h-8 text-red-500 dark:text-red-400" />
         </div>
-        <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-2">Erro ao carregar dados</h3>
+        <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-2">{t('common.error_loading')}</h3>
         <p className="text-sm text-gray-500 dark:text-gray-400 max-w-xs mb-6">
           {error}
         </p>
-        <Button 
+        <Button
           onClick={handleRetry}
-          variant="outline" 
+          variant="outline"
           className="gap-2"
         >
           <RefreshCw className="w-4 h-4" />
-          Tentar novamente
+          {t('common.retry')}
         </Button>
       </div>
     );
@@ -228,7 +231,7 @@ const InflationBudgetChart = () => {
        <div className="h-full min-h-[400px] w-full bg-white dark:bg-vindex-card rounded-2xl border border-gray-200 dark:border-vindex-border p-6 flex items-center justify-center">
          <div className="flex flex-col items-center gap-2">
             <Loader2 className="w-8 h-8 animate-spin text-gray-400" />
-            <p className="text-sm text-gray-400">Calculando impacto da inflação...</p>
+            <p className="text-sm text-gray-400">{t('inflation.calculating')}</p>
          </div>
        </div>
     );
@@ -244,7 +247,7 @@ const InflationBudgetChart = () => {
       <div className="absolute top-6 left-6 z-10 flex flex-col items-start">
         <div className="flex items-center gap-2 mb-1">
             <div className="w-2 h-2 rounded-full bg-blue-500"></div>
-            <span className="text-sm text-gray-500 dark:text-gray-400 font-medium">Orçamento Nominal</span>
+            <span className="text-sm text-gray-500 dark:text-gray-400 font-medium">{t('inflation.budget_nominal')}</span>
         </div>
         <div className="text-2xl font-bold text-gray-900 dark:text-white tracking-tight">
             {formatCurrency(currentValues.nominal)}
@@ -255,7 +258,7 @@ const InflationBudgetChart = () => {
       <div className="absolute top-6 right-6 z-10 flex flex-col items-end">
         <div className="flex items-center gap-2 mb-1">
             <div className="w-2 h-2 rounded-full bg-red-500"></div>
-            <span className="text-sm text-gray-500 dark:text-gray-400 font-medium">Orçamento Corrigido</span>
+            <span className="text-sm text-gray-500 dark:text-gray-400 font-medium">{t('inflation.budget_corrected')}</span>
         </div>
         <div className="text-2xl font-bold text-gray-900 dark:text-white tracking-tight">
             {formatCurrency(currentValues.corrected)}
@@ -266,7 +269,7 @@ const InflationBudgetChart = () => {
       {chartData.some(d => d.isEstimated) && (
         <div className="absolute top-20 left-6 z-20 flex items-center gap-1 text-xs text-amber-600 bg-amber-50 dark:text-amber-400 dark:bg-amber-900/20 px-2 py-1 rounded-full border border-amber-100 dark:border-amber-900/30">
             <AlertCircle className="w-3 h-3" />
-            <span>Dados parciais ou estimados</span>
+            <span>{t('inflation.partial_data_warning')}</span>
         </div>
       )}
 
@@ -291,9 +294,9 @@ const InflationBudgetChart = () => {
               />
               <Tooltip content={<CustomTooltip />} cursor={{ strokeDasharray: '5 5', stroke: isDark ? '#525252' : '#d4d4d4' }} />
               
-              <Line 
+              <Line
                 yAxisId="left"
-                name="Orçamento Nominal"
+                name={t('inflation.budget_nominal')}
                 type="monotone" 
                 dataKey="nominal" 
                 stroke={INFO} 
@@ -304,9 +307,9 @@ const InflationBudgetChart = () => {
                 animationDuration={1500}
               />
               
-              <Line 
+              <Line
                 yAxisId="left"
-                name="Orçamento Corrigido"
+                name={t('inflation.budget_corrected')}
                 type="monotone" 
                 dataKey="corrected" 
                 stroke={DANGER} 

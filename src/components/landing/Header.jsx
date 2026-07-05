@@ -15,11 +15,15 @@ import {
 } from '@/components/ui/dropdown-menu';
 
 const Header = () => {
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
   const [isScrolled, setIsScrolled] = useState(false);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const { theme, toggleTheme } = useTheme();
   const { user, signOut } = useAuth();
+
+  const toggleLanguage = () => {
+    i18n.changeLanguage(i18n.language === 'pt-BR' ? 'en-US' : 'pt-BR');
+  };
 
   useEffect(() => {
     const handleScroll = () => {
@@ -68,9 +72,19 @@ const Header = () => {
           </ul>
           
           <div className="flex items-center gap-3">
-            <Button 
-              variant="ghost" 
-              size="icon" 
+            <Button
+              variant="ghost"
+              size="icon"
+              onClick={toggleLanguage}
+              aria-label={t('landing.toggle_language')}
+              className={isScrolled ? 'text-muted-foreground hover:text-foreground' : 'text-white/80 hover:text-white hover:bg-white/10'}
+            >
+              <span className="text-xs font-bold">{i18n.language === 'pt-BR' ? 'PT' : 'EN'}</span>
+            </Button>
+
+            <Button
+              variant="ghost"
+              size="icon"
               onClick={toggleTheme}
               aria-label={t('landing.toggle_theme')}
               className={isScrolled ? 'text-muted-foreground hover:text-foreground' : 'text-white/80 hover:text-white hover:bg-white/10'}
@@ -127,16 +141,26 @@ const Header = () => {
 
         {/* Mobile Menu Toggle & Actions */}
         <div className="flex items-center gap-2 md:hidden">
-          <Button 
-            variant="ghost" 
-            size="icon" 
-            onClick={toggleTheme} 
+          <Button
+            variant="ghost"
+            size="icon"
+            onClick={toggleLanguage}
+            aria-label={t('landing.toggle_language')}
+            className={isScrolled ? 'text-muted-foreground' : 'text-white/80'}
+          >
+            <span className="text-xs font-bold">{i18n.language === 'pt-BR' ? 'PT' : 'EN'}</span>
+          </Button>
+
+          <Button
+            variant="ghost"
+            size="icon"
+            onClick={toggleTheme}
             className={isScrolled ? 'text-muted-foreground' : 'text-white/80'}
           >
             {theme === 'dark' ? <Sun size={20} /> : <Moon size={20} />}
           </Button>
 
-          <button 
+          <button
             className={isScrolled ? 'text-foreground p-2' : 'text-white p-2'}
             onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
           >

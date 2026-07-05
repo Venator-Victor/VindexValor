@@ -1,15 +1,16 @@
 import React, { useState, useRef, useEffect } from 'react';
+import { useTranslation } from 'react-i18next';
 import { motion, AnimatePresence } from 'framer-motion';
 import { ChevronDown, Check, Plus } from '@/components/BxIcon';
 import { cn } from '@/lib/utils';
 import { Label } from '@/components/ui/label';
 
-const SelectInput = ({ 
-  label, 
-  options = [], 
-  value, 
-  onChange, 
-  placeholder = "Selecione...", 
+const SelectInput = ({
+  label,
+  options = [],
+  value,
+  onChange,
+  placeholder,
   disabled = false,
   className,
   id,
@@ -17,6 +18,8 @@ const SelectInput = ({
   onCreateNew,
   currencySymbol = null
 }) => {
+  const { t } = useTranslation();
+  const resolvedPlaceholder = placeholder ?? t('common.select_placeholder');
   const [isOpen, setIsOpen] = useState(false);
   const containerRef = useRef(null);
 
@@ -45,12 +48,9 @@ const SelectInput = ({
 
   const getDisplayLabel = () => {
     if (selectedOption) {
-      if (selectedOption.value === "" && selectedOption.label === "Nenhuma") {
-          return "Nenhuma";
-      }
       return selectedOption.label;
     }
-    return placeholder;
+    return resolvedPlaceholder;
   };
 
   return (
@@ -93,7 +93,7 @@ const SelectInput = ({
           >
             {options.length === 0 && !showCreateOption ? (
               <div className="px-2 py-2 text-sm text-gray-500 dark:text-vindex-text/60 text-center">
-                Sem opções
+                {t('common.no_options')}
               </div>
             ) : (
               options.map((option) => (
@@ -126,7 +126,7 @@ const SelectInput = ({
                   className="relative flex w-full cursor-pointer select-none items-center rounded-sm py-2 pl-3 pr-9 text-sm font-medium text-blue-600 dark:text-blue-400 outline-none transition-colors hover:bg-blue-50 dark:hover:bg-blue-900/20"
                 >
                   <Plus className="h-4 w-4 mr-2" />
-                  <span className="block truncate">Criar novo(a)</span>
+                  <span className="block truncate">{t('common.create_new')}</span>
                 </button>
               </>
             )}

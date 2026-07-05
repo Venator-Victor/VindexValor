@@ -19,8 +19,19 @@ import AccountModal from '@/components/AccountModal';
 import { useSortableList } from '@/hooks/useSortableList';
 import { PERIOD_OPTIONS } from '@/utils/periodOptions';
 
+const ACCOUNT_TYPE_LABEL_KEYS = {
+  'Conta Corrente': 'accounts.type_checking',
+  'Cartão de Crédito': 'accounts.type_credit_card',
+  'Poupança': 'accounts.type_savings',
+  'Investimentos': 'accounts.type_investment',
+  'Criptomoeda': 'accounts.type_crypto',
+  'Dinheiro': 'accounts.type_cash',
+  'Outros': 'accounts.type_other',
+};
+
 const Accounts = () => {
   const { t } = useTranslation();
+  const getAccountTypeLabel = (type) => t(ACCOUNT_TYPE_LABEL_KEYS[type] || type);
   const { accounts, transactions, removeAccount: deleteAccount, settings, saveSettings } = useFinance();
   const { toast } = useToast();
   
@@ -55,10 +66,10 @@ const Accounts = () => {
         await saveSettings({ accounts_view_preference: mode });
         toast({ title: t('accounts.view_updated'), description: t('accounts.view_updated_desc') });
       } else {
-        toast({ title: "Aviso", description: "Função de salvar não disponível no contexto.", variant: "destructive" });
+        toast({ title: t('common.warning'), description: t('accounts.save_pref_unavailable_desc'), variant: "destructive" });
       }
     } catch (error) {
-      toast({ title: "Erro ao salvar preferência", description: error.message, variant: "destructive" });
+      toast({ title: t('accounts.save_pref_error_title'), description: error.message, variant: "destructive" });
     }
   };
 
@@ -97,13 +108,13 @@ const Accounts = () => {
   return (
     <div className="space-y-6 pb-20 md:pb-0">
       <Helmet>
-        <title>VindexValor - Accounts</title>
+        <title>VindexValor - {t('accounts.title')}</title>
       </Helmet>
 
       <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
         <div>
-          <h1 className="text-3xl font-bold text-gray-900 dark:text-gray-50 mb-2">Accounts</h1>
-          <p className="text-gray-700 dark:text-gray-300">Gerencie suas contas bancárias e carteiras de cripto</p>
+          <h1 className="text-3xl font-bold text-gray-900 dark:text-gray-50 mb-2">{t('accounts.title')}</h1>
+          <p className="text-gray-700 dark:text-gray-300">{t('accounts.subtitle')}</p>
         </div>
         
         <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-4 w-full md:w-auto">
@@ -126,8 +137,8 @@ const Accounts = () => {
                 }`}
             >
                 {showNetWorth ? <Eye size={16} /> : <EyeOff size={16} />}
-                <span className="hidden sm:inline">Patrimônio Líquido</span>
-                <span className="sm:hidden">Patrimônio</span>
+                <span className="hidden sm:inline">{t('accounts.net_worth')}</span>
+                <span className="sm:hidden">{t('accounts.net_worth_short')}</span>
             </Button>
 
             <div className="flex items-center gap-2">
@@ -154,8 +165,8 @@ const Accounts = () => {
                     onMouseLeave={(e) => e.currentTarget.style.backgroundColor = PRIMARY}
                 >
                     <Plus size={20} className="mr-2" />
-                    <span className="hidden sm:inline">Nova Conta</span>
-                    <span className="sm:hidden">Nova</span>
+                    <span className="hidden sm:inline">{t('accounts.new')}</span>
+                    <span className="sm:hidden">{t('accounts.new_short')}</span>
                 </Button>
 
                 <AccountSuggestionsModal 
@@ -184,7 +195,7 @@ const Accounts = () => {
       />
 
       {sortedAccounts.length === 0 ? (
-        <EmptyState icon={WalletCards} message="Você ainda não tem contas cadastradas." buttonLabel="Criar Primeira Conta" onButtonClick={handleOpenSuggestions} />
+        <EmptyState icon={WalletCards} message={t('accounts.empty')} buttonLabel={t('accounts.create_first')} onButtonClick={handleOpenSuggestions} />
       ) : (
         <>
           {viewMode === 'card' ? (
@@ -210,27 +221,27 @@ const Accounts = () => {
                           {account.name} {account.currency && `(${account.currency})`}
                         </h3>
                         <p className="text-sm text-gray-700 dark:text-gray-300">
-                          {account.type === 'Criptomoeda' && account.currency ? `Criptomoeda (${account.currency})` : account.type}
+                          {account.type === 'Criptomoeda' && account.currency ? `${getAccountTypeLabel(account.type)} (${account.currency})` : getAccountTypeLabel(account.type)}
                         </p>
                       </div>
                     </div>
                   </div>
 
                   <div className="mb-4">
-                    <p className="text-sm text-gray-700 dark:text-gray-300 mb-1">Banco / Instituição</p>
+                    <p className="text-sm text-gray-700 dark:text-gray-300 mb-1">{t('accounts.bank_institution')}</p>
                     <p className="text-gray-900 dark:text-gray-50 font-medium">{account.bank || '-'}</p>
                   </div>
 
                   {account.type === 'Cartão de Crédito' || account.account_subtype === 'credit_card' ? (
                     <div className="flex justify-between items-center mb-2">
                       <div>
-                        <p className="text-sm text-gray-700 dark:text-gray-300 mb-1">Fatura Atual</p>
+                        <p className="text-sm text-gray-700 dark:text-gray-300 mb-1">{t('accounts.current_invoice')}</p>
                         <p className="text-2xl font-bold text-red-600 dark:text-vindex-danger crypto-symbol">
                           {formatCurrencyWithSymbol(account.current_fatura_value || 0, account.currency)}
                         </p>
                       </div>
                       <div className="text-right">
-                         <p className="text-xs text-gray-500 mb-1">Limite Disp.</p>
+                         <p className="text-xs text-gray-500 mb-1">{t('accounts.available_limit')}</p>
                          <p className="text-sm text-gray-600 dark:text-gray-400 font-medium crypto-symbol">
                            {formatCurrencyWithSymbol(account.available_limit || 0, account.currency)}
                          </p>
@@ -239,13 +250,13 @@ const Accounts = () => {
                   ) : (
                     <div className="flex justify-between items-center mb-2">
                       <div>
-                        <p className="text-sm text-gray-700 dark:text-gray-300 mb-1">Saldo Atual</p>
+                        <p className="text-sm text-gray-700 dark:text-gray-300 mb-1">{t('accounts.current_balance')}</p>
                         <p className={`text-2xl font-bold crypto-symbol ${account.balance >= 0 ? 'text-green-600 dark:text-vindex-success' : 'text-red-600 dark:text-vindex-danger'}`}>
                           {formatCurrencyWithSymbol(account.balance, account.currency)}
                         </p>
                       </div>
                       <div className="text-right">
-                         <p className="text-xs text-gray-500 mb-1">Saldo Inicial</p>
+                         <p className="text-xs text-gray-500 mb-1">{t('accounts.initial_balance')}</p>
                          <p className="text-sm text-gray-600 dark:text-gray-400 font-medium crypto-symbol">
                            {formatCurrencyWithSymbol(account.initial_balance, account.currency)}
                          </p>
@@ -261,7 +272,7 @@ const Accounts = () => {
                       className="flex-1 hover:bg-gray-100 dark:hover:bg-vindex-border text-gray-700 dark:text-gray-300 border-gray-200 dark:border-vindex-border rounded-lg"
                     >
                       <Pencil size={14} className="mr-1" />
-                      Editar
+                      {t('common.edit')}
                     </Button>
                     <Button
                       size="sm"
@@ -270,7 +281,7 @@ const Accounts = () => {
                       className="flex-1 hover:bg-red-50 dark:hover:bg-vindex-danger/20 hover:text-red-600 dark:hover:text-vindex-danger text-gray-700 dark:text-gray-300 border-gray-200 dark:border-vindex-border hover:border-red-200 dark:hover:border-vindex-danger/50 rounded-lg"
                     >
                       <Trash size={14} className="mr-1" />
-                      Excluir
+                      {t('common.delete')}
                     </Button>
                   </div>
                 </motion.div>
@@ -282,12 +293,12 @@ const Accounts = () => {
                    <table className="w-full text-sm">
                       <thead className="bg-gray-50 dark:bg-vindex-bg border-b border-gray-200 dark:border-vindex-border">
                          <tr>
-                            <SortableHeader label="Conta" column="name" sortConfig={sortConfig} onSort={requestSort} />
-                            <SortableHeader label="Tipo" column="type" sortConfig={sortConfig} onSort={requestSort} />
-                            <th className="px-6 py-3 text-left font-medium text-gray-700 dark:text-gray-300">Banco</th>
-                            <th className="px-6 py-3 text-left font-medium text-gray-700 dark:text-gray-300">Saldo/Fatura Atual</th>
-                            <th className="px-6 py-3 text-left font-medium text-gray-700 dark:text-gray-300">Inicial/Limite Disp.</th>
-                            <th className="px-6 py-3 text-right font-medium text-gray-700 dark:text-gray-300">Ações</th>
+                            <SortableHeader label={t('accounts.col_account')} column="name" sortConfig={sortConfig} onSort={requestSort} />
+                            <SortableHeader label={t('accounts.col_type')} column="type" sortConfig={sortConfig} onSort={requestSort} />
+                            <th className="px-6 py-3 text-left font-medium text-gray-700 dark:text-gray-300">{t('accounts.col_bank')}</th>
+                            <th className="px-6 py-3 text-left font-medium text-gray-700 dark:text-gray-300">{t('accounts.col_balance')}</th>
+                            <th className="px-6 py-3 text-left font-medium text-gray-700 dark:text-gray-300">{t('accounts.col_initial')}</th>
+                            <th className="px-6 py-3 text-right font-medium text-gray-700 dark:text-gray-300">{t('accounts.col_actions')}</th>
                          </tr>
                       </thead>
                       <tbody className="divide-y divide-gray-200 dark:divide-vindex-border">
@@ -307,7 +318,7 @@ const Accounts = () => {
                                   </div>
                                </td>
                                <td className="px-6 py-4 text-gray-700 dark:text-gray-300">
-                                  {account.type === 'Criptomoeda' && account.currency ? `Criptomoeda (${account.currency})` : account.type}
+                                  {account.type === 'Criptomoeda' && account.currency ? `${getAccountTypeLabel(account.type)} (${account.currency})` : getAccountTypeLabel(account.type)}
                                </td>
                                <td className="px-6 py-4 text-gray-900 dark:text-gray-50 font-medium">
                                   {account.bank || '-'}
@@ -325,7 +336,7 @@ const Accounts = () => {
                                </td>
                                <td className="px-6 py-4 text-gray-600 dark:text-gray-400 crypto-symbol">
                                   {(account.type === 'Cartão de Crédito' || account.account_subtype === 'credit_card') ? (
-                                    <span>{formatCurrencyWithSymbol(account.available_limit || 0, account.currency)} (Disp.)</span>
+                                    <span>{formatCurrencyWithSymbol(account.available_limit || 0, account.currency)} {t('accounts.available_suffix')}</span>
                                   ) : (
                                     <span>{formatCurrencyWithSymbol(account.initial_balance, account.currency)}</span>
                                   )}
@@ -363,7 +374,7 @@ const Accounts = () => {
       <DeleteConfirmationDialog
         open={!!deleteId}
         onOpenChange={() => setDeleteId(null)}
-        description="Tem certeza que deseja excluir esta conta?"
+        description={t('accounts.delete_confirm')}
         onConfirm={() => handleDelete(deleteId)}
       />
     </div>

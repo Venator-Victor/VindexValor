@@ -6,7 +6,7 @@ import { Calendar as CalendarClock } from '@/components/BxIcon';
 import { CalendarCheck } from '@/components/BxIcon';
 
 const UpcomingRecurrencesSection = ({ recurrences, selectedPeriod }) => {
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
 
   // Filter recurrences based on selected period window
   const upcoming = useMemo(() => {
@@ -42,7 +42,7 @@ const UpcomingRecurrencesSection = ({ recurrences, selectedPeriod }) => {
   const formatDate = (dateString) => {
     if (!dateString) return t('dashboard.undefined_date');
     const date = new Date(dateString + 'T12:00:00');
-    return date.toLocaleDateString('pt-BR', { day: '2-digit', month: 'short' });
+    return date.toLocaleDateString(i18n.language, { day: '2-digit', month: 'short' });
   };
 
   const getDaysUntil = (dateString) => {

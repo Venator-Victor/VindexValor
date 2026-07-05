@@ -1,10 +1,12 @@
 import React, { useEffect } from 'react';
+import { useTranslation } from 'react-i18next';
 import { Navigate, useLocation } from 'react-router-dom';
 import { useAuth } from '@/context/SupabaseAuthContext';
 import { RefreshCw as Loader2 } from '@/components/BxIcon';
 import { logSecurityEvent } from '@/utils/securityUtils';
 
 const ProtectedRoute = ({ children }) => {
+  const { t } = useTranslation();
   const { session, loading, user } = useAuth();
   const location = useLocation();
   const isAuthenticated = !!(session && user);
@@ -19,7 +21,7 @@ const ProtectedRoute = ({ children }) => {
     return (
       <div className="min-h-screen bg-vindex-bg flex flex-col items-center justify-center text-vindex-success space-y-4">
          <Loader2 className="h-12 w-12 animate-spin text-cyan-500" />
-         <p className="text-gray-500 dark:text-gray-400">Verificando credenciais de segurança...</p>
+         <p className="text-gray-500 dark:text-gray-400">{t('common.verifying_credentials')}</p>
       </div>
     );
   }

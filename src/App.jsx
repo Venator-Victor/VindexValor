@@ -1,5 +1,6 @@
 import './i18n';
 import React from 'react';
+import { useTranslation } from 'react-i18next';
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
 import { Helmet } from 'react-helmet';
 import { TooltipProvider } from '@/components/ui/tooltip';
@@ -34,6 +35,7 @@ import CookiePreferencesModal from '@/components/CookiePreferencesModal';
 import { Toaster } from '@/components/ui/toaster';
 
 function App() {
+  const { t } = useTranslation();
   return (
     <TooltipProvider>
       <ConsentProvider>
@@ -42,8 +44,8 @@ function App() {
             <ThemeProvider>
               <FinanceProvider>
                 <Helmet>
-                  <title>VindexValor - Gestão Financeira</title>
-                  <meta name="description" content="VindexValor - Sistema completo de gestão financeira pessoal" />
+                  <title>VindexValor - {t('common.app_title_suffix')}</title>
+                  <meta name="description" content={t('common.app_description')} />
                 </Helmet>
                 
                 <Routes>

@@ -1,21 +1,24 @@
 import React from 'react';
+import { useTranslation } from 'react-i18next';
 import { Button } from '@/components/ui/button';
 
-const FIELDS = [
-  { key: 'date',        label: 'Data',      required: true },
-  { key: 'description', label: 'Descrição', required: true },
-  { key: 'amount',      label: 'Valor',     required: true },
-];
-
 const ColumnMappingStep = ({ headers, mapping, onChange, onConfirm, onBack }) => {
+  const { t } = useTranslation();
+
+  const FIELDS = [
+    { key: 'date',        label: t('csv.field_date'),        required: true },
+    { key: 'description', label: t('csv.field_description'), required: true },
+    { key: 'amount',      label: t('csv.field_amount'),       required: true },
+  ];
+
   const canConfirm = FIELDS.filter(f => f.required).every(f => mapping[f.key]);
 
   return (
     <div className="flex flex-col gap-5">
       <div>
-        <h3 className="font-semibold text-foreground mb-1">Mapeamento de Colunas</h3>
+        <h3 className="font-semibold text-foreground mb-1">{t('csv.mapping_title')}</h3>
         <p className="text-sm text-muted-foreground">
-          Selecione qual coluna do CSV corresponde a cada campo. Os valores detectados automaticamente já estão pré-selecionados.
+          {t('csv.mapping_desc')}
         </p>
       </div>
 
@@ -31,7 +34,7 @@ const ColumnMappingStep = ({ headers, mapping, onChange, onConfirm, onBack }) =>
               onChange={e => onChange({ ...mapping, [field.key]: e.target.value })}
               className="flex-1 px-3 py-2 text-sm bg-background border border-border rounded-lg text-foreground focus:ring-1 focus:ring-primary focus:border-primary outline-none"
             >
-              <option value="">Selecione a coluna...</option>
+              <option value="">{t('csv.select_column')}</option>
               {headers.map(h => (
                 <option key={h} value={h}>{h}</option>
               ))}
@@ -41,15 +44,15 @@ const ColumnMappingStep = ({ headers, mapping, onChange, onConfirm, onBack }) =>
       </div>
 
       {!canConfirm && (
-        <p className="text-xs text-destructive">Selecione todas as colunas obrigatórias para continuar.</p>
+        <p className="text-xs text-destructive">{t('csv.required_fields_error')}</p>
       )}
 
       <div className="flex flex-col sm:flex-row justify-end gap-3">
         <Button variant="outline" onClick={onBack} className="w-full sm:w-auto">
-          Voltar
+          {t('csv.back')}
         </Button>
         <Button onClick={onConfirm} disabled={!canConfirm} className="w-full sm:w-auto">
-          Continuar
+          {t('csv.continue')}
         </Button>
       </div>
     </div>

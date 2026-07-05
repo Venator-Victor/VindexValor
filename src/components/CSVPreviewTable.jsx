@@ -1,39 +1,41 @@
 import React from 'react';
+import { useTranslation } from 'react-i18next';
 import { formatCurrency } from '@/utils/calculations';
 import { useFinance } from '@/context/FinanceContext';
 import { Sparkle as Sparkles, Edit as Edit2 } from '@/components/BxIcon';
 const CSVPreviewTable = ({ data, onUpdateRow }) => {
+  const { t } = useTranslation();
   const { categories } = useFinance();
 
   const handleCategoryChange = (index, newCategoryId) => {
     const selectedCategory = categories.find(c => c.id === newCategoryId);
     const row = data[index];
-    
+
     onUpdateRow(index, {
       ...row,
       category_id: newCategoryId,
-      categoria_name: selectedCategory ? selectedCategory.name : 'Sem categoria'
+      categoria_name: selectedCategory ? selectedCategory.name : t('common.no_category')
     });
   };
 
   return (
     <div className="w-full">
       <div className="mb-3 text-sm text-muted-foreground font-medium flex justify-between items-center">
-        <span>Encontramos <span className="font-bold text-foreground">{data.length}</span> transações para importação:</span>
+        <span>{t('csv.found_transactions', { count: data.length })}</span>
         <div className="flex gap-3 text-xs">
-          <span className="flex items-center gap-1"><Sparkles className="w-3 h-3 text-blue-500" /> Auto-sugerido</span>
-          <span className="flex items-center gap-1"><Edit2 className="w-3 h-3 text-green-500" /> Manual</span>
+          <span className="flex items-center gap-1"><Sparkles className="w-3 h-3 text-blue-500" /> {t('csv.auto_suggested_badge')}</span>
+          <span className="flex items-center gap-1"><Edit2 className="w-3 h-3 text-green-500" /> {t('csv.manual_badge')}</span>
         </div>
       </div>
-      
+
       <div className="border rounded-xl overflow-hidden max-h-[350px] overflow-y-auto bg-card shadow-sm">
         <table className="w-full text-sm">
           <thead className="bg-muted/50 sticky top-0 border-b z-10">
             <tr>
-              <th className="px-4 py-3 text-left font-bold text-muted-foreground uppercase text-xs tracking-wider">Data</th>
-              <th className="px-4 py-3 text-left font-bold text-muted-foreground uppercase text-xs tracking-wider">Descrição</th>
-              <th className="px-4 py-3 text-right font-bold text-muted-foreground uppercase text-xs tracking-wider">Valor</th>
-              <th className="px-4 py-3 text-left font-bold text-muted-foreground uppercase text-xs tracking-wider">Categoria</th>
+              <th className="px-4 py-3 text-left font-bold text-muted-foreground uppercase text-xs tracking-wider">{t('csv.field_date')}</th>
+              <th className="px-4 py-3 text-left font-bold text-muted-foreground uppercase text-xs tracking-wider">{t('csv.field_description')}</th>
+              <th className="px-4 py-3 text-right font-bold text-muted-foreground uppercase text-xs tracking-wider">{t('csv.field_amount')}</th>
+              <th className="px-4 py-3 text-left font-bold text-muted-foreground uppercase text-xs tracking-wider">{t('common.category')}</th>
             </tr>
           </thead>
           <tbody className="divide-y">
@@ -61,13 +63,13 @@ const CSVPreviewTable = ({ data, onUpdateRow }) => {
                         value={row.category_id || ""}
                         onChange={(e) => handleCategoryChange(i, e.target.value)}
                       >
-                        <option value="">Sem categoria</option>
+                        <option value="">{t('common.no_category')}</option>
                         {categories.map(c => (
                           <option key={c.id} value={c.id}>{c.name}</option>
                         ))}
                       </select>
-                      {row.autoMapped && <Sparkles className="w-3.5 h-3.5 text-blue-500 absolute -left-4" title="Categoria sugerida automaticamente" />}
-                      {row.manuallyMapped && <Edit2 className="w-3.5 h-3.5 text-green-500 absolute -left-4" title="Categoria alterada manualmente" />}
+                      {row.autoMapped && <Sparkles className="w-3.5 h-3.5 text-blue-500 absolute -left-4" title={t('csv.category_suggested_title')} />}
+                      {row.manuallyMapped && <Edit2 className="w-3.5 h-3.5 text-green-500 absolute -left-4" title={t('csv.category_manual_title')} />}
                     </div>
                   </td>
                 </tr>

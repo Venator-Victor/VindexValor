@@ -1,5 +1,6 @@
 import { DANGER_DARK } from '@/utils/colors';
 import React, { useState, useMemo, useEffect } from 'react';
+import { useTranslation } from 'react-i18next';
 import { motion } from 'framer-motion';
 import { AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
 import { formatCurrency } from '@/utils/calculations';
@@ -30,22 +31,22 @@ const StyledSelect = ({ className = '', ...props }) => (
 const FIRST_YEAR = 1995;
 const CURRENT_YEAR = new Date().getFullYear();
 
-const PERIOD_OPTIONS = [
-  { label: '3 meses', months: 3 },
-  { label: '6 meses', months: 6 },
-  { label: '1 ano', months: 12 },
-  { label: '2 anos', months: 24 },
-  { label: '5 anos', months: 60 },
-  { label: '10 anos', months: 120 },
-  { label: '20 anos', months: 240 },
-];
-
 const ALL_YEARS = Array.from(
   { length: CURRENT_YEAR - FIRST_YEAR + 1 },
   (_, i) => String(FIRST_YEAR + i)
 );
 
 const InflationCard = ({ currentBalance }) => {
+  const { t } = useTranslation();
+  const PERIOD_OPTIONS = [
+    { label: t('inflation.period_3m'), months: 3 },
+    { label: t('inflation.period_6m'), months: 6 },
+    { label: t('inflation.period_1y'), months: 12 },
+    { label: t('inflation.period_2y'), months: 24 },
+    { label: t('inflation.period_5y'), months: 60 },
+    { label: t('inflation.period_10y'), months: 120 },
+    { label: t('inflation.period_20y'), months: 240 },
+  ];
   const { theme } = useTheme();
   const isMobile = useIsMobile();
   const isDark = theme === 'dark';
@@ -104,7 +105,7 @@ const InflationCard = ({ currentBalance }) => {
         if (dbError) throw dbError;
         setAllData(data ?? []);
       } catch (err) {
-        setError(err.message || "Não foi possível carregar os dados de inflação.");
+        setError(err.message || t('inflation.load_data_error'));
       } finally {
         setLoading(false);
         setSyncing(false);
@@ -112,7 +113,7 @@ const InflationCard = ({ currentBalance }) => {
     };
 
     loadData();
-  }, []);
+  }, [t]);
 
   const filteredData = useMemo(() => {
     if (!allData.length) return [];
@@ -177,10 +178,10 @@ const InflationCard = ({ currentBalance }) => {
     return (
       <div className="bg-white dark:bg-vindex-card rounded-xl p-6 border border-red-200 dark:border-vindex-danger/30 shadow-lg flex flex-col items-center justify-center h-[300px]">
         <AlertCircle className="w-10 h-10 text-red-500 mb-3" />
-        <p className="text-gray-900 dark:text-white font-medium mb-2">Erro ao carregar dados</p>
+        <p className="text-gray-900 dark:text-white font-medium mb-2">{t('common.error_loading')}</p>
         <p className="text-sm text-gray-500 dark:text-gray-400 text-center mb-4">{error}</p>
         <Button variant="outline" size="sm" onClick={() => window.location.reload()}>
-          <RefreshCw className="w-4 h-4 mr-2" /> Tentar novamente
+          <RefreshCw className="w-4 h-4 mr-2" /> {t('common.retry')}
         </Button>
       </div>
     );
@@ -200,13 +201,13 @@ const InflationCard = ({ currentBalance }) => {
       <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-6 relative z-10 gap-4">
         <h2 className="text-xl font-bold text-gray-900 dark:text-vindex-text flex items-center gap-2">
           <TrendingDown size={20} className="text-vindex-danger" />
-          Impacto Histórico da Inflação (IPCA)
+          {t('inflation.card_title')}
           <UiTooltip delayDuration={100}>
             <TooltipTrigger>
               <Info className="w-4 h-4 text-gray-500 dark:text-vindex-text/50" />
             </TooltipTrigger>
             <TooltipContent className="bg-white dark:bg-vindex-card border border-gray-200 dark:border-vindex-border">
-              <p className="text-gray-900 dark:text-vindex-text">Inflação acumulada (IPCA/BCB) no período selecionado, calculada pelo método composto.</p>
+              <p className="text-gray-900 dark:text-vindex-text">{t('inflation.card_tooltip')}</p>
             </TooltipContent>
           </UiTooltip>
         </h2>
@@ -215,23 +216,23 @@ const InflationCard = ({ currentBalance }) => {
         <div className="flex flex-col items-end gap-2">
           {/* Mode buttons */}
           <div className="flex items-center gap-1 bg-gray-100 dark:bg-vindex-bg rounded-lg p-1">
-            <button className={modeButtonClass('period')} onClick={() => setMode('period')}>Período</button>
-            <button className={modeButtonClass('range')} onClick={() => setMode('range')}>Intervalo</button>
-            <button className={modeButtonClass('all')} onClick={() => setMode('all')}>Tudo</button>
+            <button className={modeButtonClass('period')} onClick={() => setMode('period')}>{t('inflation.mode_period')}</button>
+            <button className={modeButtonClass('range')} onClick={() => setMode('range')}>{t('inflation.mode_range')}</button>
+            <button className={modeButtonClass('all')} onClick={() => setMode('all')}>{t('inflation.mode_all')}</button>
           </div>
 
           {/* Controls per mode */}
           {mode === 'period' && (
             <StyledSelect value={selectedMonths} onChange={(e) => setSelectedMonths(Number(e.target.value))}>
               {PERIOD_OPTIONS.map(opt => (
-                <option key={opt.months} value={opt.months}>Últimos {opt.label}</option>
+                <option key={opt.months} value={opt.months}>{t('inflation.last_period', { period: opt.label })}</option>
               ))}
             </StyledSelect>
           )}
 
           {mode === 'range' && (
             <div className="flex items-center gap-2">
-              <span className="text-sm text-gray-500 dark:text-vindex-text/60">De</span>
+              <span className="text-sm text-gray-500 dark:text-vindex-text/60">{t('inflation.range_from')}</span>
               <StyledSelect
                 value={rangeStart}
                 onChange={(e) => {
@@ -241,7 +242,7 @@ const InflationCard = ({ currentBalance }) => {
               >
                 {ALL_YEARS.map(y => <option key={y} value={y}>{y}</option>)}
               </StyledSelect>
-              <span className="text-sm text-gray-500 dark:text-vindex-text/60">até</span>
+              <span className="text-sm text-gray-500 dark:text-vindex-text/60">{t('inflation.range_to')}</span>
               <StyledSelect value={rangeEnd} onChange={(e) => setRangeEnd(e.target.value)}>
                 {ALL_YEARS.filter(y => y >= rangeStart).map(y => (
                   <option key={y} value={y}>{y}</option>
@@ -263,7 +264,7 @@ const InflationCard = ({ currentBalance }) => {
           <Loader2 className="w-8 h-8 animate-spin text-vindex-danger" />
           {syncing && (
             <p className="text-sm text-gray-400 dark:text-vindex-text/50">
-              Sincronizando dados históricos do BCB…
+              {t('inflation.syncing_bcb')}
             </p>
           )}
         </div>
@@ -293,7 +294,7 @@ const InflationCard = ({ currentBalance }) => {
                 <Tooltip
                   contentStyle={{ backgroundColor: tooltipBg, borderColor: tooltipBorder, borderRadius: '8px', color: textColor }}
                   itemStyle={{ color: textColor }}
-                  formatter={(value) => [`${value.toFixed(2)}%`, 'Inflação Acumulada']}
+                  formatter={(value) => [`${value.toFixed(2)}%`, t('inflation.cumulative_tooltip')]}
                 />
                 <Area type="monotone" dataKey="cumulative" stroke={DANGER_DARK} fillOpacity={1} fill="url(#colorInflation)" />
               </AreaChart>
@@ -302,15 +303,15 @@ const InflationCard = ({ currentBalance }) => {
 
           <div className="flex flex-col justify-center space-y-4 bg-gray-50 dark:bg-vindex-bg/30 p-4 rounded-lg border border-gray-200 dark:border-vindex-border/30">
             <div>
-              <p className="text-sm text-gray-500 dark:text-vindex-text/70">Inflação no Período</p>
+              <p className="text-sm text-gray-500 dark:text-vindex-text/70">{t('inflation.period_inflation_label')}</p>
               <p className="text-2xl font-bold text-vindex-danger">+{totalCumulative.toFixed(2)}%</p>
             </div>
 
             <div>
-              <p className="text-sm text-gray-500 dark:text-vindex-text/70">Perda de Poder de Compra</p>
-              <p className="text-sm text-gray-400 dark:text-vindex-text/50 mb-1">Para cada R$ 1.000,00</p>
+              <p className="text-sm text-gray-500 dark:text-vindex-text/70">{t('inflation.purchasing_power_loss')}</p>
+              <p className="text-sm text-gray-400 dark:text-vindex-text/50 mb-1">{t('inflation.per_amount_hint', { amount: formatCurrency(1000) })}</p>
               <p className="text-xl font-bold text-gray-900 dark:text-vindex-text">
-                Hoje vale:{' '}
+                {t('inflation.today_worth_label')}{' '}
                 <span className="text-vindex-danger">
                   {formatCurrency(1000 / (1 + totalCumulative / 100))}
                 </span>
@@ -318,7 +319,7 @@ const InflationCard = ({ currentBalance }) => {
             </div>
 
             <div className="text-xs text-gray-400 dark:text-vindex-text/50">
-              Você precisa de {((1 + totalCumulative / 100) * 100).toFixed(0)}% do valor de {periodStartYear} para comprar as mesmas coisas hoje.
+              {t('inflation.purchasing_power_desc', { percent: ((1 + totalCumulative / 100) * 100).toFixed(0), year: periodStartYear })}
             </div>
           </div>
         </div>

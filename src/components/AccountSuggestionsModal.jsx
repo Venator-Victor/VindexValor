@@ -1,4 +1,5 @@
 import React from 'react';
+import { useTranslation } from 'react-i18next';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
 import { DEFAULT_ACCOUNTS } from '@/utils/defaultAccounts';
@@ -6,13 +7,14 @@ import { Plus } from '@/components/BxIcon';
 import BxIcon from '@/components/BxIcon';
 
 const AccountSuggestionsModal = ({ isOpen, onClose, onSelect, onCreateCustom }) => {
-  
+  const { t } = useTranslation();
+
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
       <DialogContent className="sm:max-w-4xl max-h-[85vh] overflow-y-auto bg-white dark:bg-vindex-card border-gray-200 dark:border-vindex-border">
         <DialogHeader>
           <DialogTitle className="text-xl font-bold text-gray-900 dark:text-gray-100">
-            Qual tipo de conta você quer criar?
+            {t('accounts.suggestions_title')}
           </DialogTitle>
         </DialogHeader>
         
@@ -45,7 +47,7 @@ const AccountSuggestionsModal = ({ isOpen, onClose, onSelect, onCreateCustom }) 
             className="w-full sm:w-auto border-dashed border-2 hover:bg-gray-50 dark:hover:bg-vindex-bg text-gray-700 dark:text-gray-300 border-gray-300 dark:border-vindex-border"
           >
             <Plus className="mr-2 h-4 w-4" />
-            Criar Conta Personalizada
+            {t('accounts.create_custom_button')}
           </Button>
         </div>
       </DialogContent>

@@ -1,4 +1,5 @@
 import React, { useState, useMemo } from 'react';
+import { useTranslation } from 'react-i18next';
 import { Button } from '@/components/ui/button';
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from '@/components/ui/alert-dialog';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from '@/components/ui/dialog';
@@ -10,6 +11,7 @@ import SelectInput from '@/components/ui/SelectInput';
 import { formatCurrency, isCryptoCurrency } from '@/utils/calculations';
 
 const TransactionSelectionModal = ({ selectedIds, transactions, onClearSelection, onRefresh }) => {
+  const { t } = useTranslation();
   const [isDeleting, setIsDeleting] = useState(false);
   const [showConfirmDelete, setShowConfirmDelete] = useState(false);
   
@@ -49,15 +51,15 @@ const TransactionSelectionModal = ({ selectedIds, transactions, onClearSelection
       if (error) throw error;
 
       toast({
-        title: "Sucesso",
-        description: `${selectedIds.length} transações excluídas.`,
+        title: t('common.success'),
+        description: t('transactions.bulk_deleted_success_desc', { count: selectedIds.length }),
       });
       onClearSelection();
       if (onRefresh) onRefresh();
     } catch (error) {
       toast({
         variant: "destructive",
-        title: "Erro ao excluir",
+        title: t('transactions.bulk_delete_error_title'),
         description: error.message,
       });
     } finally {
@@ -79,8 +81,8 @@ const TransactionSelectionModal = ({ selectedIds, transactions, onClearSelection
       if (error) throw error;
 
       toast({
-        title: "Categorias Atualizadas",
-        description: `Transações atualizadas com sucesso. Pagamentos e transferências não tiveram categorias alteradas.`,
+        title: t('transactions.bulk_categories_updated_title'),
+        description: t('transactions.bulk_categories_updated_desc'),
       });
       onClearSelection();
       if (onRefresh) onRefresh();
@@ -88,7 +90,7 @@ const TransactionSelectionModal = ({ selectedIds, transactions, onClearSelection
     } catch (error) {
       toast({
         variant: "destructive",
-        title: "Erro ao atualizar",
+        title: t('transactions.bulk_update_error_title'),
         description: error.message,
       });
     } finally {
@@ -102,23 +104,23 @@ const TransactionSelectionModal = ({ selectedIds, transactions, onClearSelection
         
         <div className="flex justify-between items-center border-b pb-3">
           <div>
-            <p className="text-sm text-muted-foreground">{selectedIds.length} transação(ões) selecionada(s)</p>
+            <p className="text-sm text-muted-foreground">{t('transactions.bulk_selected_count', { count: selectedIds.length })}</p>
             <div className="flex gap-4 mt-1">
               {totalBRL !== 0 && (
                 <div>
-                  <span className="text-xs text-muted-foreground">Total (BRL)</span>
+                  <span className="text-xs text-muted-foreground">{t('transactions.bulk_total_brl')}</span>
                   <p className={`font-bold text-lg ${totalBRL < 0 ? 'text-red-500' : 'text-green-500'}`}>{formatCurrency(totalBRL)}</p>
                 </div>
               )}
               {totalBTC !== 0 && (
                 <div>
-                  <span className="text-xs text-muted-foreground">Total (BTC)</span>
+                  <span className="text-xs text-muted-foreground">{t('transactions.bulk_total_btc')}</span>
                   <p className={`font-bold text-lg ${totalBTC < 0 ? 'text-red-500' : 'text-green-500'}`}>₿ {totalBTC.toFixed(8)}</p>
                 </div>
               )}
               {totalBRL === 0 && totalBTC === 0 && (
                 <div>
-                  <span className="text-xs text-muted-foreground">Total</span>
+                  <span className="text-xs text-muted-foreground">{t('transactions.bulk_total')}</span>
                   <p className="font-bold text-lg text-foreground">{formatCurrency(0)}</p>
                 </div>
               )}
@@ -137,27 +139,27 @@ const TransactionSelectionModal = ({ selectedIds, transactions, onClearSelection
             }}
           >
             <FolderEdit className="h-4 w-4" />
-            <span className="truncate">Alterar Categoria</span>
+            <span className="truncate">{t('transactions.bulk_change_category')}</span>
           </Button>
 
-          <Button 
-            variant="destructive" 
-            size="sm" 
+          <Button
+            variant="destructive"
+            size="sm"
             className="w-full sm:w-auto rounded-lg sm:rounded-full gap-2"
             onClick={() => setShowConfirmDelete(true)}
           >
             <Trash2 className="h-4 w-4" />
-            <span className="truncate">Excluir</span>
+            <span className="truncate">{t('transactions.bulk_delete_button')}</span>
           </Button>
-          
-          <Button 
-            variant="ghost" 
-            size="sm" 
+
+          <Button
+            variant="ghost"
+            size="sm"
             className="w-full sm:w-auto rounded-lg sm:rounded-full gap-2"
             onClick={onClearSelection}
           >
             <X className="h-4 w-4" />
-            <span className="truncate">Cancelar</span>
+            <span className="truncate">{t('common.cancel')}</span>
           </Button>
         </div>
       </div>
@@ -165,19 +167,19 @@ const TransactionSelectionModal = ({ selectedIds, transactions, onClearSelection
       <AlertDialog open={showConfirmDelete} onOpenChange={setShowConfirmDelete}>
         <AlertDialogContent>
           <AlertDialogHeader>
-            <AlertDialogTitle>Excluir {selectedIds.length} transações?</AlertDialogTitle>
+            <AlertDialogTitle>{t('transactions.bulk_delete_confirm_title', { count: selectedIds.length })}</AlertDialogTitle>
             <AlertDialogDescription>
-              Esta ação não pode ser desfeita. Isso removerá as transações selecionadas do seu histórico.
+              {t('transactions.bulk_delete_confirm_desc')}
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
-            <AlertDialogCancel disabled={isDeleting}>Cancelar</AlertDialogCancel>
-            <AlertDialogAction 
-              onClick={(e) => { e.preventDefault(); handleDelete(); }} 
+            <AlertDialogCancel disabled={isDeleting}>{t('common.cancel')}</AlertDialogCancel>
+            <AlertDialogAction
+              onClick={(e) => { e.preventDefault(); handleDelete(); }}
               disabled={isDeleting}
               className="bg-destructive hover:bg-destructive/90 text-destructive-foreground"
             >
-              {isDeleting ? "Excluindo..." : "Confirmar Exclusão"}
+              {isDeleting ? t('transactions.bulk_deleting') : t('transactions.bulk_confirm_delete')}
             </AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>
@@ -186,17 +188,17 @@ const TransactionSelectionModal = ({ selectedIds, transactions, onClearSelection
       <Dialog open={showCategoryModal} onOpenChange={setShowCategoryModal}>
         <DialogContent className="sm:max-w-[425px]">
           <DialogHeader>
-            <DialogTitle>Alterar Categoria ({selectedIds.length} selecionadas)</DialogTitle>
+            <DialogTitle>{t('transactions.bulk_category_modal_title', { count: selectedIds.length })}</DialogTitle>
           </DialogHeader>
           <div className="py-4">
             <label className="block text-sm font-medium mb-2 text-foreground">
-              Nova Categoria
+              {t('transactions.bulk_new_category_label')}
             </label>
             <SelectInput
               value={selectedBulkCategory}
               onChange={(e) => setSelectedBulkCategory(e.target.value)}
               options={[
-                { label: 'Sem Categoria', value: '' },
+                { label: t('transactions.bulk_no_category_option'), value: '' },
                 ...categories.map(c => ({ label: c.name, value: c.id }))
               ]}
               className="w-full"
@@ -204,10 +206,10 @@ const TransactionSelectionModal = ({ selectedIds, transactions, onClearSelection
           </div>
           <DialogFooter>
             <Button variant="outline" onClick={() => setShowCategoryModal(false)} disabled={isUpdating}>
-              Cancelar
+              {t('common.cancel')}
             </Button>
             <Button onClick={handleBulkCategoryUpdate} disabled={isUpdating}>
-              {isUpdating ? "Salvando..." : "Salvar Alterações"}
+              {isUpdating ? t('common.saving') : t('transactions.bulk_save_changes')}
             </Button>
           </DialogFooter>
         </DialogContent>

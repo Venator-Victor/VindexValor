@@ -5,7 +5,7 @@ import { Button } from '@/components/ui/button';
 import { Pencil, Trash, TrendingUp, TrendingDown } from '@/components/BxIcon';
 
 const InvestmentCard = ({ investment, onEdit, onDelete }) => {
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
   const returnPercent = calculateInvestmentReturn(investment.investedAmount, investment.currentAmount);
   const isProfit = returnPercent >= 0;
 
@@ -25,7 +25,7 @@ const InvestmentCard = ({ investment, onEdit, onDelete }) => {
           </div>
           <h3 className="font-bold text-gray-900 dark:text-gray-50 text-lg line-clamp-1">{investment.name}</h3>
           <p className="text-xs text-gray-700 dark:text-gray-300 mt-1">
-             {t('investments.purchased_on', { date: new Date(investment.purchaseDate).toLocaleDateString('pt-BR') })}
+             {t('investments.purchased_on', { date: new Date(investment.purchaseDate).toLocaleDateString(i18n.language) })}
           </p>
         </div>
         <div className="flex gap-1">

@@ -1,10 +1,12 @@
 import React, { useState, useEffect, useRef } from 'react';
+import { useTranslation } from 'react-i18next';
 import { motion, AnimatePresence } from 'framer-motion';
 import { ChevronLeft, ChevronRight, Calendar as CalendarIcon } from '@/components/BxIcon';
 import { cn } from '@/lib/utils';
 import { Button } from '@/components/ui/button';
 
 const DatePicker = ({ value, onChange, label, className }) => {
+  const { i18n } = useTranslation();
   const [isOpen, setIsOpen] = useState(false);
   const [currentDate, setCurrentDate] = useState(new Date());
   const [selectedDate, setSelectedDate] = useState(null);
@@ -32,10 +34,9 @@ const DatePicker = ({ value, onChange, label, className }) => {
     return () => document.removeEventListener('mousedown', handleClickOutside);
   }, []);
 
-  const months = [
-    'Janeiro', 'Fevereiro', 'Março', 'Abril', 'Maio', 'Junho',
-    'Julho', 'Agosto', 'Setembro', 'Outubro', 'Novembro', 'Dezembro'
-  ];
+  const months = Array.from({ length: 12 }, (_, i) =>
+    new Date(2000, i, 1).toLocaleDateString(i18n.language, { month: 'long' })
+  );
 
   const getDaysInMonth = (date) => {
     return new Date(date.getFullYear(), date.getMonth() + 1, 0).getDate();
@@ -101,7 +102,9 @@ const DatePicker = ({ value, onChange, label, className }) => {
     return days;
   };
 
-  const weekDayHeaders = ['D', 'S', 'T', 'Q', 'Q', 'S', 'S'];
+  const weekDayHeaders = Array.from({ length: 7 }, (_, i) =>
+    new Date(2000, 0, i + 2).toLocaleDateString(i18n.language, { weekday: 'narrow' })
+  );
 
   return (
     <div className={cn("relative w-full", className)} ref={containerRef}>
@@ -111,7 +114,7 @@ const DatePicker = ({ value, onChange, label, className }) => {
         <input
           type="text"
           readOnly
-          value={selectedDate ? selectedDate.toLocaleDateString('pt-BR') : ''}
+          value={selectedDate ? selectedDate.toLocaleDateString(i18n.language) : ''}
           placeholder="Selecione uma data"
           onClick={() => setIsOpen(!isOpen)}
           className={cn(

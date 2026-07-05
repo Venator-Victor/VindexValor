@@ -11,7 +11,7 @@ import BxIcon from '@/components/BxIcon';
 import { PRIMARY, DANGER } from '@/utils/colors';
 
 const GoalDetailModal = ({ isOpen, onClose, goal, onEdit, onDelete }) => {
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
   const { accounts } = useFinance();
 
   if (!goal) return null;
@@ -61,7 +61,7 @@ const GoalDetailModal = ({ isOpen, onClose, goal, onEdit, onDelete }) => {
           <div className="bg-muted/30 p-4 rounded-xl border border-border flex items-center justify-between gap-4">
             <div>
               <p className="text-sm font-medium">
-                {goal.deadline ? new Date(goal.deadline).toLocaleDateString('pt-BR', { timeZone: 'UTC' }) : t('goals.no_deadline')}
+                {goal.deadline ? new Date(goal.deadline).toLocaleDateString(i18n.language, { timeZone: 'UTC' }) : t('goals.no_deadline')}
               </p>
               {goal.deadline && (
                 <p className={`text-xs mt-1 ${isOverdue ? 'text-destructive font-medium' : 'text-muted-foreground'}`}>

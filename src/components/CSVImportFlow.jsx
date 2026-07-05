@@ -1,4 +1,5 @@
 import React, { useState, useRef } from 'react';
+import { useTranslation } from 'react-i18next';
 import { Button } from '@/components/ui/button';
 import SelectInput from '@/components/ui/SelectInput';
 import { useFinance } from '@/context/FinanceContext';
@@ -10,6 +11,7 @@ import { useAutoMappingCategories } from '@/hooks/useAutoMappingCategories';
 
 // step: 'upload' | 'mapping' | 'preview'
 const CSVImportFlow = ({ onSuccess, onCancel }) => {
+  const { t } = useTranslation();
   const { accounts } = useFinance();
   const { parseMultipleCSVsRaw, autoDetectMapping, applyColumnMapping, importData, isParsing, isImporting } = useCSVImport();
   const { getSuggestedCategory, saveCategoryMapping } = useAutoMappingCategories();
@@ -33,7 +35,7 @@ const CSVImportFlow = ({ onSuccess, onCancel }) => {
       setMapping(autoDetectMapping(headers));
       setStep('mapping');
     } catch (err) {
-      setError(err.message || 'Erro ao processar arquivos.');
+      setError(err.message || t('csv.processing_error'));
     }
   };
 
@@ -56,7 +58,7 @@ const CSVImportFlow = ({ onSuccess, onCancel }) => {
 
   const handleImport = async () => {
     if (!selectedAccount || !parsedData) {
-      setError('Por favor, selecione uma conta de destino.');
+      setError(t('csv.no_account_error'));
       return;
     }
     setError(null);
@@ -69,7 +71,7 @@ const CSVImportFlow = ({ onSuccess, onCancel }) => {
       });
       onSuccess(count);
     } catch (err) {
-      setError(err.message || 'Ocorreu um erro ao importar as transações.');
+      setError(err.message || t('csv.import_error'));
     }
   };
 
@@ -78,18 +80,18 @@ const CSVImportFlow = ({ onSuccess, onCancel }) => {
       <div className="p-1">
         <div className="border-2 border-dashed border-border rounded-xl p-8 text-center flex flex-col items-center justify-center bg-muted/30">
           <UploadCloud className="w-12 h-12 text-muted-foreground mb-4" />
-          <h3 className="text-lg font-medium text-foreground mb-2">Selecione um ou mais arquivos CSV</h3>
+          <h3 className="text-lg font-medium text-foreground mb-2">{t('csv.upload_title')}</h3>
           <p className="text-sm text-muted-foreground mb-4 max-w-md">
-            Você poderá escolher qual coluna corresponde a cada campo na próxima etapa.
+            {t('csv.upload_step_hint')}
           </p>
           <Button onClick={() => fileInputRef.current?.click()} disabled={isParsing}>
-            {isParsing ? 'Processando...' : 'Escolher Arquivos'}
+            {isParsing ? t('csv.processing_button') : t('csv.choose_files_button')}
           </Button>
           <input type="file" accept=".csv" multiple className="hidden" ref={fileInputRef} onChange={handleFileSelected} />
           {error && <div className="mt-4 p-3 bg-destructive/10 text-destructive text-sm rounded-lg w-full">{error}</div>}
         </div>
         <div className="mt-6 flex justify-end">
-          <Button variant="outline" onClick={onCancel} className="w-full sm:w-auto">Cancelar</Button>
+          <Button variant="outline" onClick={onCancel} className="w-full sm:w-auto">{t('common.cancel')}</Button>
         </div>
       </div>
     );
@@ -113,17 +115,17 @@ const CSVImportFlow = ({ onSuccess, onCancel }) => {
 
       <div className="bg-muted/30 p-5 rounded-xl border">
         <SelectInput
-          label="Conta de Destino *"
+          label={`${t('csv.destination_account')} *`}
           value={selectedAccount}
           onChange={(e) => setSelectedAccount(e.target.value)}
           options={[
-            { label: 'Selecione a conta...', value: '' },
+            { label: t('csv.select_account_placeholder'), value: '' },
             ...accounts.map(acc => ({ label: acc.name, value: acc.id })),
           ]}
           required
         />
         <p className="text-xs text-muted-foreground mt-2">
-          Todas as transações listadas acima serão registradas nesta conta.
+          {t('csv.destination_account_hint')}
         </p>
       </div>
 
@@ -131,10 +133,10 @@ const CSVImportFlow = ({ onSuccess, onCancel }) => {
 
       <div className="flex flex-col sm:flex-row justify-end gap-3 mt-2">
         <Button variant="outline" onClick={() => setStep('mapping')} disabled={isImporting}>
-          Voltar
+          {t('csv.back')}
         </Button>
         <Button onClick={handleImport} disabled={!selectedAccount || isImporting}>
-          {isImporting ? 'Importando...' : `Confirmar Importação (${parsedData.length})`}
+          {isImporting ? t('csv.importing_button') : t('csv.confirm_import_button', { count: parsedData.length })}
         </Button>
       </div>
     </div>

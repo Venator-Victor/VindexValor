@@ -1,8 +1,10 @@
 import { PRIMARY, PRIMARY_HOVER, SUCCESS, DANGER, DANGER_DARK, WARNING, INFO, successAlpha, dangerAlpha, infoAlpha, primaryAlpha, chartGrid, chartTooltipBg, chartTooltipBorder, chartText, chartCursor } from '@/utils/colors';
 import React from 'react';
+import { useTranslation } from 'react-i18next';
 import { formatCurrency } from '@/utils/calculations';
 
 const CircularProgressBar = ({ current, max, size = 60, strokeWidth = 5, showBudget = true }) => {
+  const { t } = useTranslation();
   const radius = (size - strokeWidth) / 2;
   const circumference = radius * 2 * Math.PI;
   
@@ -55,12 +57,12 @@ const CircularProgressBar = ({ current, max, size = 60, strokeWidth = 5, showBud
       
       {showBudget && (
         <div className="flex flex-col justify-center">
-          <span className="text-xs text-gray-500 dark:text-gray-400">Orçamento</span>
+          <span className="text-xs text-gray-500 dark:text-gray-400">{t('common.budget')}</span>
           <span className="text-sm font-bold text-gray-900 dark:text-gray-100">
             {formatCurrency(max)}
           </span>
           {isOverLimit && (
-            <span className="text-[10px] text-red-500 font-medium">Excedido</span>
+            <span className="text-[10px] text-red-500 font-medium">{t('common.exceeded')}</span>
           )}
         </div>
       )}

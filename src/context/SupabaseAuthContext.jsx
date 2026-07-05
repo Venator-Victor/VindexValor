@@ -1,4 +1,5 @@
 import React, { createContext, useContext, useEffect, useState, useCallback, useMemo } from 'react';
+import { useTranslation } from 'react-i18next';
 import { useNavigate } from 'react-router-dom';
 import { supabase } from '@/lib/customSupabaseClient';
 import { useToast } from '@/components/ui/use-toast';
@@ -6,6 +7,7 @@ import { useToast } from '@/components/ui/use-toast';
 const AuthContext = createContext(undefined);
 
 export const AuthProvider = ({ children }) => {
+  const { t } = useTranslation();
   const { toast } = useToast();
   const navigate = useNavigate();
 
@@ -57,13 +59,13 @@ export const AuthProvider = ({ children }) => {
     if (error) {
       toast({
         variant: "destructive",
-        title: "Sign up Failed",
-        description: error.message || "Something went wrong",
+        title: t('auth.signup_failed_title'),
+        description: error.message || t('auth.generic_error_desc'),
       });
     }
 
     return { error };
-  }, [toast]);
+  }, [toast, t]);
 
   const signIn = useCallback(async (email, password) => {
     const { error } = await supabase.auth.signInWithPassword({
@@ -74,13 +76,13 @@ export const AuthProvider = ({ children }) => {
     if (error) {
       toast({
         variant: "destructive",
-        title: "Sign in Failed",
-        description: error.message || "Something went wrong",
+        title: t('auth.signin_failed_title'),
+        description: error.message || t('auth.generic_error_desc'),
       });
     }
 
     return { error };
-  }, [toast]);
+  }, [toast, t]);
 
   const resetPasswordForEmail = useCallback(async (email) => {
     const { error } = await supabase.auth.resetPasswordForEmail(email, {
@@ -89,26 +91,26 @@ export const AuthProvider = ({ children }) => {
     if (error) {
       toast({
         variant: "destructive",
-        title: "Erro ao enviar email",
-        description: error.message || "Não foi possível enviar o link de recuperação.",
+        title: t('auth.send_email_error_title'),
+        description: error.message || t('auth.send_email_error_desc'),
       });
     }
     return { error };
-  }, [toast]);
+  }, [toast, t]);
 
   const updatePassword = useCallback(async (password) => {
     const { error } = await supabase.auth.updateUser({ password });
     if (error) {
       toast({
         variant: "destructive",
-        title: "Erro ao atualizar senha",
-        description: error.message || "Não foi possível atualizar a senha.",
+        title: t('auth.update_password_error_title'),
+        description: error.message || t('auth.update_password_error_desc'),
       });
     } else {
       setIsRecoveryMode(false);
     }
     return { error };
-  }, [toast]);
+  }, [toast, t]);
 
   const signOut = useCallback(async () => {
     try {
@@ -119,8 +121,8 @@ export const AuthProvider = ({ children }) => {
       if (error && error.status !== 403) {
         toast({
           variant: "destructive",
-          title: "Erro ao sair",
-          description: error.message || "Não foi possível realizar o logout corretamente.",
+          title: t('auth.logout_error_title'),
+          description: error.message || t('auth.logout_error_desc'),
         });
       }
     } catch (error) {
@@ -131,7 +133,7 @@ export const AuthProvider = ({ children }) => {
       setSession(null);
       navigate('/login');
     }
-  }, [toast, navigate]);
+  }, [toast, navigate, t]);
 
   const value = useMemo(() => ({
     user,

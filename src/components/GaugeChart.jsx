@@ -1,7 +1,9 @@
 import { SUCCESS, DANGER, WARNING, TEXT_SUCCESS, TEXT_WARNING, TEXT_DANGER, TEXT_NEUTRAL } from '@/utils/colors';
 import React from 'react';
+import { useTranslation } from 'react-i18next';
 
 const GaugeChart = ({ value, max, label, size = 200, strokeWidth = 15, className = "my-4", mode = 'usage' }) => {
+  const { t } = useTranslation();
   const radius = (size - strokeWidth) / 2;
   const cx = size / 2;
   const cy = size / 2;
@@ -80,7 +82,7 @@ const GaugeChart = ({ value, max, label, size = 200, strokeWidth = 15, className
            {displayPercentage.toFixed(1)}%
         </span>
         <span className="text-xs text-gray-500 dark:text-vindex-text/60 mt-1">
-          {mode === 'progress' ? 'Progresso' : 'Utilização'}
+          {mode === 'progress' ? t('common.progress') : t('common.usage')}
         </span>
       </div>
 

@@ -1,8 +1,10 @@
 import React, { useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { Label } from '@/components/ui/label';
 import BxIcon from '@/components/BxIcon';
 
 const IconSelector = ({ selectedIcon, onSelect }) => {
+  const { t } = useTranslation();
   const [searchTerm, setSearchTerm] = useState('');
 
   const icons = [
@@ -28,7 +30,7 @@ const IconSelector = ({ selectedIcon, onSelect }) => {
     <div className="space-y-3">
       <input
         type="text"
-        placeholder="Buscar ícone..."
+        placeholder={t('common.search_icon_placeholder')}
         value={searchTerm}
         onChange={(e) => setSearchTerm(e.target.value)}
         className="w-full px-3 py-2 bg-gray-50 dark:bg-vindex-bg border border-gray-200 dark:border-vindex-border rounded-lg text-gray-900 dark:text-vindex-text text-sm focus:outline-none focus:ring-1 focus:ring-primary"
@@ -52,14 +54,14 @@ const IconSelector = ({ selectedIcon, onSelect }) => {
           </button>
         )) : (
           <div className="col-span-full text-center text-sm text-gray-500 py-4">
-            Nenhum ícone encontrado
+            {t('common.no_icon_found')}
           </div>
         )}
       </div>
 
       {selectedIcon && (
         <div className="flex items-center gap-2 text-sm text-gray-500 dark:text-gray-400">
-          <span>Selecionado:</span>
+          <span>{t('common.selected_label')}</span>
           <BxIcon iconClass={selectedIcon} size={18} className="text-primary" />
           <span className="font-mono">{selectedIcon}</span>
         </div>

@@ -34,7 +34,7 @@ const AssetLiabilityChart = ({
   filteredTransactions = [], 
   showNetWorth = true
 }) => {
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
   const { theme } = useTheme();
   const isDark = theme === 'dark';
 
@@ -77,7 +77,7 @@ const AssetLiabilityChart = ({
         
         const dayData = txByDate[dateStr] || { assets: 0, liabilities: 0 };
         chartData.push({
-            name: d.toLocaleDateString('pt-BR', { day: '2-digit', month: '2-digit' }),
+            name: d.toLocaleDateString(i18n.language, { day: '2-digit', month: '2-digit' }),
             assets: dayData.assets,
             liabilities: dayData.liabilities,
             netWorth: dayData.assets - dayData.liabilities
@@ -85,10 +85,10 @@ const AssetLiabilityChart = ({
     }
 
     return chartData;
-  }, [filteredTransactions, selectedPeriod]);
+  }, [filteredTransactions, selectedPeriod, i18n.language]);
 
   return (
-    <motion.div 
+    <motion.div
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
         className="bg-white dark:bg-vindex-card rounded-2xl p-6 border border-gray-200 dark:border-vindex-border shadow-sm mb-6 relative"

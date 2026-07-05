@@ -26,7 +26,7 @@ import ColorPicker from '@/components/ui/ColorPicker';
 import IconSelector from '@/components/IconSelector';
 
 const Recurrences = () => {
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
   const { recurring, parcels, updateRecurring, deleteRecurring, addRecurring, settings, saveSettings, transactionTypes } = useFinance();
   const { categories, addCategory } = useCategories();
   const { toast } = useToast();
@@ -483,7 +483,7 @@ const Recurrences = () => {
                         </td>
                         <td className="px-6 py-4 text-sm text-gray-700 dark:text-gray-300">
                           <span className="font-mono bg-gray-100 dark:bg-vindex-bg px-2 py-1 rounded">
-                            {item.date || item.next_date ? new Date(item.date || item.next_date).toLocaleDateString('pt-BR') : 'N/A'}
+                            {item.date || item.next_date ? new Date(item.date || item.next_date).toLocaleDateString(i18n.language) : 'N/A'}
                           </span>
                         </td>
                         <td className="px-6 py-4">

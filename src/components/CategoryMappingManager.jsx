@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -7,6 +8,7 @@ import { useCustomCategoryMappings } from '@/hooks/useCustomCategoryMappings';
 import BxIcon from '@/components/BxIcon';
 
 const CategoryMappingManager = () => {
+  const { t } = useTranslation();
   const { mappings, loading, deleteMapping } = useCustomCategoryMappings();
   const [search, setSearch] = useState('');
   const [isOpen, setIsOpen] = useState(false);
@@ -21,19 +23,19 @@ const CategoryMappingManager = () => {
       <DialogTrigger asChild>
         <Button variant="outline" size="sm" className="gap-2">
           <LinkIcon className="h-4 w-4" />
-          Mapeamentos Automáticos
+          {t('categories.auto_mappings_button')}
         </Button>
       </DialogTrigger>
       <DialogContent className="max-w-2xl max-h-[80vh] flex flex-col">
         <DialogHeader>
-          <DialogTitle>Gerenciar Mapeamentos de Categoria</DialogTitle>
+          <DialogTitle>{t('categories.manage_mappings_title')}</DialogTitle>
         </DialogHeader>
-        
+
         <div className="flex-1 overflow-hidden flex flex-col gap-4">
           <div className="relative">
             <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-            <Input 
-              placeholder="Buscar descrição ou categoria..." 
+            <Input
+              placeholder={t('categories.mapping_search_placeholder')}
               value={search}
               onChange={(e) => setSearch(e.target.value)}
               className="pl-9"
@@ -44,16 +46,16 @@ const CategoryMappingManager = () => {
             <table className="w-full text-sm">
               <thead className="bg-muted/50 sticky top-0 border-b">
                 <tr>
-                  <th className="px-4 py-3 text-left font-medium">Descrição (Texto no extrato)</th>
-                  <th className="px-4 py-3 text-left font-medium">Categoria Atribuída</th>
-                  <th className="px-4 py-3 text-right font-medium w-16">Ações</th>
+                  <th className="px-4 py-3 text-left font-medium">{t('categories.mapping_col_description')}</th>
+                  <th className="px-4 py-3 text-left font-medium">{t('categories.mapping_col_category')}</th>
+                  <th className="px-4 py-3 text-right font-medium w-16">{t('common.actions')}</th>
                 </tr>
               </thead>
               <tbody className="divide-y">
                 {loading ? (
-                  <tr><td colSpan={3} className="text-center py-8 text-muted-foreground">Carregando...</td></tr>
+                  <tr><td colSpan={3} className="text-center py-8 text-muted-foreground">{t('common.loading')}</td></tr>
                 ) : filteredMappings.length === 0 ? (
-                  <tr><td colSpan={3} className="text-center py-8 text-muted-foreground">Nenhum mapeamento encontrado.</td></tr>
+                  <tr><td colSpan={3} className="text-center py-8 text-muted-foreground">{t('categories.mapping_no_results')}</td></tr>
                 ) : (
                   filteredMappings.map(mapping => (
                     <tr key={mapping.id} className="hover:bg-muted/30">
@@ -61,7 +63,7 @@ const CategoryMappingManager = () => {
                       <td className="px-4 py-3">
                         <span className="inline-flex items-center gap-1.5 px-2 py-1 rounded bg-secondary/10 text-secondary-foreground text-xs">
                           {mapping.categories?.icon && <BxIcon iconClass={mapping.categories.icon} size={14} />}
-                          {mapping.categories?.name || 'Categoria Removida'}
+                          {mapping.categories?.name || t('categories.mapping_category_removed')}
                         </span>
                       </td>
                       <td className="px-4 py-3 text-right">

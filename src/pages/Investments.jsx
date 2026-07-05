@@ -33,7 +33,7 @@ import {
 import { INVESTMENT_TYPES } from '@/utils/investmentTypes';
 
 const Investments = () => {
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
   const { investments, accounts, addInvestment, updateInvestment, deleteInvestment, settings, saveSettings } = useFinance();
   const { toast } = useToast();
   const [isDialogOpen, setIsDialogOpen] = useState(false);
@@ -117,7 +117,7 @@ const Investments = () => {
         });
 
         days.push({
-            date: currentDate.toLocaleDateString('pt-BR', { day: '2-digit', month: '2-digit' }),
+            date: currentDate.toLocaleDateString(i18n.language, { day: '2-digit', month: '2-digit' }),
             value: displayMode === 'rentabilidade' 
                 ? (dailyTotalInvested > 0 ? ((dailyTotalCurrent - dailyTotalInvested) / dailyTotalInvested) * 100 : 0)
                 : dailyTotalCurrent
@@ -125,7 +125,7 @@ const Investments = () => {
     }
 
     return days;
-  }, [investments, chartPeriod, displayMode]);
+  }, [investments, chartPeriod, displayMode, i18n.language]);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -440,7 +440,7 @@ const Investments = () => {
                             </div>
                           </td>
                           <td className="px-6 py-4 text-sm text-gray-700 dark:text-gray-300">
-                            {new Date(investment.purchaseDate).toLocaleDateString('pt-BR')}
+                            {new Date(investment.purchaseDate).toLocaleDateString(i18n.language)}
                           </td>
                           <td className="px-6 py-4">
                             <div className="flex gap-2">

@@ -14,18 +14,13 @@ Future plans include desktop and mobile applications, offline support, advanced 
 
 ## Tech Stack
 
-| Technology | Version |
-|---|---|
-| React | 19.2.6 |
-| Vite | 8.0.14 |
-| Tailwind CSS | 4.3.0 |
-| Supabase JS | 2.106.2 |
-| React Router DOM | 7.16.0 |
-| Framer Motion | 12.40.0 |
-| Recharts | 3.8.1 |
-| React Hook Form | 7.76.1 |
-| date-fns | 4.3.0 |
-| Radix UI | various |
+| Technology   | Version |
+|--------------|---------|
+| Node.js      | 22      |
+| React        | 19.2.6  |
+| Vite         | 8.0.14  |
+| Tailwind CSS | 4.3.0   |
+| Supabase JS  | 2.106.2 |
 
 ## Self-Hosting
 
@@ -60,28 +55,6 @@ Each self-hosted instance is fully isolated — your data never touches the offi
 VenatorVictor
 
 GitHub: https://github.com/Venator-Victor
-
-## Version History
-
-* 0.3
-
-  * Historical IPCA inflation card with BCB API integration (1995–present)
-  * Inflation simulator with area chart (inflation vs. investment return)
-  * Investment simulator with compound interest, stacked area chart and crossover marker
-  * Suporte page: replaced placeholder form/contacts with real FAQ and contact links
-  * Configurações: local logo, updated About text, open source notice
-  * Landing page: open source mention
-
-* 0.2
-
-  * Added automated testing infrastructure
-  * Improved form validation
-  * Security improvements
-  * Supabase migration fixes
-
-* 0.1
-
-  * Initial Release
 
 ## License
 

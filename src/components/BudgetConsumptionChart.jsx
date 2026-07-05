@@ -16,7 +16,7 @@ import { RefreshCw as Loader2 } from '@/components/BxIcon';
 import { useTranslation } from 'react-i18next';
 import { motion } from 'framer-motion';
 const BudgetConsumptionChart = ({ selectedPeriod, filteredTransactions }) => {
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
   const { categories, isLoading } = useFinance();
   const { theme } = useTheme();
   const isDark = theme === 'dark';
@@ -83,9 +83,9 @@ const BudgetConsumptionChart = ({ selectedPeriod, filteredTransactions }) => {
         
         let label = '';
         if (selectedPeriod === 'yearly' || selectedPeriod === 'semiannual') {
-             label = dateObj.toLocaleDateString('pt-BR', { month: 'short', day: 'numeric' });
+             label = dateObj.toLocaleDateString(i18n.language, { month: 'short', day: 'numeric' });
         } else {
-             label = dateObj.toLocaleDateString('pt-BR', { day: '2-digit', month: '2-digit' });
+             label = dateObj.toLocaleDateString(i18n.language, { day: '2-digit', month: '2-digit' });
         }
 
         result.push({
@@ -97,7 +97,7 @@ const BudgetConsumptionChart = ({ selectedPeriod, filteredTransactions }) => {
     });
 
     return result;
-  }, [filteredTransactions, selectedPeriod, totalPeriodBudget]);
+  }, [filteredTransactions, selectedPeriod, totalPeriodBudget, i18n.language]);
 
   const currentConsumption = data.length > 0 ? data[data.length - 1].accumulated : 0;
   const remaining = totalPeriodBudget - currentConsumption;
