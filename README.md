@@ -12,15 +12,12 @@ Current features include account management, transaction tracking, credit card i
 
 Future plans include desktop and mobile applications, offline support, advanced analytics, investment syncing, and multi-user budgeting.
 
-## Tech Stack
+## Stack
 
-| Technology   | Version |
-|--------------|---------|
-| Node.js      | 22      |
-| React        | 19.2.6  |
-| Vite         | 8.0.14  |
-| Tailwind CSS | 4.3.0   |
-| Supabase JS  | 2.106.2 |
+- **Frontend:** React 19, Vite, Tailwind CSS
+- **Backend:** Supabase (Postgres, Auth, Row Level Security, Deno Edge Functions)
+- **i18n:** i18next (`pt`, `en`)
+- **Tests:** Vitest
 
 ## Self-Hosting
 
