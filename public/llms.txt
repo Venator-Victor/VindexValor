@@ -1,0 +1,16 @@
+# VindexValor
+
+> VindexValor is an open-source personal finance and budget management web application. It helps users track transactions, bank/crypto accounts, credit card invoices, investments, recurring transactions, and financial goals, and includes historical inflation (IPCA/BCB) analysis with investment and inflation simulators.
+
+Built with React, Vite, Tailwind CSS, and Supabase. VindexValor is self-hostable — bring your own Supabase project (hosted or self-hosted) and keep full control over where your financial data lives.
+
+## Docs
+
+- [README](https://github.com/Venator-Victor/VindexValor/blob/main/README.md): Setup, self-hosting guide, and tech stack
+- [Privacy Policy](https://vindexvalor.com/privacy): LGPD-compliant privacy policy
+
+## Notes
+
+- The application UI defaults to Brazilian Portuguese (pt-BR), with English (en-US) also supported.
+- Most pages require authentication; only the landing page (`/`) and privacy policy (`/privacy`) are publicly accessible.
+- Source code: https://github.com/Venator-Victor/VindexValor

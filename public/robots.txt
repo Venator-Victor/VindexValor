@@ -1,0 +1,19 @@
+User-agent: *
+Allow: /
+Allow: /privacy
+Allow: /login
+Allow: /signup
+
+Disallow: /dashboard
+Disallow: /transactions
+Disallow: /invoices
+Disallow: /accounts
+Disallow: /investments
+Disallow: /categories
+Disallow: /recurrences
+Disallow: /analytics
+Disallow: /goals
+Disallow: /support
+Disallow: /settings
+Disallow: /account-types-config
+Disallow: /reset-password
