@@ -6,7 +6,7 @@ import enUS from './locales/en-US.json';
 const SUPPORTED_LANGUAGES = ['pt-BR', 'en-US'];
 
 const detectLanguage = () => {
-  if (typeof window === 'undefined') return 'pt-BR';
+  if (typeof window === 'undefined' || typeof localStorage === 'undefined') return 'pt-BR';
 
   const saved = localStorage.getItem('language');
   if (SUPPORTED_LANGUAGES.includes(saved)) return saved;
@@ -32,7 +32,7 @@ i18n.use(initReactI18next).init({
   interpolation: { escapeValue: false },
 });
 
-if (typeof window !== 'undefined') {
+if (typeof window !== 'undefined' && typeof localStorage !== 'undefined') {
   i18n.on('languageChanged', (lng) => localStorage.setItem('language', lng));
 }
 

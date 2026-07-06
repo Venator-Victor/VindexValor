@@ -47,7 +47,7 @@ describe('Accounts page', () => {
 
   it('renders the page title', () => {
     renderContas();
-    expect(screen.getByRole('heading', { name: 'Accounts' })).toBeInTheDocument();
+    expect(screen.getByRole('heading', { name: 'Contas' })).toBeInTheDocument();
   });
 
   it('shows a button to add a new account', () => {

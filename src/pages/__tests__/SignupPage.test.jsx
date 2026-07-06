@@ -55,11 +55,11 @@ describe('SignupPage', () => {
     renderSignup();
 
     await userEvent.type(screen.getByLabelText(/^email$/i), 'new@user.com');
-    await userEvent.type(screen.getByLabelText(/^senha$/i), 'strongpass');
-    await userEvent.type(screen.getByLabelText(/confirmar senha/i), 'strongpass');
+    await userEvent.type(screen.getByLabelText(/^senha$/i), 'Strongpass1');
+    await userEvent.type(screen.getByLabelText(/confirmar senha/i), 'Strongpass1');
     await userEvent.click(screen.getByRole('button', { name: /cadastrar/i }));
 
-    expect(mockSignUp).toHaveBeenCalledWith('new@user.com', 'strongpass');
+    expect(mockSignUp).toHaveBeenCalledWith('new@user.com', 'Strongpass1');
   });
 
   it('shows error toast when passwords do not match', async () => {
@@ -95,8 +95,8 @@ describe('SignupPage', () => {
     renderSignup();
 
     await userEvent.type(screen.getByLabelText(/^email$/i), 'new@user.com');
-    await userEvent.type(screen.getByLabelText(/^senha$/i), 'strongpass');
-    await userEvent.type(screen.getByLabelText(/confirmar senha/i), 'strongpass');
+    await userEvent.type(screen.getByLabelText(/^senha$/i), 'Strongpass1');
+    await userEvent.type(screen.getByLabelText(/confirmar senha/i), 'Strongpass1');
     await userEvent.click(screen.getByRole('button', { name: /cadastrar/i }));
 
     await waitFor(() => expect(mockNavigate).toHaveBeenCalledWith('/dashboard'));
@@ -107,8 +107,8 @@ describe('SignupPage', () => {
     renderSignup();
 
     await userEvent.type(screen.getByLabelText(/^email$/i), 'dup@user.com');
-    await userEvent.type(screen.getByLabelText(/^senha$/i), 'strongpass');
-    await userEvent.type(screen.getByLabelText(/confirmar senha/i), 'strongpass');
+    await userEvent.type(screen.getByLabelText(/^senha$/i), 'Strongpass1');
+    await userEvent.type(screen.getByLabelText(/confirmar senha/i), 'Strongpass1');
     await userEvent.click(screen.getByRole('button', { name: /cadastrar/i }));
 
     await waitFor(() => expect(mockSignUp).toHaveBeenCalled());

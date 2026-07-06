@@ -64,6 +64,7 @@ export function createSupabaseMock() {
   const supabaseMock = {
     from: vi.fn().mockReturnValue(builder),
     auth: authMock,
+    rpc: vi.fn().mockResolvedValue({ data: [], error: null }),
   };
 
   return { supabaseMock, builder, authMock };

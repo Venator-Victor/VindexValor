@@ -27,7 +27,13 @@ const { mockBuilder, mockSupabase } = vi.hoisted(() => {
   Object.defineProperty(builder, 'then', {
     get: () => (res, rej) => Promise.resolve({ data: [], error: null }).then(res, rej),
   });
-  return { mockBuilder: builder, mockSupabase: { from: vi.fn().mockReturnValue(builder) } };
+  return {
+    mockBuilder: builder,
+    mockSupabase: {
+      from: vi.fn().mockReturnValue(builder),
+      rpc: vi.fn().mockResolvedValue({ data: [], error: null }),
+    },
+  };
 });
 
 vi.mock('@/lib/customSupabaseClient', () => ({
@@ -168,13 +174,13 @@ describe('FinanceContext – categories', () => {
     mockSupabase.from.mockReturnValue(mockBuilder);
   });
 
-  it('createCategory adds the category to state', async () => {
+  it('addCategory adds the category to state', async () => {
     const cat = { id: 'cat-1', name: 'Travel', color: '#0ff', icon: 'bx bx-plane' };
     mockBuilder.single.mockResolvedValueOnce({ data: cat, error: null });
 
     const { result } = renderHook(() => useFinance(), { wrapper });
     await act(async () => {
-      await result.current.createCategory({ name: 'Travel', color: '#0ff', icon: 'bx bx-plane' });
+      await result.current.addCategory({ name: 'Travel', color: '#0ff', icon: 'bx bx-plane' });
     });
 
     expect(result.current.categories).toContainEqual(cat);
@@ -188,19 +194,19 @@ describe('FinanceContext – categories', () => {
       .mockResolvedValueOnce({ data: updated, error: null });
 
     const { result } = renderHook(() => useFinance(), { wrapper });
-    await act(async () => { await result.current.createCategory(cat); });
+    await act(async () => { await result.current.addCategory(cat); });
     await act(async () => { await result.current.updateCategory('cat-u', { name: 'New' }); });
 
     expect(result.current.categories.find(c => c.id === 'cat-u')?.name).toBe('New');
   });
 
-  it('removeCategory removes the category from state', async () => {
+  it('deleteCategory removes the category from state', async () => {
     const cat = { id: 'cat-del', name: 'Del', color: '#000', icon: 'bx bx-trash' };
     mockBuilder.single.mockResolvedValueOnce({ data: cat, error: null });
 
     const { result } = renderHook(() => useFinance(), { wrapper });
-    await act(async () => { await result.current.createCategory(cat); });
-    await act(async () => { await result.current.removeCategory('cat-del'); });
+    await act(async () => { await result.current.addCategory(cat); });
+    await act(async () => { await result.current.deleteCategory('cat-del'); });
 
     expect(result.current.categories.some(c => c.id === 'cat-del')).toBe(false);
   });

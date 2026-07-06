@@ -95,8 +95,8 @@ describe('TransactionForm – editing', () => {
   it('pre-fills description from initialData', () => {
     renderForm({
       initialData: {
-        id: 'tx-1', type: 'entrada', description: 'Salário',
-        amount: 3000, date: '2024-06-01', conta_id: 'acc-1', categoria_id: null,
+        id: 'tx-1', type: 'income', description: 'Salário',
+        amount: 3000, date: '2024-06-01', account_id: 'acc-1', category_id: null,
       },
     });
     expect(screen.getByLabelText('Descrição')).toHaveValue('Salário');
@@ -105,8 +105,8 @@ describe('TransactionForm – editing', () => {
   it('calls updateTransaction when editing an existing transaction', async () => {
     renderForm({
       initialData: {
-        id: 'tx-1', type: 'saida', description: 'Old',
-        amount: -100, date: '2024-06-01', conta_id: 'acc-1', categoria_id: null,
+        id: 'tx-1', type: 'expense', description: 'Old',
+        amount: -100, date: '2024-06-01', account_id: 'acc-1', category_id: null,
       },
     });
     const desc = screen.getByLabelText('Descrição');

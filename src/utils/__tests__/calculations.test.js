@@ -66,19 +66,19 @@ describe('calculateTotalBalance', () => {
 
 describe('calculateMonthlyIncome', () => {
   const transactions = [
-    { date: '2024-06-01', type: 'entrada', amount: 1000 },
-    { date: '2024-06-15', type: 'entrada', amount: 500 },
-    { date: '2024-06-10', type: 'saida', amount: -200 },
-    { date: '2024-05-20', type: 'entrada', amount: 800 },
+    { date: '2024-06-01', type: 'income', amount: 1000 },
+    { date: '2024-06-15', type: 'income', amount: 500 },
+    { date: '2024-06-10', type: 'expense', amount: -200 },
+    { date: '2024-05-20', type: 'income', amount: 800 },
   ];
 
-  it('sums entradas for the given month', () => {
+  it('sums income for the given month', () => {
     expect(calculateMonthlyIncome(transactions, '2024-06')).toBe(1500);
   });
 
-  it('ignores saidas', () => {
-    const onlySaidas = [{ date: '2024-06-01', type: 'saida', amount: -300 }];
-    expect(calculateMonthlyIncome(onlySaidas, '2024-06')).toBe(0);
+  it('ignores expenses', () => {
+    const onlyExpenses = [{ date: '2024-06-01', type: 'expense', amount: -300 }];
+    expect(calculateMonthlyIncome(onlyExpenses, '2024-06')).toBe(0);
   });
 
   it('ignores transactions from other months', () => {
@@ -94,19 +94,19 @@ describe('calculateMonthlyIncome', () => {
 
 describe('calculateMonthlyExpenses', () => {
   const transactions = [
-    { date: '2024-06-01', type: 'saida', amount: -150 },
-    { date: '2024-06-15', type: 'saida', amount: -350 },
-    { date: '2024-06-10', type: 'entrada', amount: 200 },
-    { date: '2024-05-20', type: 'saida', amount: -100 },
+    { date: '2024-06-01', type: 'expense', amount: -150 },
+    { date: '2024-06-15', type: 'expense', amount: -350 },
+    { date: '2024-06-10', type: 'income', amount: 200 },
+    { date: '2024-05-20', type: 'expense', amount: -100 },
   ];
 
-  it('sums saidas for the given month as a positive number', () => {
+  it('sums expenses for the given month as a positive number', () => {
     expect(calculateMonthlyExpenses(transactions, '2024-06')).toBe(500);
   });
 
-  it('ignores entradas', () => {
-    const onlyEntradas = [{ date: '2024-06-01', type: 'entrada', amount: 300 }];
-    expect(calculateMonthlyExpenses(onlyEntradas, '2024-06')).toBe(0);
+  it('ignores income', () => {
+    const onlyIncome = [{ date: '2024-06-01', type: 'income', amount: 300 }];
+    expect(calculateMonthlyExpenses(onlyIncome, '2024-06')).toBe(0);
   });
 
   it('returns 0 for empty list', () => {
@@ -121,19 +121,19 @@ describe('calculateSpendingByCategory', () => {
     expect(calculateSpendingByCategory([])).toEqual({});
   });
 
-  it('groups saida amounts by category', () => {
+  it('groups expense amounts by category', () => {
     const transactions = [
-      { type: 'saida', category: 'food', amount: -50 },
-      { type: 'saida', category: 'food', amount: -30 },
-      { type: 'saida', category: 'transport', amount: -20 },
+      { type: 'expense', category: 'food', amount: -50 },
+      { type: 'expense', category: 'food', amount: -30 },
+      { type: 'expense', category: 'transport', amount: -20 },
     ];
     const result = calculateSpendingByCategory(transactions);
     expect(result.food).toBe(80);
     expect(result.transport).toBe(20);
   });
 
-  it('ignores entradas', () => {
-    const transactions = [{ type: 'entrada', category: 'salary', amount: 3000 }];
+  it('ignores income', () => {
+    const transactions = [{ type: 'income', category: 'salary', amount: 3000 }];
     expect(calculateSpendingByCategory(transactions)).toEqual({});
   });
 });
@@ -273,36 +273,36 @@ describe('calculateAccountBalance', () => {
     expect(calculateAccountBalance([], ACC)).toBe(0);
   });
 
-  it('adds entrada transactions', () => {
-    const txs = [{ type: 'entrada', conta_id: ACC, amount: 200 }];
+  it('adds income transactions', () => {
+    const txs = [{ type: 'income', account_id: ACC, amount: 200 }];
     expect(calculateAccountBalance(txs, ACC, 100)).toBe(300);
   });
 
-  it('subtracts saida transactions', () => {
-    const txs = [{ type: 'saida', conta_id: ACC, amount: -150 }];
+  it('subtracts expense transactions', () => {
+    const txs = [{ type: 'expense', account_id: ACC, amount: -150 }];
     expect(calculateAccountBalance(txs, ACC, 500)).toBe(350);
   });
 
-  it('subtracts pagamento transactions', () => {
-    const txs = [{ type: 'pagamento', conta_id: ACC, amount: -100 }];
+  it('subtracts payment transactions', () => {
+    const txs = [{ type: 'payment', account_id: ACC, amount: -100 }];
     expect(calculateAccountBalance(txs, ACC, 500)).toBe(400);
   });
 
-  it('subtracts from source on transferencia', () => {
-    const txs = [{ type: 'transferencia', conta_id: ACC, conta_destino_id: OTHER, amount: -200 }];
+  it('subtracts from source on transfer', () => {
+    const txs = [{ type: 'transfer', account_id: ACC, destination_account_id: OTHER, amount: -200 }];
     expect(calculateAccountBalance(txs, ACC, 500)).toBe(300);
   });
 
-  it('adds to destination on transferencia', () => {
-    const txs = [{ type: 'transferencia', conta_id: OTHER, conta_destino_id: ACC, amount: -200 }];
+  it('adds to destination on transfer', () => {
+    const txs = [{ type: 'transfer', account_id: OTHER, destination_account_id: ACC, amount: -200 }];
     expect(calculateAccountBalance(txs, ACC, 0)).toBe(200);
   });
 
-  it('uses converted_amount for cross-currency transferencia destination', () => {
+  it('uses converted_amount for cross-currency transfer destination', () => {
     const txs = [{
-      type: 'transferencia',
-      conta_id: OTHER,
-      conta_destino_id: ACC,
+      type: 'transfer',
+      account_id: OTHER,
+      destination_account_id: ACC,
       amount: -100,
       converted_amount: 520,
     }];
@@ -310,7 +310,7 @@ describe('calculateAccountBalance', () => {
   });
 
   it('ignores transactions for other accounts', () => {
-    const txs = [{ type: 'entrada', conta_id: OTHER, amount: 1000 }];
+    const txs = [{ type: 'income', account_id: OTHER, amount: 1000 }];
     expect(calculateAccountBalance(txs, ACC, 200)).toBe(200);
   });
 
@@ -371,19 +371,19 @@ describe('calculateFaturaTotal', () => {
     expect(calculateFaturaTotal([])).toBe(0);
   });
 
-  it('sums only negative (expense) valores', () => {
-    const compras = [{ valor: -100 }, { valor: -50 }, { valor: 20 }];
+  it('sums only negative (expense) amounts', () => {
+    const compras = [{ amount: -100 }, { amount: -50 }, { amount: 20 }];
     expect(calculateFaturaTotal(compras)).toBe(-150);
   });
 
-  it('returns 0 when all valores are positive', () => {
-    expect(calculateFaturaTotal([{ valor: 100 }, { valor: 50 }])).toBe(0);
+  it('returns 0 when all amounts are positive', () => {
+    expect(calculateFaturaTotal([{ amount: 100 }, { amount: 50 }])).toBe(0);
   });
 });
 
 describe('calculateFaturaSaidas', () => {
   it('matches calculateFaturaTotal behaviour', () => {
-    const compras = [{ valor: -80 }, { valor: -40 }, { valor: 10 }];
+    const compras = [{ amount: -80 }, { amount: -40 }, { amount: 10 }];
     expect(calculateFaturaSaidas(compras)).toBe(-120);
   });
 });
@@ -393,12 +393,12 @@ describe('calculateFaturaEntradas', () => {
     expect(calculateFaturaEntradas([])).toBe(0);
   });
 
-  it('sums positive valores without transacao_id', () => {
+  it('sums positive amounts without transaction_id', () => {
     const compras = [
-      { valor: 50 },
-      { valor: 30 },
-      { valor: 20, transacao_id: 'tx-1' }, // excluded (linked payment)
-      { valor: -100 },                       // excluded (expense)
+      { amount: 50 },
+      { amount: 30 },
+      { amount: 20, transaction_id: 'tx-1' }, // excluded (linked payment)
+      { amount: -100 },                       // excluded (expense)
     ];
     expect(calculateFaturaEntradas(compras)).toBe(80);
   });

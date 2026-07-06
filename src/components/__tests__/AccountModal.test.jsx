@@ -61,7 +61,7 @@ describe('AccountModal – rendering', () => {
   it('shows credit-card fields when Cartão de Crédito is selected', async () => {
     renderModal();
     // The SelectInput trigger shows the currently selected option label
-    await selectOption('Conta Corrente (checking)', 'Cartão de Crédito (credit_card)');
+    await selectOption('Conta Corrente', 'Cartão de Crédito');
     expect(screen.getByText('Limite do Cartão *')).toBeInTheDocument();
   });
 
@@ -83,7 +83,7 @@ describe('AccountModal – validation', () => {
   it('shows validation toast when credit card has no credit limit', async () => {
     renderModal();
     await userEvent.type(screen.getByLabelText('Nome da Conta *'), 'My Card');
-    await selectOption('Conta Corrente (checking)', 'Cartão de Crédito (credit_card)');
+    await selectOption('Conta Corrente', 'Cartão de Crédito');
     // Submit without filling credit limit
     await userEvent.click(screen.getByRole('button', { name: /salvar/i }));
     await waitFor(() =>
