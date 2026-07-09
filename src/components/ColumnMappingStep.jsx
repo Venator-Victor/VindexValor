@@ -32,7 +32,7 @@ const ColumnMappingStep = ({ headers, mapping, onChange, onConfirm, onBack }) =>
             <select
               value={mapping[field.key] || ''}
               onChange={e => onChange({ ...mapping, [field.key]: e.target.value })}
-              className="flex-1 px-3 py-2 text-sm bg-background border border-border rounded-lg text-foreground focus:ring-1 focus:ring-primary focus:border-primary outline-none"
+              className="flex-1 px-3 py-2 text-sm bg-background border border-border rounded-lg text-foreground hover:border-primary focus:border-primary outline-none"
             >
               <option value="">{t('csv.select_column')}</option>
               {headers.map(h => (

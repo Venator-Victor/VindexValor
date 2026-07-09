@@ -266,7 +266,7 @@ const Transactions = () => {
                 placeholder={t('common.search_placeholder')}
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
-                className="w-full pl-9 pr-8 py-2 rounded-md border border-input bg-background text-sm text-foreground focus:outline-none focus:ring-1 focus:ring-primary h-[42px]"
+                className="w-full pl-9 pr-8 py-2 rounded-md border border-input bg-background text-sm text-foreground outline-none hover:border-primary focus:border-primary h-[42px]"
               />
               {searchTerm && (
                 <button onClick={() => setSearchTerm('')} className="absolute right-2 top-2.5 text-muted-foreground hover:text-foreground">

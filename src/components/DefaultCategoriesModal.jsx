@@ -60,10 +60,10 @@ const DefaultCategoriesModal = ({ isOpen, onClose, onCreateCustom, onSuccess }) 
                key={cat.id}
                onClick={() => handleSelect(cat)}
                disabled={loadingId !== null}
-               className="flex flex-col items-center justify-center p-4 rounded-xl border border-gray-200 dark:border-vindex-border hover:bg-gray-50 dark:hover:bg-vindex-bg transition-all hover:scale-105 relative group disabled:opacity-50 disabled:cursor-not-allowed bg-white dark:bg-vindex-card h-full min-h-[160px]"
+               className="flex flex-col items-center justify-center p-4 rounded-xl border border-gray-200 dark:border-vindex-border hover:border-primary hover:bg-gray-50 dark:hover:bg-vindex-bg transition-colors relative group disabled:opacity-50 disabled:cursor-not-allowed bg-white dark:bg-vindex-card h-full min-h-[160px]"
              >
-                <div 
-                   className="w-12 h-12 rounded-full flex items-center justify-center text-2xl mb-3 shadow-sm transition-transform group-hover:scale-110 flex-shrink-0"
+                <div
+                   className="w-12 h-12 rounded-full flex items-center justify-center text-2xl mb-3 flex-shrink-0"
                    style={{ backgroundColor: cat.color + '22', color: cat.color }}
                 >
                    {loadingId === cat.id ? (
@@ -74,9 +74,6 @@ const DefaultCategoriesModal = ({ isOpen, onClose, onCreateCustom, onSuccess }) 
                 </div>
                 <span className="font-semibold text-gray-900 dark:text-vindex-text text-sm sm:text-base text-center line-clamp-2 leading-tight h-[40px] flex items-center justify-center">{cat.name}</span>
                 <span className="text-xs text-gray-500 dark:text-vindex-text/60 mt-1 text-center line-clamp-2 px-1">{cat.description}</span>
-                
-                {/* Hover effect indicator */}
-                <div className="absolute inset-0 border-2 border-transparent group-hover:border-primary/10 rounded-xl transition-colors pointer-events-none" />
              </button>
           ))}
         </div>

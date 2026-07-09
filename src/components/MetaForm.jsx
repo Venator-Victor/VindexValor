@@ -13,6 +13,7 @@ import { Target, CalendarStar } from '@/components/BxIcon';
 import { PERIOD_OPTIONS } from '@/utils/periodOptions';
 import { TrashAlt as Trash2, Plus, AlertCircle } from '@/components/BxIcon';
 import { useToast } from '@/components/ui/use-toast';
+import { PRIMARY, SUCCESS } from '@/utils/colors';
 
 const MetaForm = ({ initialData, initialName, initialIcon, initialColor, onSubmit, onCancel }) => {
   const { t } = useTranslation();
@@ -139,25 +140,25 @@ const MetaForm = ({ initialData, initialName, initialIcon, initialColor, onSubmi
         <button
           type="button"
           onClick={() => setFormData({ ...formData, goal_type: 'target_value' })}
-          className={`flex-1 py-2 text-sm font-medium rounded-md transition-all ${
-            formData.goal_type === 'target_value' 
-              ? 'bg-white dark:bg-vindex-card text-gray-900 dark:text-gray-100 shadow-sm' 
+          className={`flex-1 flex items-center justify-center py-2 text-sm font-medium rounded-md transition-all ${
+            formData.goal_type === 'target_value'
+              ? 'bg-white dark:bg-vindex-card text-gray-900 dark:text-gray-100 shadow-sm'
               : 'text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-200'
           }`}
         >
-          <Target size={16} className="mr-2" />
+          <Target size={16} className="mr-2 shrink-0" />
           {t('goals.type_fixed')}
         </button>
         <button
           type="button"
           onClick={() => setFormData({ ...formData, goal_type: 'monthly_value' })}
-          className={`flex-1 py-2 text-sm font-medium rounded-md transition-all ${
+          className={`flex-1 flex items-center justify-center py-2 text-sm font-medium rounded-md transition-all ${
             formData.goal_type === 'monthly_value'
               ? 'bg-white dark:bg-vindex-card text-gray-900 dark:text-gray-100 shadow-sm'
               : 'text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-200'
           }`}
         >
-          <CalendarStar size={16} className="mr-2" />
+          <CalendarStar size={16} className="mr-2 shrink-0" />
           {t('goals.filter_recurring')}
         </button>
       </div>
@@ -170,7 +171,7 @@ const MetaForm = ({ initialData, initialName, initialIcon, initialColor, onSubmi
             type="text"
             value={formData.name}
             onChange={(e) => setFormData({ ...formData, name: e.target.value })}
-            className="w-full px-3 py-2 mt-1 bg-white dark:bg-vindex-bg border border-gray-200 dark:border-vindex-border rounded-lg text-gray-900 dark:text-gray-100 focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all outline-none"
+            className="w-full px-3 py-2 mt-1 bg-white dark:bg-vindex-bg border border-gray-200 dark:border-vindex-border rounded-lg text-gray-900 dark:text-gray-100 hover:border-primary focus:border-primary transition-all outline-none"
             required
             placeholder={t('goals.name_placeholder')}
         />
@@ -179,7 +180,7 @@ const MetaForm = ({ initialData, initialName, initialIcon, initialColor, onSubmi
       {/* 3. Dynamic Fields Based on Type */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4 animate-in fade-in slide-in-from-top-2">
         {formData.goal_type === 'target_value' ? (
-          <div>
+          <div className="md:col-span-2">
             <Label htmlFor="targetAmount">{t('goals.target_amount_label')} <span className="text-red-500">*</span></Label>
             <NumberInput
               id="targetAmount"
@@ -191,7 +192,7 @@ const MetaForm = ({ initialData, initialName, initialIcon, initialColor, onSubmi
           </div>
         ) : (
           <>
-             <div>
+             <div className="md:col-span-2">
                 <Label htmlFor="contributionValue">{t('goals.contribution_value')} (R$) <span className="text-red-500">*</span></Label>
                 <NumberInput
                   id="contributionValue"
@@ -214,7 +215,7 @@ const MetaForm = ({ initialData, initialName, initialIcon, initialColor, onSubmi
         )}
 
         {/* Deadline - Now Optional */}
-        <div>
+        <div className={formData.goal_type === 'target_value' ? 'md:col-span-2' : undefined}>
           <Label htmlFor="deadline">{t('goals.deadline_label')}</Label>
           <DatePicker
             id="deadline"
@@ -225,17 +226,15 @@ const MetaForm = ({ initialData, initialName, initialIcon, initialColor, onSubmi
       </div>
 
       {/* 4. Total Accumulated (Common Field) */}
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-          <div>
-            <Label htmlFor="accumulated_amount">{t('goals.total_accumulated_label')}</Label>
-            <NumberInput
-              id="accumulated_amount"
-              value={formData.accumulated_amount}
-              onChange={(e) => setFormData({ ...formData, accumulated_amount: e.target.value })}
-              placeholder="0,00"
-            />
-            <p className="text-xs text-gray-500 mt-1">{t('goals.total_accumulated_hint')}</p>
-          </div>
+      <div>
+        <Label htmlFor="accumulated_amount">{t('goals.total_accumulated_label')}</Label>
+        <NumberInput
+          id="accumulated_amount"
+          value={formData.accumulated_amount}
+          onChange={(e) => setFormData({ ...formData, accumulated_amount: e.target.value })}
+          placeholder="0,00"
+        />
+        <p className="text-xs text-gray-500 mt-1">{t('goals.total_accumulated_hint')}</p>
       </div>
 
       {/* 5. Account Reservations (Multiple) */}
@@ -339,11 +338,26 @@ const MetaForm = ({ initialData, initialName, initialIcon, initialColor, onSubmi
       </div>
 
       {/* Actions */}
-      <div className="flex gap-3 pt-4 border-t border-gray-100 dark:border-gray-800 mt-6">
-        <Button type="submit" className="flex-1 bg-primary text-primary-foreground hover:bg-primary/90 rounded-lg h-11 font-medium shadow-sm transition-all hover:shadow-md">
+      <div className="flex gap-2 pt-4 border-t border-gray-100 dark:border-gray-800 mt-6">
+        <Button
+          type="submit"
+          variant="outline"
+          className="flex-1 font-medium rounded-lg transition-colors bg-transparent"
+          style={{ borderColor: SUCCESS, color: SUCCESS }}
+          onMouseEnter={e => { e.currentTarget.style.backgroundColor = SUCCESS; e.currentTarget.style.color = '#fff'; }}
+          onMouseLeave={e => { e.currentTarget.style.backgroundColor = 'transparent'; e.currentTarget.style.color = SUCCESS; }}
+        >
           {initialData ? t('goals.save_changes') : t('goals.create_action')}
         </Button>
-        <Button type="button" variant="outline" onClick={onCancel} className="h-11 px-6 border-gray-200 dark:border-vindex-border text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-800 rounded-lg">
+        <Button
+          type="button"
+          variant="outline"
+          onClick={onCancel}
+          className="flex-1 rounded-lg border transition-colors bg-transparent"
+          style={{ borderColor: PRIMARY, color: PRIMARY }}
+          onMouseEnter={e => { e.currentTarget.style.backgroundColor = PRIMARY; e.currentTarget.style.color = '#000'; }}
+          onMouseLeave={e => { e.currentTarget.style.backgroundColor = 'transparent'; e.currentTarget.style.color = PRIMARY; }}
+        >
           {t('common.cancel')}
         </Button>
       </div>

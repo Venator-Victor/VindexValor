@@ -55,7 +55,7 @@ const SignupPage = () => {
     }
   };
 
-  const inputClass = "w-full px-3 py-2 bg-background border border-border rounded-lg text-foreground focus:ring-1 focus:ring-primary focus:border-primary outline-none hover:border-primary transition-all duration-200";
+  const inputClass = "w-full px-3 py-2 bg-background border border-border rounded-lg text-foreground focus:border-primary outline-none hover:border-primary transition-all duration-200";
 
   return (
     <div className="min-h-screen bg-background flex items-center justify-center p-4">

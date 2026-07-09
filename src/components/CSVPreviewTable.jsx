@@ -56,7 +56,7 @@ const CSVPreviewTable = ({ data, onUpdateRow }) => {
                   <td className="px-4 py-2">
                     <div className="relative flex items-center gap-2">
                       <select 
-                        className={`w-full max-w-[150px] text-xs py-1.5 px-2 rounded border-border bg-background outline-none focus:ring-1 focus:ring-primary ${
+                        className={`w-full max-w-[150px] text-xs py-1.5 px-2 rounded border-border bg-background outline-none hover:border-primary focus:border-primary ${
                           row.autoMapped ? 'border-blue-300 dark:border-blue-700 bg-blue-50/50 dark:bg-blue-900/10' : 
                           row.manuallyMapped ? 'border-green-300 dark:border-green-700 bg-green-50/50 dark:bg-green-900/10' : ''
                         }`}

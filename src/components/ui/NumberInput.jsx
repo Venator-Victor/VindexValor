@@ -61,7 +61,7 @@ const NumberInput = ({ value, onChange, min, max, className, placeholder, id, cu
         value={displayValue}
         onChange={handleChange}
         disabled={disabled}
-        className="flex h-10 w-full rounded-lg border border-gray-200 bg-white pl-10 pr-3 py-2 text-sm ring-offset-white file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-gray-500 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-vindex-success disabled:cursor-not-allowed disabled:opacity-50 dark:border-vindex-border dark:bg-vindex-bg dark:ring-offset-gray-950 dark:placeholder:text-vindex-text/30 dark:focus-visible:ring-vindex-success text-gray-900 dark:text-vindex-text"
+        className="flex h-10 w-full rounded-lg border border-gray-200 bg-white pl-10 pr-3 py-2 text-sm file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-gray-500 outline-none hover:border-primary focus-visible:border-primary disabled:cursor-not-allowed disabled:opacity-50 dark:border-vindex-border dark:bg-vindex-bg dark:placeholder:text-vindex-text/30 text-gray-900 dark:text-vindex-text"
         placeholder={placeholder || `0,${'0'.repeat(decimals)}`}
         autoComplete="off"
       />

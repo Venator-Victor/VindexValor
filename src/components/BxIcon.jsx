@@ -28,6 +28,10 @@ import {
   UserCheck, Grid, Window,
   // shadcn ui primitives
   Circle, Minus, DotsHorizontalRounded, DotsVerticalRounded, Sidebar,
+  // Finance & category icons (expanded icon selector)
+  Bank, Landmark, PiggyBank, Safe, Calculator, Coins, ChartLine, Umbrella,
+  Pill, Syringe, Taxi, Train, Subway, Truck, Motorcycle, Ship, Spa,
+  Popcorn, Ticket, Beer, Wine, Pizza, Tv, Dog, Cat, Tree,
 } from '@boxicons/react';
 
 const iconMap = {
@@ -137,6 +141,33 @@ const iconMap = {
   // MetaCategorySelector icons
   'bx-user-voice': User,
   'bx-calendar-event': CalendarCheck,
+  // Finance & category icons (expanded icon selector)
+  'bx-bank': Bank,
+  'bx-landmark': Landmark,
+  'bx-piggy-bank': PiggyBank,
+  'bx-safe': Safe,
+  'bx-calculator': Calculator,
+  'bx-coins': Coins,
+  'bx-chart-line': ChartLine,
+  'bx-umbrella': Umbrella,
+  'bx-pill': Pill,
+  'bx-syringe': Syringe,
+  'bx-taxi': Taxi,
+  'bx-train': Train,
+  'bx-subway': Subway,
+  'bx-truck': Truck,
+  'bx-motorcycle': Motorcycle,
+  'bx-ship': Ship,
+  'bx-spa': Spa,
+  'bx-popcorn': Popcorn,
+  'bx-ticket': Ticket,
+  'bx-beer': Beer,
+  'bx-wine': Wine,
+  'bx-pizza': Pizza,
+  'bx-tv': Tv,
+  'bx-dog': Dog,
+  'bx-cat': Cat,
+  'bx-tree': Tree,
 };
 
 const BxIcon = ({ iconClass = '', className = '', size = 20, style, ...props }) => {
@@ -187,4 +218,8 @@ export {
   // category / account icons
   Shield, BuildingHouse, Group, Wifi, Bolt, Station, Hanger,
   ShoppingBag, Face, BookOpen, Child, PawPrint, Hospital, Bus, PlaneAlt,
+  // finance & category icons (expanded icon selector)
+  Bank, Landmark, PiggyBank, Safe, Calculator, Coins, ChartLine, Umbrella,
+  Pill, Syringe, Taxi, Train, Subway, Truck, Motorcycle, Ship, Spa,
+  Popcorn, Ticket, Beer, Wine, Pizza, Tv, Dog, Cat, Tree,
 };

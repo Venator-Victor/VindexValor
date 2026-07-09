@@ -86,31 +86,31 @@ const TransactionTable = ({ transactions, onEdit, onDelete, selectedIds, onSelec
 
       <div className="bg-card rounded-xl border shadow-sm overflow-hidden">
         <div className="overflow-x-auto custom-scrollbar">
-          <table className="w-full text-sm text-left">
+          <table className="w-full min-w-[760px] text-sm text-left table-fixed">
             <thead className="bg-muted/50 text-muted-foreground border-b select-none">
               <tr>
-                <th className="p-3 w-10">
-                  <Checkbox 
+                <th className="p-3 w-[5%]">
+                  <Checkbox
                     checked={transactions.length > 0 && selectedIds.length === transactions.length}
                     onCheckedChange={toggleSelectAll}
                   />
                 </th>
-                <th className="p-3 font-medium cursor-pointer hover:bg-muted/80 transition-colors" onClick={() => handleSort('date')}>
+                <th className="p-3 w-[11%] font-medium cursor-pointer hover:bg-muted/80 transition-colors" onClick={() => handleSort('date')}>
                   <div className="flex items-center">{t('common.date')} <SortIcon column="date" sortConfig={sortConfig} /></div>
                 </th>
-                <th className="p-3 font-medium cursor-pointer hover:bg-muted/80 transition-colors" onClick={() => handleSort('description')}>
+                <th className="p-3 w-[29%] font-medium cursor-pointer hover:bg-muted/80 transition-colors" onClick={() => handleSort('description')}>
                   <div className="flex items-center">{t('common.description')} <SortIcon column="description" sortConfig={sortConfig} /></div>
                 </th>
-                <th className="p-3 font-medium cursor-pointer hover:bg-muted/80 transition-colors" onClick={() => handleSort('category')}>
+                <th className="p-3 w-[17%] font-medium cursor-pointer hover:bg-muted/80 transition-colors" onClick={() => handleSort('category')}>
                   <div className="flex items-center">{t('common.category')} <SortIcon column="category" sortConfig={sortConfig} /></div>
                 </th>
-                <th className="p-3 font-medium cursor-pointer hover:bg-muted/80 transition-colors" onClick={() => handleSort('account')}>
+                <th className="p-3 w-[15%] font-medium cursor-pointer hover:bg-muted/80 transition-colors" onClick={() => handleSort('account')}>
                   <div className="flex items-center">{t('common.account')} <SortIcon column="account" sortConfig={sortConfig} /></div>
                 </th>
-                <th className="p-3 font-medium cursor-pointer hover:bg-muted/80 transition-colors text-right" onClick={() => handleSort('amount')}>
+                <th className="p-3 w-[15%] font-medium cursor-pointer hover:bg-muted/80 transition-colors text-right" onClick={() => handleSort('amount')}>
                   <div className="flex items-center justify-end">{t('common.amount')} <SortIcon column="amount" sortConfig={sortConfig} /></div>
                 </th>
-                <th className="p-3 font-medium text-center w-20">{t('common.actions')}</th>
+                <th className="p-3 w-[8%] font-medium text-center">{t('common.actions')}</th>
               </tr>
             </thead>
             <tbody className="divide-y">
@@ -126,7 +126,7 @@ const TransactionTable = ({ transactions, onEdit, onDelete, selectedIds, onSelec
                       />
                     </td>
                     <td className="p-3 whitespace-nowrap text-muted-foreground">{formatDate(tx.date)}</td>
-                    <td className="p-3 font-medium truncate max-w-[150px]" title={tx.description || tx.name}>
+                    <td className="p-3 font-medium truncate" title={tx.description || tx.name}>
                       {tx.description || tx.name}
                       {tx.is_recurring && <History size={16} className="ml-2 text-primary" title={t('transactions.recurring_transaction_title')} />}
                       {tx.type === 'payment' && <span className="ml-2 text-[10px] bg-purple-100 text-purple-800 px-2 py-0.5 rounded-full whitespace-nowrap">{t('transactions.type_payment')}</span>}
@@ -136,7 +136,7 @@ const TransactionTable = ({ transactions, onEdit, onDelete, selectedIds, onSelec
                         {tx.categories ? (
                           <>
                             <div className="w-3 h-3 rounded-full shrink-0" style={{ backgroundColor: tx.categories.color }}></div>
-                            <span className="truncate max-w-[100px]">{tx.categories.name}</span>
+                            <span className="truncate min-w-0">{tx.categories.name}</span>
                           </>
                         ) : (
                           <span className="text-muted-foreground text-xs">{t('common.no_category')}</span>
@@ -144,7 +144,7 @@ const TransactionTable = ({ transactions, onEdit, onDelete, selectedIds, onSelec
                       </div>
                     </td>
                     <td className="p-3">
-                      <span className="truncate max-w-[100px] block text-muted-foreground">{tx.account?.name || 'N/A'}</span>
+                      <span className="truncate block text-muted-foreground">{tx.account?.name || 'N/A'}</span>
                     </td>
                     <td className={`p-3 text-right font-bold whitespace-nowrap ${valColor}`}>
                       {formatCurrencyWithSymbol(tx.amount, tx.account?.currency || 'BRL')}

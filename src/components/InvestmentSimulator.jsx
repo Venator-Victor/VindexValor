@@ -69,7 +69,7 @@ const InvestmentSimulator = () => {
   };
 
   const inputClass =
-    'w-full px-3 py-2 bg-gray-50 dark:bg-vindex-bg border border-gray-200 dark:border-vindex-border rounded-lg text-sm text-gray-900 dark:text-gray-100 focus:outline-none focus:ring-1 focus:ring-vindex-success no-spinner';
+    'w-full px-3 py-2 bg-gray-50 dark:bg-vindex-bg border border-gray-200 dark:border-vindex-border rounded-lg text-sm text-gray-900 dark:text-gray-100 outline-none hover:border-primary focus:border-primary no-spinner';
 
   return (
     <motion.div

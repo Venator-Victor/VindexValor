@@ -121,7 +121,7 @@ export const useCSVImport = () => {
         amount: t.amount,
         type: t.type,
         date: t.date,
-        category_id: t.category_id,
+        category_id: t.category_id || null,
         account_id: accountId,
         is_recurring: false,
       }));

@@ -283,7 +283,7 @@ const Investments = () => {
                     type="text"
                     value={formData.name}
                     onChange={(e) => setFormData({ ...formData, name: e.target.value })}
-                    className="w-full px-3 py-2 bg-white dark:bg-vindex-bg border border-gray-200 dark:border-vindex-border rounded-lg text-gray-900 dark:text-gray-100 focus:ring-2 focus:ring-vindex-success/50 outline-none"
+                    className="w-full px-3 py-2 bg-white dark:bg-vindex-bg border border-gray-200 dark:border-vindex-border rounded-lg text-gray-900 dark:text-gray-100 hover:border-primary focus:border-primary outline-none"
                     placeholder={t('investments.name_placeholder')}
                     required
                   />
@@ -406,17 +406,17 @@ const Investments = () => {
               className="bg-white dark:bg-vindex-card rounded-xl border border-gray-200 dark:border-vindex-border overflow-hidden shadow-sm"
             >
               <div className="overflow-x-auto">
-                <table className="w-full">
+                <table className="w-full min-w-[900px] table-fixed">
                   <thead className="bg-gray-50 dark:bg-vindex-bg border-b border-gray-200 dark:border-vindex-border">
                     <tr>
-                      <SortableHeader label={t('investments.col_name')} column="name" sortConfig={sortConfig} onSort={requestSort} className="text-xs font-bold uppercase" />
-                      <SortableHeader label={t('investments.col_type')} column="type" sortConfig={sortConfig} onSort={requestSort} className="text-xs font-bold uppercase" />
-                      <SortableHeader label={t('investments.col_subtype')} column="subtype" sortConfig={sortConfig} onSort={requestSort} className="text-xs font-bold uppercase" />
-                      <SortableHeader label={t('investments.col_invested')} column="investedAmount" sortConfig={sortConfig} onSort={requestSort} className="text-xs font-bold uppercase" />
-                      <SortableHeader label={t('investments.col_current')} column="currentAmount" sortConfig={sortConfig} onSort={requestSort} className="text-xs font-bold uppercase" />
-                      <th className="px-6 py-3 text-left text-xs font-bold text-gray-700 dark:text-gray-300 uppercase">{t('investments.col_return')}</th>
-                      <SortableHeader label={t('investments.col_purchase_date')} column="purchaseDate" sortConfig={sortConfig} onSort={requestSort} className="text-xs font-bold uppercase" />
-                      <th className="px-6 py-3 text-left text-xs font-bold text-gray-700 dark:text-gray-300 uppercase">{t('common.actions')}</th>
+                      <SortableHeader label={t('investments.col_name')} column="name" sortConfig={sortConfig} onSort={requestSort} className="text-xs font-bold uppercase w-[20%]" />
+                      <SortableHeader label={t('investments.col_type')} column="type" sortConfig={sortConfig} onSort={requestSort} className="text-xs font-bold uppercase w-[11%]" />
+                      <SortableHeader label={t('investments.col_subtype')} column="subtype" sortConfig={sortConfig} onSort={requestSort} className="text-xs font-bold uppercase w-[11%]" />
+                      <SortableHeader label={t('investments.col_invested')} column="investedAmount" sortConfig={sortConfig} onSort={requestSort} className="text-xs font-bold uppercase w-[13%]" />
+                      <SortableHeader label={t('investments.col_current')} column="currentAmount" sortConfig={sortConfig} onSort={requestSort} className="text-xs font-bold uppercase w-[13%]" />
+                      <th className="px-6 py-3 w-[11%] text-left text-xs font-bold text-gray-700 dark:text-gray-300 uppercase">{t('investments.col_return')}</th>
+                      <SortableHeader label={t('investments.col_purchase_date')} column="purchaseDate" sortConfig={sortConfig} onSort={requestSort} className="text-xs font-bold uppercase w-[13%]" />
+                      <th className="px-6 py-3 w-[8%] text-left text-xs font-bold text-gray-700 dark:text-gray-300 uppercase">{t('common.actions')}</th>
                     </tr>
                   </thead>
                   <tbody className="divide-y divide-gray-200 dark:divide-vindex-border">
@@ -426,9 +426,9 @@ const Investments = () => {
 
                       return (
                         <tr key={investment.id} className="hover:bg-gray-50 dark:hover:bg-vindex-bg/50 transition-colors">
-                          <td className="px-6 py-4 text-sm text-gray-900 dark:text-gray-100 font-medium">{investment.name}</td>
-                          <td className="px-6 py-4 text-sm text-gray-700 dark:text-gray-300">{investment.type}</td>
-                          <td className="px-6 py-4 text-sm text-gray-700 dark:text-gray-300">{investment.subtype || '-'}</td>
+                          <td className="px-6 py-4 text-sm text-gray-900 dark:text-gray-100 font-medium truncate" title={investment.name}>{investment.name}</td>
+                          <td className="px-6 py-4 text-sm text-gray-700 dark:text-gray-300 truncate">{investment.type}</td>
+                          <td className="px-6 py-4 text-sm text-gray-700 dark:text-gray-300 truncate">{investment.subtype || '-'}</td>
                           <td className="px-6 py-4 text-sm text-gray-700 dark:text-gray-300">{formatCurrency(investment.investedAmount)}</td>
                           <td className="px-6 py-4 text-sm text-gray-900 dark:text-gray-100 font-medium">{formatCurrency(investment.currentAmount)}</td>
                           <td className="px-6 py-4">

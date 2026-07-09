@@ -80,35 +80,35 @@ const InvoiceItemList = ({ items, onEdit, onDelete }) => {
   return (
     <div className="bg-card rounded-xl border shadow-sm overflow-hidden">
       <div className="overflow-x-auto">
-        <table className="w-full text-sm text-left">
+        <table className="w-full min-w-[720px] text-sm text-left table-fixed">
           <thead className="bg-muted/50 text-muted-foreground border-b">
             <tr>
-              <th className="p-3 font-medium">
+              <th className="p-3 w-[12%] font-medium">
                 <button onClick={() => requestSort('date')} className="flex items-center gap-1.5 hover:text-foreground">
                   {t('invoice_detail.col_date')} <SortIcon column="data" sortConfig={sortConfig} />
                 </button>
               </th>
-              <th className="p-3 font-medium">
+              <th className="p-3 w-[30%] font-medium">
                 <button onClick={() => requestSort('description')} className="flex items-center gap-1.5 hover:text-foreground">
                   {t('invoice_detail.col_status_description')} <SortIcon column="description" sortConfig={sortConfig} />
                 </button>
               </th>
-              <th className="p-3 font-medium">
+              <th className="p-3 w-[15%] font-medium">
                 <button onClick={() => requestSort('tipo')} className="flex items-center gap-1.5 hover:text-foreground">
                   {t('invoice_detail.col_type')} <SortIcon column="tipo" sortConfig={sortConfig} />
                 </button>
               </th>
-              <th className="p-3 font-medium">
+              <th className="p-3 w-[18%] font-medium">
                 <button onClick={() => requestSort('categoria')} className="flex items-center gap-1.5 hover:text-foreground">
                   {t('common.category')} <SortIcon column="categoria" sortConfig={sortConfig} />
                 </button>
               </th>
-              <th className="p-3 font-medium">
+              <th className="p-3 w-[15%] font-medium">
                 <button onClick={() => requestSort('amount')} className="flex items-center gap-1.5 justify-end w-full hover:text-foreground">
                   {t('common.amount')} <SortIcon column="amount" sortConfig={sortConfig} />
                 </button>
               </th>
-              <th className="p-3 font-medium text-center w-20">{t('invoice_detail.col_actions')}</th>
+              <th className="p-3 w-[10%] font-medium text-center">{t('invoice_detail.col_actions')}</th>
             </tr>
           </thead>
           <tbody className="divide-y">
@@ -119,7 +119,7 @@ const InvoiceItemList = ({ items, onEdit, onDelete }) => {
               return (
                 <tr key={c.id} className="hover:bg-muted/30 transition-colors">
                   <td className="p-3 whitespace-nowrap text-muted-foreground">{formatDate(c.date)}</td>
-                  <td className="p-3 font-medium">{c.description}</td>
+                  <td className="p-3 font-medium truncate" title={c.description}>{c.description}</td>
                   <td className="p-3">
                     <div className={`flex items-center gap-1.5 text-xs px-2 py-1 rounded-full w-max ${isSaida ? 'bg-red-100 text-red-700 dark:bg-red-900/20 dark:text-red-400' : 'bg-green-100 text-green-700 dark:bg-green-900/20 dark:text-green-400'}`}>
                       {isSaida ? <ArrowDownRight className="w-3 h-3" /> : <ArrowUpRight className="w-3 h-3" />}
@@ -128,9 +128,9 @@ const InvoiceItemList = ({ items, onEdit, onDelete }) => {
                   </td>
                   <td className="p-3">
                     {c.categories ? (
-                      <div className="flex items-center gap-2">
-                        <div className="w-3 h-3 rounded-full" style={{ backgroundColor: c.categories.color }}></div>
-                        <span>{c.categories.name}</span>
+                      <div className="flex items-center gap-2 min-w-0">
+                        <div className="w-3 h-3 rounded-full shrink-0" style={{ backgroundColor: c.categories.color }}></div>
+                        <span className="truncate">{c.categories.name}</span>
                       </div>
                     ) : (
                       <span className="text-muted-foreground text-xs">{t('common.no_category')}</span>

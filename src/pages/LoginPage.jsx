@@ -46,7 +46,7 @@ const LoginPage = () => {
               type="email"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
-              className="w-full px-3 py-2 bg-background border border-border rounded-lg text-foreground focus:ring-1 focus:ring-primary focus:border-primary outline-none hover:border-primary transition-all duration-200"
+              className="w-full px-3 py-2 bg-background border border-border rounded-lg text-foreground focus:border-primary outline-none hover:border-primary transition-all duration-200"
               required
             />
           </div>
@@ -62,7 +62,7 @@ const LoginPage = () => {
                 type={showPassword ? 'text' : 'password'}
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
-                className="w-full px-3 py-2 pr-10 bg-background border border-border rounded-lg text-foreground focus:ring-1 focus:ring-primary focus:border-primary outline-none hover:border-primary transition-all duration-200"
+                className="w-full px-3 py-2 pr-10 bg-background border border-border rounded-lg text-foreground focus:border-primary outline-none hover:border-primary transition-all duration-200"
                 required
               />
               <button

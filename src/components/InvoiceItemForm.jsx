@@ -132,7 +132,7 @@ const InvoiceItemForm = ({ invoiceId, initialData, onSuccess, onCancel }) => {
         <Label htmlFor="description">{t('invoice_detail.item_form_description_label')}</Label>
         <input
           id="description"
-          className="w-full px-3 py-2 border rounded-lg bg-background text-foreground mt-1 focus:ring-1 focus:ring-primary outline-none"
+          className="w-full px-3 py-2 border rounded-lg bg-background text-foreground mt-1 hover:border-primary focus:border-primary outline-none"
           value={formData.description}
           onChange={(e) => setFormData({ ...formData, description: e.target.value })}
           placeholder={t('invoice_detail.item_form_description_placeholder')}

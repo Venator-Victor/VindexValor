@@ -29,7 +29,7 @@ const CategorySelectorForImport = ({ value, onChange }) => {
   return (
     <div className="flex items-center gap-2 w-full">
       <select 
-        className="w-full text-xs py-1.5 px-2 rounded border border-border bg-background outline-none focus:ring-1 focus:ring-primary"
+        className="w-full text-xs py-1.5 px-2 rounded border border-border bg-background outline-none hover:border-primary focus:border-primary"
         value={value || ""}
         onChange={(e) => onChange(e.target.value)}
       >

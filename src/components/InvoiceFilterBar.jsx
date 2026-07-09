@@ -80,7 +80,7 @@ const InvoiceFilterBar = ({ onFilterChange }) => {
               placeholder={t('common.search_placeholder')}
               value={filters.search}
               onChange={(e) => handleChange('search', e.target.value)}
-              className="w-full pl-9 pr-3 py-2 rounded-md border bg-background text-sm text-foreground focus:ring-1 focus:ring-primary outline-none h-[42px]"
+              className="w-full pl-9 pr-3 py-2 rounded-md border bg-background text-sm text-foreground hover:border-primary focus:border-primary outline-none h-[42px]"
             />
           </div>
         </div>

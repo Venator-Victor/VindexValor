@@ -268,7 +268,10 @@
     "save_pref_error_title": "Erro ao salvar preferência",
     "available_suffix": "(Disp.)",
     "suggestions_title": "Qual tipo de conta você quer criar?",
-    "create_custom_button": "Criar Conta Personalizada"
+    "create_custom_button": "Criar Conta Personalizada",
+    "transaction_history": "Histórico de Transações",
+    "no_transactions": "Nenhuma transação nesta conta.",
+    "transaction_count": "{{count}} transações"
   },
 
   "categories": {

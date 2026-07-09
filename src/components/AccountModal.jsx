@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from '@/components/ui/dialog';
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
 import { Label } from '@/components/ui/label';
 import { useFinance } from '@/context/FinanceContext';
@@ -13,6 +13,7 @@ import { FIAT_OPTIONS, CRYPTO_OPTIONS, getCurrencySymbol } from '@/utils/currenc
 import { isCryptoCurrency } from '@/utils/calculations';
 import { ACCOUNT_SUBTYPE_MAP, VALID_SUBTYPES } from '@/utils/accountMappings';
 import { validateCreditCardAccount } from '@/utils/accountValidation';
+import { PRIMARY, SUCCESS } from '@/utils/colors';
 
 const AccountModal = ({ isOpen, onClose, accountToEdit, initialData }) => {
   const { t } = useTranslation();
@@ -218,7 +219,7 @@ const AccountModal = ({ isOpen, onClose, accountToEdit, initialData }) => {
             <input
               id="name"
               required
-              className="w-full px-3 py-2 bg-background border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary/50 mt-1 text-foreground"
+              className="w-full px-3 py-2 bg-background border rounded-lg outline-none hover:border-primary focus:border-primary mt-1 text-foreground"
               value={formData.name}
               onChange={e => setFormData({ ...formData, name: e.target.value })}
             />
@@ -256,7 +257,7 @@ const AccountModal = ({ isOpen, onClose, accountToEdit, initialData }) => {
                   min="1"
                   max="31"
                   placeholder="Ex: 1"
-                  className="w-full px-3 py-2 bg-background border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary/50 mt-1 no-spinner text-foreground"
+                  className="w-full px-3 py-2 bg-background border rounded-lg outline-none hover:border-primary focus:border-primary mt-1 no-spinner text-foreground"
                   value={formData.closing_date}
                   onChange={e => setFormData({ ...formData, closing_date: e.target.value })}
                 />
@@ -269,7 +270,7 @@ const AccountModal = ({ isOpen, onClose, accountToEdit, initialData }) => {
                   min="1"
                   max="31"
                   placeholder="Ex: 15"
-                  className="w-full px-3 py-2 bg-background border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary/50 mt-1 no-spinner text-foreground"
+                  className="w-full px-3 py-2 bg-background border rounded-lg outline-none hover:border-primary focus:border-primary mt-1 no-spinner text-foreground"
                   value={formData.due_date}
                   onChange={e => setFormData({ ...formData, due_date: e.target.value })}
                 />
@@ -282,7 +283,7 @@ const AccountModal = ({ isOpen, onClose, accountToEdit, initialData }) => {
               <Label htmlFor="bank">{t('accounts.institution_optional_label')}</Label>
               <input
                 id="bank"
-                className="w-full px-3 py-2 bg-background border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary/50 mt-1 text-foreground"
+                className="w-full px-3 py-2 bg-background border rounded-lg outline-none hover:border-primary focus:border-primary mt-1 text-foreground"
                 value={formData.bank}
                 onChange={e => setFormData({ ...formData, bank: e.target.value })}
               />
@@ -339,12 +340,31 @@ const AccountModal = ({ isOpen, onClose, accountToEdit, initialData }) => {
             onSelect={icon => setFormData({ ...formData, icon })} 
           />
 
-          <DialogFooter className="mt-4">
-            <Button type="button" variant="outline" onClick={onClose} disabled={isSubmitting}>{t('common.cancel')}</Button>
-            <Button type="submit" disabled={isSubmitting}>
+          <div className="flex gap-2 pt-4">
+            <Button
+              type="submit"
+              variant="outline"
+              disabled={isSubmitting}
+              className="flex-1 font-medium rounded-lg transition-colors bg-transparent"
+              style={{ borderColor: SUCCESS, color: SUCCESS }}
+              onMouseEnter={e => { e.currentTarget.style.backgroundColor = SUCCESS; e.currentTarget.style.color = '#fff'; }}
+              onMouseLeave={e => { e.currentTarget.style.backgroundColor = 'transparent'; e.currentTarget.style.color = SUCCESS; }}
+            >
               {isSubmitting ? t('common.saving') : t('common.save')}
             </Button>
-          </DialogFooter>
+            <Button
+              type="button"
+              variant="outline"
+              onClick={onClose}
+              disabled={isSubmitting}
+              className="flex-1 rounded-lg border transition-colors bg-transparent"
+              style={{ borderColor: PRIMARY, color: PRIMARY }}
+              onMouseEnter={e => { e.currentTarget.style.backgroundColor = PRIMARY; e.currentTarget.style.color = '#000'; }}
+              onMouseLeave={e => { e.currentTarget.style.backgroundColor = 'transparent'; e.currentTarget.style.color = PRIMARY; }}
+            >
+              {t('common.cancel')}
+            </Button>
+          </div>
         </form>
       </DialogContent>
     </Dialog>

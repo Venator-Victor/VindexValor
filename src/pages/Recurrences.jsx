@@ -1,4 +1,4 @@
-import { PRIMARY, PRIMARY_HOVER, TEXT_SUCCESS, TEXT_DANGER } from '@/utils/colors';
+import { PRIMARY, PRIMARY_HOVER, SUCCESS, TEXT_SUCCESS, TEXT_DANGER } from '@/utils/colors';
 import React, { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Helmet } from 'react-helmet';
@@ -280,7 +280,7 @@ const Recurrences = () => {
                         placeholder={t('recurrences.description_placeholder')}
                         value={formData.description}
                         onChange={(e) => setFormData({ ...formData, description: e.target.value })}
-                        className="w-full px-3 py-2 bg-white dark:bg-vindex-bg border border-gray-200 dark:border-vindex-border rounded-lg text-gray-900 dark:text-gray-100 focus:ring-2 focus:ring-vindex-success/50 outline-none"
+                        className="w-full px-3 py-2 bg-white dark:bg-vindex-bg border border-gray-200 dark:border-vindex-border rounded-lg text-gray-900 dark:text-gray-100 hover:border-primary focus:border-primary outline-none"
                         required
                     />
                     </div>
@@ -297,7 +297,7 @@ const Recurrences = () => {
                               placeholder="0,00"
                               value={formData.amount}
                               onChange={(e) => setFormData({ ...formData, amount: e.target.value })}
-                              className="w-full pl-10 pr-3 py-2 bg-white dark:bg-vindex-bg border border-gray-200 dark:border-vindex-border rounded-lg text-gray-900 dark:text-gray-100 focus:ring-2 focus:ring-vindex-success/50 outline-none"
+                              className="w-full pl-10 pr-3 py-2 bg-white dark:bg-vindex-bg border border-gray-200 dark:border-vindex-border rounded-lg text-gray-900 dark:text-gray-100 hover:border-primary focus:border-primary outline-none"
                               required
                            />
                          </div>
@@ -335,7 +335,7 @@ const Recurrences = () => {
                                 onChange={(e) => setFormData({ ...formData, installment_count: e.target.value })}
                                 placeholder={t('recurrences.installment_count_placeholder')}
                                 min={1}
-                                className="w-full px-3 py-2 bg-white dark:bg-vindex-bg border border-gray-200 dark:border-vindex-border rounded-lg text-gray-900 dark:text-gray-100 focus:ring-2 focus:ring-vindex-success/50 outline-none"
+                                className="w-full px-3 py-2 bg-white dark:bg-vindex-bg border border-gray-200 dark:border-vindex-border rounded-lg text-gray-900 dark:text-gray-100 hover:border-primary focus:border-primary outline-none"
                              />
                         </div>
                     )}
@@ -360,10 +360,25 @@ const Recurrences = () => {
                     </div>
 
                     <div className="flex gap-2 pt-4">
-                    <Button type="submit" className="flex-1 bg-green-600 hover:bg-green-700 text-white dark:bg-vindex-success/20 dark:hover:bg-vindex-success/30 dark:text-vindex-success dark:border dark:border-vindex-success/50 rounded-lg">
+                    <Button
+                        type="submit"
+                        variant="outline"
+                        className="flex-1 font-medium rounded-lg transition-colors bg-transparent"
+                        style={{ borderColor: SUCCESS, color: SUCCESS }}
+                        onMouseEnter={e => { e.currentTarget.style.backgroundColor = SUCCESS; e.currentTarget.style.color = '#fff'; }}
+                        onMouseLeave={e => { e.currentTarget.style.backgroundColor = 'transparent'; e.currentTarget.style.color = SUCCESS; }}
+                    >
                         {editingRecurring ? t('common.update') : t('common.create')}
                     </Button>
-                    <Button type="button" variant="outline" onClick={() => setIsDialogOpen(false)} className="flex-1 border-gray-200 dark:border-vindex-border text-gray-900 dark:text-gray-100 hover:bg-gray-100 dark:hover:bg-vindex-bg rounded-lg">
+                    <Button
+                        type="button"
+                        variant="outline"
+                        onClick={() => setIsDialogOpen(false)}
+                        className="flex-1 rounded-lg border transition-colors bg-transparent"
+                        style={{ borderColor: PRIMARY, color: PRIMARY }}
+                        onMouseEnter={e => { e.currentTarget.style.backgroundColor = PRIMARY; e.currentTarget.style.color = '#000'; }}
+                        onMouseLeave={e => { e.currentTarget.style.backgroundColor = 'transparent'; e.currentTarget.style.color = PRIMARY; }}
+                    >
                         {t('common.cancel')}
                     </Button>
                     </div>
@@ -447,25 +462,25 @@ const Recurrences = () => {
               className="bg-white dark:bg-vindex-card rounded-xl border border-gray-200 dark:border-vindex-border overflow-hidden shadow-sm"
             >
               <div className="overflow-x-auto">
-                <table className="w-full">
+                <table className="w-full min-w-[860px] table-fixed">
                   <thead className="bg-gray-50 dark:bg-vindex-bg border-b border-gray-200 dark:border-vindex-border">
                     <tr>
-                      <SortableHeader label={t('recurrences.col_description')} column="description" sortConfig={sortConfig} onSort={requestSort} className="text-xs font-bold uppercase" />
-                      <SortableHeader label={t('recurrences.col_type')} column="recurrence_type" sortConfig={sortConfig} onSort={requestSort} className="text-xs font-bold uppercase" />
-                      <SortableHeader label={t('recurrences.col_amount')} column="amount" sortConfig={sortConfig} onSort={requestSort} className="text-xs font-bold uppercase" />
-                      <SortableHeader label={t('recurrences.col_frequency')} column="frequency" sortConfig={sortConfig} onSort={requestSort} className="text-xs font-bold uppercase" />
-                      <SortableHeader label={t('recurrences.col_next_billing')} column="date" sortConfig={sortConfig} onSort={requestSort} className="text-xs font-bold uppercase" />
-                      <th className="px-6 py-3 text-left text-xs font-bold text-gray-700 dark:text-gray-300 uppercase">{t('recurrences.col_status')}</th>
-                      <th className="px-6 py-3 text-left text-xs font-bold text-gray-700 dark:text-gray-300 uppercase">{t('recurrences.col_actions')}</th>
+                      <SortableHeader label={t('recurrences.col_description')} column="description" sortConfig={sortConfig} onSort={requestSort} className="text-xs font-bold uppercase w-[28%]" />
+                      <SortableHeader label={t('recurrences.col_type')} column="recurrence_type" sortConfig={sortConfig} onSort={requestSort} className="text-xs font-bold uppercase w-[14%]" />
+                      <SortableHeader label={t('recurrences.col_amount')} column="amount" sortConfig={sortConfig} onSort={requestSort} className="text-xs font-bold uppercase w-[14%]" />
+                      <SortableHeader label={t('recurrences.col_frequency')} column="frequency" sortConfig={sortConfig} onSort={requestSort} className="text-xs font-bold uppercase w-[13%]" />
+                      <SortableHeader label={t('recurrences.col_next_billing')} column="date" sortConfig={sortConfig} onSort={requestSort} className="text-xs font-bold uppercase w-[14%]" />
+                      <th className="px-6 py-3 w-[10%] text-left text-xs font-bold text-gray-700 dark:text-gray-300 uppercase">{t('recurrences.col_status')}</th>
+                      <th className="px-6 py-3 w-[7%] text-left text-xs font-bold text-gray-700 dark:text-gray-300 uppercase">{t('recurrences.col_actions')}</th>
                     </tr>
                   </thead>
                   <tbody className="divide-y divide-gray-200 dark:divide-vindex-border">
                     {sortedRecurring.map((item) => (
                       <tr key={item.id} className="hover:bg-gray-50 dark:hover:bg-vindex-bg/50 transition-colors">
                         <td className="px-6 py-4 text-sm text-gray-900 dark:text-gray-100 font-medium">
-                            <div className="flex flex-col">
-                                <span>{item.description}</span>
-                                <span className="text-xs text-gray-500">{item.categories?.name || t('common.no_category')}</span>
+                            <div className="flex flex-col min-w-0">
+                                <span className="truncate" title={item.description}>{item.description}</span>
+                                <span className="text-xs text-gray-500 truncate">{item.categories?.name || t('common.no_category')}</span>
                             </div>
                         </td>
                         <td className="px-6 py-4 text-sm text-gray-700 dark:text-gray-300">

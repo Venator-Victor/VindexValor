@@ -20,6 +20,12 @@ const IconSelector = ({ selectedIcon, onSelect }) => {
     'bx-coffee', 'bx-bed', 'bx-shield', 'bx-wifi', 'bx-plug',
     'bx-gas-pump', 'bx-closet', 'bx-face', 'bx-child', 'bx-paw',
     'bx-bus', 'bx-group',
+    // Finance & category icons
+    'bx-bank', 'bx-landmark', 'bx-piggy-bank', 'bx-safe', 'bx-calculator',
+    'bx-coins', 'bx-chart-line', 'bx-umbrella', 'bx-pill', 'bx-syringe',
+    'bx-taxi', 'bx-train', 'bx-subway', 'bx-truck', 'bx-motorcycle',
+    'bx-ship', 'bx-spa', 'bx-popcorn', 'bx-ticket', 'bx-beer',
+    'bx-wine', 'bx-pizza', 'bx-tv', 'bx-dog', 'bx-cat', 'bx-tree',
   ];
 
   const filteredIcons = icons.filter(icon =>
@@ -33,7 +39,7 @@ const IconSelector = ({ selectedIcon, onSelect }) => {
         placeholder={t('common.search_icon_placeholder')}
         value={searchTerm}
         onChange={(e) => setSearchTerm(e.target.value)}
-        className="w-full px-3 py-2 bg-gray-50 dark:bg-vindex-bg border border-gray-200 dark:border-vindex-border rounded-lg text-gray-900 dark:text-vindex-text text-sm focus:outline-none focus:ring-1 focus:ring-primary"
+        className="w-full px-3 py-2 bg-gray-50 dark:bg-vindex-bg border border-gray-200 dark:border-vindex-border rounded-lg text-gray-900 dark:text-vindex-text text-sm outline-none hover:border-primary focus:border-primary"
       />
 
       <div className="grid grid-cols-6 sm:grid-cols-8 gap-2 max-h-40 overflow-y-auto p-2 border border-gray-200 dark:border-vindex-border rounded-lg bg-gray-50 dark:bg-vindex-bg/50">

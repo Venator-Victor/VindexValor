@@ -77,7 +77,7 @@ const ResetPasswordPage = () => {
                 type="password"
                 value={newPassword}
                 onChange={(e) => setNewPassword(e.target.value)}
-                className="w-full px-3 py-2 bg-vindex-bg border border-vindex-border rounded-lg text-vindex-text focus:ring-1 focus:ring-vindex-success outline-none"
+                className="w-full px-3 py-2 bg-vindex-bg border border-vindex-border rounded-lg text-vindex-text hover:border-primary focus:border-primary outline-none"
                 required
                 minLength={8}
               />
@@ -89,7 +89,7 @@ const ResetPasswordPage = () => {
                 type="password"
                 value={confirmPassword}
                 onChange={(e) => setConfirmPassword(e.target.value)}
-                className="w-full px-3 py-2 bg-vindex-bg border border-vindex-border rounded-lg text-vindex-text focus:ring-1 focus:ring-vindex-success outline-none"
+                className="w-full px-3 py-2 bg-vindex-bg border border-vindex-border rounded-lg text-vindex-text hover:border-primary focus:border-primary outline-none"
                 required
               />
             </div>
@@ -128,7 +128,7 @@ const ResetPasswordPage = () => {
                 type="email"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
-                className="w-full px-3 py-2 bg-vindex-bg border border-vindex-border rounded-lg text-vindex-text focus:ring-1 focus:ring-vindex-success outline-none"
+                className="w-full px-3 py-2 bg-vindex-bg border border-vindex-border rounded-lg text-vindex-text hover:border-primary focus:border-primary outline-none"
                 required
               />
             </div>

@@ -119,8 +119,8 @@ const DatePicker = ({ value, onChange, label, className }) => {
           onClick={() => setIsOpen(!isOpen)}
           className={cn(
             "w-full pl-10 pr-3 py-2 bg-white dark:bg-vindex-bg border border-gray-200 dark:border-vindex-border rounded-lg text-gray-900 dark:text-vindex-text outline-none cursor-pointer transition-colors",
-            "focus:ring-2 focus:ring-vindex-success/50",
-            isOpen && "border-green-500 dark:border-vindex-success"
+            "hover:border-primary focus:border-primary",
+            isOpen && "border-primary"
           )}
         />
         <CalendarIcon className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400 dark:text-vindex-text/50" />

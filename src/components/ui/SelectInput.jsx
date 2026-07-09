@@ -63,10 +63,9 @@ const SelectInput = ({
         onClick={() => !disabled && setIsOpen(!isOpen)}
         disabled={disabled}
         className={cn(
-          "flex w-full items-center justify-between rounded-lg border px-3 py-2 text-sm shadow-sm transition-all outline-none",
+          "flex w-full items-center justify-between rounded-lg border px-3 py-2 text-sm transition-all outline-none",
           "bg-white dark:bg-vindex-bg border-gray-200 dark:border-vindex-border text-gray-900 dark:text-vindex-text",
-          "focus:ring-2 focus:ring-vindex-success/50",
-          "hover:border-gray-300 dark:hover:border-vindex-text/30",
+          "hover:border-primary focus:border-primary",
           disabled && "opacity-50 cursor-not-allowed bg-gray-100 dark:bg-gray-800"
         )}
       >
@@ -104,12 +103,12 @@ const SelectInput = ({
                   className={cn(
                     "relative flex w-full cursor-pointer select-none items-center rounded-sm py-2 pl-3 pr-9 text-sm outline-none transition-colors",
                     "hover:bg-gray-100 dark:hover:bg-vindex-bg/50 text-gray-900 dark:text-vindex-text",
-                    option.value === value && "bg-green-50 dark:bg-vindex-success/10 text-green-900 dark:text-vindex-success font-medium"
+                    option.value === value && "bg-primary/10 text-primary font-medium"
                   )}
                 >
                   <span className="block truncate">{option.label}</span>
                   {option.value === value && (
-                    <span className="absolute inset-y-0 right-0 flex items-center pr-3 text-green-600 dark:text-vindex-success">
+                    <span className="absolute inset-y-0 right-0 flex items-center pr-3 text-primary">
                       <Check className="h-4 w-4" />
                     </span>
                   )}

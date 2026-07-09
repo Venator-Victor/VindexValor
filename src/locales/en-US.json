@@ -268,7 +268,10 @@
     "save_pref_error_title": "Error saving preference",
     "available_suffix": "(Avail.)",
     "suggestions_title": "What type of account do you want to create?",
-    "create_custom_button": "Create Custom Account"
+    "create_custom_button": "Create Custom Account",
+    "transaction_history": "Transaction History",
+    "no_transactions": "No transactions in this account.",
+    "transaction_count": "{{count}} transactions"
   },
 
   "categories": {

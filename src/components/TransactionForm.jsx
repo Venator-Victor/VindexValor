@@ -148,7 +148,7 @@ const TransactionForm = ({ initialData, onSuccess, onCancel }) => {
     }
   };
 
-  const inputClasses = "w-full px-3 py-2 bg-white dark:bg-vindex-bg border border-gray-200 dark:border-vindex-border rounded-lg text-gray-900 dark:text-gray-100 mt-1 focus:ring-2 focus:ring-vindex-success/50 outline-none";
+  const inputClasses = "w-full px-3 py-2 bg-white dark:bg-vindex-bg border border-gray-200 dark:border-vindex-border rounded-lg text-gray-900 dark:text-gray-100 mt-1 hover:border-primary focus:border-primary outline-none";
 
   return (
     <>

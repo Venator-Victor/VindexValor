@@ -347,7 +347,7 @@ const InvoicesPage = () => {
                   <Label>{t('invoices.identification_label')}</Label>
                   <input
                     required
-                    className="w-full px-3 py-2 border rounded-lg bg-background text-foreground mt-1 focus:ring-2 focus:ring-primary/50 outline-none"
+                    className="w-full px-3 py-2 border rounded-lg bg-background text-foreground mt-1 hover:border-primary focus:border-primary outline-none"
                     value={formData.invoice_number}
                     onChange={e => setFormData({...formData, invoice_number: e.target.value})}
                   />
@@ -400,32 +400,32 @@ const InvoicesPage = () => {
              </div>
           ) : (
              <div className="overflow-x-auto custom-scrollbar">
-                <table className="w-full text-sm min-w-[600px]">
+                <table className="w-full text-sm min-w-[680px] table-fixed">
                    <thead className="bg-muted/50 border-b">
                       <tr>
-                         <th className="p-3 text-left font-medium text-muted-foreground">{t('invoices.col_invoice')}</th>
-                         <th className="p-3 text-left font-medium text-muted-foreground">{t('invoices.col_date')}</th>
-                         <th className="p-3 text-left font-medium text-muted-foreground">{t('invoices.col_description')}</th>
-                         <th className="p-3 text-left font-medium text-muted-foreground">{t('invoices.col_category')}</th>
-                         <th className="p-3 text-right font-medium text-muted-foreground">{t('invoices.col_amount')}</th>
+                         <th className="p-3 w-[16%] text-left font-medium text-muted-foreground">{t('invoices.col_invoice')}</th>
+                         <th className="p-3 w-[12%] text-left font-medium text-muted-foreground">{t('invoices.col_date')}</th>
+                         <th className="p-3 w-[34%] text-left font-medium text-muted-foreground">{t('invoices.col_description')}</th>
+                         <th className="p-3 w-[20%] text-left font-medium text-muted-foreground">{t('invoices.col_category')}</th>
+                         <th className="p-3 w-[18%] text-right font-medium text-muted-foreground">{t('invoices.col_amount')}</th>
                       </tr>
                    </thead>
                    <tbody className="divide-y">
                       {filteredItems.map(c => (
                          <tr key={c.id} className="hover:bg-muted/30">
-                            <td className="p-3 font-medium cursor-pointer text-primary hover:underline" onClick={() => navigate(`/faturas/${c.invoice_id}`)}>
+                            <td className="p-3 font-medium cursor-pointer text-primary hover:underline truncate" onClick={() => navigate(`/faturas/${c.invoice_id}`)}>
                               {c.invoices?.invoice_number || t('invoices.unknown_invoice')}
                             </td>
                             <td className="p-3 text-muted-foreground whitespace-nowrap">{formatDate(c.date)}</td>
-                            <td className="p-3">
+                            <td className="p-3 truncate" title={c.description}>
                               {c.description}
                               {c.is_installment && <span className="ml-2 text-[10px] bg-blue-100 text-blue-800 px-2 py-0.5 rounded-full whitespace-nowrap">{t('invoices.parcel_label', { number: c.parcel_number, total: c.total_parcels })}</span>}
                             </td>
                             <td className="p-3">
                                {c.categories ? (
-                                  <div className="flex items-center gap-1.5">
+                                  <div className="flex items-center gap-1.5 min-w-0">
                                     <div className="w-2.5 h-2.5 rounded-full shrink-0" style={{ backgroundColor: c.categories.color }}></div>
-                                    <span className="text-xs truncate max-w-[120px]">{c.categories.name}</span>
+                                    <span className="text-xs truncate">{c.categories.name}</span>
                                   </div>
                                ) : <span className="text-muted-foreground text-xs">{t('common.no_category')}</span>}
                             </td>
@@ -457,29 +457,29 @@ const InvoicesPage = () => {
           ) : (
             <div className="bg-card rounded-xl border shadow-sm overflow-hidden">
               <div className="overflow-x-auto custom-scrollbar">
-                <table className="w-full text-sm min-w-[700px]">
+                <table className="w-full text-sm min-w-[700px] table-fixed">
                   <thead className="bg-muted/50 border-b">
                     <tr>
-                      <th className="p-3 w-12 text-center">
+                      <th className="p-3 w-[6%] text-center">
                         <Checkbox
                           checked={selectedInvoices.length === filteredInvoices.length && filteredInvoices.length > 0}
                           onCheckedChange={handleSelectAll}
                           aria-label={t('invoices.select_all')}
                         />
                       </th>
-                      <th className="p-3 text-left font-medium text-muted-foreground">{t('invoices.col_invoice')}</th>
-                      <th className="p-3 text-left font-medium text-muted-foreground">{t('common.account')}</th>
-                      <th className="p-3 align-middle">
+                      <th className="p-3 w-[22%] text-left font-medium text-muted-foreground">{t('invoices.col_invoice')}</th>
+                      <th className="p-3 w-[20%] text-left font-medium text-muted-foreground">{t('common.account')}</th>
+                      <th className="p-3 w-[16%] align-middle">
                         <button onClick={() => requestSort('opening_date')} className="table-header-sortable justify-start">
                           {t('invoices.col_opening_date')} <SortIcon column="opening_date" sortConfig={sortConfig} />
                         </button>
                       </th>
-                      <th className="p-3 align-middle">
+                      <th className="p-3 w-[18%] align-middle">
                         <button onClick={() => requestSort('amount')} className="table-header-sortable justify-end pl-0 pr-0 ml-auto mr-0">
                           {t('invoices.col_total')} <SortIcon column="amount" sortConfig={sortConfig} />
                         </button>
                       </th>
-                      <th className="p-3 align-middle">
+                      <th className="p-3 w-[18%] align-middle">
                         <button onClick={() => requestSort('status')} className="table-header-sortable justify-center pl-0 pr-0 ml-auto mr-auto">
                           {t('invoices.col_status')} <SortIcon column="status" sortConfig={sortConfig} />
                         </button>
@@ -502,10 +502,10 @@ const InvoicesPage = () => {
                               aria-label={t('invoices.select_row', { name: invoice.invoice_number })}
                             />
                           </td>
-                          <td className="p-3 font-medium text-foreground">
+                          <td className="p-3 font-medium text-foreground truncate">
                             {invoice.invoice_number || t('invoices.unnamed_invoice')}
                           </td>
-                          <td className="p-3 text-muted-foreground">
+                          <td className="p-3 text-muted-foreground truncate">
                             {invoice.account?.name || t('invoices.account_removed')}
                           </td>
                           <td className="p-3 text-muted-foreground whitespace-nowrap">
@@ -547,7 +547,7 @@ const InvoicesPage = () => {
               <Label>{t('invoices.identification_label')}</Label>
               <input
                 required
-                className="w-full px-3 py-2 border rounded-lg bg-background text-foreground mt-1 focus:ring-2 focus:ring-primary/50 outline-none"
+                className="w-full px-3 py-2 border rounded-lg bg-background text-foreground mt-1 hover:border-primary focus:border-primary outline-none"
                 value={editFormData.invoice_number}
                 onChange={e => setEditFormData({...editFormData, invoice_number: e.target.value})}
               />

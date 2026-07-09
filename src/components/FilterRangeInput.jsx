@@ -70,7 +70,7 @@ const FilterRangeInput = ({ value, onChange }) => {
           }}
           onBlur={handleBlur}
           onKeyDown={handleKeyDown}
-          className={`w-full pl-9 pr-3 py-2 rounded-md border bg-background text-sm text-foreground focus:ring-1 focus:ring-primary outline-none h-[42px] transition-colors ${
+          className={`w-full pl-9 pr-3 py-2 rounded-md border bg-background text-sm text-foreground hover:border-primary focus:border-primary outline-none h-[42px] transition-colors ${
             error ? 'border-destructive focus:ring-destructive' : 'border-input'
           }`}
           title="Operadores suportados: >, <, >=, <=, = separando por ;"

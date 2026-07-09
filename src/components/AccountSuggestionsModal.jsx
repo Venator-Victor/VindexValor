@@ -23,19 +23,16 @@ const AccountSuggestionsModal = ({ isOpen, onClose, onSelect, onCreateCustom }) 
              <button
                key={account.id}
                onClick={() => onSelect(account)}
-               className="flex flex-col items-center justify-start p-4 rounded-xl border border-gray-200 dark:border-vindex-border hover:bg-gray-50 dark:hover:bg-vindex-bg transition-all hover:scale-105 relative group bg-white dark:bg-vindex-card min-h-[160px]"
+               className="flex flex-col items-center justify-start p-4 rounded-xl border border-gray-200 dark:border-vindex-border hover:border-primary hover:bg-gray-50 dark:hover:bg-vindex-bg transition-colors relative group bg-white dark:bg-vindex-card min-h-[160px]"
              >
-                <div 
-                   className="w-12 h-12 rounded-full flex items-center justify-center text-2xl mb-3 shadow-sm transition-transform group-hover:scale-110 shrink-0"
+                <div
+                   className="w-12 h-12 rounded-full flex items-center justify-center text-2xl mb-3 shrink-0"
                    style={{ backgroundColor: account.color + '22', color: account.color }}
                 >
                    <BxIcon iconClass={`bx ${account.icon}`} size={24} />
                 </div>
                 <span className="font-semibold text-gray-900 dark:text-gray-100 text-sm sm:text-base text-center break-words leading-tight flex-grow">{account.name}</span>
                 <span className="text-xs text-gray-500 dark:text-gray-400 mt-1 text-center break-words leading-tight">{account.type}</span>
-                
-                {/* Hover effect indicator */}
-                <div className="absolute inset-0 border-2 border-transparent group-hover:border-primary/10 rounded-xl transition-colors pointer-events-none" />
              </button>
           ))}
         </div>

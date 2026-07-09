@@ -257,7 +257,7 @@ const Goals = () => {
         </div>
 
         <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
-          <DialogContent className={`bg-white dark:bg-vindex-card text-gray-900 dark:text-gray-100 border-gray-200 dark:border-vindex-border rounded-xl max-h-[90vh] overflow-y-auto p-0 gap-0 ${creationStep === 'selector' && !editingGoal ? 'sm:max-w-4xl' : 'sm:max-w-[600px]'}`}>
+          <DialogContent className={`bg-white dark:bg-vindex-card text-gray-900 dark:text-gray-100 border-gray-200 dark:border-vindex-border rounded-xl max-h-[90vh] overflow-y-auto p-0 gap-0 ${creationStep === 'selector' && !editingGoal ? 'sm:max-w-4xl' : 'sm:max-w-[500px]'}`}>
             <div className="p-6 border-b border-gray-100 dark:border-gray-800">
                 <DialogHeader>
                     <DialogTitle className={creationStep === 'selector' && !editingGoal ? 'text-xl font-bold text-gray-900 dark:text-vindex-text' : undefined}>

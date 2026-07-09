@@ -1,10 +1,10 @@
-import { PRIMARY, PRIMARY_HOVER } from '@/utils/colors';
+import { PRIMARY, PRIMARY_HOVER, DANGER } from '@/utils/colors';
 import React, { useState, useMemo } from 'react';
 import { Helmet } from 'react-helmet';
 import { useTranslation } from 'react-i18next';
 import { motion } from 'framer-motion';
 import { Grid as LayoutGrid, ListUl as ListIcon, Wallet as WalletCards, Eye, EyeSlash as EyeOff } from '@/components/BxIcon';
-import BxIcon, { Plus, Pencil, Trash } from '@/components/BxIcon';
+import BxIcon, { Plus, Edit as Edit2, TrashAlt as Trash2 } from '@/components/BxIcon';
 import { useFinance } from '@/context/FinanceContext';
 import { Button } from '@/components/ui/button';
 import SortableHeader from '@/components/SortableHeader';
@@ -16,18 +16,10 @@ import SelectInput from '@/components/ui/SelectInput';
 import AssetLiabilityChart from '@/components/AssetLiabilityChart';
 import AccountSuggestionsModal from '@/components/AccountSuggestionsModal';
 import AccountModal from '@/components/AccountModal';
+import AccountDetailModal from '@/components/AccountDetailModal';
 import { useSortableList } from '@/hooks/useSortableList';
 import { PERIOD_OPTIONS } from '@/utils/periodOptions';
-
-const ACCOUNT_TYPE_LABEL_KEYS = {
-  'Conta Corrente': 'accounts.type_checking',
-  'Cartão de Crédito': 'accounts.type_credit_card',
-  'Poupança': 'accounts.type_savings',
-  'Investimentos': 'accounts.type_investment',
-  'Criptomoeda': 'accounts.type_crypto',
-  'Dinheiro': 'accounts.type_cash',
-  'Outros': 'accounts.type_other',
-};
+import { ACCOUNT_TYPE_LABEL_KEYS } from '@/utils/accountMappings';
 
 const Accounts = () => {
   const { t } = useTranslation();
@@ -44,6 +36,7 @@ const Accounts = () => {
   const [accountInitialData, setAccountInitialData] = useState(null);
   const [period, setPeriod] = useState('monthly');
   const [showNetWorth, setShowNetWorth] = useState(false);
+  const [selectedDetailAccount, setSelectedDetailAccount] = useState(null);
   
   const [viewMode, setViewMode] = useState('card');
 
@@ -82,8 +75,13 @@ const Accounts = () => {
   const handleDelete = (id) => {
     deleteAccount(id);
     setDeleteId(null);
+    setSelectedDetailAccount(null);
   };
-  
+
+  const handleCardClick = (account) => {
+    setSelectedDetailAccount(account);
+  };
+
   const handleOpenSuggestions = () => {
     setEditingAccount(null);
     setIsSuggestionsOpen(true);
@@ -206,7 +204,10 @@ const Accounts = () => {
                   initial={{ opacity: 0, y: 20 }}
                   animate={{ opacity: 1, y: 0 }}
                   transition={{ delay: index * 0.1 }}
-                  className="bg-white dark:bg-vindex-card rounded-xl p-6 border border-gray-200 dark:border-vindex-border hover:border-gray-300 dark:hover:border-vindex-text/30 transition-shadow shadow-sm hover:shadow-md flex flex-col"
+                  onClick={() => handleCardClick(account)}
+                  className="bg-white dark:bg-vindex-card rounded-xl p-6 border border-gray-200 dark:border-vindex-border transition-shadow shadow-sm hover:shadow-md flex flex-col cursor-pointer"
+                  onMouseEnter={e => e.currentTarget.style.borderColor = PRIMARY}
+                  onMouseLeave={e => e.currentTarget.style.borderColor = ''}
                 >
                   <div className="flex items-start justify-between mb-4">
                     <div className="flex items-center gap-3">
@@ -263,27 +264,6 @@ const Accounts = () => {
                       </div>
                     </div>
                   )}
-
-                  <div className="flex gap-2 pt-4 border-t border-gray-200 dark:border-vindex-border mt-auto">
-                    <Button
-                      size="sm"
-                      variant="outline"
-                      onClick={() => handleEdit(account)}
-                      className="flex-1 hover:bg-gray-100 dark:hover:bg-vindex-border text-gray-700 dark:text-gray-300 border-gray-200 dark:border-vindex-border rounded-lg"
-                    >
-                      <Pencil size={14} className="mr-1" />
-                      {t('common.edit')}
-                    </Button>
-                    <Button
-                      size="sm"
-                      variant="outline"
-                      onClick={() => setDeleteId(account.id)}
-                      className="flex-1 hover:bg-red-50 dark:hover:bg-vindex-danger/20 hover:text-red-600 dark:hover:text-vindex-danger text-gray-700 dark:text-gray-300 border-gray-200 dark:border-vindex-border hover:border-red-200 dark:hover:border-vindex-danger/50 rounded-lg"
-                    >
-                      <Trash size={14} className="mr-1" />
-                      {t('common.delete')}
-                    </Button>
-                  </div>
                 </motion.div>
               ))}
             </div>
@@ -303,7 +283,7 @@ const Accounts = () => {
                       </thead>
                       <tbody className="divide-y divide-gray-200 dark:divide-vindex-border">
                          {sortedAccounts.map((account) => (
-                            <tr key={account.id} className="hover:bg-gray-50 dark:hover:bg-vindex-bg/50">
+                            <tr key={account.id} onClick={() => handleCardClick(account)} className="cursor-pointer transition-colors" onMouseEnter={e => e.currentTarget.style.backgroundColor = PRIMARY + '18'} onMouseLeave={e => e.currentTarget.style.backgroundColor = ''}>
                                <td className="px-6 py-4">
                                   <div className="flex items-center gap-3">
                                      <div className="w-8 h-8 rounded-lg flex items-center justify-center text-sm" 
@@ -345,19 +325,25 @@ const Accounts = () => {
                                   <div className="flex justify-end gap-2">
                                      <Button
                                         size="sm"
-                                        variant="ghost"
-                                        onClick={() => handleEdit(account)}
-                                        className="h-8 w-8 p-0 hover:bg-gray-100 dark:hover:bg-vindex-border text-gray-700 hover:text-gray-900 dark:text-gray-400 dark:hover:text-gray-100 rounded-lg"
+                                        variant="outline"
+                                        onClick={(e) => { e.stopPropagation(); handleEdit(account); }}
+                                        className="h-8 w-8 p-0 rounded-lg border transition-colors bg-transparent"
+                                        style={{ borderColor: PRIMARY, color: PRIMARY }}
+                                        onMouseEnter={e => { e.currentTarget.style.backgroundColor = PRIMARY; e.currentTarget.style.color = '#000'; }}
+                                        onMouseLeave={e => { e.currentTarget.style.backgroundColor = 'transparent'; e.currentTarget.style.color = PRIMARY; }}
                                      >
-                                        <Pencil size={18} />
+                                        <Edit2 className="h-4 w-4" />
                                      </Button>
                                      <Button
                                         size="sm"
-                                        variant="ghost"
-                                        onClick={() => setDeleteId(account.id)}
-                                        className="h-8 w-8 p-0 hover:bg-red-50 dark:hover:bg-vindex-danger/20 text-gray-700 hover:text-red-600 dark:text-gray-400 dark:hover:text-vindex-danger rounded-lg"
+                                        variant="outline"
+                                        onClick={(e) => { e.stopPropagation(); setDeleteId(account.id); }}
+                                        className="h-8 w-8 p-0 rounded-lg border transition-colors bg-transparent"
+                                        style={{ borderColor: DANGER, color: DANGER }}
+                                        onMouseEnter={e => { e.currentTarget.style.backgroundColor = DANGER; e.currentTarget.style.color = '#fff'; }}
+                                        onMouseLeave={e => { e.currentTarget.style.backgroundColor = 'transparent'; e.currentTarget.style.color = DANGER; }}
                                      >
-                                        <Trash size={18} />
+                                        <Trash2 className="h-4 w-4" />
                                      </Button>
                                   </div>
                                </td>
@@ -370,6 +356,15 @@ const Accounts = () => {
           )}
         </>
       )}
+
+      <AccountDetailModal
+        isOpen={!!selectedDetailAccount}
+        onClose={() => setSelectedDetailAccount(null)}
+        account={selectedDetailAccount}
+        transactions={transactions}
+        onEdit={(account) => handleEdit(account)}
+        onDelete={(id) => { setSelectedDetailAccount(null); setDeleteId(id); }}
+      />
 
       <DeleteConfirmationDialog
         open={!!deleteId}

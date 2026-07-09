@@ -296,14 +296,14 @@ const InvoiceDetailPage = () => {
             </div>
 
             <div className="overflow-x-auto custom-scrollbar border rounded-lg bg-background">
-              <table className="w-full text-sm">
+              <table className="w-full min-w-[680px] text-sm table-fixed">
                 <thead className="bg-muted/50 border-b">
                   <tr>
-                    <th className="p-3 text-left font-medium">{t('invoice_detail.col_date')}</th>
-                    <th className="p-3 text-left font-medium">{t('invoice_detail.col_description')}</th>
-                    <th className="p-3 text-left font-medium">{t('invoice_detail.col_account_used')}</th>
-                    <th className="p-3 text-right font-medium">{t('invoice_detail.col_amount_paid')}</th>
-                    <th className="p-3 text-right font-medium">{t('invoice_detail.col_actions')}</th>
+                    <th className="p-3 w-[14%] text-left font-medium">{t('invoice_detail.col_date')}</th>
+                    <th className="p-3 w-[34%] text-left font-medium">{t('invoice_detail.col_description')}</th>
+                    <th className="p-3 w-[22%] text-left font-medium">{t('invoice_detail.col_account_used')}</th>
+                    <th className="p-3 w-[18%] text-right font-medium">{t('invoice_detail.col_amount_paid')}</th>
+                    <th className="p-3 w-[12%] text-right font-medium">{t('invoice_detail.col_actions')}</th>
                   </tr>
                 </thead>
                 <tbody className="divide-y">
@@ -311,9 +311,9 @@ const InvoiceDetailPage = () => {
                     const payColor = p.amount < 0 ? 'text-red-600 dark:text-red-400' : p.amount > 0 ? 'text-green-600 dark:text-green-400' : 'text-foreground';
                     return (
                       <tr key={p.id} className="hover:bg-muted/30">
-                        <td className="p-3 text-muted-foreground">{formatDate(p.date)}</td>
-                        <td className="p-3 font-medium">{p.description}</td>
-                        <td className="p-3 text-muted-foreground">{p.account?.name || 'N/A'}</td>
+                        <td className="p-3 whitespace-nowrap text-muted-foreground">{formatDate(p.date)}</td>
+                        <td className="p-3 font-medium truncate" title={p.description}>{p.description}</td>
+                        <td className="p-3 text-muted-foreground truncate">{p.account?.name || 'N/A'}</td>
                         <td className={`p-3 text-right font-bold whitespace-nowrap ${payColor}`}>
                           {formatCurrencyWithSymbol(p.amount, p.account?.currency || 'BRL')}
                         </td>
@@ -379,14 +379,14 @@ const InvoiceDetailPage = () => {
               </div>
             ) : (
               <div className="max-h-[60vh] overflow-y-auto pr-2 custom-scrollbar">
-                <table className="w-full text-sm border rounded-lg overflow-hidden">
+                <table className="w-full min-w-[640px] text-sm border rounded-lg overflow-hidden table-fixed">
                   <thead className="bg-muted/50 border-b">
                     <tr>
-                      <th className="p-3 text-left font-medium">{t('invoice_detail.col_date')}</th>
-                      <th className="p-3 text-left font-medium">{t('invoice_detail.col_description')}</th>
-                      <th className="p-3 text-left font-medium">{t('invoice_detail.col_account')}</th>
-                      <th className="p-3 text-right font-medium">{t('invoice_detail.col_value')}</th>
-                      <th className="p-3 text-center font-medium">{t('invoice_detail.col_action')}</th>
+                      <th className="p-3 w-[14%] text-left font-medium">{t('invoice_detail.col_date')}</th>
+                      <th className="p-3 w-[34%] text-left font-medium">{t('invoice_detail.col_description')}</th>
+                      <th className="p-3 w-[20%] text-left font-medium">{t('invoice_detail.col_account')}</th>
+                      <th className="p-3 w-[18%] text-right font-medium">{t('invoice_detail.col_value')}</th>
+                      <th className="p-3 w-[14%] text-center font-medium">{t('invoice_detail.col_action')}</th>
                     </tr>
                   </thead>
                   <tbody className="divide-y">
@@ -394,9 +394,9 @@ const InvoiceDetailPage = () => {
                       const modalPayColor = p.amount < 0 ? 'text-red-600 dark:text-red-400' : p.amount > 0 ? 'text-green-600 dark:text-green-400' : 'text-foreground';
                       return (
                         <tr key={p.id} className="hover:bg-muted/30">
-                          <td className="p-3 text-muted-foreground">{formatDate(p.date)}</td>
-                          <td className="p-3 font-medium">{p.description}</td>
-                          <td className="p-3 text-muted-foreground">{p.account?.name || 'N/A'}</td>
+                          <td className="p-3 whitespace-nowrap text-muted-foreground">{formatDate(p.date)}</td>
+                          <td className="p-3 font-medium truncate" title={p.description}>{p.description}</td>
+                          <td className="p-3 text-muted-foreground truncate">{p.account?.name || 'N/A'}</td>
                           <td className={`p-3 text-right font-medium whitespace-nowrap ${modalPayColor}`}>
                             {formatCurrencyWithSymbol(p.amount, p.account?.currency || 'BRL')}
                           </td>
