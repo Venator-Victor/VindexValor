@@ -1,10 +1,9 @@
-import { PRIMARY, PRIMARY_HOVER } from '@/utils/colors';
+import { PRIMARY, PRIMARY_HOVER, DANGER } from '@/utils/colors';
 import React, { useState, useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Helmet } from 'react-helmet';
 import { motion } from 'framer-motion';
-import { Grid as LayoutGrid, ListUl as ListIcon, Calendar, AlertTriangle } from '@/components/BxIcon';
-import { Plus, Pencil, Trash, TrendingUp, TrendingDown } from '@/components/BxIcon';
+import { Calendar, AlertTriangle, Plus, Edit as Edit2, TrashAlt as Trash2, TrendingUp, TrendingDown } from '@/components/BxIcon';
 import { useFinance } from '@/context/FinanceContext';
 import { Button } from '@/components/ui/button';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
@@ -16,6 +15,7 @@ import { useToast } from '@/components/ui/use-toast';
 import { calculateInvestmentReturn, formatCurrency } from '@/utils/calculations';
 import SelectInput from '@/components/ui/SelectInput';
 import DatePicker from '@/components/ui/DatePicker';
+import ViewToggle from '@/components/ui/ViewToggle';
 import NumberInput from '@/components/ui/NumberInput';
 import InvestmentsChart from '@/components/InvestmentsChart';
 import { useSortableList } from '@/hooks/useSortableList';
@@ -239,23 +239,7 @@ const Investments = () => {
                  </button>
             </div>
 
-            {/* View Mode Toggle Buttons */}
-            <div className="flex items-center bg-white dark:bg-vindex-card rounded-lg border border-gray-200 dark:border-vindex-border p-1 shadow-sm">
-              <button
-                onClick={() => setViewMode('list')}
-                className={`p-2 rounded-md transition-all ${viewMode === 'list' ? 'bg-gray-100 dark:bg-vindex-bg text-gray-900 dark:text-gray-100 shadow-sm' : 'text-gray-400 hover:text-gray-600 dark:hover:text-gray-300'}`}
-                title={t('common.view_list')}
-              >
-                <ListIcon size={20} />
-              </button>
-              <button
-                onClick={() => setViewMode('card')}
-                className={`p-2 rounded-md transition-all ${viewMode === 'card' ? 'bg-gray-100 dark:bg-vindex-bg text-gray-900 dark:text-gray-100 shadow-sm' : 'text-gray-400 hover:text-gray-600 dark:hover:text-gray-300'}`}
-                title={t('common.view_card')}
-              >
-                <LayoutGrid size={20} />
-              </button>
-            </div>
+            <ViewToggle value={viewMode} onChange={setViewMode} />
 
             <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
             <DialogTrigger asChild>
@@ -409,14 +393,14 @@ const Investments = () => {
                 <table className="w-full min-w-[900px] table-fixed">
                   <thead className="bg-gray-50 dark:bg-vindex-bg border-b border-gray-200 dark:border-vindex-border">
                     <tr>
-                      <SortableHeader label={t('investments.col_name')} column="name" sortConfig={sortConfig} onSort={requestSort} className="text-xs font-bold uppercase w-[20%]" />
-                      <SortableHeader label={t('investments.col_type')} column="type" sortConfig={sortConfig} onSort={requestSort} className="text-xs font-bold uppercase w-[11%]" />
-                      <SortableHeader label={t('investments.col_subtype')} column="subtype" sortConfig={sortConfig} onSort={requestSort} className="text-xs font-bold uppercase w-[11%]" />
-                      <SortableHeader label={t('investments.col_invested')} column="investedAmount" sortConfig={sortConfig} onSort={requestSort} className="text-xs font-bold uppercase w-[13%]" />
-                      <SortableHeader label={t('investments.col_current')} column="currentAmount" sortConfig={sortConfig} onSort={requestSort} className="text-xs font-bold uppercase w-[13%]" />
-                      <th className="px-6 py-3 w-[11%] text-left text-xs font-bold text-gray-700 dark:text-gray-300 uppercase">{t('investments.col_return')}</th>
-                      <SortableHeader label={t('investments.col_purchase_date')} column="purchaseDate" sortConfig={sortConfig} onSort={requestSort} className="text-xs font-bold uppercase w-[13%]" />
-                      <th className="px-6 py-3 w-[8%] text-left text-xs font-bold text-gray-700 dark:text-gray-300 uppercase">{t('common.actions')}</th>
+                      <SortableHeader label={t('investments.col_name')} column="name" sortConfig={sortConfig} onSort={requestSort} className="w-[20%]" />
+                      <SortableHeader label={t('investments.col_type')} column="type" sortConfig={sortConfig} onSort={requestSort} className="w-[11%]" />
+                      <SortableHeader label={t('investments.col_subtype')} column="subtype" sortConfig={sortConfig} onSort={requestSort} className="w-[11%]" />
+                      <SortableHeader label={t('investments.col_invested')} column="investedAmount" sortConfig={sortConfig} onSort={requestSort} className="w-[13%]" />
+                      <SortableHeader label={t('investments.col_current')} column="currentAmount" sortConfig={sortConfig} onSort={requestSort} className="w-[13%]" />
+                      <th className="px-6 py-3 w-[11%] text-left font-medium text-gray-700 dark:text-gray-300">{t('investments.col_return')}</th>
+                      <SortableHeader label={t('investments.col_purchase_date')} column="purchaseDate" sortConfig={sortConfig} onSort={requestSort} className="w-[13%]" />
+                      <th className="px-6 py-3 w-[8%] text-right font-medium text-gray-700 dark:text-gray-300">{t('common.actions')}</th>
                     </tr>
                   </thead>
                   <tbody className="divide-y divide-gray-200 dark:divide-vindex-border">
@@ -443,22 +427,28 @@ const Investments = () => {
                             {new Date(investment.purchaseDate).toLocaleDateString(i18n.language)}
                           </td>
                           <td className="px-6 py-4">
-                            <div className="flex gap-2">
+                            <div className="flex justify-end gap-2">
                               <Button
                                 size="sm"
                                 variant="outline"
                                 onClick={() => handleEdit(investment)}
-                                className="hover:bg-gray-100 dark:hover:bg-vindex-border text-gray-700 dark:text-gray-300 border-gray-200 dark:border-vindex-border h-8 w-8 p-0 rounded-lg"
+                                className="h-8 w-8 p-0 rounded-lg border transition-colors bg-transparent"
+                                style={{ borderColor: PRIMARY, color: PRIMARY }}
+                                onMouseEnter={e => { e.currentTarget.style.backgroundColor = PRIMARY; e.currentTarget.style.color = '#000'; }}
+                                onMouseLeave={e => { e.currentTarget.style.backgroundColor = 'transparent'; e.currentTarget.style.color = PRIMARY; }}
                               >
-                                <Pencil size={14} />
+                                <Edit2 className="h-4 w-4" />
                               </Button>
                               <Button
                                 size="sm"
                                 variant="outline"
                                 onClick={() => setDeleteId(investment.id)}
-                                className="hover:bg-red-50 dark:hover:bg-vindex-danger/20 hover:text-red-600 dark:hover:text-vindex-danger hover:border-red-200 dark:hover:border-vindex-danger/50 text-gray-500 dark:text-gray-400 border-gray-200 dark:border-vindex-border h-8 w-8 p-0 rounded-lg"
+                                className="h-8 w-8 p-0 rounded-lg border transition-colors bg-transparent"
+                                style={{ borderColor: DANGER, color: DANGER }}
+                                onMouseEnter={e => { e.currentTarget.style.backgroundColor = DANGER; e.currentTarget.style.color = '#fff'; }}
+                                onMouseLeave={e => { e.currentTarget.style.backgroundColor = 'transparent'; e.currentTarget.style.color = DANGER; }}
                               >
-                                <Trash size={14} />
+                                <Trash2 className="h-4 w-4" />
                               </Button>
                             </div>
                           </td>

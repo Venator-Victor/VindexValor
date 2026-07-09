@@ -272,7 +272,7 @@ const InflationCard = ({ currentBalance }) => {
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6 relative z-10">
           <div className="md:col-span-2 h-64">
             <ResponsiveContainer width="100%" height="100%">
-              <AreaChart data={chartData}>
+              <AreaChart data={chartData} margin={{ top: 8, right: 12, left: 4, bottom: 8 }}>
                 <defs>
                   <linearGradient id="colorInflation" x1="0" y1="0" x2="0" y2="1">
                     <stop offset="5%" stopColor={DANGER_DARK} stopOpacity={0.8} />
@@ -289,8 +289,9 @@ const InflationCard = ({ currentBalance }) => {
                   interval={isShortPeriod ? 'preserveStartEnd' : 0}
                   ticks={xAxisTicks}
                   tickFormatter={xAxisTickFormatter}
+                  tickMargin={10}
                 />
-                <YAxis stroke={textColor} fontSize={12} tickLine={false} axisLine={false} unit="%" />
+                <YAxis stroke={textColor} fontSize={12} tickLine={false} axisLine={false} unit="%" tickMargin={8} width={48} />
                 <Tooltip
                   contentStyle={{ backgroundColor: tooltipBg, borderColor: tooltipBorder, borderRadius: '8px', color: textColor }}
                   itemStyle={{ color: textColor }}

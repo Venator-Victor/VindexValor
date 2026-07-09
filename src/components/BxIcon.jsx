@@ -32,6 +32,23 @@ import {
   Bank, Landmark, PiggyBank, Safe, Calculator, Coins, ChartLine, Umbrella,
   Pill, Syringe, Taxi, Train, Subway, Truck, Motorcycle, Ship, Spa,
   Popcorn, Ticket, Beer, Wine, Pizza, Tv, Dog, Cat, Tree,
+  // Currency & crypto (expanded icon selector)
+  Pound, Yen, Ruble, Rupee, Won, Lira, CurrencyNote, CryptoCoin, WalletAlt, Coin,
+  // Electronics (expanded icon selector)
+  Headphone, Speaker, Printer, Keyboard, Mouse, Usb, Server, Radio,
+  HardDrive, Chip, Devices, WristWatch, Microphone, BatteryFull, Cctv,
+  // Furniture & home appliances (expanded icon selector)
+  Chair, Couch, Table, Cabinet, Fridge, Washer, Dishwasher, MicrowaveOven,
+  Oven, AirConditioner, Fan, Garage, Shower,
+  // Inheritance, legal & estate (expanded icon selector)
+  Scroll, Gavel, Key, Signature, Stamp, Buildings, MedalStar, Handshake, Diamonds,
+  // Travel, sports & hobbies (expanded icon selector)
+  Luggage, Compass, Globe, Backpack, Basketball, Football, GolfBall,
+  GuitarAmp, Palette, TableTennis, RugbyBall, Skateboard,
+  // Health & misc (expanded icon selector)
+  Tooth, Thermometer, Dna, Ambulance, Recycle, Broom, Fire, Rocket, Robot,
+  School, Cap, Anchor, Snowflake, SwimmingPool, Route, CakeSlice, Balloon,
+  Basket, Leaf,
 } from '@boxicons/react';
 
 const iconMap = {
@@ -168,6 +185,92 @@ const iconMap = {
   'bx-dog': Dog,
   'bx-cat': Cat,
   'bx-tree': Tree,
+  // Currency & crypto (expanded icon selector)
+  'bx-pound': Pound,
+  'bx-yen': Yen,
+  'bx-ruble': Ruble,
+  'bx-rupee': Rupee,
+  'bx-won': Won,
+  'bx-lira': Lira,
+  'bx-currency-note': CurrencyNote,
+  'bx-crypto': CryptoCoin,
+  'bx-wallet-alt': WalletAlt,
+  'bx-coin': Coin,
+  // Electronics (expanded icon selector)
+  'bx-headphone': Headphone,
+  'bx-speaker': Speaker,
+  'bx-printer': Printer,
+  'bx-keyboard': Keyboard,
+  'bx-mouse': Mouse,
+  'bx-usb': Usb,
+  'bx-server': Server,
+  'bx-radio': Radio,
+  'bx-hard-drive': HardDrive,
+  'bx-chip': Chip,
+  'bx-devices': Devices,
+  'bx-watch': WristWatch,
+  'bx-microphone': Microphone,
+  'bx-battery': BatteryFull,
+  'bx-cctv': Cctv,
+  // Furniture & home appliances (expanded icon selector)
+  'bx-chair': Chair,
+  'bx-couch': Couch,
+  'bx-table': Table,
+  'bx-cabinet': Cabinet,
+  'bx-fridge': Fridge,
+  'bx-washer': Washer,
+  'bx-dishwasher': Dishwasher,
+  'bx-microwave': MicrowaveOven,
+  'bx-oven': Oven,
+  'bx-air-conditioner': AirConditioner,
+  'bx-fan': Fan,
+  'bx-door': Door,
+  'bx-window': Window,
+  'bx-garage': Garage,
+  'bx-shower': Shower,
+  // Inheritance, legal & estate (expanded icon selector)
+  'bx-scroll': Scroll,
+  'bx-gavel': Gavel,
+  'bx-key': Key,
+  'bx-signature': Signature,
+  'bx-stamp': Stamp,
+  'bx-buildings': Buildings,
+  'bx-medal-star': MedalStar,
+  'bx-handshake': Handshake,
+  'bx-jewelry': Diamonds,
+  // Travel, sports & hobbies (expanded icon selector)
+  'bx-luggage': Luggage,
+  'bx-compass': Compass,
+  'bx-globe': Globe,
+  'bx-backpack': Backpack,
+  'bx-basketball': Basketball,
+  'bx-football': Football,
+  'bx-golf': GolfBall,
+  'bx-guitar': GuitarAmp,
+  'bx-palette': Palette,
+  'bx-table-tennis': TableTennis,
+  'bx-rugby': RugbyBall,
+  'bx-skateboard': Skateboard,
+  // Health & misc (expanded icon selector)
+  'bx-tooth': Tooth,
+  'bx-thermometer': Thermometer,
+  'bx-dna': Dna,
+  'bx-ambulance': Ambulance,
+  'bx-recycle': Recycle,
+  'bx-broom': Broom,
+  'bx-fire': Fire,
+  'bx-rocket': Rocket,
+  'bx-robot': Robot,
+  'bx-school': School,
+  'bx-graduation-cap': Cap,
+  'bx-anchor': Anchor,
+  'bx-snowflake': Snowflake,
+  'bx-pool': SwimmingPool,
+  'bx-route': Route,
+  'bx-cake': CakeSlice,
+  'bx-balloon': Balloon,
+  'bx-basket': Basket,
+  'bx-leaf': Leaf,
 };
 
 const BxIcon = ({ iconClass = '', className = '', size = 20, style, ...props }) => {
@@ -222,4 +325,21 @@ export {
   Bank, Landmark, PiggyBank, Safe, Calculator, Coins, ChartLine, Umbrella,
   Pill, Syringe, Taxi, Train, Subway, Truck, Motorcycle, Ship, Spa,
   Popcorn, Ticket, Beer, Wine, Pizza, Tv, Dog, Cat, Tree,
+  // currency & crypto (expanded icon selector)
+  Pound, Yen, Ruble, Rupee, Won, Lira, CurrencyNote, CryptoCoin, WalletAlt, Coin,
+  // electronics (expanded icon selector)
+  Headphone, Speaker, Printer, Keyboard, Mouse, Usb, Server, Radio,
+  HardDrive, Chip, Devices, WristWatch, Microphone, BatteryFull, Cctv,
+  // furniture & home appliances (expanded icon selector)
+  Chair, Couch, Table, Cabinet, Fridge, Washer, Dishwasher, MicrowaveOven,
+  Oven, AirConditioner, Fan, Garage, Shower,
+  // inheritance, legal & estate (expanded icon selector)
+  Scroll, Gavel, Key, Signature, Stamp, Buildings, MedalStar, Handshake, Diamonds,
+  // travel, sports & hobbies (expanded icon selector)
+  Luggage, Compass, Globe, Backpack, Basketball, Football, GolfBall,
+  GuitarAmp, Palette, TableTennis, RugbyBall, Skateboard,
+  // health & misc (expanded icon selector)
+  Tooth, Thermometer, Dna, Ambulance, Recycle, Broom, Fire, Rocket, Robot,
+  School, Cap, Anchor, Snowflake, SwimmingPool, Route, CakeSlice, Balloon,
+  Basket, Leaf,
 };

@@ -18,6 +18,9 @@ import InvoiceFilterBar from '@/components/InvoiceFilterBar';
 import { parseValueFilterString } from '@/components/FilterRangeInput';
 import { supabase } from '@/lib/customSupabaseClient';
 import InvoiceSelectionBar from '@/components/InvoiceSelectionBar';
+import { PRIMARY } from '@/utils/colors';
+import DateFilterSelect from '@/components/ui/DateFilterSelect';
+import { getDateFilterDefaults, matchesDateFilter } from '@/utils/dateFilter';
 
 const SortIcon = ({ column, sortConfig }) => {
   if (sortConfig.key !== column) return <div className="w-4 h-4 opacity-0" />;
@@ -38,7 +41,7 @@ const InvoicesPage = () => {
   const [selectedInvoices, setSelectedFaturas] = useState([]);
   const [invoiceTotals, setInvoiceTotals] = useState({});
 
-  const [dateFilterType, setDateFilterType] = useState('');
+  const [dateFilter, setDateFilter] = useState(getDateFilterDefaults());
   
   const [sortConfig, setSortConfig] = useState({ key: 'opening_date', direction: 'descending' });
   
@@ -261,35 +264,7 @@ const InvoicesPage = () => {
       return 0;
     });
 
-    const today = new Date();
-    const todayStr = today.toISOString().split('T')[0];
-    const currentMonthStr = todayStr.substring(0, 7);
-    const currentYearStr = todayStr.substring(0, 4);
-
-    const weekAgo = new Date(today);
-    weekAgo.setDate(today.getDate() - 7);
-    const weekAgoStr = weekAgo.toISOString().split('T')[0];
-
-    return sorted.filter(f => {
-      let matchesDate = true;
-      const fDate = f.opening_date;
-      
-      if (dateFilterType && fDate) {
-        if (dateFilterType === 'today') {
-          matchesDate = fDate === todayStr;
-        } else if (dateFilterType === 'week') {
-          matchesDate = fDate >= weekAgoStr && fDate <= todayStr;
-        } else if (dateFilterType === 'month') {
-          matchesDate = fDate.startsWith(currentMonthStr);
-        } else if (dateFilterType === 'year') {
-          matchesDate = fDate.startsWith(currentYearStr);
-        } else if (dateFilterType === 'custom' || dateFilterType === 'periodo') {
-           matchesDate = true;
-        }
-      }
-
-      return matchesDate;
-    });
+    return sorted.filter(f => matchesDateFilter(f.opening_date, dateFilter));
   })();
 
   return (
@@ -305,23 +280,12 @@ const InvoicesPage = () => {
         </div>
 
         <div className="flex flex-wrap gap-2 w-full md:w-auto items-center">
-          <SelectInput
-            value={dateFilterType}
-            onChange={(e) => setDateFilterType(e.target.value)}
-            options={[
-              { label: t('transactions.date_filter_period'), value: "" },
-              { label: t('transactions.date_filter_today'), value: "today" },
-              { label: t('transactions.date_filter_week'), value: "week" },
-              { label: t('transactions.date_filter_month'), value: "month" },
-              { label: t('transactions.date_filter_year'), value: "year" }
-            ]}
-            className="w-40 sm:w-48"
-          />
+          <DateFilterSelect value={dateFilter} onChange={setDateFilter} />
 
           <Dialog open={isImportOpen} onOpenChange={setIsImportOpen}>
             <DialogTrigger asChild>
               <Button variant="outline" className="gap-2">
-                <UploadCloud className="w-4 h-4" /> <span className="hidden sm:inline">{t('invoices.batch_import')}</span>
+                <UploadCloud className="w-4 h-4" /> <span className="hidden sm:inline">{t('invoices.import_csv')}</span>
               </Button>
             </DialogTrigger>
             <DialogContent className="dialog-responsive max-w-[95vw] md:max-w-4xl p-4 md:p-6">
@@ -390,8 +354,8 @@ const InvoicesPage = () => {
       {isLoading ? (
         <div className="text-center py-12 text-muted-foreground">{t('invoices.loading')}</div>
       ) : isFiltering ? (
-        <div className="bg-card rounded-xl border shadow-sm p-5">
-          <h2 className="text-lg font-bold mb-4 flex items-center gap-2">
+        <div className="bg-white dark:bg-vindex-card rounded-xl border border-gray-200 dark:border-vindex-border shadow-sm p-5">
+          <h2 className="text-lg font-bold mb-4 flex items-center gap-2 text-gray-900 dark:text-gray-50">
             <Receipt className="w-5 h-5 text-primary" /> {t('invoices.filtered_results')}
           </h2>
           {filteredItems.length === 0 ? (
@@ -401,35 +365,35 @@ const InvoicesPage = () => {
           ) : (
              <div className="overflow-x-auto custom-scrollbar">
                 <table className="w-full text-sm min-w-[680px] table-fixed">
-                   <thead className="bg-muted/50 border-b">
+                   <thead className="bg-gray-50 dark:bg-vindex-bg border-b border-gray-200 dark:border-vindex-border">
                       <tr>
-                         <th className="p-3 w-[16%] text-left font-medium text-muted-foreground">{t('invoices.col_invoice')}</th>
-                         <th className="p-3 w-[12%] text-left font-medium text-muted-foreground">{t('invoices.col_date')}</th>
-                         <th className="p-3 w-[34%] text-left font-medium text-muted-foreground">{t('invoices.col_description')}</th>
-                         <th className="p-3 w-[20%] text-left font-medium text-muted-foreground">{t('invoices.col_category')}</th>
-                         <th className="p-3 w-[18%] text-right font-medium text-muted-foreground">{t('invoices.col_amount')}</th>
+                         <th className="px-6 py-3 w-[16%] text-left font-medium text-gray-700 dark:text-gray-300">{t('invoices.col_invoice')}</th>
+                         <th className="px-6 py-3 w-[12%] text-left font-medium text-gray-700 dark:text-gray-300">{t('invoices.col_date')}</th>
+                         <th className="px-6 py-3 w-[34%] text-left font-medium text-gray-700 dark:text-gray-300">{t('invoices.col_description')}</th>
+                         <th className="px-6 py-3 w-[20%] text-left font-medium text-gray-700 dark:text-gray-300">{t('invoices.col_category')}</th>
+                         <th className="px-6 py-3 w-[18%] text-right font-medium text-gray-700 dark:text-gray-300">{t('invoices.col_amount')}</th>
                       </tr>
                    </thead>
-                   <tbody className="divide-y">
+                   <tbody className="divide-y divide-gray-200 dark:divide-vindex-border">
                       {filteredItems.map(c => (
-                         <tr key={c.id} className="hover:bg-muted/30">
-                            <td className="p-3 font-medium cursor-pointer text-primary hover:underline truncate" onClick={() => navigate(`/faturas/${c.invoice_id}`)}>
+                         <tr key={c.id} className="hover:bg-gray-50 dark:hover:bg-vindex-bg/50 transition-colors">
+                            <td className="px-6 py-4 font-medium cursor-pointer text-primary hover:underline truncate" onClick={() => navigate(`/faturas/${c.invoice_id}`)}>
                               {c.invoices?.invoice_number || t('invoices.unknown_invoice')}
                             </td>
-                            <td className="p-3 text-muted-foreground whitespace-nowrap">{formatDate(c.date)}</td>
-                            <td className="p-3 truncate" title={c.description}>
+                            <td className="px-6 py-4 text-gray-700 dark:text-gray-300 whitespace-nowrap">{formatDate(c.date)}</td>
+                            <td className="px-6 py-4 text-gray-900 dark:text-gray-50 truncate" title={c.description}>
                               {c.description}
                               {c.is_installment && <span className="ml-2 text-[10px] bg-blue-100 text-blue-800 px-2 py-0.5 rounded-full whitespace-nowrap">{t('invoices.parcel_label', { number: c.parcel_number, total: c.total_parcels })}</span>}
                             </td>
-                            <td className="p-3">
+                            <td className="px-6 py-4">
                                {c.categories ? (
                                   <div className="flex items-center gap-1.5 min-w-0">
                                     <div className="w-2.5 h-2.5 rounded-full shrink-0" style={{ backgroundColor: c.categories.color }}></div>
-                                    <span className="text-xs truncate">{c.categories.name}</span>
+                                    <span className="text-xs text-gray-700 dark:text-gray-300 truncate">{c.categories.name}</span>
                                   </div>
-                               ) : <span className="text-muted-foreground text-xs">{t('common.no_category')}</span>}
+                               ) : <span className="text-gray-500 text-xs">{t('common.no_category')}</span>}
                             </td>
-                            <td className="p-3 text-right font-medium whitespace-nowrap">{formatCurrency(c.amount)}</td>
+                            <td className="px-6 py-4 text-right font-medium text-gray-900 dark:text-gray-50 whitespace-nowrap">{formatCurrency(c.amount)}</td>
                          </tr>
                       ))}
                    </tbody>
@@ -455,66 +419,68 @@ const InvoicesPage = () => {
               <Button onClick={() => setIsDialogOpen(true)}>{t('invoices.create_first')}</Button>
             </div>
           ) : (
-            <div className="bg-card rounded-xl border shadow-sm overflow-hidden">
+            <div className="bg-white dark:bg-vindex-card rounded-xl border border-gray-200 dark:border-vindex-border shadow-sm overflow-hidden">
               <div className="overflow-x-auto custom-scrollbar">
                 <table className="w-full text-sm min-w-[700px] table-fixed">
-                  <thead className="bg-muted/50 border-b">
+                  <thead className="bg-gray-50 dark:bg-vindex-bg border-b border-gray-200 dark:border-vindex-border">
                     <tr>
-                      <th className="p-3 w-[6%] text-center">
+                      <th className="px-6 py-3 w-[6%] text-center">
                         <Checkbox
                           checked={selectedInvoices.length === filteredInvoices.length && filteredInvoices.length > 0}
                           onCheckedChange={handleSelectAll}
                           aria-label={t('invoices.select_all')}
                         />
                       </th>
-                      <th className="p-3 w-[22%] text-left font-medium text-muted-foreground">{t('invoices.col_invoice')}</th>
-                      <th className="p-3 w-[20%] text-left font-medium text-muted-foreground">{t('common.account')}</th>
-                      <th className="p-3 w-[16%] align-middle">
-                        <button onClick={() => requestSort('opening_date')} className="table-header-sortable justify-start">
+                      <th className="px-6 py-3 w-[22%] text-left font-medium text-gray-700 dark:text-gray-300">{t('invoices.col_invoice')}</th>
+                      <th className="px-6 py-3 w-[20%] text-left font-medium text-gray-700 dark:text-gray-300">{t('common.account')}</th>
+                      <th className="px-6 py-3 w-[16%] align-middle">
+                        <button onClick={() => requestSort('opening_date')} className="table-header-sortable justify-start text-gray-700 dark:text-gray-300">
                           {t('invoices.col_opening_date')} <SortIcon column="opening_date" sortConfig={sortConfig} />
                         </button>
                       </th>
-                      <th className="p-3 w-[18%] align-middle">
-                        <button onClick={() => requestSort('amount')} className="table-header-sortable justify-end pl-0 pr-0 ml-auto mr-0">
+                      <th className="px-6 py-3 w-[18%] align-middle">
+                        <button onClick={() => requestSort('amount')} className="table-header-sortable justify-end pl-0 pr-0 ml-auto mr-0 text-gray-700 dark:text-gray-300">
                           {t('invoices.col_total')} <SortIcon column="amount" sortConfig={sortConfig} />
                         </button>
                       </th>
-                      <th className="p-3 w-[18%] align-middle">
-                        <button onClick={() => requestSort('status')} className="table-header-sortable justify-center pl-0 pr-0 ml-auto mr-auto">
+                      <th className="px-6 py-3 w-[18%] align-middle">
+                        <button onClick={() => requestSort('status')} className="table-header-sortable justify-center pl-0 pr-0 ml-auto mr-auto text-gray-700 dark:text-gray-300">
                           {t('invoices.col_status')} <SortIcon column="status" sortConfig={sortConfig} />
                         </button>
                       </th>
                     </tr>
                   </thead>
-                  <tbody className="divide-y">
+                  <tbody className="divide-y divide-gray-200 dark:divide-vindex-border">
                     {filteredInvoices.map(invoice => {
                       const totalValue = invoiceTotals[invoice.id] || 0;
                       return (
                         <tr
                           key={invoice.id}
-                          className={`hover:bg-muted/30 cursor-pointer transition-colors ${selectedInvoices.includes(invoice.id) ? 'bg-primary/5 dark:bg-primary/10' : ''}`}
+                          className={`cursor-pointer transition-colors ${selectedInvoices.includes(invoice.id) ? 'bg-primary/5 dark:bg-primary/10' : ''}`}
                           onClick={() => handleRowClick(invoice)}
+                          onMouseEnter={e => e.currentTarget.style.backgroundColor = PRIMARY + '18'}
+                          onMouseLeave={e => e.currentTarget.style.backgroundColor = ''}
                         >
-                          <td className="p-3 text-center" onClick={(e) => e.stopPropagation()}>
+                          <td className="px-6 py-4 text-center" onClick={(e) => e.stopPropagation()}>
                             <Checkbox
                               checked={selectedInvoices.includes(invoice.id)}
                               onCheckedChange={(checked) => handleSelectRow(invoice.id, checked)}
                               aria-label={t('invoices.select_row', { name: invoice.invoice_number })}
                             />
                           </td>
-                          <td className="p-3 font-medium text-foreground truncate">
+                          <td className="px-6 py-4 font-medium text-gray-900 dark:text-gray-50 truncate">
                             {invoice.invoice_number || t('invoices.unnamed_invoice')}
                           </td>
-                          <td className="p-3 text-muted-foreground truncate">
+                          <td className="px-6 py-4 text-gray-700 dark:text-gray-300 truncate">
                             {invoice.account?.name || t('invoices.account_removed')}
                           </td>
-                          <td className="p-3 text-muted-foreground whitespace-nowrap">
+                          <td className="px-6 py-4 text-gray-700 dark:text-gray-300 whitespace-nowrap">
                             {formatDate(invoice.opening_date)}
                           </td>
-                          <td className={`p-3 text-right font-medium whitespace-nowrap ${totalValue < 0 ? 'text-red-600 dark:text-red-400' : totalValue > 0 ? 'text-green-600 dark:text-green-400' : ''}`}>
+                          <td className={`px-6 py-4 text-right font-medium whitespace-nowrap ${totalValue < 0 ? 'text-red-600 dark:text-red-400' : totalValue > 0 ? 'text-green-600 dark:text-green-400' : ''}`}>
                             {formatCurrency(totalValue)}
                           </td>
-                          <td className="p-3 text-center">
+                          <td className="px-6 py-4 text-center">
                             {getStatusBadge(invoice.status)}
                           </td>
                         </tr>

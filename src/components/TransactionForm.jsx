@@ -12,12 +12,14 @@ import NumberInput from '@/components/ui/NumberInput';
 import { useAutoMappingCategories } from '@/hooks/useAutoMappingCategories';
 import { formatCurrencyWithSymbol } from '@/utils/calculations';
 import { PERIOD_OPTIONS } from '@/utils/periodOptions';
+import { buildFlatIndentedOptions } from '@/utils/categoryTree';
 
 const TransactionForm = ({ initialData, onSuccess, onCancel }) => {
   const { t } = useTranslation();
   const { accounts, categories, invoices, createTransaction, updateTransaction } = useFinance();
   const { saveCategoryMapping, getSuggestedCategory } = useAutoMappingCategories();
   const { toast } = useToast();
+  const categoryOptions = useMemo(() => buildFlatIndentedOptions(categories), [categories]);
 
   const [isAutoMapped, setIsAutoMapped] = useState(false);
   const debounceRef = useRef(null);
@@ -312,8 +314,8 @@ const TransactionForm = ({ initialData, onSuccess, onCancel }) => {
               className={`${inputClasses} mt-0`}
             >
               <option value="">{t('common.no_category')}</option>
-              {categories.map(cat => (
-                <option key={cat.id} value={cat.id}>{cat.name}</option>
+              {categoryOptions.map(opt => (
+                <option key={opt.value} value={opt.value}>{opt.label}</option>
               ))}
             </select>
           </div>

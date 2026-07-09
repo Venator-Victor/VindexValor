@@ -141,7 +141,7 @@ const InflationSimulator = () => {
         {/* Chart */}
         <div className="md:col-span-2 h-72">
           <ResponsiveContainer width="100%" height="100%">
-            <AreaChart data={chartData}>
+            <AreaChart data={chartData} margin={{ top: 8, right: 12, left: 4, bottom: 8 }}>
               <defs>
                 <linearGradient id="gradNeeded" x1="0" y1="0" x2="0" y2="1">
                   <stop offset="5%" stopColor={DANGER_DARK} stopOpacity={0.8} />
@@ -158,12 +158,14 @@ const InflationSimulator = () => {
                 stroke={textColor} fontSize={11}
                 tickLine={false} axisLine={false}
                 interval={xAxisInterval}
+                tickMargin={10}
               />
               <YAxis
                 stroke={textColor} fontSize={11}
                 tickLine={false} axisLine={false}
                 tickFormatter={(v) => v >= 1000 ? `${(v / 1000).toFixed(0)}k` : v}
-                width={40}
+                tickMargin={8}
+                width={52}
               />
               <Tooltip
                 contentStyle={{ backgroundColor: tooltipBg, borderColor: tooltipBorder, borderRadius: '8px', color: textColor }}

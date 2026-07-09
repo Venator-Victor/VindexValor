@@ -1,10 +1,9 @@
-import { PRIMARY, PRIMARY_HOVER, SUCCESS, TEXT_SUCCESS, TEXT_DANGER } from '@/utils/colors';
+import { PRIMARY, PRIMARY_HOVER, SUCCESS, DANGER, TEXT_SUCCESS, TEXT_DANGER } from '@/utils/colors';
 import React, { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Helmet } from 'react-helmet';
 import { motion } from 'framer-motion';
-import { Grid as LayoutGrid, ListUl as ListIcon, Repeat, Search } from '@/components/BxIcon';
-import { Plus, Pencil, Trash } from '@/components/BxIcon';
+import { Repeat, Search, Plus, Edit as Edit2, TrashAlt as Trash2 } from '@/components/BxIcon';
 import { useFinance } from '@/context/FinanceContext';
 import { useCategories } from '@/hooks/useCategories';
 import { Button } from '@/components/ui/button';
@@ -17,13 +16,17 @@ import { useToast } from '@/components/ui/use-toast';
 import { formatCurrency } from '@/utils/calculations';
 import SelectInput from '@/components/ui/SelectInput';
 import DatePicker from '@/components/ui/DatePicker';
+import ViewToggle from '@/components/ui/ViewToggle';
+import DateFilterSelect from '@/components/ui/DateFilterSelect';
+import { getDateFilterDefaults, matchesDateFilter } from '@/utils/dateFilter';
 import RecorrenciaCard from '@/components/cards/RecurrenceCard';
 import GaugeSummaryCard from '@/components/GaugeSummaryCard';
 import DefaultCategoriesModal from '@/components/DefaultCategoriesModal';
 import { useSortableList } from '@/hooks/useSortableList';
-import { PERIOD_OPTIONS, CHART_PERIOD_OPTIONS } from '@/utils/periodOptions';
+import { PERIOD_OPTIONS } from '@/utils/periodOptions';
 import ColorPicker from '@/components/ui/ColorPicker';
 import IconSelector from '@/components/IconSelector';
+import { buildFlatIndentedOptions } from '@/utils/categoryTree';
 
 const Recurrences = () => {
   const { t, i18n } = useTranslation();
@@ -55,13 +58,12 @@ const Recurrences = () => {
   });
 
   const viewMode = settings.recurring_items_view_preference || 'list';
-  const currentPeriod = settings.recurring_items_period_preference || 'monthly';
 
   const setViewMode = (mode) => {
     saveSettings({ recurring_items_view_preference: mode });
   };
 
-  const handlePeriodChange = (e) => saveSettings({ recurring_items_period_preference: e.target.value });
+  const [dateFilter, setDateFilter] = useState(getDateFilterDefaults());
 
   const statusOptions = [
       { label: t('recurrences.status_active'), value: "active" },
@@ -71,7 +73,7 @@ const Recurrences = () => {
   const categoryOptions = [
       { label: t('common.select_placeholder'), value: "" },
       { label: t('recurrences.new_category_option'), value: "__create_new__" },
-      ...categories.map(cat => ({ label: cat.name, value: cat.id }))
+      ...buildFlatIndentedOptions(categories)
   ];
 
   const typeOptions = [
@@ -79,7 +81,7 @@ const Recurrences = () => {
       ...transactionTypes.map(tt => ({ label: tt.name, value: tt.id }))
   ];
 
-  const filteredRecurring = recurring.filter(() => true);
+  const filteredRecurring = recurring.filter(r => matchesDateFilter(r.date || r.next_date, dateFilter));
   const { items: sortedRecurring, requestSort, sortConfig } = useSortableList(filteredRecurring);
 
   const calculateGaugeData = () => {
@@ -230,19 +232,10 @@ const Recurrences = () => {
         </div>
 
         <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-4 w-full md:w-auto">
-            <div className="w-full sm:w-40">
-                <SelectInput value={currentPeriod} options={CHART_PERIOD_OPTIONS} onChange={handlePeriodChange} className="bg-white dark:bg-vindex-card border-gray-200 dark:border-vindex-border text-gray-700 dark:text-gray-300" />
-            </div>
+            <DateFilterSelect value={dateFilter} onChange={setDateFilter} />
 
             <div className="flex items-center gap-2">
-                <div className="flex items-center bg-white dark:bg-vindex-card rounded-lg border border-gray-200 dark:border-vindex-border p-1">
-                <button onClick={() => setViewMode('list')} className={`p-2 rounded-md transition-all ${viewMode === 'list' ? 'bg-gray-100 dark:bg-vindex-bg text-gray-900 dark:text-gray-100 shadow-sm' : 'text-gray-400 hover:text-gray-600 dark:hover:text-gray-300'}`}>
-                <ListIcon size={20} />
-                </button>
-                <button onClick={() => setViewMode('card')} className={`p-2 rounded-md transition-all ${viewMode === 'card' ? 'bg-gray-100 dark:bg-vindex-bg text-gray-900 dark:text-gray-100 shadow-sm' : 'text-gray-400 hover:text-gray-600 dark:hover:text-gray-300'}`}>
-                <LayoutGrid size={20} />
-                </button>
-            </div>
+                <ViewToggle value={viewMode} onChange={setViewMode} />
 
             <Dialog open={isDialogOpen} onOpenChange={(open) => { if(!open) resetForm(); setIsDialogOpen(open); }}>
                 <DialogTrigger asChild>
@@ -465,13 +458,13 @@ const Recurrences = () => {
                 <table className="w-full min-w-[860px] table-fixed">
                   <thead className="bg-gray-50 dark:bg-vindex-bg border-b border-gray-200 dark:border-vindex-border">
                     <tr>
-                      <SortableHeader label={t('recurrences.col_description')} column="description" sortConfig={sortConfig} onSort={requestSort} className="text-xs font-bold uppercase w-[28%]" />
-                      <SortableHeader label={t('recurrences.col_type')} column="recurrence_type" sortConfig={sortConfig} onSort={requestSort} className="text-xs font-bold uppercase w-[14%]" />
-                      <SortableHeader label={t('recurrences.col_amount')} column="amount" sortConfig={sortConfig} onSort={requestSort} className="text-xs font-bold uppercase w-[14%]" />
-                      <SortableHeader label={t('recurrences.col_frequency')} column="frequency" sortConfig={sortConfig} onSort={requestSort} className="text-xs font-bold uppercase w-[13%]" />
-                      <SortableHeader label={t('recurrences.col_next_billing')} column="date" sortConfig={sortConfig} onSort={requestSort} className="text-xs font-bold uppercase w-[14%]" />
-                      <th className="px-6 py-3 w-[10%] text-left text-xs font-bold text-gray-700 dark:text-gray-300 uppercase">{t('recurrences.col_status')}</th>
-                      <th className="px-6 py-3 w-[7%] text-left text-xs font-bold text-gray-700 dark:text-gray-300 uppercase">{t('recurrences.col_actions')}</th>
+                      <SortableHeader label={t('recurrences.col_description')} column="description" sortConfig={sortConfig} onSort={requestSort} className="w-[28%]" />
+                      <SortableHeader label={t('recurrences.col_type')} column="recurrence_type" sortConfig={sortConfig} onSort={requestSort} className="w-[14%]" />
+                      <SortableHeader label={t('recurrences.col_amount')} column="amount" sortConfig={sortConfig} onSort={requestSort} className="w-[14%]" />
+                      <SortableHeader label={t('recurrences.col_frequency')} column="frequency" sortConfig={sortConfig} onSort={requestSort} className="w-[13%]" />
+                      <SortableHeader label={t('recurrences.col_next_billing')} column="date" sortConfig={sortConfig} onSort={requestSort} className="w-[14%]" />
+                      <th className="px-6 py-3 w-[10%] text-left font-medium text-gray-700 dark:text-gray-300">{t('recurrences.col_status')}</th>
+                      <th className="px-6 py-3 w-[7%] text-right font-medium text-gray-700 dark:text-gray-300">{t('recurrences.col_actions')}</th>
                     </tr>
                   </thead>
                   <tbody className="divide-y divide-gray-200 dark:divide-vindex-border">
@@ -514,12 +507,28 @@ const Recurrences = () => {
                             </button>
                         </td>
                         <td className="px-6 py-4">
-                          <div className="flex gap-2">
-                            <Button size="sm" variant="outline" onClick={() => handleEdit(item)} className="hover:bg-gray-100 dark:hover:bg-vindex-border text-gray-700 dark:text-gray-300 border-gray-200 dark:border-vindex-border h-8 w-8 p-0 rounded-lg">
-                              <Pencil size={14} />
+                          <div className="flex justify-end gap-2">
+                            <Button
+                              size="sm"
+                              variant="outline"
+                              onClick={() => handleEdit(item)}
+                              className="h-8 w-8 p-0 rounded-lg border transition-colors bg-transparent"
+                              style={{ borderColor: PRIMARY, color: PRIMARY }}
+                              onMouseEnter={e => { e.currentTarget.style.backgroundColor = PRIMARY; e.currentTarget.style.color = '#000'; }}
+                              onMouseLeave={e => { e.currentTarget.style.backgroundColor = 'transparent'; e.currentTarget.style.color = PRIMARY; }}
+                            >
+                              <Edit2 className="h-4 w-4" />
                             </Button>
-                            <Button size="sm" variant="outline" onClick={() => setDeleteId(item.id)} className="hover:bg-red-50 dark:hover:bg-vindex-danger/20 hover:text-red-600 dark:hover:text-vindex-danger hover:border-red-200 dark:hover:border-vindex-danger/50 text-gray-500 dark:text-gray-400 border-gray-200 dark:border-vindex-border h-8 w-8 p-0 rounded-lg">
-                              <Trash size={14} />
+                            <Button
+                              size="sm"
+                              variant="outline"
+                              onClick={() => setDeleteId(item.id)}
+                              className="h-8 w-8 p-0 rounded-lg border transition-colors bg-transparent"
+                              style={{ borderColor: DANGER, color: DANGER }}
+                              onMouseEnter={e => { e.currentTarget.style.backgroundColor = DANGER; e.currentTarget.style.color = '#fff'; }}
+                              onMouseLeave={e => { e.currentTarget.style.backgroundColor = 'transparent'; e.currentTarget.style.color = DANGER; }}
+                            >
+                              <Trash2 className="h-4 w-4" />
                             </Button>
                           </div>
                         </td>

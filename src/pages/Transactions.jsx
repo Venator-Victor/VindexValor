@@ -12,10 +12,15 @@ import SelectInput from '@/components/ui/SelectInput';
 import TransactionForm from '@/components/TransactionForm';
 import CSVImportFlow from '@/components/CSVImportFlow';
 import TransactionTable from '@/components/TransactionTable';
+import TransactionDetailModal from '@/components/TransactionDetailModal';
 import TransactionSelectionModal from '@/components/TransactionSelectionModal';
 import CategoryMappingManager from '@/components/CategoryMappingManager';
 import FilterRangeInput, { parseValueFilterString } from '@/components/FilterRangeInput';
 import InfoTooltip from '@/components/InfoTooltip';
+import EmptyState from '@/components/EmptyState';
+import DateFilterSelect from '@/components/ui/DateFilterSelect';
+import { buildFlatIndentedOptions } from '@/utils/categoryTree';
+import { getDateFilterDefaults, matchesDateFilter, isDateFilterActive } from '@/utils/dateFilter';
 
 const Transactions = () => {
   const { t } = useTranslation();
@@ -29,13 +34,14 @@ const Transactions = () => {
   const [editingTransaction, setEditingTransaction] = useState(null);
   const [deleteId, setDeleteId] = useState(null);
   const [selectedIds, setSelectedIds] = useState([]);
+  const [selectedDetailTransaction, setSelectedDetailTransaction] = useState(null);
   
   const [filters, setFilters] = useState({ type: '', account_id: '' });
   const [searchTerm, setSearchTerm] = useState('');
   const [valueFilterStr, setValueFilterStr] = useState('');
   const [selectedCategoryId, setSelectedCategoryId] = useState('');
   
-  const [dateFilterType, setDateFilterType] = useState('');
+  const [dateFilter, setDateFilter] = useState(getDateFilterDefaults());
 
   useEffect(() => {
     if (location.state && transactions.length > 0) {
@@ -64,15 +70,7 @@ const Transactions = () => {
 
   const filteredTransactions = useMemo(() => {
     const parsedValueFilter = parseValueFilterString(valueFilterStr);
-    const today = new Date();
-    const todayStr = today.toISOString().split('T')[0];
-    const currentMonthStr = todayStr.substring(0, 7);
-    const currentYearStr = todayStr.substring(0, 4);
 
-    const weekAgo = new Date(today);
-    weekAgo.setDate(today.getDate() - 7);
-    const weekAgoStr = weekAgo.toISOString().split('T')[0];
-    
     return transactions.filter(t => {
       const matchesType = !filters.type || t.type === filters.type;
       const matchesAccount = !filters.account_id || t.account_id === filters.account_id || t.destination_account_id === filters.account_id;
@@ -101,26 +99,11 @@ const Transactions = () => {
         }
       }
 
-      let matchesDate = true;
-      const tDate = t.date;
-      if (dateFilterType) {
-        if (dateFilterType === 'today') {
-          matchesDate = tDate === todayStr;
-        } else if (dateFilterType === 'week') {
-          matchesDate = tDate >= weekAgoStr && tDate <= todayStr;
-        } else if (dateFilterType === 'month') {
-          matchesDate = tDate.startsWith(currentMonthStr);
-        } else if (dateFilterType === 'year') {
-          matchesDate = tDate.startsWith(currentYearStr);
-        }
-        else if (dateFilterType === 'custom' || dateFilterType === 'periodo') {
-           matchesDate = true; 
-        }
-      }
+      const matchesDate = matchesDateFilter(t.date, dateFilter);
 
       return matchesType && matchesAccount && matchesSearch && matchesCategory && matchesValue && matchesDate;
     });
-  }, [transactions, filters, searchTerm, valueFilterStr, selectedCategoryId, dateFilterType]);
+  }, [transactions, filters, searchTerm, valueFilterStr, selectedCategoryId, dateFilter]);
 
   const handleEdit = (transaction) => {
     setEditingTransaction(transaction);
@@ -131,6 +114,7 @@ const Transactions = () => {
     if (deleteId) {
       deleteTransaction(deleteId);
       setDeleteId(null);
+      setSelectedDetailTransaction(null);
     }
   };
 
@@ -154,7 +138,7 @@ const Transactions = () => {
     setSearchTerm('');
     setValueFilterStr('');
     setSelectedCategoryId('');
-    setDateFilterType('');
+    setDateFilter(getDateFilterDefaults());
     setFilters({ tipo: '', account_id: '' });
   };
 
@@ -163,7 +147,8 @@ const Transactions = () => {
     valueFilterStr ? 1 : 0,
     selectedCategoryId ? 1 : 0,
     filters.type ? 1 : 0,
-    filters.account_id ? 1 : 0
+    filters.account_id ? 1 : 0,
+    isDateFilterActive(dateFilter) ? 1 : 0
   ].reduce((a, b) => a + b, 0);
 
   return (
@@ -179,19 +164,7 @@ const Transactions = () => {
         </div>
 
         <div className="flex flex-wrap gap-2 w-full md:w-auto items-center">
-          <SelectInput
-            value={dateFilterType}
-            onChange={(e) => setDateFilterType(e.target.value)}
-            options={[
-              { label: t('transactions.date_filter_any'), value: "" },
-              { label: t('transactions.date_filter_today'), value: "today" },
-              { label: t('transactions.date_filter_week'), value: "week" },
-              { label: t('transactions.date_filter_month'), value: "month" },
-              { label: t('transactions.date_filter_year'), value: "year" },
-              { label: t('transactions.date_filter_period'), value: "periodo" },
-            ]}
-            className="w-40 sm:w-48"
-          />
+          <DateFilterSelect value={dateFilter} onChange={setDateFilter} />
 
           <CategoryMappingManager />
           
@@ -290,8 +263,9 @@ const Transactions = () => {
               options={[
                 { label: t('transactions.all_categories'), value: "" },
                 { label: t('common.no_category'), value: "null" },
-                ...categories.map(c => ({ label: c.name, value: c.id }))
+                ...buildFlatIndentedOptions(categories)
               ]}
+              className="h-[42px]"
             />
           </div>
 
@@ -306,6 +280,7 @@ const Transactions = () => {
                 { label: t('transactions.type_transfer'), value: "transfer" },
                 { label: t('transactions.type_payment'), value: "payment" },
               ]}
+              className="h-[42px]"
             />
           </div>
 
@@ -317,6 +292,7 @@ const Transactions = () => {
                 { label: t('transactions.all_accounts'), value: "" },
                 ...accounts.map(a => ({ label: a.name, value: a.id }))
               ]}
+              className="h-[42px]"
             />
           </div>
         </div>
@@ -335,22 +311,38 @@ const Transactions = () => {
 
       {isLoading ? (
         <div className="text-center py-12 text-muted-foreground">{t('transactions.loading')}</div>
+      ) : transactions.length === 0 ? (
+        <EmptyState
+          icon={ReceiptText}
+          message={t('transactions.no_transactions_yet')}
+          buttonLabel={t('transactions.create_first')}
+          onButtonClick={() => setIsDialogOpen(true)}
+        />
       ) : filteredTransactions.length === 0 ? (
         <div className="text-center py-12 bg-card rounded-xl border border-dashed">
           <ReceiptText className="mx-auto h-12 w-12 text-muted-foreground/50 mb-4" />
           <p className="text-muted-foreground mb-4">{t('transactions.empty')}</p>
         </div>
       ) : (
-        <TransactionTable 
+        <TransactionTable
           transactions={filteredTransactions}
           onEdit={handleEdit}
           onDelete={(id) => setDeleteId(id)}
+          onRowClick={(transaction) => setSelectedDetailTransaction(transaction)}
           selectedIds={selectedIds}
           onSelectionChange={setSelectedIds}
         />
       )}
 
-      <TransactionSelectionModal 
+      <TransactionDetailModal
+        isOpen={!!selectedDetailTransaction}
+        onClose={() => setSelectedDetailTransaction(null)}
+        transaction={selectedDetailTransaction}
+        onEdit={(transaction) => handleEdit(transaction)}
+        onDelete={(id) => { setSelectedDetailTransaction(null); setDeleteId(id); }}
+      />
+
+      <TransactionSelectionModal
         selectedIds={selectedIds} 
         transactions={transactions}
         onClearSelection={() => setSelectedIds([])}

@@ -14,6 +14,7 @@ import InvoiceItemList from '@/components/InvoiceItemList';
 import InvoiceItemForm from '@/components/InvoiceItemForm';
 import { supabase } from '@/lib/customSupabaseClient';
 import { useToast } from '@/components/ui/use-toast';
+import { DANGER } from '@/utils/colors';
 
 const isValidUUID = (id) => {
   const uuidRegex = /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
@@ -295,31 +296,39 @@ const InvoiceDetailPage = () => {
               </div>
             </div>
 
-            <div className="overflow-x-auto custom-scrollbar border rounded-lg bg-background">
+            <div className="overflow-x-auto custom-scrollbar border border-gray-200 dark:border-vindex-border rounded-lg bg-white dark:bg-vindex-card">
               <table className="w-full min-w-[680px] text-sm table-fixed">
-                <thead className="bg-muted/50 border-b">
+                <thead className="bg-gray-50 dark:bg-vindex-bg border-b border-gray-200 dark:border-vindex-border">
                   <tr>
-                    <th className="p-3 w-[14%] text-left font-medium">{t('invoice_detail.col_date')}</th>
-                    <th className="p-3 w-[34%] text-left font-medium">{t('invoice_detail.col_description')}</th>
-                    <th className="p-3 w-[22%] text-left font-medium">{t('invoice_detail.col_account_used')}</th>
-                    <th className="p-3 w-[18%] text-right font-medium">{t('invoice_detail.col_amount_paid')}</th>
-                    <th className="p-3 w-[12%] text-right font-medium">{t('invoice_detail.col_actions')}</th>
+                    <th className="px-6 py-3 w-[14%] text-left font-medium text-gray-700 dark:text-gray-300">{t('invoice_detail.col_date')}</th>
+                    <th className="px-6 py-3 w-[34%] text-left font-medium text-gray-700 dark:text-gray-300">{t('invoice_detail.col_description')}</th>
+                    <th className="px-6 py-3 w-[22%] text-left font-medium text-gray-700 dark:text-gray-300">{t('invoice_detail.col_account_used')}</th>
+                    <th className="px-6 py-3 w-[18%] text-right font-medium text-gray-700 dark:text-gray-300">{t('invoice_detail.col_amount_paid')}</th>
+                    <th className="px-6 py-3 w-[12%] text-right font-medium text-gray-700 dark:text-gray-300">{t('invoice_detail.col_actions')}</th>
                   </tr>
                 </thead>
-                <tbody className="divide-y">
+                <tbody className="divide-y divide-gray-200 dark:divide-vindex-border">
                   {payments.map(p => {
                     const payColor = p.amount < 0 ? 'text-red-600 dark:text-red-400' : p.amount > 0 ? 'text-green-600 dark:text-green-400' : 'text-foreground';
                     return (
-                      <tr key={p.id} className="hover:bg-muted/30">
-                        <td className="p-3 whitespace-nowrap text-muted-foreground">{formatDate(p.date)}</td>
-                        <td className="p-3 font-medium truncate" title={p.description}>{p.description}</td>
-                        <td className="p-3 text-muted-foreground truncate">{p.account?.name || 'N/A'}</td>
-                        <td className={`p-3 text-right font-bold whitespace-nowrap ${payColor}`}>
+                      <tr key={p.id} className="hover:bg-gray-50 dark:hover:bg-vindex-bg/50 transition-colors">
+                        <td className="px-6 py-4 whitespace-nowrap text-gray-700 dark:text-gray-300">{formatDate(p.date)}</td>
+                        <td className="px-6 py-4 font-medium text-gray-900 dark:text-gray-50 truncate" title={p.description}>{p.description}</td>
+                        <td className="px-6 py-4 text-gray-700 dark:text-gray-300 truncate">{p.account?.name || 'N/A'}</td>
+                        <td className={`px-6 py-4 text-right font-bold whitespace-nowrap ${payColor}`}>
                           {formatCurrencyWithSymbol(p.amount, p.account?.currency || 'BRL')}
                         </td>
-                        <td className="p-3 text-right">
-                          <Button variant="ghost" size="sm" onClick={() => handleUnlinkPayment(p.id)} className="h-8 w-8 p-0 text-destructive hover:text-destructive hover:bg-destructive/10">
-                            <Trash2 className="w-4 h-4" />
+                        <td className="px-6 py-4 text-right">
+                          <Button
+                            size="sm"
+                            variant="outline"
+                            onClick={() => handleUnlinkPayment(p.id)}
+                            className="h-8 w-8 p-0 rounded-lg border transition-colors bg-transparent"
+                            style={{ borderColor: DANGER, color: DANGER }}
+                            onMouseEnter={e => { e.currentTarget.style.backgroundColor = DANGER; e.currentTarget.style.color = '#fff'; }}
+                            onMouseLeave={e => { e.currentTarget.style.backgroundColor = 'transparent'; e.currentTarget.style.color = DANGER; }}
+                          >
+                            <Trash2 className="h-4 w-4" />
                           </Button>
                         </td>
                       </tr>
@@ -379,28 +388,28 @@ const InvoiceDetailPage = () => {
               </div>
             ) : (
               <div className="max-h-[60vh] overflow-y-auto pr-2 custom-scrollbar">
-                <table className="w-full min-w-[640px] text-sm border rounded-lg overflow-hidden table-fixed">
-                  <thead className="bg-muted/50 border-b">
+                <table className="w-full min-w-[640px] text-sm border border-gray-200 dark:border-vindex-border rounded-lg overflow-hidden table-fixed">
+                  <thead className="bg-gray-50 dark:bg-vindex-bg border-b border-gray-200 dark:border-vindex-border">
                     <tr>
-                      <th className="p-3 w-[14%] text-left font-medium">{t('invoice_detail.col_date')}</th>
-                      <th className="p-3 w-[34%] text-left font-medium">{t('invoice_detail.col_description')}</th>
-                      <th className="p-3 w-[20%] text-left font-medium">{t('invoice_detail.col_account')}</th>
-                      <th className="p-3 w-[18%] text-right font-medium">{t('invoice_detail.col_value')}</th>
-                      <th className="p-3 w-[14%] text-center font-medium">{t('invoice_detail.col_action')}</th>
+                      <th className="px-6 py-3 w-[14%] text-left font-medium text-gray-700 dark:text-gray-300">{t('invoice_detail.col_date')}</th>
+                      <th className="px-6 py-3 w-[34%] text-left font-medium text-gray-700 dark:text-gray-300">{t('invoice_detail.col_description')}</th>
+                      <th className="px-6 py-3 w-[20%] text-left font-medium text-gray-700 dark:text-gray-300">{t('invoice_detail.col_account')}</th>
+                      <th className="px-6 py-3 w-[18%] text-right font-medium text-gray-700 dark:text-gray-300">{t('invoice_detail.col_value')}</th>
+                      <th className="px-6 py-3 w-[14%] text-center font-medium text-gray-700 dark:text-gray-300">{t('invoice_detail.col_action')}</th>
                     </tr>
                   </thead>
-                  <tbody className="divide-y">
+                  <tbody className="divide-y divide-gray-200 dark:divide-vindex-border">
                     {eligiblePayments.map(p => {
                       const modalPayColor = p.amount < 0 ? 'text-red-600 dark:text-red-400' : p.amount > 0 ? 'text-green-600 dark:text-green-400' : 'text-foreground';
                       return (
-                        <tr key={p.id} className="hover:bg-muted/30">
-                          <td className="p-3 whitespace-nowrap text-muted-foreground">{formatDate(p.date)}</td>
-                          <td className="p-3 font-medium truncate" title={p.description}>{p.description}</td>
-                          <td className="p-3 text-muted-foreground truncate">{p.account?.name || 'N/A'}</td>
-                          <td className={`p-3 text-right font-medium whitespace-nowrap ${modalPayColor}`}>
+                        <tr key={p.id} className="hover:bg-gray-50 dark:hover:bg-vindex-bg/50 transition-colors">
+                          <td className="px-6 py-4 whitespace-nowrap text-gray-700 dark:text-gray-300">{formatDate(p.date)}</td>
+                          <td className="px-6 py-4 font-medium text-gray-900 dark:text-gray-50 truncate" title={p.description}>{p.description}</td>
+                          <td className="px-6 py-4 text-gray-700 dark:text-gray-300 truncate">{p.account?.name || 'N/A'}</td>
+                          <td className={`px-6 py-4 text-right font-medium whitespace-nowrap ${modalPayColor}`}>
                             {formatCurrencyWithSymbol(p.amount, p.account?.currency || 'BRL')}
                           </td>
-                          <td className="p-3 text-center">
+                          <td className="px-6 py-4 text-center">
                             <Button size="sm" variant="outline" onClick={() => handleSelectPayment(p)}>
                               {t('invoice_detail.link_action')}
                             </Button>

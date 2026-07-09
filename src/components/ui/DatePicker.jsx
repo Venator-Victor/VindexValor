@@ -6,7 +6,7 @@ import { cn } from '@/lib/utils';
 import { Button } from '@/components/ui/button';
 
 const DatePicker = ({ value, onChange, label, className }) => {
-  const { i18n } = useTranslation();
+  const { t, i18n } = useTranslation();
   const [isOpen, setIsOpen] = useState(false);
   const [currentDate, setCurrentDate] = useState(new Date());
   const [selectedDate, setSelectedDate] = useState(null);
@@ -115,7 +115,7 @@ const DatePicker = ({ value, onChange, label, className }) => {
           type="text"
           readOnly
           value={selectedDate ? selectedDate.toLocaleDateString(i18n.language) : ''}
-          placeholder="Selecione uma data"
+          placeholder={t('common.select_date_placeholder')}
           onClick={() => setIsOpen(!isOpen)}
           className={cn(
             "w-full pl-10 pr-3 py-2 bg-white dark:bg-vindex-bg border border-gray-200 dark:border-vindex-border rounded-lg text-gray-900 dark:text-vindex-text outline-none cursor-pointer transition-colors",
@@ -135,13 +135,13 @@ const DatePicker = ({ value, onChange, label, className }) => {
             className="absolute z-50 mt-2 p-4 bg-white dark:bg-vindex-card border border-gray-200 dark:border-vindex-border rounded-xl shadow-xl w-[280px]"
           >
             <div className="flex justify-between items-center mb-4">
-              <Button variant="ghost" size="icon" onClick={handlePrevMonth} className="h-8 w-8 hover:bg-gray-100 dark:hover:bg-vindex-bg">
+              <Button type="button" variant="ghost" size="icon" onClick={handlePrevMonth} className="h-8 w-8 hover:bg-gray-100 dark:hover:bg-vindex-bg">
                 <ChevronLeft className="h-4 w-4" />
               </Button>
               <div className="text-sm font-bold text-gray-900 dark:text-vindex-text">
                 {months[currentDate.getMonth()]} {currentDate.getFullYear()}
               </div>
-              <Button variant="ghost" size="icon" onClick={handleNextMonth} className="h-8 w-8 hover:bg-gray-100 dark:hover:bg-vindex-bg">
+              <Button type="button" variant="ghost" size="icon" onClick={handleNextMonth} className="h-8 w-8 hover:bg-gray-100 dark:hover:bg-vindex-bg">
                 <ChevronRight className="h-4 w-4" />
               </Button>
             </div>

@@ -62,16 +62,18 @@ export const getPeriodStartDate = (period, referenceDate = new Date()) => {
 // Returns both expense-only spending (for budget tracking) and total activity
 // (all transaction types) for a category within the given period, since categories
 // without an active budget (e.g. income categories) are better summarized by total
-// movement than by "spending".
+// movement than by "spending". Accepts either a single category id or an array of
+// ids (e.g. a parent category plus its subcategories) to roll up activity together.
 export const calculateCategoryActivity = (categoryId, period, transactions) => {
   if (!categoryId || !transactions) return { spending: 0, total: 0 };
 
+  const categoryIds = Array.isArray(categoryId) ? categoryId : [categoryId];
   const now = new Date();
   const startDate = getPeriodStartDate(period, now);
 
   return transactions
     .filter(t => {
-      if (t.category_id !== categoryId) return false;
+      if (!categoryIds.includes(t.category_id)) return false;
       const tDate = new Date(t.date + 'T12:00:00');
       return tDate >= startDate && tDate <= now;
     })

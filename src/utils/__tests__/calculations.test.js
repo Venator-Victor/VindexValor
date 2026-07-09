@@ -16,6 +16,7 @@ import {
   calculateFaturaTotal,
   calculateFaturaSaidas,
   calculateFaturaEntradas,
+  calculateCategoryActivity,
 } from '../calculations';
 
 // ─── isCryptoCurrency ────────────────────────────────────────────────────────
@@ -135,6 +136,54 @@ describe('calculateSpendingByCategory', () => {
   it('ignores income', () => {
     const transactions = [{ type: 'income', category: 'salary', amount: 3000 }];
     expect(calculateSpendingByCategory(transactions)).toEqual({});
+  });
+});
+
+// ─── calculateCategoryActivity ───────────────────────────────────────────────
+
+describe('calculateCategoryActivity', () => {
+  // A day guaranteed to be in the past relative to "now" (regardless of the
+  // time of day the suite runs), while still safely inside the 'yearly'
+  // period window used below.
+  const yesterday = new Date(Date.now() - 24 * 60 * 60 * 1000);
+  const pastDate = `${yesterday.getFullYear()}-${String(yesterday.getMonth() + 1).padStart(2, '0')}-${String(yesterday.getDate()).padStart(2, '0')}`;
+
+  it('returns zeros for no categoryId or no transactions', () => {
+    expect(calculateCategoryActivity(null, 'yearly', [])).toEqual({ spending: 0, total: 0 });
+    expect(calculateCategoryActivity('cat-1', 'yearly', null)).toEqual({ spending: 0, total: 0 });
+  });
+
+  it('sums spending and total activity for a single category id', () => {
+    const transactions = [
+      { category_id: 'cat-1', type: 'expense', amount: -50, date: pastDate },
+      { category_id: 'cat-1', type: 'expense', amount: -30, date: pastDate },
+      { category_id: 'cat-1', type: 'income', amount: 100, date: pastDate },
+      { category_id: 'cat-2', type: 'expense', amount: -999, date: pastDate },
+    ];
+    const result = calculateCategoryActivity('cat-1', 'yearly', transactions);
+    expect(result.spending).toBe(80);
+    expect(result.total).toBe(180);
+  });
+
+  it('rolls up activity across an array of category ids (parent + subcategories)', () => {
+    const transactions = [
+      { category_id: 'parent', type: 'expense', amount: -100, date: pastDate },
+      { category_id: 'child-1', type: 'expense', amount: -40, date: pastDate },
+      { category_id: 'child-2', type: 'expense', amount: -20, date: pastDate },
+      { category_id: 'unrelated', type: 'expense', amount: -999, date: pastDate },
+    ];
+    const result = calculateCategoryActivity(['parent', 'child-1', 'child-2'], 'yearly', transactions);
+    expect(result.spending).toBe(160);
+    expect(result.total).toBe(160);
+  });
+
+  it('excludes transactions outside the period', () => {
+    const transactions = [
+      { category_id: 'cat-1', type: 'expense', amount: -50, date: '2000-01-01' },
+    ];
+    const result = calculateCategoryActivity('cat-1', 'monthly', transactions);
+    expect(result.spending).toBe(0);
+    expect(result.total).toBe(0);
   });
 });
 

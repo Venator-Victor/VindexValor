@@ -6,6 +6,7 @@ import SelectInput from '@/components/ui/SelectInput';
 import FilterRangeInput from './FilterRangeInput';
 import { useFinance } from '@/context/FinanceContext';
 import InfoTooltip from './InfoTooltip';
+import { buildFlatIndentedOptions } from '@/utils/categoryTree';
 
 const InvoiceFilterBar = ({ onFilterChange }) => {
   const { t } = useTranslation();
@@ -100,8 +101,9 @@ const InvoiceFilterBar = ({ onFilterChange }) => {
             onChange={(e) => handleChange('category_id', e.target.value)}
             options={[
               { label: t('transactions.all_categories'), value: "" },
-              ...categories.map(c => ({ label: c.name, value: c.id }))
+              ...buildFlatIndentedOptions(categories)
             ]}
+            className="h-[42px]"
           />
         </div>
 
@@ -115,6 +117,7 @@ const InvoiceFilterBar = ({ onFilterChange }) => {
               { label: t('invoices.filter_installment_only'), value: "installment" },
               { label: t('invoices.filter_installment_none'), value: "not_installment" }
             ]}
+            className="h-[42px]"
           />
         </div>
 
@@ -127,6 +130,7 @@ const InvoiceFilterBar = ({ onFilterChange }) => {
               { label: t('invoices.filter_all_accounts'), value: "" },
               ...accounts.map(a => ({ label: a.name, value: a.id }))
             ]}
+            className="h-[42px]"
           />
         </div>
       </div>

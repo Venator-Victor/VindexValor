@@ -3,8 +3,7 @@ import React, { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Helmet } from 'react-helmet';
 import { AnimatePresence, motion } from 'framer-motion';
-import { Target, Grid as LayoutGrid, ListUl as List, Calendar } from '@/components/BxIcon';
-import BxIcon, { Plus, Edit as Edit2, TrashAlt as Trash2 } from '@/components/BxIcon';
+import BxIcon, { Target, Calendar, Plus, Edit as Edit2, TrashAlt as Trash2 } from '@/components/BxIcon';
 import { useFinance } from '@/context/FinanceContext';
 import { useTheme } from '@/context/ThemeContext';
 import { Button } from '@/components/ui/button';
@@ -22,6 +21,7 @@ import MetaCategorySelector from '@/components/MetaCategorySelector';
 import GaugeSummaryCard from '@/components/GaugeSummaryCard';
 import DeleteConfirmationDialog from '@/components/DeleteConfirmationDialog';
 import GoalDetailModal from '@/components/GoalDetailModal';
+import ViewToggle from '@/components/ui/ViewToggle';
 import { useToast } from '@/components/ui/use-toast';
 import { formatCurrency } from '@/utils/calculations';
 import { differenceInDays, parseISO, isPast } from 'date-fns';
@@ -225,22 +225,7 @@ const Goals = () => {
                 </div>
 
                 {/* View Toggle */}
-                <div className="flex items-center bg-white dark:bg-vindex-card rounded-lg border border-gray-200 dark:border-vindex-border p-1 shadow-sm">
-                    <button
-                        onClick={() => setGoalsViewPreference('list')}
-                        className={`p-2 rounded-md transition-all ${goalsViewMode === 'list' ? 'bg-gray-100 dark:bg-vindex-bg text-gray-900 dark:text-gray-100' : 'text-gray-400 hover:text-gray-600 dark:hover:text-gray-300'}`}
-                        title={t('goals.view_list_title')}
-                    >
-                        <List size={20} />
-                    </button>
-                    <button
-                        onClick={() => setGoalsViewPreference('card')}
-                        className={`p-2 rounded-md transition-all ${goalsViewMode === 'card' ? 'bg-gray-100 dark:bg-vindex-bg text-gray-900 dark:text-gray-100' : 'text-gray-400 hover:text-gray-600 dark:hover:text-gray-300'}`}
-                        title={t('goals.view_grid_title')}
-                    >
-                        <LayoutGrid size={20} />
-                    </button>
-                </div>
+                <ViewToggle value={goalsViewMode} onChange={setGoalsViewPreference} />
 
                 <Button 
                     onClick={openNewGoalModal}

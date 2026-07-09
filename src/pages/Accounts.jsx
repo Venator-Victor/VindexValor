@@ -3,8 +3,7 @@ import React, { useState, useMemo } from 'react';
 import { Helmet } from 'react-helmet';
 import { useTranslation } from 'react-i18next';
 import { motion } from 'framer-motion';
-import { Grid as LayoutGrid, ListUl as ListIcon, Wallet as WalletCards, Eye, EyeSlash as EyeOff } from '@/components/BxIcon';
-import BxIcon, { Plus, Edit as Edit2, TrashAlt as Trash2 } from '@/components/BxIcon';
+import BxIcon, { Wallet as WalletCards, Eye, EyeSlash as EyeOff, Plus, Edit as Edit2, TrashAlt as Trash2 } from '@/components/BxIcon';
 import { useFinance } from '@/context/FinanceContext';
 import { Button } from '@/components/ui/button';
 import SortableHeader from '@/components/SortableHeader';
@@ -13,6 +12,7 @@ import DeleteConfirmationDialog from '@/components/DeleteConfirmationDialog';
 import { useToast } from '@/components/ui/use-toast';
 import { calculateAssetsLiabilities, formatCurrencyWithSymbol } from '@/utils/calculations';
 import SelectInput from '@/components/ui/SelectInput';
+import ViewToggle from '@/components/ui/ViewToggle';
 import AssetLiabilityChart from '@/components/AssetLiabilityChart';
 import AccountSuggestionsModal from '@/components/AccountSuggestionsModal';
 import AccountModal from '@/components/AccountModal';
@@ -140,21 +140,8 @@ const Accounts = () => {
             </Button>
 
             <div className="flex items-center gap-2">
-                <div className="flex items-center bg-white dark:bg-vindex-card rounded-lg border border-gray-200 dark:border-vindex-border p-1">
-                <button
-                    onClick={() => handleViewModeChange('list')}
-                    className={`p-2 rounded-md transition-all ${viewMode === 'list' ? 'bg-gray-100 dark:bg-vindex-bg text-gray-900 dark:text-gray-100 shadow-sm' : 'text-gray-400 hover:text-gray-600 dark:hover:text-gray-300'}`}
-                >
-                    <ListIcon size={20} />
-                </button>
-                <button
-                    onClick={() => handleViewModeChange('card')}
-                    className={`p-2 rounded-md transition-all ${viewMode === 'card' ? 'bg-gray-100 dark:bg-vindex-bg text-gray-900 dark:text-gray-100 shadow-sm' : 'text-gray-400 hover:text-gray-600 dark:hover:text-gray-300'}`}
-                >
-                    <LayoutGrid size={20} />
-                </button>
-                </div>
-                
+                <ViewToggle value={viewMode} onChange={handleViewModeChange} />
+
                 <Button 
                     onClick={handleOpenSuggestions} 
                     className="border-none text-gray-900 rounded-lg whitespace-nowrap"

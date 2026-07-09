@@ -1,9 +1,10 @@
 import React, { useState, useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
 import { formatCurrency } from '@/utils/calculations';
-import { Edit, Trash, ArrowDownRight, ArrowUpRight, ArrowUp, ArrowDown } from '@/components/BxIcon';
+import { Edit as Edit2, TrashAlt as Trash2, ArrowDownRight, ArrowUpRight, ArrowUp, ArrowDown } from '@/components/BxIcon';
 import { Button } from '@/components/ui/button';
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from '@/components/ui/alert-dialog';
+import { PRIMARY, DANGER } from '@/utils/colors';
 
 const SortIcon = ({ column, sortConfig }) => {
   if (sortConfig.key !== column) return <div className="w-4 h-4 opacity-0" />;
@@ -78,85 +79,101 @@ const InvoiceItemList = ({ items, onEdit, onDelete }) => {
   const totalColor = total < 0 ? 'text-red-600 dark:text-red-400' : total > 0 ? 'text-green-600 dark:text-green-400' : 'text-primary';
 
   return (
-    <div className="bg-card rounded-xl border shadow-sm overflow-hidden">
+    <div className="bg-white dark:bg-vindex-card rounded-xl border border-gray-200 dark:border-vindex-border overflow-hidden shadow-sm">
       <div className="overflow-x-auto">
         <table className="w-full min-w-[720px] text-sm text-left table-fixed">
-          <thead className="bg-muted/50 text-muted-foreground border-b">
+          <thead className="bg-gray-50 dark:bg-vindex-bg border-b border-gray-200 dark:border-vindex-border">
             <tr>
-              <th className="p-3 w-[12%] font-medium">
+              <th className="px-6 py-3 w-[12%] font-medium text-gray-700 dark:text-gray-300">
                 <button onClick={() => requestSort('date')} className="flex items-center gap-1.5 hover:text-foreground">
                   {t('invoice_detail.col_date')} <SortIcon column="data" sortConfig={sortConfig} />
                 </button>
               </th>
-              <th className="p-3 w-[30%] font-medium">
+              <th className="px-6 py-3 w-[30%] font-medium text-gray-700 dark:text-gray-300">
                 <button onClick={() => requestSort('description')} className="flex items-center gap-1.5 hover:text-foreground">
                   {t('invoice_detail.col_status_description')} <SortIcon column="description" sortConfig={sortConfig} />
                 </button>
               </th>
-              <th className="p-3 w-[15%] font-medium">
+              <th className="px-6 py-3 w-[15%] font-medium text-gray-700 dark:text-gray-300">
                 <button onClick={() => requestSort('tipo')} className="flex items-center gap-1.5 hover:text-foreground">
                   {t('invoice_detail.col_type')} <SortIcon column="tipo" sortConfig={sortConfig} />
                 </button>
               </th>
-              <th className="p-3 w-[18%] font-medium">
+              <th className="px-6 py-3 w-[18%] font-medium text-gray-700 dark:text-gray-300">
                 <button onClick={() => requestSort('categoria')} className="flex items-center gap-1.5 hover:text-foreground">
                   {t('common.category')} <SortIcon column="categoria" sortConfig={sortConfig} />
                 </button>
               </th>
-              <th className="p-3 w-[15%] font-medium">
+              <th className="px-6 py-3 w-[15%] font-medium text-gray-700 dark:text-gray-300">
                 <button onClick={() => requestSort('amount')} className="flex items-center gap-1.5 justify-end w-full hover:text-foreground">
                   {t('common.amount')} <SortIcon column="amount" sortConfig={sortConfig} />
                 </button>
               </th>
-              <th className="p-3 w-[10%] font-medium text-center">{t('invoice_detail.col_actions')}</th>
+              <th className="px-6 py-3 w-[10%] text-right font-medium text-gray-700 dark:text-gray-300">{t('invoice_detail.col_actions')}</th>
             </tr>
           </thead>
-          <tbody className="divide-y">
+          <tbody className="divide-y divide-gray-200 dark:divide-vindex-border">
             {sortedCompras.map(c => {
               const isSaida = c.amount < 0;
               const valColor = isSaida ? 'text-red-600 dark:text-red-400' : c.amount > 0 ? 'text-green-600 dark:text-green-400' : 'text-foreground';
               
               return (
-                <tr key={c.id} className="hover:bg-muted/30 transition-colors">
-                  <td className="p-3 whitespace-nowrap text-muted-foreground">{formatDate(c.date)}</td>
-                  <td className="p-3 font-medium truncate" title={c.description}>{c.description}</td>
-                  <td className="p-3">
+                <tr key={c.id} className="hover:bg-gray-50 dark:hover:bg-vindex-bg/50 transition-colors">
+                  <td className="px-6 py-4 whitespace-nowrap text-gray-700 dark:text-gray-300">{formatDate(c.date)}</td>
+                  <td className="px-6 py-4 font-medium text-gray-900 dark:text-gray-50 truncate" title={c.description}>{c.description}</td>
+                  <td className="px-6 py-4">
                     <div className={`flex items-center gap-1.5 text-xs px-2 py-1 rounded-full w-max ${isSaida ? 'bg-red-100 text-red-700 dark:bg-red-900/20 dark:text-red-400' : 'bg-green-100 text-green-700 dark:bg-green-900/20 dark:text-green-400'}`}>
                       {isSaida ? <ArrowDownRight className="w-3 h-3" /> : <ArrowUpRight className="w-3 h-3" />}
                       {isSaida ? t('transactions.type_expense') : t('transactions.type_income')}
                     </div>
                   </td>
-                  <td className="p-3">
+                  <td className="px-6 py-4">
                     {c.categories ? (
                       <div className="flex items-center gap-2 min-w-0">
                         <div className="w-3 h-3 rounded-full shrink-0" style={{ backgroundColor: c.categories.color }}></div>
-                        <span className="truncate">{c.categories.name}</span>
+                        <span className="truncate text-gray-700 dark:text-gray-300">{c.categories.name}</span>
                       </div>
                     ) : (
-                      <span className="text-muted-foreground text-xs">{t('common.no_category')}</span>
+                      <span className="text-gray-500 text-xs">{t('common.no_category')}</span>
                     )}
                   </td>
-                  <td className={`p-3 text-right font-semibold whitespace-nowrap ${valColor}`}>
+                  <td className={`px-6 py-4 text-right font-semibold whitespace-nowrap ${valColor}`}>
                     {c.amount > 0 && '+'}{formatCurrency(c.amount)}
                   </td>
-                  <td className="p-3">
-                    <div className="flex items-center justify-center gap-2">
-                      <button onClick={() => onEdit(c)} className="p-1.5 rounded-md text-muted-foreground hover:text-primary hover:bg-primary/10 transition-colors" title={t('common.edit')}>
-                        <Edit className="w-4 h-4" />
-                      </button>
-                      <button onClick={() => setDeleteId(c.id)} className="p-1.5 rounded-md text-muted-foreground hover:text-destructive hover:bg-destructive/10 transition-colors" title={t('common.delete')}>
-                        <Trash className="w-4 h-4" />
-                      </button>
+                  <td className="px-6 py-4">
+                    <div className="flex justify-end gap-2">
+                      <Button
+                        size="sm"
+                        variant="outline"
+                        onClick={() => onEdit(c)}
+                        className="h-8 w-8 p-0 rounded-lg border transition-colors bg-transparent"
+                        style={{ borderColor: PRIMARY, color: PRIMARY }}
+                        onMouseEnter={e => { e.currentTarget.style.backgroundColor = PRIMARY; e.currentTarget.style.color = '#000'; }}
+                        onMouseLeave={e => { e.currentTarget.style.backgroundColor = 'transparent'; e.currentTarget.style.color = PRIMARY; }}
+                      >
+                        <Edit2 className="h-4 w-4" />
+                      </Button>
+                      <Button
+                        size="sm"
+                        variant="outline"
+                        onClick={() => setDeleteId(c.id)}
+                        className="h-8 w-8 p-0 rounded-lg border transition-colors bg-transparent"
+                        style={{ borderColor: DANGER, color: DANGER }}
+                        onMouseEnter={e => { e.currentTarget.style.backgroundColor = DANGER; e.currentTarget.style.color = '#fff'; }}
+                        onMouseLeave={e => { e.currentTarget.style.backgroundColor = 'transparent'; e.currentTarget.style.color = DANGER; }}
+                      >
+                        <Trash2 className="h-4 w-4" />
+                      </Button>
                     </div>
                   </td>
                 </tr>
               );
             })}
           </tbody>
-          <tfoot className="bg-muted/20 font-bold border-t">
+          <tfoot className="bg-gray-50 dark:bg-vindex-bg font-bold border-t border-gray-200 dark:border-vindex-border">
             <tr>
-              <td colSpan="4" className="p-3 text-right">{t('invoice_detail.net_invoice_total')}</td>
-              <td className={`p-3 text-right whitespace-nowrap ${totalColor}`}>{formatCurrency(total)}</td>
+              <td colSpan="4" className="px-6 py-3 text-right text-gray-900 dark:text-gray-50">{t('invoice_detail.net_invoice_total')}</td>
+              <td className={`px-6 py-3 text-right whitespace-nowrap ${totalColor}`}>{formatCurrency(total)}</td>
               <td></td>
             </tr>
           </tfoot>

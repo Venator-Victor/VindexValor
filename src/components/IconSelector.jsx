@@ -2,6 +2,8 @@ import React, { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Label } from '@/components/ui/label';
 import BxIcon from '@/components/BxIcon';
+import { ICON_SEARCH_KEYWORDS_PT } from '@/utils/iconSearchKeywords';
+import { normalizeText as normalize } from '@/utils/text';
 
 const IconSelector = ({ selectedIcon, onSelect }) => {
   const { t } = useTranslation();
@@ -26,11 +28,40 @@ const IconSelector = ({ selectedIcon, onSelect }) => {
     'bx-taxi', 'bx-train', 'bx-subway', 'bx-truck', 'bx-motorcycle',
     'bx-ship', 'bx-spa', 'bx-popcorn', 'bx-ticket', 'bx-beer',
     'bx-wine', 'bx-pizza', 'bx-tv', 'bx-dog', 'bx-cat', 'bx-tree',
+    // Currency & crypto
+    'bx-pound', 'bx-yen', 'bx-ruble', 'bx-rupee', 'bx-won', 'bx-lira',
+    'bx-currency-note', 'bx-crypto', 'bx-wallet-alt', 'bx-coin',
+    // Electronics
+    'bx-headphone', 'bx-speaker', 'bx-printer', 'bx-keyboard', 'bx-mouse',
+    'bx-usb', 'bx-server', 'bx-radio', 'bx-hard-drive', 'bx-chip',
+    'bx-devices', 'bx-watch', 'bx-microphone', 'bx-battery', 'bx-cctv',
+    // Furniture & home appliances
+    'bx-chair', 'bx-couch', 'bx-table', 'bx-cabinet', 'bx-fridge',
+    'bx-washer', 'bx-dishwasher', 'bx-microwave', 'bx-oven',
+    'bx-air-conditioner', 'bx-fan', 'bx-door', 'bx-window', 'bx-garage',
+    'bx-shower',
+    // Inheritance, legal & estate
+    'bx-scroll', 'bx-gavel', 'bx-key', 'bx-signature', 'bx-stamp',
+    'bx-buildings', 'bx-medal-star', 'bx-handshake', 'bx-jewelry',
+    // Travel, sports & hobbies
+    'bx-luggage', 'bx-compass', 'bx-globe', 'bx-backpack', 'bx-basketball',
+    'bx-football', 'bx-golf', 'bx-guitar', 'bx-palette', 'bx-table-tennis',
+    'bx-rugby', 'bx-skateboard',
+    // Health & misc
+    'bx-tooth', 'bx-thermometer', 'bx-dna', 'bx-ambulance', 'bx-recycle',
+    'bx-broom', 'bx-fire', 'bx-rocket', 'bx-robot', 'bx-school',
+    'bx-graduation-cap', 'bx-anchor', 'bx-snowflake', 'bx-pool', 'bx-route',
+    'bx-cake', 'bx-balloon', 'bx-basket', 'bx-leaf',
   ];
 
-  const filteredIcons = icons.filter(icon =>
-    icon.toLowerCase().includes(searchTerm.toLowerCase())
-  );
+  const normalizedSearch = normalize(searchTerm);
+  const filteredIcons = icons.filter((icon) => {
+    if (!normalizedSearch) return true;
+    if (normalize(icon).includes(normalizedSearch)) return true;
+    return (ICON_SEARCH_KEYWORDS_PT[icon] || []).some((keyword) =>
+      normalize(keyword).includes(normalizedSearch)
+    );
+  });
 
   return (
     <div className="space-y-3">

@@ -3,9 +3,11 @@ import { useTranslation } from 'react-i18next';
 import { formatCurrency } from '@/utils/calculations';
 import { useFinance } from '@/context/FinanceContext';
 import { Sparkle as Sparkles, Edit as Edit2 } from '@/components/BxIcon';
+import { buildFlatIndentedOptions } from '@/utils/categoryTree';
 const CSVPreviewTable = ({ data, onUpdateRow }) => {
   const { t } = useTranslation();
   const { categories } = useFinance();
+  const categoryOptions = buildFlatIndentedOptions(categories);
 
   const handleCategoryChange = (index, newCategoryId) => {
     const selectedCategory = categories.find(c => c.id === newCategoryId);
@@ -64,8 +66,8 @@ const CSVPreviewTable = ({ data, onUpdateRow }) => {
                         onChange={(e) => handleCategoryChange(i, e.target.value)}
                       >
                         <option value="">{t('common.no_category')}</option>
-                        {categories.map(c => (
-                          <option key={c.id} value={c.id}>{c.name}</option>
+                        {categoryOptions.map(opt => (
+                          <option key={opt.value} value={opt.value}>{opt.label}</option>
                         ))}
                       </select>
                       {row.autoMapped && <Sparkles className="w-3.5 h-3.5 text-blue-500 absolute -left-4" title={t('csv.category_suggested_title')} />}

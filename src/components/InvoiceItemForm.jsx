@@ -9,6 +9,7 @@ import SelectInput from '@/components/ui/SelectInput';
 import NumberInput from '@/components/ui/NumberInput';
 import { ArrowDownRight, ArrowUpRight } from '@/components/BxIcon';
 import { supabase } from '@/lib/customSupabaseClient';
+import { buildFlatIndentedOptions } from '@/utils/categoryTree';
 
 const InvoiceItemForm = ({ invoiceId, initialData, onSuccess, onCancel }) => {
   const { t } = useTranslation();
@@ -147,7 +148,7 @@ const InvoiceItemForm = ({ invoiceId, initialData, onSuccess, onCancel }) => {
           onChange={(e) => setFormData({ ...formData, category_id: e.target.value })}
           options={[
             { label: t('common.select_placeholder'), value: "" },
-            ...categories.map(c => ({ label: c.name, value: c.id }))
+            ...buildFlatIndentedOptions(categories)
           ]}
         />
         <SelectInput

@@ -54,9 +54,9 @@ const SelectInput = ({
   };
 
   return (
-    <div className={cn("relative w-full", className)} ref={containerRef}>
+    <div className="relative w-full" ref={containerRef}>
       {label && <Label htmlFor={id} className="mb-2 block text-sm font-medium text-gray-700 dark:text-vindex-text/80">{label}</Label>}
-      
+
       <button
         type="button"
         id={id}
@@ -66,7 +66,8 @@ const SelectInput = ({
           "flex w-full items-center justify-between rounded-lg border px-3 py-2 text-sm transition-all outline-none",
           "bg-white dark:bg-vindex-bg border-gray-200 dark:border-vindex-border text-gray-900 dark:text-vindex-text",
           "hover:border-primary focus:border-primary",
-          disabled && "opacity-50 cursor-not-allowed bg-gray-100 dark:bg-gray-800"
+          disabled && "opacity-50 cursor-not-allowed bg-gray-100 dark:bg-gray-800",
+          className
         )}
       >
         <span className={cn("flex items-center gap-2 truncate", !selectedOption && "text-gray-400 dark:text-vindex-text/50")}>
