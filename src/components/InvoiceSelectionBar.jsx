@@ -108,7 +108,7 @@ const InvoiceSelectionBar = ({ selectedIds, invoices, invoiceTotals = {}, onClea
 
   const handleViewPurchases = () => {
     if (selectedIds.length === 1) {
-      navigate(`/faturas/${selectedIds[0]}`);
+      navigate(`/invoices/${selectedIds[0]}`);
     }
   };
 

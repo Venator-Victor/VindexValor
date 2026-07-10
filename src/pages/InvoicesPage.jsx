@@ -2,11 +2,11 @@ import React, { useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Helmet } from 'react-helmet';
 import { useNavigate } from 'react-router-dom';
-import { Plus, CreditCard, Share as UploadCloud, Receipt, ArrowRight, ArrowUp, ArrowDown } from '@/components/BxIcon';
+import { Plus, CreditCard, Share as UploadCloud, Receipt, ArrowRight, ArrowUp, ArrowDown, Edit as Edit2, TrashAlt as Trash2 } from '@/components/BxIcon';
 import { useFinance } from '@/context/FinanceContext';
 import { useAuth } from '@/context/SupabaseAuthContext';
 import { Button } from '@/components/ui/button';
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger, DialogFooter } from '@/components/ui/dialog';
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
 import { Label } from '@/components/ui/label';
 import { Checkbox } from '@/components/ui/checkbox';
 import { formatCurrency } from '@/utils/calculations';
@@ -18,7 +18,8 @@ import InvoiceFilterBar from '@/components/InvoiceFilterBar';
 import { parseValueFilterString } from '@/components/FilterRangeInput';
 import { supabase } from '@/lib/customSupabaseClient';
 import InvoiceSelectionBar from '@/components/InvoiceSelectionBar';
-import { PRIMARY } from '@/utils/colors';
+import DeleteConfirmationDialog from '@/components/DeleteConfirmationDialog';
+import { PRIMARY, SUCCESS, DANGER } from '@/utils/colors';
 import DateFilterSelect from '@/components/ui/DateFilterSelect';
 import { getDateFilterDefaults, matchesDateFilter } from '@/utils/dateFilter';
 
@@ -35,7 +36,8 @@ const InvoicesPage = () => {
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [isImportOpen, setIsImportOpen] = useState(false);
   const [isEditOpen, setIsEditOpen] = useState(false);
-  
+  const [deleteId, setDeleteId] = useState(null);
+
   const [filteredItems, setComprasFiltro] = useState([]);
   const [isFiltering, setIsFiltering] = useState(false);
   const [selectedInvoices, setSelectedFaturas] = useState([]);
@@ -140,6 +142,25 @@ const InvoicesPage = () => {
       loadInvoices();
     } catch (error) {
       toast({ title: t('invoices.update_error'), description: error.message, variant: "destructive" });
+    }
+  };
+
+  const confirmDeleteInvoice = async () => {
+    if (!deleteId) return;
+    try {
+      // Unlink any payments first: invoice_items cascade-delete automatically, but
+      // transactions.invoice_id has no cascade, so deleting would fail with an FK error otherwise.
+      await supabase.from('transactions').update({ invoice_id: null }).eq('invoice_id', deleteId).eq('user_id', user.id);
+
+      const { error } = await supabase.from('invoices').delete().eq('id', deleteId).eq('user_id', user.id);
+      if (error) throw error;
+
+      toast({ title: t('invoices.deleted_success') });
+      setDeleteId(null);
+      setSelectedFaturas(prev => prev.filter(id => id !== deleteId));
+      loadInvoices();
+    } catch (error) {
+      toast({ title: t('invoices.delete_error'), description: error.message, variant: "destructive" });
     }
   };
 
@@ -340,9 +361,29 @@ const InvoicesPage = () => {
                     ]}
                   />
                 </div>
-                <DialogFooter className="pt-4">
-                  <Button type="submit" className="w-full">{t('invoices.create_action')}</Button>
-                </DialogFooter>
+                <div className="flex gap-2 pt-4">
+                  <Button
+                    type="submit"
+                    variant="outline"
+                    className="flex-1 font-medium rounded-lg transition-colors bg-transparent"
+                    style={{ borderColor: SUCCESS, color: SUCCESS }}
+                    onMouseEnter={e => { e.currentTarget.style.backgroundColor = SUCCESS; e.currentTarget.style.color = '#000'; }}
+                    onMouseLeave={e => { e.currentTarget.style.backgroundColor = 'transparent'; e.currentTarget.style.color = SUCCESS; }}
+                  >
+                    {t('invoices.create_action')}
+                  </Button>
+                  <Button
+                    type="button"
+                    variant="outline"
+                    onClick={() => setIsDialogOpen(false)}
+                    className="flex-1 rounded-lg border transition-colors bg-transparent"
+                    style={{ borderColor: PRIMARY, color: PRIMARY }}
+                    onMouseEnter={e => { e.currentTarget.style.backgroundColor = PRIMARY; e.currentTarget.style.color = '#000'; }}
+                    onMouseLeave={e => { e.currentTarget.style.backgroundColor = 'transparent'; e.currentTarget.style.color = PRIMARY; }}
+                  >
+                    {t('common.cancel')}
+                  </Button>
+                </div>
               </form>
             </DialogContent>
           </Dialog>
@@ -377,7 +418,7 @@ const InvoicesPage = () => {
                    <tbody className="divide-y divide-gray-200 dark:divide-vindex-border">
                       {filteredItems.map(c => (
                          <tr key={c.id} className="hover:bg-gray-50 dark:hover:bg-vindex-bg/50 transition-colors">
-                            <td className="px-6 py-4 font-medium cursor-pointer text-primary hover:underline truncate" onClick={() => navigate(`/faturas/${c.invoice_id}`)}>
+                            <td className="px-6 py-4 font-medium cursor-pointer text-primary hover:underline truncate" onClick={() => navigate(`/invoices/${c.invoice_id}`)}>
                               {c.invoices?.invoice_number || t('invoices.unknown_invoice')}
                             </td>
                             <td className="px-6 py-4 text-gray-700 dark:text-gray-300 whitespace-nowrap">{formatDate(c.date)}</td>
@@ -424,30 +465,31 @@ const InvoicesPage = () => {
                 <table className="w-full text-sm min-w-[700px] table-fixed">
                   <thead className="bg-gray-50 dark:bg-vindex-bg border-b border-gray-200 dark:border-vindex-border">
                     <tr>
-                      <th className="px-6 py-3 w-[6%] text-center">
+                      <th className="px-6 py-3 w-[5%] text-center">
                         <Checkbox
                           checked={selectedInvoices.length === filteredInvoices.length && filteredInvoices.length > 0}
                           onCheckedChange={handleSelectAll}
                           aria-label={t('invoices.select_all')}
                         />
                       </th>
-                      <th className="px-6 py-3 w-[22%] text-left font-medium text-gray-700 dark:text-gray-300">{t('invoices.col_invoice')}</th>
-                      <th className="px-6 py-3 w-[20%] text-left font-medium text-gray-700 dark:text-gray-300">{t('common.account')}</th>
-                      <th className="px-6 py-3 w-[16%] align-middle">
+                      <th className="px-6 py-3 w-[19%] text-left font-medium text-gray-700 dark:text-gray-300">{t('invoices.col_invoice')}</th>
+                      <th className="px-6 py-3 w-[16%] text-left font-medium text-gray-700 dark:text-gray-300">{t('common.account')}</th>
+                      <th className="px-6 py-3 w-[14%] align-middle">
                         <button onClick={() => requestSort('opening_date')} className="table-header-sortable justify-start text-gray-700 dark:text-gray-300">
                           {t('invoices.col_opening_date')} <SortIcon column="opening_date" sortConfig={sortConfig} />
                         </button>
                       </th>
-                      <th className="px-6 py-3 w-[18%] align-middle">
+                      <th className="px-6 py-3 w-[15%] align-middle">
                         <button onClick={() => requestSort('amount')} className="table-header-sortable justify-end pl-0 pr-0 ml-auto mr-0 text-gray-700 dark:text-gray-300">
                           {t('invoices.col_total')} <SortIcon column="amount" sortConfig={sortConfig} />
                         </button>
                       </th>
-                      <th className="px-6 py-3 w-[18%] align-middle">
+                      <th className="px-6 py-3 w-[15%] align-middle">
                         <button onClick={() => requestSort('status')} className="table-header-sortable justify-center pl-0 pr-0 ml-auto mr-auto text-gray-700 dark:text-gray-300">
                           {t('invoices.col_status')} <SortIcon column="status" sortConfig={sortConfig} />
                         </button>
                       </th>
+                      <th className="px-6 py-3 w-[16%] text-right font-medium text-gray-700 dark:text-gray-300">{t('common.actions')}</th>
                     </tr>
                   </thead>
                   <tbody className="divide-y divide-gray-200 dark:divide-vindex-border">
@@ -482,6 +524,32 @@ const InvoicesPage = () => {
                           </td>
                           <td className="px-6 py-4 text-center">
                             {getStatusBadge(invoice.status)}
+                          </td>
+                          <td className="px-6 py-4" onClick={(e) => e.stopPropagation()}>
+                            <div className="flex justify-end gap-2">
+                              <Button
+                                size="sm"
+                                variant="outline"
+                                onClick={() => handleRowClick(invoice)}
+                                className="h-8 w-8 p-0 rounded-lg border transition-colors bg-transparent"
+                                style={{ borderColor: PRIMARY, color: PRIMARY }}
+                                onMouseEnter={e => { e.currentTarget.style.backgroundColor = PRIMARY; e.currentTarget.style.color = '#000'; }}
+                                onMouseLeave={e => { e.currentTarget.style.backgroundColor = 'transparent'; e.currentTarget.style.color = PRIMARY; }}
+                              >
+                                <Edit2 className="h-4 w-4" />
+                              </Button>
+                              <Button
+                                size="sm"
+                                variant="outline"
+                                onClick={() => setDeleteId(invoice.id)}
+                                className="h-8 w-8 p-0 rounded-lg border transition-colors bg-transparent"
+                                style={{ borderColor: DANGER, color: DANGER }}
+                                onMouseEnter={e => { e.currentTarget.style.backgroundColor = DANGER; e.currentTarget.style.color = '#fff'; }}
+                                onMouseLeave={e => { e.currentTarget.style.backgroundColor = 'transparent'; e.currentTarget.style.color = DANGER; }}
+                              >
+                                <Trash2 className="h-4 w-4" />
+                              </Button>
+                            </div>
                           </td>
                         </tr>
                       );
@@ -543,18 +611,44 @@ const InvoicesPage = () => {
               />
             </div>
 
-            <div className="flex flex-col-reverse sm:flex-row justify-between gap-3 pt-4 border-t">
-              <Button type="button" variant="outline" onClick={() => navigate(`/faturas/${editFormData.id}`)} className="w-full sm:w-auto gap-2">
+            <div className="pt-4 border-t space-y-3">
+              <Button type="button" variant="outline" onClick={() => navigate(`/invoices/${editFormData.id}`)} className="w-full gap-2">
                 {t('invoices.view_purchases')} <ArrowRight className="w-4 h-4" />
               </Button>
-              <div className="flex justify-end gap-2 w-full sm:w-auto">
-                <Button type="button" variant="ghost" onClick={() => setIsEditOpen(false)}>{t('common.cancel')}</Button>
-                <Button type="submit">{t('invoices.save_changes')}</Button>
+              <div className="flex gap-2">
+                <Button
+                  type="submit"
+                  variant="outline"
+                  className="flex-1 font-medium rounded-lg transition-colors bg-transparent"
+                  style={{ borderColor: SUCCESS, color: SUCCESS }}
+                  onMouseEnter={e => { e.currentTarget.style.backgroundColor = SUCCESS; e.currentTarget.style.color = '#000'; }}
+                  onMouseLeave={e => { e.currentTarget.style.backgroundColor = 'transparent'; e.currentTarget.style.color = SUCCESS; }}
+                >
+                  {t('invoices.save_changes')}
+                </Button>
+                <Button
+                  type="button"
+                  variant="outline"
+                  onClick={() => setIsEditOpen(false)}
+                  className="flex-1 rounded-lg border transition-colors bg-transparent"
+                  style={{ borderColor: PRIMARY, color: PRIMARY }}
+                  onMouseEnter={e => { e.currentTarget.style.backgroundColor = PRIMARY; e.currentTarget.style.color = '#000'; }}
+                  onMouseLeave={e => { e.currentTarget.style.backgroundColor = 'transparent'; e.currentTarget.style.color = PRIMARY; }}
+                >
+                  {t('common.cancel')}
+                </Button>
               </div>
             </div>
           </form>
         </DialogContent>
       </Dialog>
+
+      <DeleteConfirmationDialog
+        open={!!deleteId}
+        onOpenChange={() => setDeleteId(null)}
+        description={t('invoices.delete_confirm')}
+        onConfirm={confirmDeleteInvoice}
+      />
     </div>
   );
 };

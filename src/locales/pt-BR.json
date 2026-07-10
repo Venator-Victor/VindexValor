@@ -570,6 +570,8 @@
     "view_purchases": "Ver Compras",
     "created_success": "Fatura criada com sucesso!",
     "updated_success": "Fatura atualizada com sucesso!",
+    "deleted_success": "Fatura excluída com sucesso!",
+    "delete_confirm": "Tem certeza que deseja excluir esta fatura? Todos os itens serão removidos e os pagamentos vinculados serão desvinculados.",
     "create_error": "Erro ao criar fatura",
     "update_error": "Erro ao atualizar fatura",
     "select_all": "Selecionar todas faturas",

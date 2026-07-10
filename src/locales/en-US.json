@@ -570,6 +570,8 @@
     "view_purchases": "View Purchases",
     "created_success": "Invoice created successfully!",
     "updated_success": "Invoice updated successfully!",
+    "deleted_success": "Invoice deleted successfully!",
+    "delete_confirm": "Are you sure you want to delete this invoice? All its items will be removed and any linked payments will be unlinked.",
     "create_error": "Error creating invoice",
     "update_error": "Error updating invoice",
     "select_all": "Select all invoices",
