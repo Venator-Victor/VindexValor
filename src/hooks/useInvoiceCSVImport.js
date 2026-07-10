@@ -2,6 +2,7 @@ import { useState } from 'react';
 import Papa from 'papaparse';
 import { supabase } from '@/lib/customSupabaseClient';
 import { useAuth } from '@/context/SupabaseAuthContext';
+import { parseLocaleNumber } from '@/utils/calculations';
 
 export const useInvoiceCSVImport = () => {
   const { user } = useAuth();
@@ -92,14 +93,7 @@ export const useInvoiceCSVImport = () => {
   const applyMapping = (rawData, mapping) => {
     return rawData.map(row => {
       const rawValor = row[mapping.amount];
-      let valStr = String(rawValor || '').trim();
-      
-      if (valStr.includes('.') && valStr.includes(',')) {
-        valStr = valStr.replace(/\./g, '').replace(',', '.');
-      } else if (valStr.includes(',')) {
-        valStr = valStr.replace(',', '.');
-      }
-      
+      const valStr = parseLocaleNumber(String(rawValor || '').trim());
       const numValor = parseFloat(valStr) || 0;
       const rawDesc = String(row[mapping.description] || '').trim();
       const rawDataDate = String(row[mapping.date] || '').trim();

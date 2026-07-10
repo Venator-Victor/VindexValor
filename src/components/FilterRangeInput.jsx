@@ -1,31 +1,34 @@
 import React, { useState } from 'react';
 import { Search } from '@/components/BxIcon';
+import { parseLocaleNumber } from '@/utils/calculations';
+
 export const parseValueFilterString = (input) => {
   if (!input || typeof input !== 'string' || !input.trim()) {
     return { isValid: true, conditions: [] };
   }
-  
+
   const parts = input.split(';');
   const conditions = [];
   const errors = [];
-  
+
   for (const p of parts) {
     const str = p.trim();
     if (!str) continue;
     // Match operators: >=, <=, >, <, =, or empty (defaults to =) followed by a number
-    const match = str.match(/^(>=|<=|>|<|=)?\s*(\d+(?:\.\d+)?)$/);
-    
+    // (accepts either "." or "," as the decimal separator, e.g. ">1234.56" or ">1234,56")
+    const match = str.match(/^(>=|<=|>|<|=)?\s*(\d+(?:[.,]\d+)?)$/);
+
     if (!match) {
       errors.push(`Inválido: "${str}"`);
       continue;
     }
-    
-    conditions.push({ 
-      op: match[1] || '=', 
-      val: Number(match[2]) 
+
+    conditions.push({
+      op: match[1] || '=',
+      val: Number(parseLocaleNumber(match[2]))
     });
   }
-  
+
   return { isValid: errors.length === 0, conditions, errors };
 };
 

@@ -1,8 +1,21 @@
-import { CURRENCY_MAP, getCurrencySymbol, getCurrencyDecimals } from './currencySymbolMap';
+import { CURRENCY_MAP, getCurrencySymbol, getCurrencyDecimals, getCurrencyLocale } from './currencySymbolMap';
 
 export const isCryptoCurrency = (currency) => {
   const cryptoSymbols = ['BTC', 'ETH', 'USDT', 'BNB', 'SOL', 'XRP', 'USDC', 'ADA', 'DOGE', 'AVAX', 'DOT', 'MATIC', 'LINK', 'SHIB', 'LTC'];
   return cryptoSymbols.includes(currency);
+};
+
+// Normalizes a free-typed number so both "1234.56" and "1234,56" parse correctly,
+// regardless of the user's OS/keyboard locale. When both separators are present,
+// "." is treated as a thousands separator and "," as the decimal ("1.234,56" -> "1234.56").
+export const parseLocaleNumber = (input) => {
+  let str = String(input ?? '').trim();
+  if (str.includes('.') && str.includes(',')) {
+    str = str.replace(/\./g, '').replace(',', '.');
+  } else if (str.includes(',')) {
+    str = str.replace(',', '.');
+  }
+  return str;
 };
 
 export const calculateTotalBalance = (accounts) => {
@@ -125,12 +138,10 @@ export const getLastNMonths = (n) => {
   return months;
 };
 
-const CURRENCY_TO_LOCALE = { 'BRL': 'pt-BR', 'USD': 'en-US', 'EUR': 'en-US' };
-
 export const formatCurrency = (value, currency = 'BRL') => {
   const numValue = Number(value) || 0;
   const isNegative = numValue < 0;
-  const locale = CURRENCY_TO_LOCALE[currency] || 'pt-BR';
+  const locale = getCurrencyLocale(currency);
   const formatted = new Intl.NumberFormat(locale, {
     style: 'currency',
     currency: currency,
@@ -167,7 +178,7 @@ export const formatCurrencyWithSymbol = (amount, currencyCode = 'BRL') => {
   const numValue = Number(amount) || 0;
   const isNegative = numValue < 0;
 
-  const locale = isCryptoCurrency(currencyCode) ? 'pt-BR' : (CURRENCY_TO_LOCALE[currencyCode] || 'pt-BR');
+  const locale = getCurrencyLocale(currencyCode);
   const formatted = new Intl.NumberFormat(locale, {
     minimumFractionDigits: decimals,
     maximumFractionDigits: decimals,

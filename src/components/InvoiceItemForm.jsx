@@ -10,6 +10,7 @@ import NumberInput from '@/components/ui/NumberInput';
 import { ArrowDownRight, ArrowUpRight } from '@/components/BxIcon';
 import { supabase } from '@/lib/customSupabaseClient';
 import { buildFlatIndentedOptions } from '@/utils/categoryTree';
+import { formatCurrencyWithSymbol } from '@/utils/calculations';
 import { SUCCESS, PRIMARY } from '@/utils/colors';
 
 const InvoiceItemForm = ({ invoiceId, initialData, onSuccess, onCancel }) => {
@@ -126,7 +127,18 @@ const InvoiceItemForm = ({ invoiceId, initialData, onSuccess, onCancel }) => {
         <DatePicker
           label={t('invoice_detail.item_form_date_label')}
           value={formData.date}
-          onChange={(e) => setFormData({ ...formData, date: e.target.value })}
+          onChange={(e) => {
+            const newDate = e.target.value;
+            // Clear the linked transaction if it no longer falls in the new month,
+            // instead of silently keeping a reference that's no longer shown as selected.
+            const stillEligible = formData.transaction_id &&
+              transactions.some(tx => tx.id === formData.transaction_id && tx.date.startsWith(newDate.substring(0, 7)));
+            setFormData(prev => ({
+              ...prev,
+              date: newDate,
+              transaction_id: stillEligible ? prev.transaction_id : ''
+            }));
+          }}
         />
       </div>
 
@@ -170,7 +182,7 @@ const InvoiceItemForm = ({ invoiceId, initialData, onSuccess, onCancel }) => {
           onChange={(e) => setFormData({ ...formData, transaction_id: e.target.value })}
           options={[
             { label: t('invoice_detail.item_form_no_transaction_linked'), value: "" },
-            ...eligibleTransactions.map(tx => ({ label: `${tx.description} - R$ ${Math.abs(tx.amount)}`, value: tx.id }))
+            ...eligibleTransactions.map(tx => ({ label: `${tx.description} - ${formatCurrencyWithSymbol(Math.abs(tx.amount), tx.account?.currency || 'BRL')}`, value: tx.id }))
           ]}
         />
       </div>

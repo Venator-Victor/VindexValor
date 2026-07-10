@@ -1,14 +1,15 @@
 import React, { useState } from 'react';
 import { cn } from '@/lib/utils';
-import { getCurrencySymbol, getCurrencyDecimals } from '@/utils/currencySymbolMap';
+import { getCurrencySymbol, getCurrencyDecimals, getCurrencyLocale } from '@/utils/currencySymbolMap';
 
 const NumberInput = ({ value, onChange, min, max, className, placeholder, id, currencyCode = 'BRL', disabled = false }) => {
   const [displayValue, setDisplayValue] = useState('');
   const decimals = getCurrencyDecimals(currencyCode);
   const symbol = getCurrencySymbol(currencyCode);
+  const locale = getCurrencyLocale(currencyCode);
 
   const formatNumber = (val) => {
-    return val.toLocaleString('pt-BR', {
+    return val.toLocaleString(locale, {
       minimumFractionDigits: decimals,
       maximumFractionDigits: decimals,
     });
@@ -62,7 +63,7 @@ const NumberInput = ({ value, onChange, min, max, className, placeholder, id, cu
         onChange={handleChange}
         disabled={disabled}
         className="flex h-10 w-full rounded-lg border border-gray-200 bg-white pl-10 pr-3 py-2 text-sm file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-gray-500 outline-none hover:border-primary focus-visible:border-primary disabled:cursor-not-allowed disabled:opacity-50 dark:border-vindex-border dark:bg-vindex-bg dark:placeholder:text-vindex-text/30 text-gray-900 dark:text-vindex-text"
-        placeholder={placeholder || `0,${'0'.repeat(decimals)}`}
+        placeholder={placeholder || formatNumber(0)}
         autoComplete="off"
       />
     </div>

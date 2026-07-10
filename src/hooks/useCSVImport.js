@@ -4,6 +4,7 @@ import { supabase } from '@/lib/customSupabaseClient';
 import { useAuth } from '@/context/SupabaseAuthContext';
 import { useFinance } from '@/context/FinanceContext';
 import { useCustomCategoryMappings } from './useCustomCategoryMappings';
+import { parseLocaleNumber } from '@/utils/calculations';
 
 export const useCSVImport = () => {
   const { user } = useAuth();
@@ -70,12 +71,7 @@ export const useCSVImport = () => {
   const applyColumnMapping = (rawData, mapping) => {
     return rawData.map(row => {
       const rawValor = row[mapping.amount];
-      let valStr = String(rawValor || '').trim().replace(/[^\d.,-]/g, '');
-      if (valStr.includes('.') && valStr.includes(',')) {
-        valStr = valStr.replace(/\./g, '').replace(',', '.');
-      } else if (valStr.includes(',')) {
-        valStr = valStr.replace(',', '.');
-      }
+      const valStr = parseLocaleNumber(String(rawValor || '').trim().replace(/[^\d.,-]/g, ''));
       const numValor = parseFloat(valStr) || 0;
 
       const rawDesc = String(row[mapping.description] || '').trim();

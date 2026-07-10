@@ -57,7 +57,7 @@ const InvoiceDetailPage = () => {
     try {
       const { data: faturaData, error } = await supabase
         .from('invoices')
-        .select('*, account:accounts(name)')
+        .select('*, account:accounts(name, currency)')
         .eq('id', id)
         .single();
         
@@ -134,7 +134,15 @@ const InvoiceDetailPage = () => {
 
   const handleSelectPayment = (payment) => {
     const paymentAmount = Math.abs(payment.amount);
-    if (paymentAmount !== Math.abs(calculatedTotal)) {
+    const invoiceTotal = Math.abs(calculatedTotal);
+    // Amounts in different currencies can't be compared as raw numbers (e.g. $500 vs R$500
+    // aren't equal just because the digits match) — always ask for confirmation in that case.
+    const currencyMismatch = payment.account?.currency && invoice.account?.currency &&
+      payment.account.currency !== invoice.account.currency;
+    // Compare in whole cents to avoid floating-point rounding turning an exact match into a "divergent" one.
+    const amountsMatch = !currencyMismatch && Math.round(paymentAmount * 100) === Math.round(invoiceTotal * 100);
+
+    if (!amountsMatch) {
       setPaymentToConfirm(payment);
       setIsConfirmDialogOpen(true);
     } else {
@@ -147,17 +155,18 @@ const InvoiceDetailPage = () => {
       const { error } = await supabase
         .from('transactions')
         .update({ invoice_id: id })
-        .eq('id', paymentId);
+        .eq('id', paymentId)
+        .eq('user_id', user.id);
 
       if (error) throw error;
 
       // Auto-update fatura status to 'paid' if this payment covers the remainder
       const paymentRecord = eligiblePayments.find(p => p.id === paymentId) || paymentToConfirm;
       const amountPaid = paymentRecord ? Math.abs(paymentRecord.amount) : 0;
-      
+
       const currentTotalPaid = payments.reduce((acc, p) => acc + Math.abs(p.amount), 0);
       const newTotalPaid = currentTotalPaid + amountPaid;
-      
+
       if (newTotalPaid >= Math.abs(calculatedTotal)) {
         await supabase.from('invoices').update({ status: 'paid' }).eq('id', id).eq('user_id', user.id);
       }
@@ -182,8 +191,15 @@ const InvoiceDetailPage = () => {
 
       if (error) throw error;
 
-      // Update status back to 'open' if it was marked as paid but now it's unlinked
-      await supabase.from('invoices').update({ status: 'open' }).eq('id', id).eq('user_id', user.id);
+      // Only reopen the invoice if the remaining linked payments no longer cover the total —
+      // unlinking one of several payments shouldn't reset the status if the others still add up.
+      const remainingTotalPaid = payments
+        .filter(p => p.id !== paymentId)
+        .reduce((acc, p) => acc + Math.abs(p.amount), 0);
+
+      if (remainingTotalPaid < Math.abs(calculatedTotal)) {
+        await supabase.from('invoices').update({ status: 'open' }).eq('id', id).eq('user_id', user.id);
+      }
 
       toast({ title: t('invoice_detail.payment_unlinked_success') });
       loadData();
@@ -470,8 +486,8 @@ const InvoiceDetailPage = () => {
             <AlertDialogTitle>{t('invoice_detail.divergent_title')}</AlertDialogTitle>
             <AlertDialogDescription>
               {t('invoice_detail.divergent_desc', {
-                payment: paymentToConfirm && formatCurrency(Math.abs(paymentToConfirm.amount)),
-                total: formatCurrency(Math.abs(calculatedTotal))
+                payment: paymentToConfirm && formatCurrency(Math.abs(paymentToConfirm.amount), paymentToConfirm.account?.currency || 'BRL'),
+                total: formatCurrency(Math.abs(calculatedTotal), invoice.account?.currency || 'BRL')
               })}
             </AlertDialogDescription>
           </AlertDialogHeader>
