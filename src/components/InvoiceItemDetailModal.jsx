@@ -44,7 +44,7 @@ const InvoiceItemDetailModal = ({ isOpen, onClose, item, onEdit, onDelete }) => 
             {isExpense ? '-' : '+'}{formatCurrency(Math.abs(item.amount))}
           </p>
           <span className="inline-block mt-2 text-xs font-medium px-2 py-0.5 rounded-full" style={{ backgroundColor: typeColor + '22', color: typeColor }}>
-            {isExpense ? t('transactions.type_expense') : t('transactions.type_income')}
+            {item.is_payment ? t('invoice_detail.item_is_payment_badge') : isExpense ? t('transactions.type_expense') : t('transactions.type_income')}
           </span>
         </div>
 

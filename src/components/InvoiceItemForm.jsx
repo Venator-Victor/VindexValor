@@ -26,7 +26,8 @@ const InvoiceItemForm = ({ invoiceId, initialData, onSuccess, onCancel }) => {
     category_id: '',
     account_id: '',
     transaction_id: '',
-    amount: ''
+    amount: '',
+    is_payment: false
   });
 
   // Sync form fields when `initialData` changes (adjust state during render, per React docs).
@@ -43,7 +44,8 @@ const InvoiceItemForm = ({ invoiceId, initialData, onSuccess, onCancel }) => {
       category_id: initialData.category_id || '',
       account_id: initialData.account_id || '',
       transaction_id: initialData.transaction_id || '',
-      amount: Math.abs(Number(initialData.amount || 0))
+      amount: Math.abs(Number(initialData.amount || 0)),
+      is_payment: initialData.is_payment || false
     });
   }
 
@@ -66,7 +68,8 @@ const InvoiceItemForm = ({ invoiceId, initialData, onSuccess, onCancel }) => {
         category_id: formData.category_id || null,
         account_id: formData.account_id || null,
         transaction_id: formData.transaction_id || null,
-        amount: finalValor
+        amount: finalValor,
+        is_payment: type === 'income' && formData.is_payment
       };
 
       if (initialData) {
@@ -106,7 +109,7 @@ const InvoiceItemForm = ({ invoiceId, initialData, onSuccess, onCancel }) => {
             type="button"
             variant={type === 'expense' ? 'default' : 'outline'}
             className={type === 'expense' ? 'bg-red-600 hover:bg-red-700 text-white' : 'text-muted-foreground'}
-            onClick={() => setType('expense')}
+            onClick={() => { setType('expense'); setFormData(prev => ({ ...prev, is_payment: false })); }}
           >
             <ArrowDownRight className="w-4 h-4 mr-2" />
             {t('invoice_detail.item_form_type_expense')}
@@ -121,6 +124,17 @@ const InvoiceItemForm = ({ invoiceId, initialData, onSuccess, onCancel }) => {
             {t('invoice_detail.item_form_type_income')}
           </Button>
         </div>
+        {type === 'income' && (
+          <label className="flex items-center gap-2 cursor-pointer select-none mt-3">
+            <input
+              type="checkbox"
+              checked={formData.is_payment}
+              onChange={(e) => setFormData(prev => ({ ...prev, is_payment: e.target.checked }))}
+              className="w-4 h-4 accent-[#43CFEA]"
+            />
+            <span className="text-sm font-medium text-gray-700 dark:text-gray-300">{t('invoice_detail.item_form_is_payment_label')}</span>
+          </label>
+        )}
       </div>
 
       <div>

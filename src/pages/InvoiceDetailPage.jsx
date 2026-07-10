@@ -100,9 +100,15 @@ const InvoiceDetailPage = () => {
     loadData();
   }, [id]);
 
-  // Only consider negative values (purchases/expenses) for fatura total
-  const totalSaidas = items.filter(c => Number(c.amount) < 0).reduce((acc, c) => acc + Number(c.amount), 0);
-  const calculatedTotal = totalSaidas;
+  // "Total Outflows" is true net spending: purchases (negative) plus refunds (positive,
+  // not the payment item), so the payment settlement line never counts as "less spent".
+  const totalSaidas = items
+    .filter(c => Number(c.amount) < 0 || !c.is_payment)
+    .reduce((acc, c) => acc + Number(c.amount || 0), 0);
+  // The actual invoice balance nets every item, both signs — the payment/refund lines
+  // included in the imported statement offset the purchases, matching InvoiceItemList's
+  // own footer total and what's actually owed.
+  const calculatedTotal = items.reduce((acc, c) => acc + Number(c.amount || 0), 0);
 
   const fetchEligiblePayments = async () => {
     if (!user) return;

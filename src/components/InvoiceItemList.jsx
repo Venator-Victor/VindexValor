@@ -1,7 +1,7 @@
 import React, { useState, useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
 import { formatCurrency } from '@/utils/calculations';
-import { Edit as Edit2, TrashAlt as Trash2, ArrowDownRight, ArrowUpRight, ArrowUp, ArrowDown } from '@/components/BxIcon';
+import { Edit as Edit2, TrashAlt as Trash2, ArrowDownRight, ArrowUpRight, ArrowUp, ArrowDown, Wallet } from '@/components/BxIcon';
 import { Button } from '@/components/ui/button';
 import { Checkbox } from '@/components/ui/checkbox';
 import { PRIMARY, DANGER } from '@/utils/colors';
@@ -148,10 +148,17 @@ const InvoiceItemList = ({ items, onEdit, onDelete, onRowClick, selectedIds = []
                   <td className="px-6 py-4 whitespace-nowrap text-gray-700 dark:text-gray-300">{formatDate(c.date)}</td>
                   <td className="px-6 py-4 font-medium text-gray-900 dark:text-gray-50 truncate" title={c.description}>{c.description}</td>
                   <td className="px-6 py-4">
-                    <div className={`flex items-center gap-1.5 text-xs px-2 py-1 rounded-full w-max ${isSaida ? 'bg-red-100 text-red-700 dark:bg-red-900/20 dark:text-red-400' : 'bg-green-100 text-green-700 dark:bg-green-900/20 dark:text-green-400'}`}>
-                      {isSaida ? <ArrowDownRight className="w-3 h-3" /> : <ArrowUpRight className="w-3 h-3" />}
-                      {isSaida ? t('transactions.type_expense') : t('transactions.type_income')}
-                    </div>
+                    {c.is_payment ? (
+                      <div className="flex items-center gap-1.5 text-xs px-2 py-1 rounded-full w-max bg-primary/10 text-primary">
+                        <Wallet className="w-3 h-3" />
+                        {t('invoice_detail.item_is_payment_badge')}
+                      </div>
+                    ) : (
+                      <div className={`flex items-center gap-1.5 text-xs px-2 py-1 rounded-full w-max ${isSaida ? 'bg-red-100 text-red-700 dark:bg-red-900/20 dark:text-red-400' : 'bg-green-100 text-green-700 dark:bg-green-900/20 dark:text-green-400'}`}>
+                        {isSaida ? <ArrowDownRight className="w-3 h-3" /> : <ArrowUpRight className="w-3 h-3" />}
+                        {isSaida ? t('transactions.type_expense') : t('transactions.type_income')}
+                      </div>
+                    )}
                   </td>
                   <td className="px-6 py-4">
                     {c.categories ? (
