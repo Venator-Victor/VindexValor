@@ -2,7 +2,7 @@ import React, { useState, useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Button } from '@/components/ui/button';
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from '@/components/ui/alert-dialog';
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from '@/components/ui/dialog';
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { TrashAlt as Trash2, X, FolderOpen as FolderEdit } from '@/components/BxIcon';
 import { supabase } from '@/lib/customSupabaseClient';
 import { useToast } from '@/components/ui/use-toast';
@@ -10,6 +10,7 @@ import { useFinance } from '@/context/FinanceContext';
 import SelectInput from '@/components/ui/SelectInput';
 import { formatCurrency, isCryptoCurrency } from '@/utils/calculations';
 import { buildFlatIndentedOptions } from '@/utils/categoryTree';
+import { SUCCESS, PRIMARY } from '@/utils/colors';
 
 const TransactionSelectionModal = ({ selectedIds, transactions, onClearSelection, onRefresh }) => {
   const { t } = useTranslation();
@@ -206,14 +207,32 @@ const TransactionSelectionModal = ({ selectedIds, transactions, onClearSelection
               searchable
             />
           </div>
-          <DialogFooter>
-            <Button variant="outline" onClick={() => setShowCategoryModal(false)} disabled={isUpdating}>
-              {t('common.cancel')}
-            </Button>
-            <Button onClick={handleBulkCategoryUpdate} disabled={isUpdating}>
+          <div className="flex gap-2 pt-4">
+            <Button
+              type="button"
+              variant="outline"
+              onClick={handleBulkCategoryUpdate}
+              disabled={isUpdating}
+              className="flex-1 font-medium rounded-lg transition-colors bg-transparent"
+              style={{ borderColor: SUCCESS, color: SUCCESS }}
+              onMouseEnter={e => { e.currentTarget.style.backgroundColor = SUCCESS; e.currentTarget.style.color = '#fff'; }}
+              onMouseLeave={e => { e.currentTarget.style.backgroundColor = 'transparent'; e.currentTarget.style.color = SUCCESS; }}
+            >
               {isUpdating ? t('common.saving') : t('transactions.bulk_save_changes')}
             </Button>
-          </DialogFooter>
+            <Button
+              type="button"
+              variant="outline"
+              onClick={() => setShowCategoryModal(false)}
+              disabled={isUpdating}
+              className="flex-1 rounded-lg border transition-colors bg-transparent"
+              style={{ borderColor: PRIMARY, color: PRIMARY }}
+              onMouseEnter={e => { e.currentTarget.style.backgroundColor = PRIMARY; e.currentTarget.style.color = '#000'; }}
+              onMouseLeave={e => { e.currentTarget.style.backgroundColor = 'transparent'; e.currentTarget.style.color = PRIMARY; }}
+            >
+              {t('common.cancel')}
+            </Button>
+          </div>
         </DialogContent>
       </Dialog>
     </>
