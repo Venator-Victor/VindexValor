@@ -9,6 +9,7 @@ import { useToast } from '@/components/ui/use-toast';
 import { useFinance } from '@/context/FinanceContext';
 import SelectInput from '@/components/ui/SelectInput';
 import { formatCurrency, isCryptoCurrency } from '@/utils/calculations';
+import { buildFlatIndentedOptions } from '@/utils/categoryTree';
 
 const TransactionSelectionModal = ({ selectedIds, transactions, onClearSelection, onRefresh }) => {
   const { t } = useTranslation();
@@ -84,7 +85,6 @@ const TransactionSelectionModal = ({ selectedIds, transactions, onClearSelection
         title: t('transactions.bulk_categories_updated_title'),
         description: t('transactions.bulk_categories_updated_desc'),
       });
-      onClearSelection();
       if (onRefresh) onRefresh();
       setShowCategoryModal(false);
     } catch (error) {
@@ -199,9 +199,10 @@ const TransactionSelectionModal = ({ selectedIds, transactions, onClearSelection
               onChange={(e) => setSelectedBulkCategory(e.target.value)}
               options={[
                 { label: t('transactions.bulk_no_category_option'), value: '' },
-                ...categories.map(c => ({ label: c.name, value: c.id }))
+                ...buildFlatIndentedOptions(categories)
               ]}
               className="w-full"
+              searchable
             />
           </div>
           <DialogFooter>
