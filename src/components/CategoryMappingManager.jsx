@@ -26,7 +26,7 @@ const CategoryMappingManager = () => {
           {t('categories.auto_mappings_button')}
         </Button>
       </DialogTrigger>
-      <DialogContent className="max-w-2xl max-h-[80vh] flex flex-col">
+      <DialogContent className="max-w-2xl max-h-[90vh] flex flex-col">
         <DialogHeader>
           <DialogTitle>{t('categories.manage_mappings_title')}</DialogTitle>
         </DialogHeader>

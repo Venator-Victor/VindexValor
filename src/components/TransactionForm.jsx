@@ -13,6 +13,7 @@ import { useAutoMappingCategories } from '@/hooks/useAutoMappingCategories';
 import { formatCurrencyWithSymbol } from '@/utils/calculations';
 import { PERIOD_OPTIONS } from '@/utils/periodOptions';
 import { buildFlatIndentedOptions } from '@/utils/categoryTree';
+import { SUCCESS, PRIMARY } from '@/utils/colors';
 
 const TransactionForm = ({ initialData, onSuccess, onCancel }) => {
   const { t } = useTranslation();
@@ -193,12 +194,13 @@ const TransactionForm = ({ initialData, onSuccess, onCancel }) => {
             onChange={handleDescriptionChange}
             placeholder={t('transactions.form_description_placeholder')}
             className={inputClasses}
+            rows={3}
             required
           />
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-          <div>
+          <div className={formData.type === 'transfer' || formData.type === 'payment' ? '' : 'md:col-span-2'}>
             <Label htmlFor="account_id">
               {formData.type === 'transfer' ? t('transactions.form_account_source_label') :
                formData.type === 'payment' ? t('transactions.form_account_payment_label') : t('transactions.form_account_label')}
@@ -267,7 +269,7 @@ const TransactionForm = ({ initialData, onSuccess, onCancel }) => {
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-          <div>
+          <div className={isCrossCurrencyTransfer ? '' : 'md:col-span-2'}>
             <Label htmlFor="amount">{t('transactions.form_amount_label')} {sourceAccount ? t('transactions.form_amount_in_currency', { currency: sourceAccount.currency }) : ''} *</Label>
             <div className="relative mt-1">
               <NumberInput
@@ -373,10 +375,27 @@ const TransactionForm = ({ initialData, onSuccess, onCancel }) => {
         )}
 
         <div className="flex gap-2 pt-4">
-          <Button type="submit" disabled={isSubmitting} className="flex-1 bg-primary text-primary-foreground hover:bg-primary/90">
+          <Button
+            type="submit"
+            variant="outline"
+            disabled={isSubmitting}
+            className="flex-1 font-medium rounded-lg transition-colors bg-transparent"
+            style={{ borderColor: SUCCESS, color: SUCCESS }}
+            onMouseEnter={e => { e.currentTarget.style.backgroundColor = SUCCESS; e.currentTarget.style.color = '#fff'; }}
+            onMouseLeave={e => { e.currentTarget.style.backgroundColor = 'transparent'; e.currentTarget.style.color = SUCCESS; }}
+          >
             {isSubmitting ? t('common.saving') : (initialData ? t('common.update') : t('common.create'))}
           </Button>
-          <Button type="button" variant="outline" onClick={onCancel} disabled={isSubmitting} className="flex-1">
+          <Button
+            type="button"
+            variant="outline"
+            onClick={onCancel}
+            disabled={isSubmitting}
+            className="flex-1 rounded-lg border transition-colors bg-transparent"
+            style={{ borderColor: PRIMARY, color: PRIMARY }}
+            onMouseEnter={e => { e.currentTarget.style.backgroundColor = PRIMARY; e.currentTarget.style.color = '#000'; }}
+            onMouseLeave={e => { e.currentTarget.style.backgroundColor = 'transparent'; e.currentTarget.style.color = PRIMARY; }}
+          >
             {t('common.cancel')}
           </Button>
         </div>

@@ -24,7 +24,7 @@ const TransactionDetailModal = ({ isOpen, onClose, transaction, onEdit, onDelete
 
   return (
     <Dialog open={isOpen} onOpenChange={(open) => !open && onClose()}>
-      <DialogContent className="sm:max-w-[480px] bg-card text-foreground max-h-[90vh] overflow-y-auto overflow-x-hidden">
+      <DialogContent className="sm:max-w-[500px] bg-card text-foreground max-h-[90vh] overflow-y-auto overflow-x-hidden">
         <div className="flex items-center gap-3 min-w-0">
           <div
             className="w-12 h-12 rounded-xl flex items-center justify-center border shrink-0"

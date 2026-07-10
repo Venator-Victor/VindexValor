@@ -251,7 +251,7 @@ const Recurrences = () => {
                     <span className="sm:hidden">{t('recurrences.new_short')}</span>
                 </Button>
                 </DialogTrigger>
-                <DialogContent className="bg-white dark:bg-vindex-card text-gray-900 dark:text-gray-100 border-gray-200 dark:border-vindex-border rounded-xl max-h-[90vh] overflow-y-auto">
+                <DialogContent className="bg-white dark:bg-vindex-card text-gray-900 dark:text-gray-100 border-gray-200 dark:border-vindex-border rounded-xl max-h-[90vh] overflow-y-auto sm:max-w-[500px]">
                 <DialogHeader>
                     <DialogTitle>{editingRecurring ? t('recurrences.edit') : t('recurrences.new')}</DialogTitle>
                 </DialogHeader>
@@ -391,7 +391,7 @@ const Recurrences = () => {
             />
             
             <Dialog open={isCategoryDialogOpen} onOpenChange={setIsCategoryDialogOpen}>
-                <DialogContent className="bg-white dark:bg-vindex-card text-gray-900 dark:text-gray-100 border-gray-200 dark:border-vindex-border rounded-xl">
+                <DialogContent className="bg-white dark:bg-vindex-card text-gray-900 dark:text-gray-100 border-gray-200 dark:border-vindex-border rounded-xl sm:max-w-[500px]">
                   <DialogHeader>
                       <DialogTitle>{t('recurrences.new_custom_category')}</DialogTitle>
                   </DialogHeader>

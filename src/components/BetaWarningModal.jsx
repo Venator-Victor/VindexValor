@@ -9,7 +9,7 @@ const BetaWarningModal = ({ open, onOpenChange }) => {
   const { t } = useTranslation();
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="sm:max-w-md">
+      <DialogContent className="sm:max-w-[500px]">
         <DialogHeader>
           <div className="flex items-center gap-2 mb-2">
             <div className="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center text-primary">

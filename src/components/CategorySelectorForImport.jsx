@@ -50,7 +50,7 @@ const CategorySelectorForImport = ({ value, onChange }) => {
       </Button>
 
       <Dialog open={isCreating} onOpenChange={setIsCreating}>
-        <DialogContent className="sm:max-w-[400px]">
+        <DialogContent className="sm:max-w-[425px]">
           <DialogHeader>
             <DialogTitle>Nova Categoria</DialogTitle>
           </DialogHeader>

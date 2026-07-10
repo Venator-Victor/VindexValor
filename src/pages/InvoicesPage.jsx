@@ -288,7 +288,7 @@ const InvoicesPage = () => {
                 <UploadCloud className="w-4 h-4" /> <span className="hidden sm:inline">{t('invoices.import_csv')}</span>
               </Button>
             </DialogTrigger>
-            <DialogContent className="dialog-responsive max-w-[95vw] md:max-w-4xl p-4 md:p-6">
+            <DialogContent className="dialog-responsive p-4 md:p-6">
               <DialogHeader>
                 <DialogTitle>{t('invoices.import_title')}</DialogTitle>
               </DialogHeader>
@@ -302,7 +302,7 @@ const InvoicesPage = () => {
                 <Plus className="w-4 h-4" /> <span className="hidden sm:inline">{t('invoices.new')}</span>
               </Button>
             </DialogTrigger>
-            <DialogContent>
+            <DialogContent className="sm:max-w-[500px]">
               <DialogHeader>
                 <DialogTitle>{t('invoices.create_title')}</DialogTitle>
               </DialogHeader>
@@ -504,7 +504,7 @@ const InvoicesPage = () => {
 
       {/* Edit Dialog */}
       <Dialog open={isEditOpen} onOpenChange={setIsEditOpen}>
-        <DialogContent>
+        <DialogContent className="sm:max-w-[500px]">
           <DialogHeader>
             <DialogTitle>{t('invoices.edit_title')}</DialogTitle>
           </DialogHeader>

@@ -50,7 +50,7 @@ const DefaultCategoriesModal = ({ isOpen, onClose, onCreateCustom, onSuccess }) 
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent className="sm:max-w-4xl max-h-[85vh] overflow-y-auto bg-white dark:bg-vindex-card">
+      <DialogContent className="sm:max-w-4xl max-h-[90vh] overflow-y-auto bg-white dark:bg-vindex-card">
         <DialogHeader>
           <DialogTitle className="text-xl font-bold text-gray-900 dark:text-vindex-text">
             {t('categories.choose_category')}

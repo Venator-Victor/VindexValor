@@ -11,7 +11,7 @@ const AccountSuggestionsModal = ({ isOpen, onClose, onSelect, onCreateCustom }) 
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent className="sm:max-w-4xl max-h-[85vh] overflow-y-auto bg-white dark:bg-vindex-card border-gray-200 dark:border-vindex-border">
+      <DialogContent className="sm:max-w-4xl max-h-[90vh] overflow-y-auto bg-white dark:bg-vindex-card border-gray-200 dark:border-vindex-border">
         <DialogHeader>
           <DialogTitle className="text-xl font-bold text-gray-900 dark:text-gray-100">
             {t('accounts.suggestions_title')}

@@ -6,7 +6,6 @@ import { Receipt as ReceiptText, Share as UploadCloud, Plus, Search, X, Filter }
 import { useFinance } from '@/context/FinanceContext';
 import { Button } from '@/components/ui/button';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
-import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from '@/components/ui/alert-dialog';
 import { useToast } from '@/components/ui/use-toast';
 import SelectInput from '@/components/ui/SelectInput';
 import TransactionForm from '@/components/TransactionForm';
@@ -15,6 +14,7 @@ import TransactionTable from '@/components/TransactionTable';
 import TransactionDetailModal from '@/components/TransactionDetailModal';
 import TransactionSelectionModal from '@/components/TransactionSelectionModal';
 import CategoryMappingManager from '@/components/CategoryMappingManager';
+import DeleteConfirmationDialog from '@/components/DeleteConfirmationDialog';
 import FilterRangeInput, { parseValueFilterString } from '@/components/FilterRangeInput';
 import InfoTooltip from '@/components/InfoTooltip';
 import EmptyState from '@/components/EmptyState';
@@ -173,7 +173,7 @@ const Transactions = () => {
           </Button>
 
           <Dialog open={isImportOpen} onOpenChange={setIsImportOpen}>
-            <DialogContent className="dialog-responsive max-w-[95vw] md:max-w-4xl p-4 md:p-6">
+            <DialogContent className="dialog-responsive p-4 md:p-6">
               <DialogHeader>
                 <DialogTitle>{t('transactions.import_title')}</DialogTitle>
               </DialogHeader>
@@ -190,7 +190,7 @@ const Transactions = () => {
                 <Plus className="w-4 h-4" /> {t('transactions.new')}
               </Button>
             </DialogTrigger>
-            <DialogContent className="sm:max-w-[550px] max-h-[90vh] overflow-y-auto custom-scrollbar">
+            <DialogContent className="sm:max-w-[500px] max-h-[90vh] overflow-y-auto custom-scrollbar">
               <DialogHeader>
                 <DialogTitle>{editingTransaction ? t('transactions.edit') : t('transactions.new')}</DialogTitle>
               </DialogHeader>
@@ -350,20 +350,12 @@ const Transactions = () => {
         onRefresh={fetchAllData}
       />
 
-      <AlertDialog open={!!deleteId} onOpenChange={() => setDeleteId(null)}>
-        <AlertDialogContent>
-          <AlertDialogHeader>
-            <AlertDialogTitle>{t('common.delete_confirm_title')}</AlertDialogTitle>
-            <AlertDialogDescription>
-              {t('transactions.delete_confirm')}
-            </AlertDialogDescription>
-          </AlertDialogHeader>
-          <AlertDialogFooter>
-            <AlertDialogCancel>{t('common.cancel')}</AlertDialogCancel>
-            <AlertDialogAction onClick={handleDelete} className="bg-destructive hover:bg-destructive/90 text-destructive-foreground">{t('common.delete')}</AlertDialogAction>
-          </AlertDialogFooter>
-        </AlertDialogContent>
-      </AlertDialog>
+      <DeleteConfirmationDialog
+        open={!!deleteId}
+        onOpenChange={() => setDeleteId(null)}
+        description={t('transactions.delete_confirm')}
+        onConfirm={handleDelete}
+      />
     </div>
   );
 };

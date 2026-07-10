@@ -230,7 +230,7 @@ const Investments = () => {
                 <span className="sm:hidden">{t('common.new')}</span>
               </Button>
             </DialogTrigger>
-            <DialogContent className="bg-white dark:bg-vindex-card text-gray-900 dark:text-gray-100 border-gray-200 dark:border-vindex-border rounded-xl">
+            <DialogContent className="bg-white dark:bg-vindex-card text-gray-900 dark:text-gray-100 border-gray-200 dark:border-vindex-border rounded-xl sm:max-w-[500px]">
               <DialogHeader>
                 <DialogTitle>{editingInvestment ? t('investments.edit') : t('investments.new')}</DialogTitle>
               </DialogHeader>
