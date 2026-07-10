@@ -15,26 +15,29 @@ const DefaultCategoriesModal = ({ isOpen, onClose, onCreateCustom, onSuccess }) 
   const [loadingId, setLoadingId] = useState(null);
 
   const sortedCategories = useMemo(() => {
-    return [...DEFAULT_CATEGORIES].sort((a, b) => a.name.localeCompare(b.name));
-  }, []);
+    return [...DEFAULT_CATEGORIES].sort((a, b) =>
+      t(`default_categories.${a.id}.name`).localeCompare(t(`default_categories.${b.id}.name`))
+    );
+  }, [t]);
 
   const handleSelect = async (category) => {
     setLoadingId(category.id);
     try {
+      const name = t(`default_categories.${category.id}.name`);
       const newCategory = await addCategory({
-        name: category.name,
+        name,
         color: category.color,
         icon: category.icon,
         spending_limit: null,
         budget_period: 'monthly',
         budget_enabled: category.budgetEnabled !== false
       });
-      
+
       toast({ title: t('categories.created_success') });
-      
+
       if (onSuccess) {
         // Pass the newCategory object as second argument for immediate access to ID
-        onSuccess(category.name, newCategory);
+        onSuccess(name, newCategory);
       }
       onClose();
     } catch (error) {
@@ -72,8 +75,8 @@ const DefaultCategoriesModal = ({ isOpen, onClose, onCreateCustom, onSuccess }) 
                      <BxIcon iconClass={cat.icon} size={24} />
                    )}
                 </div>
-                <span className="font-semibold text-gray-900 dark:text-vindex-text text-sm sm:text-base text-center line-clamp-2 leading-tight h-[40px] flex items-center justify-center">{cat.name}</span>
-                <span className="text-xs text-gray-500 dark:text-vindex-text/60 mt-1 text-center line-clamp-2 px-1">{cat.description}</span>
+                <span className="font-semibold text-gray-900 dark:text-vindex-text text-sm sm:text-base text-center line-clamp-2 leading-tight h-[40px] flex items-center justify-center">{t(`default_categories.${cat.id}.name`)}</span>
+                <span className="text-xs text-gray-500 dark:text-vindex-text/60 mt-1 text-center line-clamp-2 px-1">{t(`default_categories.${cat.id}.description`)}</span>
              </button>
           ))}
         </div>

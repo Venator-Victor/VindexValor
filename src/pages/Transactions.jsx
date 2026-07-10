@@ -24,7 +24,7 @@ import { getDateFilterDefaults, matchesDateFilter, isDateFilterActive } from '@/
 
 const Transactions = () => {
   const { t } = useTranslation();
-  const { transactions, categories, accounts, isLoading, deleteTransaction } = useFinance();
+  const { transactions, categories, accounts, isLoading, deleteTransaction, fetchAllData } = useFinance();
   const { toast } = useToast();
   const location = useLocation();
   const navigate = useNavigate();
@@ -346,7 +346,7 @@ const Transactions = () => {
         selectedIds={selectedIds} 
         transactions={transactions}
         onClearSelection={() => setSelectedIds([])}
-        onRefresh={() => window.location.reload()}
+        onRefresh={fetchAllData}
       />
 
       <AlertDialog open={!!deleteId} onOpenChange={() => setDeleteId(null)}>
