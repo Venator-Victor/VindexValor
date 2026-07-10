@@ -1,5 +1,5 @@
 export const validateCreditCardAccount = (accountData) => {
-  const isCreditCard = accountData.type === 'Cartão de Crédito' || accountData.account_subtype === 'credit_card';
+  const isCreditCard = accountData.type === 'credit_card' || accountData.account_subtype === 'credit_card';
   
   if (isCreditCard) {
     if (accountData.initial_balance && Number(accountData.initial_balance) !== 0) {

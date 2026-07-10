@@ -1,12 +1,17 @@
 export const ACCOUNT_SUBTYPE_MAP = {
-  "Conta Corrente": "checking",
-  "Cartão de Crédito": "credit_card",
-  "Poupança": "savings",
-  "Investimento": "investment",
-  "Investimentos": "investment",
-  "Criptomoeda": "crypto",
-  "Dinheiro": "cash",
-  "Outros": "other"
+  "checking": "checking",
+  "credit_card": "credit_card",
+  "savings": "savings",
+  "investment": "investment",
+  "crypto": "crypto",
+  "cash": "cash",
+  "other": "other",
+  "meal_voucher": "meal_voucher",
+  "food_voucher": "food_voucher",
+  "loan": "loan",
+  "assets": "assets",
+  "joint_account": "joint_account",
+  "payment_account": "payment_account"
 };
 
 export const VALID_SUBTYPES = [
@@ -16,15 +21,27 @@ export const VALID_SUBTYPES = [
   "investment",
   "crypto",
   "cash",
-  "other"
+  "other",
+  "meal_voucher",
+  "food_voucher",
+  "loan",
+  "assets",
+  "joint_account",
+  "payment_account"
 ];
 
 export const ACCOUNT_TYPE_LABEL_KEYS = {
-  'Conta Corrente': 'accounts.type_checking',
-  'Cartão de Crédito': 'accounts.type_credit_card',
-  'Poupança': 'accounts.type_savings',
-  'Investimentos': 'accounts.type_investment',
-  'Criptomoeda': 'accounts.type_crypto',
-  'Dinheiro': 'accounts.type_cash',
-  'Outros': 'accounts.type_other',
+  'checking': 'accounts.type_checking',
+  'credit_card': 'accounts.type_credit_card',
+  'savings': 'accounts.type_savings',
+  'investment': 'accounts.type_investment',
+  'crypto': 'accounts.type_crypto',
+  'cash': 'accounts.type_cash',
+  'other': 'accounts.type_other',
+  'meal_voucher': 'accounts.type_meal_voucher',
+  'food_voucher': 'accounts.type_food_voucher',
+  'loan': 'accounts.type_loan',
+  'assets': 'accounts.type_assets',
+  'joint_account': 'accounts.type_joint_account',
+  'payment_account': 'accounts.type_payment_account',
 };

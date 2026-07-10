@@ -4,6 +4,7 @@ import { render, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import AccountModal from '../AccountModal';
 import { defaultFinanceValue } from '@/test-utils/renderWithProviders';
+import { DEFAULT_ACCOUNTS } from '@/utils/defaultAccounts';
 
 // ─── Mocks ────────────────────────────────────────────────────────────────────
 
@@ -54,7 +55,7 @@ describe('AccountModal – rendering', () => {
   });
 
   it('shows "Editar Conta" title when editing', () => {
-    renderModal({ accountToEdit: { id: '1', name: 'My Bank', type: 'Conta Corrente', account_subtype: 'checking' } });
+    renderModal({ accountToEdit: { id: '1', name: 'My Bank', type: 'checking', account_subtype: 'checking' } });
     expect(screen.getByText('Editar Conta')).toBeInTheDocument();
   });
 
@@ -68,6 +69,34 @@ describe('AccountModal – rendering', () => {
   it('does not show credit-limit field for checking accounts', () => {
     renderModal();
     expect(screen.queryByText('Limite do Cartão *')).not.toBeInTheDocument();
+  });
+});
+
+describe('AccountModal – preset (initialData) type selection', () => {
+  beforeEach(() => vi.clearAllMocks());
+
+  // pt-BR labels for every account type, matching src/locales/pt-BR.json's accounts.type_* keys
+  const TYPE_LABEL_PT = {
+    checking: 'Conta Corrente',
+    credit_card: 'Cartão de Crédito',
+    savings: 'Poupança',
+    investment: 'Investimentos',
+    crypto: 'Criptomoeda',
+    cash: 'Dinheiro',
+    meal_voucher: 'Vale-Refeição',
+    food_voucher: 'Vale-Alimentação',
+    loan: 'Empréstimos',
+    assets: 'Bens',
+    joint_account: 'Conta Conjunta',
+    payment_account: 'Conta de Pagamentos',
+    other: 'Outros',
+  };
+
+  it.each(DEFAULT_ACCOUNTS)('pre-selects the correct type for the "$name" preset', (preset) => {
+    renderModal({ initialData: preset });
+    const expectedLabel = TYPE_LABEL_PT[preset.type];
+    expect(expectedLabel).toBeTruthy();
+    expect(screen.getByText(expectedLabel)).toBeInTheDocument();
   });
 });
 
@@ -105,7 +134,7 @@ describe('AccountModal – submission', () => {
     await userEvent.click(screen.getByRole('button', { name: /salvar/i }));
     await waitFor(() =>
       expect(financeValue.createAccount).toHaveBeenCalledWith(
-        expect.objectContaining({ name: 'Nubank', type: 'Conta Corrente' })
+        expect.objectContaining({ name: 'Nubank', type: 'checking' })
       )
     );
     expect(onClose).toHaveBeenCalled();
@@ -113,7 +142,7 @@ describe('AccountModal – submission', () => {
 
   it('calls updateAccount (not createAccount) when editing an existing account', async () => {
     const account = {
-      id: 'acc-1', name: 'Old Name', type: 'Conta Corrente',
+      id: 'acc-1', name: 'Old Name', type: 'checking',
       account_subtype: 'checking', color: '#000', icon: 'bx bx-wallet', currency: 'BRL',
     };
     renderModal({ accountToEdit: account });

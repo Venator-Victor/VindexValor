@@ -4,20 +4,20 @@ import { validateCreditCardAccount } from '../accountValidation';
 describe('validateCreditCardAccount', () => {
   describe('non credit-card accounts', () => {
     it('always passes for a checking account', () => {
-      expect(validateCreditCardAccount({ type: 'Conta Corrente' })).toEqual({ isValid: true });
+      expect(validateCreditCardAccount({ type: 'checking' })).toEqual({ isValid: true });
     });
 
     it('always passes for an investment account', () => {
-      expect(validateCreditCardAccount({ type: 'Investimentos' })).toEqual({ isValid: true });
+      expect(validateCreditCardAccount({ type: 'investment' })).toEqual({ isValid: true });
     });
 
     it('ignores credit_limit / initial_balance for non credit-card types', () => {
-      expect(validateCreditCardAccount({ type: 'Poupança', initial_balance: 0, credit_limit: 0 })).toEqual({ isValid: true });
+      expect(validateCreditCardAccount({ type: 'savings', initial_balance: 0, credit_limit: 0 })).toEqual({ isValid: true });
     });
   });
 
   describe('credit-card accounts (type field)', () => {
-    const base = { type: 'Cartão de Crédito', credit_limit: 5000 };
+    const base = { type: 'credit_card', credit_limit: 5000 };
 
     it('passes when required fields are valid', () => {
       expect(validateCreditCardAccount(base)).toEqual({ isValid: true });
@@ -34,17 +34,17 @@ describe('validateCreditCardAccount', () => {
     });
 
     it('fails when credit_limit is missing', () => {
-      const result = validateCreditCardAccount({ type: 'Cartão de Crédito' });
+      const result = validateCreditCardAccount({ type: 'credit_card' });
       expect(result.isValid).toBe(false);
     });
 
     it('fails when credit_limit is 0', () => {
-      const result = validateCreditCardAccount({ type: 'Cartão de Crédito', credit_limit: 0 });
+      const result = validateCreditCardAccount({ type: 'credit_card', credit_limit: 0 });
       expect(result.isValid).toBe(false);
     });
 
     it('fails when credit_limit is negative', () => {
-      const result = validateCreditCardAccount({ type: 'Cartão de Crédito', credit_limit: -100 });
+      const result = validateCreditCardAccount({ type: 'credit_card', credit_limit: -100 });
       expect(result.isValid).toBe(false);
     });
   });
@@ -52,7 +52,7 @@ describe('validateCreditCardAccount', () => {
   describe('credit-card accounts (account_subtype field)', () => {
     it('identifies credit card by account_subtype regardless of type field', () => {
       const result = validateCreditCardAccount({
-        type: 'Outros',
+        type: 'other',
         account_subtype: 'credit_card',
         initial_balance: 200,
         credit_limit: 1000,

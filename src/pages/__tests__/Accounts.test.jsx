@@ -57,8 +57,8 @@ describe('Accounts page', () => {
 
   it('lists accounts when provided', async () => {
     const accounts = [
-      { id: '1', name: 'Nubank', type: 'Conta Corrente', balance: 1500, currency: 'BRL', color: '#8A2BE2', account_subtype: 'checking' },
-      { id: '2', name: 'Bradesco', type: 'Poupança', balance: 3200, currency: 'BRL', color: '#cc0000', account_subtype: 'savings' },
+      { id: '1', name: 'Nubank', type: 'checking', balance: 1500, currency: 'BRL', color: '#8A2BE2', account_subtype: 'checking' },
+      { id: '2', name: 'Bradesco', type: 'savings', balance: 3200, currency: 'BRL', color: '#cc0000', account_subtype: 'savings' },
     ];
     renderContas(accounts);
     expect(screen.getAllByText(/nubank/i).length).toBeGreaterThan(0);
@@ -74,7 +74,7 @@ describe('Accounts page', () => {
 
   it('calls removeAccount when delete is confirmed', async () => {
     const accounts = [
-      { id: 'acc-del', name: 'Delete Me', type: 'Conta Corrente', balance: 0, currency: 'BRL', color: '#000', account_subtype: 'checking' },
+      { id: 'acc-del', name: 'Delete Me', type: 'checking', balance: 0, currency: 'BRL', color: '#000', account_subtype: 'checking' },
     ];
     renderContas(accounts);
 

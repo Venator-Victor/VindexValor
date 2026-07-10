@@ -325,7 +325,7 @@ const InvoicesPage = () => {
                     label={t('common.account')}
                     value={formData.account_id}
                     onChange={e => setFormData({...formData, account_id: e.target.value})}
-                    options={accounts.filter(a => a.type === 'Cartão de Crédito' || a.account_subtype === 'credit_card').map(a => ({ label: a.name, value: a.id }))}
+                    options={accounts.filter(a => a.type === 'credit_card' || a.account_subtype === 'credit_card').map(a => ({ label: a.name, value: a.id }))}
                   />
                 </div>
                 <div>
@@ -527,7 +527,7 @@ const InvoicesPage = () => {
                 label={t('common.account')}
                 value={editFormData.account_id}
                 onChange={e => setEditFormData({...editFormData, account_id: e.target.value})}
-                options={accounts.filter(a => a.type === 'Cartão de Crédito' || a.account_subtype === 'credit_card').map(a => ({ label: a.name, value: a.id }))}
+                options={accounts.filter(a => a.type === 'credit_card' || a.account_subtype === 'credit_card').map(a => ({ label: a.name, value: a.id }))}
               />
             </div>
             <div>

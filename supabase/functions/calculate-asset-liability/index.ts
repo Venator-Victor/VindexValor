@@ -31,9 +31,9 @@ Deno.serve(async (req)=>{
     const { data: accounts, error: accError } = await supabaseClient.from('accounts').select('id, type, balance').eq('user_id', userId);
     if (accError) throw accError;
     const LIABILITY_TYPES = [
-      'Cartão de Crédito',
-      'Empréstimos',
-      'Financiamento'
+      'credit_card',
+      'loan',
+      'financing'
     ];
     const accountMap = {};
     let currentAssets = 0;

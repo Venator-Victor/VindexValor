@@ -52,7 +52,7 @@ const txBase = {
   conta_destino_id: null,
   categoria_id: 'cat-1',
   categorias: { id: 'cat-1', name: 'Food', color: '#ff0', icon: 'bx bx-food' },
-  contas: { id: 'acc-1', name: 'Nubank', type: 'Conta Corrente', color: '#8A2BE2', currency: 'BRL' },
+  contas: { id: 'acc-1', name: 'Nubank', type: 'checking', color: '#8A2BE2', currency: 'BRL' },
   conta_destino: null,
   faturas: null,
   is_recurring: false,
@@ -60,7 +60,7 @@ const txBase = {
 
 function renderTransacoes(transactions = []) {
   financeValue.transactions = transactions;
-  financeValue.accounts = [{ id: 'acc-1', name: 'Nubank', type: 'Conta Corrente', currency: 'BRL', color: '#8A2BE2' }];
+  financeValue.accounts = [{ id: 'acc-1', name: 'Nubank', type: 'checking', currency: 'BRL', color: '#8A2BE2' }];
   financeValue.categories = [{ id: 'cat-1', name: 'Food', color: '#ff0', icon: 'bx bx-food' }];
   return render(
     <MemoryRouter>

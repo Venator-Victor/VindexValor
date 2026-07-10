@@ -10,8 +10,8 @@ import { defaultFinanceValue } from '@/test-utils/renderWithProviders';
 const financeValue = {
   ...defaultFinanceValue,
   accounts: [
-    { id: 'acc-1', name: 'Nubank', type: 'Conta Corrente', currency: 'BRL' },
-    { id: 'acc-2', name: 'Bradesco', type: 'Conta Corrente', currency: 'BRL' },
+    { id: 'acc-1', name: 'Nubank', type: 'checking', currency: 'BRL' },
+    { id: 'acc-2', name: 'Bradesco', type: 'checking', currency: 'BRL' },
   ],
   categories: [
     { id: 'cat-1', name: 'Alimentação', color: '#ff0', icon: 'bx bx-food' },

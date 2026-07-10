@@ -131,25 +131,25 @@ describe('FinanceContext – accounts', () => {
   });
 
   it('createAccount adds the account to state', async () => {
-    const acc = { id: 'acc-1', name: 'Test Bank', type: 'Conta Corrente', initial_balance: 0 };
+    const acc = { id: 'acc-1', name: 'Test Bank', type: 'checking', initial_balance: 0 };
     mockBuilder.single.mockResolvedValueOnce({ data: acc, error: null });
 
     const { result } = renderHook(() => useFinance(), { wrapper });
     await act(async () => {
-      await result.current.createAccount({ name: 'Test Bank', type: 'Conta Corrente', account_subtype: 'checking', currency: 'BRL' });
+      await result.current.createAccount({ name: 'Test Bank', type: 'checking', account_subtype: 'checking', currency: 'BRL' });
     });
 
     expect(result.current.accounts.some(a => a.id === 'acc-1')).toBe(true);
   });
 
   it('removeAccount removes the account from state', async () => {
-    const acc = { id: 'acc-del', name: 'Remove Me', type: 'Conta Corrente', initial_balance: 0 };
+    const acc = { id: 'acc-del', name: 'Remove Me', type: 'checking', initial_balance: 0 };
     mockBuilder.single.mockResolvedValueOnce({ data: acc, error: null });
 
     const { result } = renderHook(() => useFinance(), { wrapper });
 
     await act(async () => {
-      await result.current.createAccount({ name: 'Remove Me', type: 'Conta Corrente', account_subtype: 'checking', currency: 'BRL' });
+      await result.current.createAccount({ name: 'Remove Me', type: 'checking', account_subtype: 'checking', currency: 'BRL' });
     });
     await act(async () => {
       await result.current.removeAccount('acc-del');
@@ -162,7 +162,7 @@ describe('FinanceContext – accounts', () => {
     const { result } = renderHook(() => useFinance(), { wrapper });
     await expect(
       act(async () => {
-        await result.current.createAccount({ name: 'Card', type: 'Cartão de Crédito', account_subtype: 'credit_card', credit_limit: 0, currency: 'BRL' });
+        await result.current.createAccount({ name: 'Card', type: 'credit_card', account_subtype: 'credit_card', credit_limit: 0, currency: 'BRL' });
       })
     ).rejects.toThrow();
   });

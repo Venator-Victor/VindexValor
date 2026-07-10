@@ -19,9 +19,9 @@ const AccountDetailModal = ({ isOpen, onClose, account, transactions, onEdit, on
 
   if (!account) return null;
 
-  const isCreditCard = account.type === 'Cartão de Crédito' || account.account_subtype === 'credit_card';
+  const isCreditCard = account.type === 'credit_card' || account.account_subtype === 'credit_card';
   const getAccountTypeLabel = (type) => t(ACCOUNT_TYPE_LABEL_KEYS[type] || type);
-  const typeLabel = account.type === 'Criptomoeda' && account.currency
+  const typeLabel = account.type === 'crypto' && account.currency
     ? `${getAccountTypeLabel(account.type)} (${account.currency})`
     : getAccountTypeLabel(account.type);
 

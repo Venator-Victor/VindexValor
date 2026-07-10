@@ -209,7 +209,7 @@ const Accounts = () => {
                           {account.name} {account.currency && `(${account.currency})`}
                         </h3>
                         <p className="text-sm text-gray-700 dark:text-gray-300">
-                          {account.type === 'Criptomoeda' && account.currency ? `${getAccountTypeLabel(account.type)} (${account.currency})` : getAccountTypeLabel(account.type)}
+                          {account.type === 'crypto' && account.currency ? `${getAccountTypeLabel(account.type)} (${account.currency})` : getAccountTypeLabel(account.type)}
                         </p>
                       </div>
                     </div>
@@ -220,7 +220,7 @@ const Accounts = () => {
                     <p className="text-gray-900 dark:text-gray-50 font-medium">{account.bank || '-'}</p>
                   </div>
 
-                  {account.type === 'Cartão de Crédito' || account.account_subtype === 'credit_card' ? (
+                  {account.type === 'credit_card' || account.account_subtype === 'credit_card' ? (
                     <div className="flex justify-between items-center mb-2">
                       <div>
                         <p className="text-sm text-gray-700 dark:text-gray-300 mb-1">{t('accounts.current_invoice')}</p>
@@ -285,13 +285,13 @@ const Accounts = () => {
                                   </div>
                                </td>
                                <td className="px-6 py-4 text-gray-700 dark:text-gray-300">
-                                  {account.type === 'Criptomoeda' && account.currency ? `${getAccountTypeLabel(account.type)} (${account.currency})` : getAccountTypeLabel(account.type)}
+                                  {account.type === 'crypto' && account.currency ? `${getAccountTypeLabel(account.type)} (${account.currency})` : getAccountTypeLabel(account.type)}
                                </td>
                                <td className="px-6 py-4 text-gray-900 dark:text-gray-50 font-medium">
                                   {account.bank || '-'}
                                </td>
                                <td className="px-6 py-4">
-                                  {(account.type === 'Cartão de Crédito' || account.account_subtype === 'credit_card') ? (
+                                  {(account.type === 'credit_card' || account.account_subtype === 'credit_card') ? (
                                      <span className="font-bold text-red-600 dark:text-vindex-danger crypto-symbol">
                                        {formatCurrencyWithSymbol(account.current_fatura_value || 0, account.currency)}
                                      </span>
@@ -302,7 +302,7 @@ const Accounts = () => {
                                   )}
                                </td>
                                <td className="px-6 py-4 text-gray-600 dark:text-gray-400 crypto-symbol">
-                                  {(account.type === 'Cartão de Crédito' || account.account_subtype === 'credit_card') ? (
+                                  {(account.type === 'credit_card' || account.account_subtype === 'credit_card') ? (
                                     <span>{formatCurrencyWithSymbol(account.available_limit || 0, account.currency)} {t('accounts.available_suffix')}</span>
                                   ) : (
                                     <span>{formatCurrencyWithSymbol(account.initial_balance, account.currency)}</span>

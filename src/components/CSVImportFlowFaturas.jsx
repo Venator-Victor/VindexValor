@@ -27,7 +27,7 @@ const CSVImportFlowFaturas = ({ onSuccess, onCancel }) => {
   const fileInputRef = useRef(null);
 
   const creditCardAccounts = accounts.filter(
-    a => a.type === 'Cartão de Crédito' || a.account_subtype === 'credit_card'
+    a => a.type === 'credit_card' || a.account_subtype === 'credit_card'
   );
 
   const handleFileSelected = (e) => {

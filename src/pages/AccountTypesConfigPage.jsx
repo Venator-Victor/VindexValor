@@ -2,7 +2,7 @@ import React from 'react';
 import { useTranslation } from 'react-i18next';
 import { Helmet } from 'react-helmet';
 import { Cog as Settings, InfoCircle as Info } from '@/components/BxIcon';
-import { ACCOUNT_SUBTYPE_MAP } from '@/utils/accountMappings';
+import { ACCOUNT_SUBTYPE_MAP, ACCOUNT_TYPE_LABEL_KEYS } from '@/utils/accountMappings';
 
 const AccountTypesConfigPage = () => {
   const { t } = useTranslation();
@@ -32,7 +32,8 @@ const AccountTypesConfigPage = () => {
         description = t('account_types.other_desc');
     }
 
-    return { typeName, subtypeCode, description };
+    const label = t(ACCOUNT_TYPE_LABEL_KEYS[typeName] || typeName);
+    return { typeName, label, subtypeCode, description };
   });
 
   return (
@@ -71,7 +72,7 @@ const AccountTypesConfigPage = () => {
             <tbody className="divide-y">
               {accountTypes.map((item, index) => (
                 <tr key={index} className="hover:bg-muted/30 transition-colors">
-                  <td className="p-4 font-semibold">{item.typeName}</td>
+                  <td className="p-4 font-semibold">{item.label}</td>
                   <td className="p-4">
                     <span className="px-2.5 py-1 rounded-md bg-secondary text-secondary-foreground font-mono text-xs">
                       {item.subtypeCode}
