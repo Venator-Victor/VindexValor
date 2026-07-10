@@ -12,6 +12,9 @@ import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, 
 import { formatCurrency, formatCurrencyWithSymbol } from '@/utils/calculations';
 import InvoiceItemList from '@/components/InvoiceItemList';
 import InvoiceItemForm from '@/components/InvoiceItemForm';
+import InvoiceItemSelectionBar from '@/components/InvoiceItemSelectionBar';
+import InvoiceItemDetailModal from '@/components/InvoiceItemDetailModal';
+import DeleteConfirmationDialog from '@/components/DeleteConfirmationDialog';
 import { supabase } from '@/lib/customSupabaseClient';
 import { useToast } from '@/components/ui/use-toast';
 import { DANGER } from '@/utils/colors';
@@ -37,6 +40,9 @@ const InvoiceDetailPage = () => {
   
   const [isFormOpen, setIsFormOpen] = useState(false);
   const [editingCompra, setEditingCompra] = useState(null);
+  const [selectedItemIds, setSelectedItemIds] = useState([]);
+  const [deleteItemId, setDeleteItemId] = useState(null);
+  const [selectedDetailItem, setSelectedDetailItem] = useState(null);
 
   const [isPaymentModalOpen, setIsPaymentModalOpen] = useState(false);
   const [eligiblePayments, setEligiblePayments] = useState([]);
@@ -80,6 +86,10 @@ const InvoiceDetailPage = () => {
   };
 
   useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect -- clears item selection/dialogs when the route param (`id`) changes to a different invoice.
+    setSelectedItemIds([]);
+    setDeleteItemId(null);
+    setSelectedDetailItem(null);
     if (!id || !isValidUUID(id)) {
       // eslint-disable-next-line react-hooks/set-state-in-effect -- validates the route param and mirrors the result into state used for the error view; no external system involved but needs to react to `id` changes.
       setUuidError(t('invoice_detail.invalid_id'));
@@ -187,8 +197,11 @@ const InvoiceDetailPage = () => {
     setIsFormOpen(true);
   };
 
-  const handleDeleteCompra = async (compraId) => {
-    await deleteInvoiceItem(compraId, id);
+  const confirmDeleteItem = async () => {
+    if (!deleteItemId) return;
+    await deleteInvoiceItem(deleteItemId, id);
+    setDeleteItemId(null);
+    setSelectedDetailItem(null);
     loadData();
   };
 
@@ -352,15 +365,40 @@ const InvoiceDetailPage = () => {
         </Button>
       </div>
 
-      <InvoiceItemList 
+      <InvoiceItemList
         items={items}
         onEdit={handleEditCompra}
-        onDelete={handleDeleteCompra}
+        onDelete={(itemId) => setDeleteItemId(itemId)}
+        onRowClick={setSelectedDetailItem}
+        selectedIds={selectedItemIds}
+        onSelectionChange={setSelectedItemIds}
+      />
+
+      <InvoiceItemDetailModal
+        isOpen={!!selectedDetailItem}
+        onClose={() => setSelectedDetailItem(null)}
+        item={selectedDetailItem}
+        onEdit={handleEditCompra}
+        onDelete={(itemId) => setDeleteItemId(itemId)}
+      />
+
+      <DeleteConfirmationDialog
+        open={!!deleteItemId}
+        onOpenChange={() => setDeleteItemId(null)}
+        description={t('invoice_detail.delete_item_confirm')}
+        onConfirm={confirmDeleteItem}
+      />
+
+      <InvoiceItemSelectionBar
+        selectedIds={selectedItemIds}
+        items={items}
+        onClearSelection={() => setSelectedItemIds([])}
+        onRefresh={loadData}
       />
 
       {/* Modal: Add/Edit Compra */}
       <Dialog open={isFormOpen} onOpenChange={setIsFormOpen}>
-        <DialogContent className="sm:max-w-[425px]">
+        <DialogContent className="sm:max-w-[500px]">
           <DialogHeader>
             <DialogTitle>{editingCompra ? t('invoice_detail.edit_transaction') : t('invoice_detail.add_transaction')}</DialogTitle>
           </DialogHeader>

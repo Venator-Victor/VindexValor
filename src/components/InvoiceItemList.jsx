@@ -3,7 +3,7 @@ import { useTranslation } from 'react-i18next';
 import { formatCurrency } from '@/utils/calculations';
 import { Edit as Edit2, TrashAlt as Trash2, ArrowDownRight, ArrowUpRight, ArrowUp, ArrowDown } from '@/components/BxIcon';
 import { Button } from '@/components/ui/button';
-import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from '@/components/ui/alert-dialog';
+import { Checkbox } from '@/components/ui/checkbox';
 import { PRIMARY, DANGER } from '@/utils/colors';
 
 const SortIcon = ({ column, sortConfig }) => {
@@ -11,15 +11,23 @@ const SortIcon = ({ column, sortConfig }) => {
   return sortConfig.direction === 'ascending' ? <ArrowUp className="w-4 h-4 text-primary" /> : <ArrowDown className="w-4 h-4 text-primary" />;
 };
 
-const InvoiceItemList = ({ items, onEdit, onDelete }) => {
+const InvoiceItemList = ({ items, onEdit, onDelete, onRowClick, selectedIds = [], onSelectionChange }) => {
   const { t } = useTranslation();
-  const [deleteId, setDeleteId] = useState(null);
   const [sortConfig, setSortConfig] = useState({ key: 'date', direction: 'descending' });
 
-  const handleDelete = () => {
-    if (deleteId) {
-      onDelete(deleteId);
-      setDeleteId(null);
+  const toggleSelectAll = () => {
+    if (selectedIds.length === items.length && items.length > 0) {
+      onSelectionChange([]);
+    } else {
+      onSelectionChange(items.map(i => i.id));
+    }
+  };
+
+  const toggleSelect = (id) => {
+    if (selectedIds.includes(id)) {
+      onSelectionChange(selectedIds.filter(selId => selId !== id));
+    } else {
+      onSelectionChange([...selectedIds, id]);
     }
   };
 
@@ -81,35 +89,41 @@ const InvoiceItemList = ({ items, onEdit, onDelete }) => {
   return (
     <div className="bg-white dark:bg-vindex-card rounded-xl border border-gray-200 dark:border-vindex-border overflow-hidden shadow-sm">
       <div className="overflow-x-auto">
-        <table className="w-full min-w-[720px] text-sm text-left table-fixed">
+        <table className="w-full min-w-[760px] text-sm text-left table-fixed">
           <thead className="bg-gray-50 dark:bg-vindex-bg border-b border-gray-200 dark:border-vindex-border">
             <tr>
-              <th className="px-6 py-3 w-[12%] font-medium text-gray-700 dark:text-gray-300">
+              <th className="px-6 py-3 w-[5%]">
+                <Checkbox
+                  checked={items.length > 0 && selectedIds.length === items.length}
+                  onCheckedChange={toggleSelectAll}
+                />
+              </th>
+              <th className="px-6 py-3 w-[11%] font-medium text-gray-700 dark:text-gray-300">
                 <button onClick={() => requestSort('date')} className="flex items-center gap-1.5 hover:text-foreground">
-                  {t('invoice_detail.col_date')} <SortIcon column="data" sortConfig={sortConfig} />
+                  {t('invoice_detail.col_date')} <SortIcon column="date" sortConfig={sortConfig} />
                 </button>
               </th>
-              <th className="px-6 py-3 w-[30%] font-medium text-gray-700 dark:text-gray-300">
+              <th className="px-6 py-3 w-[27%] font-medium text-gray-700 dark:text-gray-300">
                 <button onClick={() => requestSort('description')} className="flex items-center gap-1.5 hover:text-foreground">
                   {t('invoice_detail.col_status_description')} <SortIcon column="description" sortConfig={sortConfig} />
                 </button>
               </th>
-              <th className="px-6 py-3 w-[15%] font-medium text-gray-700 dark:text-gray-300">
+              <th className="px-6 py-3 w-[14%] font-medium text-gray-700 dark:text-gray-300">
                 <button onClick={() => requestSort('tipo')} className="flex items-center gap-1.5 hover:text-foreground">
                   {t('invoice_detail.col_type')} <SortIcon column="tipo" sortConfig={sortConfig} />
                 </button>
               </th>
-              <th className="px-6 py-3 w-[18%] font-medium text-gray-700 dark:text-gray-300">
+              <th className="px-6 py-3 w-[16%] font-medium text-gray-700 dark:text-gray-300">
                 <button onClick={() => requestSort('categoria')} className="flex items-center gap-1.5 hover:text-foreground">
                   {t('common.category')} <SortIcon column="categoria" sortConfig={sortConfig} />
                 </button>
               </th>
-              <th className="px-6 py-3 w-[15%] font-medium text-gray-700 dark:text-gray-300">
+              <th className="px-6 py-3 w-[14%] font-medium text-gray-700 dark:text-gray-300">
                 <button onClick={() => requestSort('amount')} className="flex items-center gap-1.5 justify-end w-full hover:text-foreground">
                   {t('common.amount')} <SortIcon column="amount" sortConfig={sortConfig} />
                 </button>
               </th>
-              <th className="px-6 py-3 w-[10%] text-right font-medium text-gray-700 dark:text-gray-300">{t('invoice_detail.col_actions')}</th>
+              <th className="px-6 py-3 w-[13%] text-right font-medium text-gray-700 dark:text-gray-300">{t('invoice_detail.col_actions')}</th>
             </tr>
           </thead>
           <tbody className="divide-y divide-gray-200 dark:divide-vindex-border">
@@ -118,7 +132,19 @@ const InvoiceItemList = ({ items, onEdit, onDelete }) => {
               const valColor = isSaida ? 'text-red-600 dark:text-red-400' : c.amount > 0 ? 'text-green-600 dark:text-green-400' : 'text-foreground';
               
               return (
-                <tr key={c.id} className="hover:bg-gray-50 dark:hover:bg-vindex-bg/50 transition-colors">
+                <tr
+                  key={c.id}
+                  onClick={() => onRowClick && onRowClick(c)}
+                  className={`cursor-pointer transition-colors ${selectedIds.includes(c.id) ? 'bg-primary/5 dark:bg-primary/10' : ''}`}
+                  onMouseEnter={e => e.currentTarget.style.backgroundColor = PRIMARY + '18'}
+                  onMouseLeave={e => e.currentTarget.style.backgroundColor = ''}
+                >
+                  <td className="px-6 py-4" onClick={(e) => e.stopPropagation()}>
+                    <Checkbox
+                      checked={selectedIds.includes(c.id)}
+                      onCheckedChange={() => toggleSelect(c.id)}
+                    />
+                  </td>
                   <td className="px-6 py-4 whitespace-nowrap text-gray-700 dark:text-gray-300">{formatDate(c.date)}</td>
                   <td className="px-6 py-4 font-medium text-gray-900 dark:text-gray-50 truncate" title={c.description}>{c.description}</td>
                   <td className="px-6 py-4">
@@ -145,7 +171,7 @@ const InvoiceItemList = ({ items, onEdit, onDelete }) => {
                       <Button
                         size="sm"
                         variant="outline"
-                        onClick={() => onEdit(c)}
+                        onClick={(e) => { e.stopPropagation(); onEdit(c); }}
                         className="h-8 w-8 p-0 rounded-lg border transition-colors bg-transparent"
                         style={{ borderColor: PRIMARY, color: PRIMARY }}
                         onMouseEnter={e => { e.currentTarget.style.backgroundColor = PRIMARY; e.currentTarget.style.color = '#000'; }}
@@ -156,7 +182,7 @@ const InvoiceItemList = ({ items, onEdit, onDelete }) => {
                       <Button
                         size="sm"
                         variant="outline"
-                        onClick={() => setDeleteId(c.id)}
+                        onClick={(e) => { e.stopPropagation(); onDelete(c.id); }}
                         className="h-8 w-8 p-0 rounded-lg border transition-colors bg-transparent"
                         style={{ borderColor: DANGER, color: DANGER }}
                         onMouseEnter={e => { e.currentTarget.style.backgroundColor = DANGER; e.currentTarget.style.color = '#fff'; }}
@@ -172,28 +198,13 @@ const InvoiceItemList = ({ items, onEdit, onDelete }) => {
           </tbody>
           <tfoot className="bg-gray-50 dark:bg-vindex-bg font-bold border-t border-gray-200 dark:border-vindex-border">
             <tr>
-              <td colSpan="4" className="px-6 py-3 text-right text-gray-900 dark:text-gray-50">{t('invoice_detail.net_invoice_total')}</td>
+              <td colSpan="5" className="px-6 py-3 text-right text-gray-900 dark:text-gray-50">{t('invoice_detail.net_invoice_total')}</td>
               <td className={`px-6 py-3 text-right whitespace-nowrap ${totalColor}`}>{formatCurrency(total)}</td>
               <td></td>
             </tr>
           </tfoot>
         </table>
       </div>
-
-      <AlertDialog open={!!deleteId} onOpenChange={() => setDeleteId(null)}>
-        <AlertDialogContent>
-          <AlertDialogHeader>
-            <AlertDialogTitle>{t('common.delete_confirm_title')}</AlertDialogTitle>
-            <AlertDialogDescription>
-              {t('invoice_detail.delete_item_confirm')}
-            </AlertDialogDescription>
-          </AlertDialogHeader>
-          <AlertDialogFooter>
-            <AlertDialogCancel>{t('common.cancel')}</AlertDialogCancel>
-            <AlertDialogAction onClick={handleDelete} className="bg-destructive text-destructive-foreground">{t('common.delete')}</AlertDialogAction>
-          </AlertDialogFooter>
-        </AlertDialogContent>
-      </AlertDialog>
     </div>
   );
 };

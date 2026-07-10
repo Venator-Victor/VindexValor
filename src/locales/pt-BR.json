@@ -673,7 +673,24 @@
     "col_status_description": "Status (Descrição)",
     "col_type": "Tipo",
     "net_invoice_total": "Líquido da Fatura:",
-    "delete_item_confirm": "Tem certeza que deseja excluir esta movimentação?"
+    "delete_item_confirm": "Tem certeza que deseja excluir esta movimentação?",
+    "bulk_selected_count": "{{count}} item(ns) selecionado(s)",
+    "bulk_total": "Total",
+    "bulk_change_category": "Alterar Categoria",
+    "bulk_delete_button": "Excluir",
+    "bulk_deleted_success_desc": "{{count}} item(ns) excluído(s).",
+    "bulk_delete_error_title": "Erro ao excluir",
+    "bulk_delete_confirm_title": "Excluir {{count}} item(ns)?",
+    "bulk_delete_confirm_desc": "Esta ação não pode ser desfeita. Isso removerá os itens selecionados desta fatura.",
+    "bulk_deleting": "Excluindo...",
+    "bulk_confirm_delete": "Confirmar Exclusão",
+    "bulk_category_modal_title": "Alterar Categoria ({{count}} selecionados)",
+    "bulk_new_category_label": "Nova Categoria",
+    "bulk_no_category_option": "Sem Categoria",
+    "bulk_categories_updated_title": "Categorias Atualizadas",
+    "bulk_categories_updated_desc": "Itens atualizados com sucesso.",
+    "bulk_update_error_title": "Erro ao atualizar",
+    "bulk_save_changes": "Salvar Alterações"
   },
 
   "analytics": {

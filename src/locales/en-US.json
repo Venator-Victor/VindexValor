@@ -673,7 +673,24 @@
     "col_status_description": "Status (Description)",
     "col_type": "Type",
     "net_invoice_total": "Invoice Net Total:",
-    "delete_item_confirm": "Are you sure you want to delete this transaction?"
+    "delete_item_confirm": "Are you sure you want to delete this transaction?",
+    "bulk_selected_count": "{{count}} item(s) selected",
+    "bulk_total": "Total",
+    "bulk_change_category": "Change Category",
+    "bulk_delete_button": "Delete",
+    "bulk_deleted_success_desc": "{{count}} item(s) deleted.",
+    "bulk_delete_error_title": "Error deleting",
+    "bulk_delete_confirm_title": "Delete {{count}} item(s)?",
+    "bulk_delete_confirm_desc": "This action cannot be undone. This will remove the selected items from this invoice.",
+    "bulk_deleting": "Deleting...",
+    "bulk_confirm_delete": "Confirm Deletion",
+    "bulk_category_modal_title": "Change Category ({{count}} selected)",
+    "bulk_new_category_label": "New Category",
+    "bulk_no_category_option": "No Category",
+    "bulk_categories_updated_title": "Categories Updated",
+    "bulk_categories_updated_desc": "Items updated successfully.",
+    "bulk_update_error_title": "Error updating",
+    "bulk_save_changes": "Save Changes"
   },
 
   "analytics": {

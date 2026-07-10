@@ -10,6 +10,7 @@ import NumberInput from '@/components/ui/NumberInput';
 import { ArrowDownRight, ArrowUpRight } from '@/components/BxIcon';
 import { supabase } from '@/lib/customSupabaseClient';
 import { buildFlatIndentedOptions } from '@/utils/categoryTree';
+import { SUCCESS, PRIMARY } from '@/utils/colors';
 
 const InvoiceItemForm = ({ invoiceId, initialData, onSuccess, onCancel }) => {
   const { t } = useTranslation();
@@ -19,7 +20,7 @@ const InvoiceItemForm = ({ invoiceId, initialData, onSuccess, onCancel }) => {
   const [type, setType] = useState('expense');
 
   const [formData, setFormData] = useState({
-    data: new Date().toISOString().split('T')[0],
+    date: new Date().toISOString().split('T')[0],
     description: '',
     category_id: '',
     account_id: '',
@@ -125,7 +126,7 @@ const InvoiceItemForm = ({ invoiceId, initialData, onSuccess, onCancel }) => {
         <DatePicker
           label={t('invoice_detail.item_form_date_label')}
           value={formData.date}
-          onChange={(e) => setFormData({ ...formData, data: e.target.value })}
+          onChange={(e) => setFormData({ ...formData, date: e.target.value })}
         />
       </div>
 
@@ -191,15 +192,32 @@ const InvoiceItemForm = ({ invoiceId, initialData, onSuccess, onCancel }) => {
         </div>
       </div>
 
-      <div className="flex justify-end gap-2 pt-4 border-t mt-6">
+      <div className="flex gap-2 pt-4">
+        <Button
+          type="submit"
+          variant="outline"
+          disabled={isSubmitting}
+          className="flex-1 font-medium rounded-lg transition-colors bg-transparent"
+          style={{ borderColor: SUCCESS, color: SUCCESS }}
+          onMouseEnter={e => { e.currentTarget.style.backgroundColor = SUCCESS; e.currentTarget.style.color = '#fff'; }}
+          onMouseLeave={e => { e.currentTarget.style.backgroundColor = 'transparent'; e.currentTarget.style.color = SUCCESS; }}
+        >
+          {isSubmitting ? t('common.saving') : t('invoice_detail.item_form_save')}
+        </Button>
         {onCancel && (
-          <Button type="button" variant="ghost" onClick={onCancel} disabled={isSubmitting}>
+          <Button
+            type="button"
+            variant="outline"
+            onClick={onCancel}
+            disabled={isSubmitting}
+            className="flex-1 rounded-lg border transition-colors bg-transparent"
+            style={{ borderColor: PRIMARY, color: PRIMARY }}
+            onMouseEnter={e => { e.currentTarget.style.backgroundColor = PRIMARY; e.currentTarget.style.color = '#000'; }}
+            onMouseLeave={e => { e.currentTarget.style.backgroundColor = 'transparent'; e.currentTarget.style.color = PRIMARY; }}
+          >
             {t('common.cancel')}
           </Button>
         )}
-        <Button type="submit" disabled={isSubmitting}>
-          {isSubmitting ? t('common.saving') : t('invoice_detail.item_form_save')}
-        </Button>
       </div>
     </form>
   );
