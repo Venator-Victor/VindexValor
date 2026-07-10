@@ -111,9 +111,9 @@ export const useInvoiceCSVImport = () => {
       const finalValor = -numValor;
 
       return {
-        data: parsedDate,
+        date: parsedDate,
         description: rawDesc,
-        valor: finalValor,
+        amount: finalValor,
         category_id: '',
         is_installment: isParcelado,
         parcel_number: current,
@@ -131,9 +131,9 @@ export const useInvoiceCSVImport = () => {
       const dbData = transactions.map(t => ({
         user_id: user.id,
         invoice_id: faturaId,
-        data: t.data,
+        date: t.date,
         description: t.description,
-        valor: t.valor,
+        amount: t.amount,
         category_id: t.category_id || null,
         is_installment: t.is_installment,
         parcel_number: t.parcel_number,

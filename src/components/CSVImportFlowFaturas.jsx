@@ -83,7 +83,7 @@ const CSVImportFlowFaturas = ({ onSuccess, onCancel }) => {
 
         if (parsedData.length === 0) throw new Error(t('invoices.import_no_valid_data'));
 
-        const dates = parsedData.map(m => new Date(m.data)).filter(d => !isNaN(d.getTime()));
+        const dates = parsedData.map(m => new Date(m.date)).filter(d => !isNaN(d.getTime()));
         let autoFaturaName = t('invoices.default_name_fallback');
         let minDateStr = new Date().toISOString().split('T')[0];
         let maxDateStr = new Date().toISOString().split('T')[0];

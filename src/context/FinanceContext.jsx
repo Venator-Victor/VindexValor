@@ -259,7 +259,7 @@ export const FinanceProvider = ({ children }) => {
   // Compras da Fatura Operations
   const fetchInvoiceItems = async (faturaId) => {
     if (!user || !user.id) return [];
-    const { data } = await supabase.from('invoice_items').select('*, categories(name, color)').eq('invoice_id', faturaId).eq('user_id', user.id).order('data', { ascending: false });
+    const { data } = await supabase.from('invoice_items').select('*, categories(name, color)').eq('invoice_id', faturaId).eq('user_id', user.id).order('date', { ascending: false });
     return data || [];
   };
 
