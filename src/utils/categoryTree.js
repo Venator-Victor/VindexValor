@@ -8,7 +8,7 @@ const SUBCATEGORY_PREFIX = '↳ ';
 // anywhere a category is assigned to another entity (transactions,
 // recurring items, invoice items, CSV import, filters).
 export const buildFlatIndentedOptions = (categories = []) => {
-  const topLevel = categories.filter((c) => !c.parent_id);
+  const topLevel = categories.filter((c) => !c.parent_id).sort((a, b) => a.name.localeCompare(b.name));
   const childrenByParent = new Map();
 
   categories.forEach((c) => {

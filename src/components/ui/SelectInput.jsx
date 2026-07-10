@@ -1,9 +1,10 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
 import { motion, AnimatePresence } from 'framer-motion';
-import { ChevronDown, Check, Plus } from '@/components/BxIcon';
+import { ChevronDown, Check, Plus, Search } from '@/components/BxIcon';
 import { cn } from '@/lib/utils';
 import { Label } from '@/components/ui/label';
+import { normalizeText } from '@/utils/text';
 
 const SelectInput = ({
   label,
@@ -16,14 +17,26 @@ const SelectInput = ({
   id,
   showCreateOption = false,
   onCreateNew,
-  currencySymbol = null
+  currencySymbol = null,
+  searchable = false
 }) => {
   const { t } = useTranslation();
   const resolvedPlaceholder = placeholder ?? t('common.select_placeholder');
   const [isOpen, setIsOpen] = useState(false);
+  const [searchTerm, setSearchTerm] = useState('');
   const containerRef = useRef(null);
 
+  // Clear the search box once the dropdown closes (adjust state during render, per React docs).
+  const [wasOpen, setWasOpen] = useState(isOpen);
+  if (isOpen !== wasOpen) {
+    setWasOpen(isOpen);
+    if (!isOpen) setSearchTerm('');
+  }
+
   const selectedOption = options.find(opt => opt.value === value);
+  const visibleOptions = searchable && searchTerm
+    ? options.filter(opt => normalizeText(opt.label).includes(normalizeText(searchTerm)))
+    : options;
 
   useEffect(() => {
     const handleClickOutside = (event) => {
@@ -37,7 +50,7 @@ const SelectInput = ({
   }, []);
 
   const handleSelect = (optionValue) => {
-    onChange({ target: { value: optionValue, name: id } }); 
+    onChange({ target: { value: optionValue, name: id } });
     setIsOpen(false);
   };
 
@@ -89,14 +102,29 @@ const SelectInput = ({
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: -10 }}
             transition={{ duration: 0.15 }}
-            className="absolute z-50 mt-1 max-h-60 w-full overflow-auto rounded-lg border border-gray-200 dark:border-vindex-border bg-white dark:bg-vindex-card py-1 shadow-lg"
+            className="absolute z-50 mt-1 max-h-72 w-full overflow-hidden rounded-lg border border-gray-200 dark:border-vindex-border bg-white dark:bg-vindex-card shadow-lg flex flex-col"
           >
-            {options.length === 0 && !showCreateOption ? (
+            {searchable && (
+              <div className="relative px-2 pt-2 pb-1 shrink-0">
+                <Search className="absolute left-4 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400 dark:text-vindex-text/40" />
+                <input
+                  type="text"
+                  autoFocus
+                  value={searchTerm}
+                  onChange={(e) => setSearchTerm(e.target.value)}
+                  onClick={(e) => e.stopPropagation()}
+                  placeholder={t('common.search_select_placeholder')}
+                  className="w-full rounded-md border border-gray-200 dark:border-vindex-border bg-white dark:bg-vindex-bg pl-8 pr-2 py-1.5 text-sm outline-none focus:border-primary text-gray-900 dark:text-vindex-text"
+                />
+              </div>
+            )}
+            <div className="max-h-60 overflow-auto py-1">
+            {visibleOptions.length === 0 && !showCreateOption ? (
               <div className="px-2 py-2 text-sm text-gray-500 dark:text-vindex-text/60 text-center">
-                {t('common.no_options')}
+                {searchable && searchTerm ? t('common.no_search_results') : t('common.no_options')}
               </div>
             ) : (
-              options.map((option) => (
+              visibleOptions.map((option) => (
                 <button
                   key={option.value}
                   type="button"
@@ -119,7 +147,7 @@ const SelectInput = ({
             
             {showCreateOption && (
               <>
-                {options.length > 0 && <div className="h-px bg-gray-200 dark:bg-vindex-border my-1" />}
+                {visibleOptions.length > 0 && <div className="h-px bg-gray-200 dark:bg-vindex-border my-1" />}
                 <button
                   type="button"
                   onClick={handleCreateNew}
@@ -130,6 +158,7 @@ const SelectInput = ({
                 </button>
               </>
             )}
+            </div>
           </motion.div>
         )}
       </AnimatePresence>

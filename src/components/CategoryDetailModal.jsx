@@ -38,7 +38,7 @@ const CategoryDetailModal = ({ isOpen, onClose, category, categories, transactio
   const categoryTransactions = useMemo(() => {
     if (!category || !transactions) return [];
     return transactions
-      .filter(t => t.category_id === category.id || (t.categories && t.categories.name === category.name))
+      .filter(t => t.category_id === category.id)
       .sort((a, b) => new Date(b.date) - new Date(a.date));
   }, [category, transactions]);
 

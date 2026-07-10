@@ -266,6 +266,7 @@ const Transactions = () => {
                 ...buildFlatIndentedOptions(categories)
               ]}
               className="h-[42px]"
+              searchable
             />
           </div>
 

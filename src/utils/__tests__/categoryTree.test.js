@@ -29,6 +29,16 @@ describe('buildFlatIndentedOptions', () => {
     expect(childLabels).toEqual(['groceries', 'restaurants']);
   });
 
+  it('sorts top-level categories alphabetically regardless of input order', () => {
+    const unordered = [
+      { id: 'transport', name: 'Transporte', parent_id: null },
+      { id: 'food', name: 'Alimentação', parent_id: null },
+      { id: 'housing', name: 'Moradia', parent_id: null },
+    ];
+    const options = buildFlatIndentedOptions(unordered);
+    expect(options.map(o => o.value)).toEqual(['food', 'housing', 'transport']);
+  });
+
   it('surfaces an orphaned child (parent not in the list) as top-level', () => {
     const options = buildFlatIndentedOptions([
       { id: 'orphan', name: 'Órfã', parent_id: 'missing-parent' },

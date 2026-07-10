@@ -69,6 +69,8 @@
     "no_icon_found": "Nenhum ícone encontrado",
     "selected_label": "Selecionado:",
     "no_options": "Sem opções",
+    "search_select_placeholder": "Buscar...",
+    "no_search_results": "Nenhum resultado encontrado.",
     "create_new": "Criar novo(a)",
     "verifying_credentials": "Verificando credenciais de segurança...",
     "budget": "Orçamento",

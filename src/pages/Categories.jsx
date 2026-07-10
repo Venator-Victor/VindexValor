@@ -91,9 +91,7 @@ const Categories = () => {
     const hasBudget = cat.budget_enabled && cat.spending_limit > 0;
     const activityPeriod = hasBudget ? (cat.budget_period || 'monthly') : currentPeriod;
     const { spending, total } = calculateCategoryActivity(cat.id, activityPeriod, transactions);
-    const transactionCount = transactions.filter(t =>
-      t.category_id === cat.id || t.categories?.name === cat.name || t.category === cat.name
-    ).length;
+    const transactionCount = transactions.filter(t => t.category_id === cat.id).length;
     return {
       ...cat,
       currentSpending: spending,
@@ -251,7 +249,7 @@ const Categories = () => {
       return;
     }
 
-    const transactionCount = transactions.filter(t => t.category_id === category.id || t.categories?.name === category.name || t.category === category.name).length;
+    const transactionCount = transactions.filter(t => t.category_id === category.id).length;
     if (transactionCount > 0) {
       toast({
         title: t('categories.cannot_delete_title'),
