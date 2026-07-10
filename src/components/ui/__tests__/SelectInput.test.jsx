@@ -90,4 +90,37 @@ describe('SelectInput', () => {
     list.dispatchEvent(new WheelEvent('wheel', { deltaY: 40, bubbles: true }));
     expect(list.scrollTop).toBe(40);
   });
+
+  describe('multiple mode', () => {
+    it('toggles values in and out of the array and keeps the dropdown open', async () => {
+      const onChange = vi.fn();
+      const { rerender } = render(
+        <SelectInput value={[]} onChange={onChange} options={options} id="test-select" multiple />
+      );
+      await userEvent.click(screen.getByRole('button', { name: 'Selecione...' }));
+      await userEvent.click(screen.getByText('Transporte'));
+      expect(onChange).toHaveBeenCalledWith(expect.objectContaining({ target: expect.objectContaining({ value: ['transport'] }) }));
+
+      rerender(<SelectInput value={['transport']} onChange={onChange} options={options} id="test-select" multiple />);
+      // dropdown stayed open: "Transporte" now appears both as the trigger label and as an option
+      expect(screen.getAllByText('Transporte')).toHaveLength(2);
+
+      await userEvent.click(screen.getByText('Alimentação'));
+      expect(onChange).toHaveBeenCalledWith(expect.objectContaining({ target: expect.objectContaining({ value: ['transport', 'food'] }) }));
+
+      rerender(<SelectInput value={['transport', 'food']} onChange={onChange} options={options} id="test-select" multiple />);
+      await userEvent.click(screen.getByText('Transporte')); // deselect
+      expect(onChange).toHaveBeenLastCalledWith(expect.objectContaining({ target: expect.objectContaining({ value: ['food'] }) }));
+    });
+
+    it('shows a count once more than one option is selected', () => {
+      renderSelect({ value: ['food', 'transport'], multiple: true });
+      expect(screen.getByRole('button', { name: '2 selecionadas' })).toBeInTheDocument();
+    });
+
+    it('shows the single label when exactly one option is selected', () => {
+      renderSelect({ value: ['transport'], multiple: true });
+      expect(screen.getByRole('button', { name: 'Transporte' })).toBeInTheDocument();
+    });
+  });
 });

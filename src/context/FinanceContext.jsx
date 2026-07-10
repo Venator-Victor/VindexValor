@@ -152,7 +152,12 @@ export const FinanceProvider = ({ children }) => {
       // eslint-disable-next-line react-hooks/set-state-in-effect -- fetches all user data from Supabase when auth state changes; setIsLoading(true) runs before the first await, the standard data-fetching pattern.
       fetchAllData();
     }
-  }, [user, session]);
+    // Keyed on user.id, not the user/session objects: Supabase issues a new session
+    // object on every silent token refresh (e.g. when a browser tab regains focus),
+    // which would otherwise re-run this full refetch and reset scroll position/table state
+    // for no reason.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [user?.id]);
 
   useEffect(() => {
     if (settings?.language) {

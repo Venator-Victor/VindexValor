@@ -3,9 +3,11 @@ import Sidebar from './Sidebar';
 import { useFinance } from '@/context/FinanceContext';
 import VindexLogo from './VindexLogo';
 import { Menu } from '@/components/BxIcon';
+import { useScrollRestoration } from '@/hooks/useScrollRestoration';
 
 const Layout = ({ children }) => {
   const { isSidebarCollapsed, toggleMobileMenu } = useFinance();
+  useScrollRestoration();
 
   return (
     <div className="flex min-h-screen bg-gray-50 dark:bg-vindex-bg font-mono text-gray-900 dark:text-vindex-text transition-colors duration-300">

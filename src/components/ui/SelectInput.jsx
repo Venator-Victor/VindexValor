@@ -18,7 +18,8 @@ const SelectInput = ({
   showCreateOption = false,
   onCreateNew,
   currencySymbol = null,
-  searchable = false
+  searchable = false,
+  multiple = false
 }) => {
   const { t } = useTranslation();
   const resolvedPlaceholder = placeholder ?? t('common.select_placeholder');
@@ -32,12 +33,21 @@ const SelectInput = ({
     if (!isOpen) setSearchTerm('');
   }
 
-  const selectedOption = options.find(opt => opt.value === value);
+  const selectedValues = multiple ? (Array.isArray(value) ? value : []) : null;
+  const selectedOption = multiple ? null : options.find(opt => opt.value === value);
+  const isOptionSelected = (optionValue) => multiple ? selectedValues.includes(optionValue) : optionValue === value;
   const visibleOptions = searchable && searchTerm
     ? options.filter(opt => normalizeText(opt.label).includes(normalizeText(searchTerm)))
     : options;
 
   const handleSelect = (optionValue) => {
+    if (multiple) {
+      const next = selectedValues.includes(optionValue)
+        ? selectedValues.filter(v => v !== optionValue)
+        : [...selectedValues, optionValue];
+      onChange({ target: { value: next, name: id } });
+      return;
+    }
     onChange({ target: { value: optionValue, name: id } });
     setIsOpen(false);
   };
@@ -48,6 +58,16 @@ const SelectInput = ({
   };
 
   const getDisplayLabel = () => {
+    if (multiple) {
+      if (selectedValues.length === 0) return resolvedPlaceholder;
+      if (selectedValues.length === 1) {
+        const opt = options.find(o => o.value === selectedValues[0]);
+        return opt ? opt.label : resolvedPlaceholder;
+      }
+      return selectedValues.length > 1
+        ? t('common.selected_count_plural', { count: selectedValues.length })
+        : t('common.selected_count', { count: selectedValues.length });
+    }
     if (selectedOption) {
       return selectedOption.label;
     }
@@ -72,7 +92,7 @@ const SelectInput = ({
               className
             )}
           >
-            <span className={cn("flex items-center gap-2 truncate", !selectedOption && "text-gray-400 dark:text-vindex-text/50")}>
+            <span className={cn("flex items-center gap-2 truncate", (multiple ? selectedValues.length === 0 : !selectedOption) && "text-gray-400 dark:text-vindex-text/50")}>
               {currencySymbol && <span className="text-gray-500 crypto-symbol">{currencySymbol}</span>}
               {getDisplayLabel()}
             </span>
@@ -122,13 +142,25 @@ const SelectInput = ({
                     type="button"
                     onClick={() => handleSelect(option.value)}
                     className={cn(
-                      "relative flex w-full cursor-pointer select-none items-center rounded-sm py-2 pl-3 pr-9 text-sm outline-none transition-colors",
+                      "relative flex w-full cursor-pointer select-none items-center gap-2 rounded-sm py-2 text-sm outline-none transition-colors",
+                      multiple ? "pl-3 pr-3" : "pl-3 pr-9",
                       "hover:bg-gray-100 dark:hover:bg-vindex-bg/50 text-gray-900 dark:text-vindex-text",
-                      option.value === value && "bg-primary/10 text-primary font-medium"
+                      !multiple && isOptionSelected(option.value) && "bg-primary/10 text-primary font-medium"
                     )}
                   >
+                    {multiple && (
+                      <span
+                        aria-hidden="true"
+                        className={cn(
+                          "grid place-content-center h-4 w-4 shrink-0 rounded-sm border border-primary",
+                          isOptionSelected(option.value) && "bg-primary text-primary-foreground"
+                        )}
+                      >
+                        {isOptionSelected(option.value) && <Check className="h-3.5 w-3.5" />}
+                      </span>
+                    )}
                     <span className="block truncate">{option.label}</span>
-                    {option.value === value && (
+                    {!multiple && isOptionSelected(option.value) && (
                       <span className="absolute inset-y-0 right-0 flex items-center pr-3 text-primary">
                         <Check className="h-4 w-4" />
                       </span>

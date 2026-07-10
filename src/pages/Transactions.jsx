@@ -39,7 +39,7 @@ const Transactions = () => {
   const [filters, setFilters] = useState({ type: '', account_id: '' });
   const [searchTerm, setSearchTerm] = useState('');
   const [valueFilterStr, setValueFilterStr] = useState('');
-  const [selectedCategoryId, setSelectedCategoryId] = useState('');
+  const [selectedCategoryIds, setSelectedCategoryIds] = useState([]);
   
   const [dateFilter, setDateFilter] = useState(getDateFilterDefaults());
 
@@ -49,7 +49,7 @@ const Transactions = () => {
       
       if (location.state.filterCategoryId !== undefined) {
         // eslint-disable-next-line react-hooks/set-state-in-effect -- syncs from router navigation state (external system), then clears it via navigate() below.
-        setSelectedCategoryId(location.state.filterCategoryId);
+        setSelectedCategoryIds([location.state.filterCategoryId]);
         stateUpdated = true;
       }
       
@@ -78,14 +78,8 @@ const Transactions = () => {
       const searchLower = searchTerm.toLowerCase();
       const matchesSearch = !searchTerm || (t.description && t.description.toLowerCase().includes(searchLower));
       
-      let matchesCategory = true;
-      if (selectedCategoryId) {
-        if (selectedCategoryId === 'null') {
-          matchesCategory = !t.category_id;
-        } else {
-          matchesCategory = t.category_id === selectedCategoryId;
-        }
-      }
+      const matchesCategory = selectedCategoryIds.length === 0 ||
+        selectedCategoryIds.includes(t.category_id ? t.category_id : 'null');
 
       let matchesValue = true;
       if (parsedValueFilter.isValid && parsedValueFilter.conditions.length > 0) {
@@ -103,7 +97,7 @@ const Transactions = () => {
 
       return matchesType && matchesAccount && matchesSearch && matchesCategory && matchesValue && matchesDate;
     });
-  }, [transactions, filters, searchTerm, valueFilterStr, selectedCategoryId, dateFilter]);
+  }, [transactions, filters, searchTerm, valueFilterStr, selectedCategoryIds, dateFilter]);
 
   const handleEdit = (transaction) => {
     setEditingTransaction(transaction);
@@ -137,7 +131,7 @@ const Transactions = () => {
   const clearFilters = () => {
     setSearchTerm('');
     setValueFilterStr('');
-    setSelectedCategoryId('');
+    setSelectedCategoryIds([]);
     setDateFilter(getDateFilterDefaults());
     setFilters({ tipo: '', account_id: '' });
   };
@@ -145,7 +139,7 @@ const Transactions = () => {
   const activeCount = [
     searchTerm ? 1 : 0,
     valueFilterStr ? 1 : 0,
-    selectedCategoryId ? 1 : 0,
+    selectedCategoryIds.length > 0 ? 1 : 0,
     filters.type ? 1 : 0,
     filters.account_id ? 1 : 0,
     isDateFilterActive(dateFilter) ? 1 : 0
@@ -258,15 +252,16 @@ const Transactions = () => {
 
           <div className="flex flex-col lg:col-span-1">
             <SelectInput
-              value={selectedCategoryId}
-              onChange={(e) => setSelectedCategoryId(e.target.value)}
+              value={selectedCategoryIds}
+              onChange={(e) => setSelectedCategoryIds(e.target.value)}
+              placeholder={t('transactions.all_categories')}
               options={[
-                { label: t('transactions.all_categories'), value: "" },
                 { label: t('common.no_category'), value: "null" },
                 ...buildFlatIndentedOptions(categories)
               ]}
               className="h-[42px]"
               searchable
+              multiple
             />
           </div>
 
