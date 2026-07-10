@@ -24,8 +24,8 @@ const TransactionDetailModal = ({ isOpen, onClose, transaction, onEdit, onDelete
 
   return (
     <Dialog open={isOpen} onOpenChange={(open) => !open && onClose()}>
-      <DialogContent className="sm:max-w-[480px] bg-card text-foreground max-h-[90vh] overflow-y-auto">
-        <div className="flex items-center gap-3">
+      <DialogContent className="sm:max-w-[480px] bg-card text-foreground max-h-[90vh] overflow-y-auto overflow-x-hidden">
+        <div className="flex items-center gap-3 min-w-0">
           <div
             className="w-12 h-12 rounded-xl flex items-center justify-center border shrink-0"
             style={{ backgroundColor: (transaction.categories?.color || typeColor) + '22', borderColor: (transaction.categories?.color || typeColor) + '44' }}
@@ -56,9 +56,9 @@ const TransactionDetailModal = ({ isOpen, onClose, transaction, onEdit, onDelete
           </span>
         </div>
 
-        <div className="grid grid-cols-2 gap-3">
+        <div className="grid grid-cols-2 gap-3 min-w-0">
           {isTransfer ? (
-            <div className="bg-muted/20 p-3 rounded-lg border border-border/50 col-span-2">
+            <div className="bg-muted/20 p-3 rounded-lg border border-border/50 col-span-2 min-w-0">
               <p className="text-xs text-muted-foreground mb-1">{t('common.account')}</p>
               <div className="flex items-center gap-2 text-sm font-medium">
                 <span className="truncate">{transaction.account?.name || 'N/A'}</span>
@@ -68,10 +68,10 @@ const TransactionDetailModal = ({ isOpen, onClose, transaction, onEdit, onDelete
             </div>
           ) : (
             <>
-              <div className="bg-muted/20 p-3 rounded-lg border border-border/50">
+              <div className="bg-muted/20 p-3 rounded-lg border border-border/50 min-w-0">
                 <p className="text-xs text-muted-foreground mb-1">{t('common.category')}</p>
                 {transaction.categories ? (
-                  <div className="flex items-center gap-2">
+                  <div className="flex items-center gap-2 min-w-0">
                     <div className="w-2.5 h-2.5 rounded-full shrink-0" style={{ backgroundColor: transaction.categories.color }} />
                     <span className="text-sm font-medium truncate">{transaction.categories.name}</span>
                   </div>
@@ -79,7 +79,7 @@ const TransactionDetailModal = ({ isOpen, onClose, transaction, onEdit, onDelete
                   <span className="text-sm text-muted-foreground">{t('common.no_category')}</span>
                 )}
               </div>
-              <div className="bg-muted/20 p-3 rounded-lg border border-border/50">
+              <div className="bg-muted/20 p-3 rounded-lg border border-border/50 min-w-0">
                 <p className="text-xs text-muted-foreground mb-1">{t('common.account')}</p>
                 <span className="text-sm font-medium truncate block">{transaction.account?.name || 'N/A'}</span>
               </div>
@@ -87,7 +87,7 @@ const TransactionDetailModal = ({ isOpen, onClose, transaction, onEdit, onDelete
           )}
 
           {transaction.invoices?.invoice_number && (
-            <div className="bg-muted/20 p-3 rounded-lg border border-border/50 col-span-2">
+            <div className="bg-muted/20 p-3 rounded-lg border border-border/50 col-span-2 min-w-0">
               <p className="text-xs text-muted-foreground mb-1">{t('invoices.col_invoice')}</p>
               <span className="text-sm font-medium truncate block">{transaction.invoices.invoice_number}</span>
             </div>
