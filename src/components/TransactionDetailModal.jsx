@@ -37,7 +37,7 @@ const TransactionDetailModal = ({ isOpen, onClose, transaction, onEdit, onDelete
             />
           </div>
           <div className="min-w-0">
-            <DialogTitle className="text-lg font-bold truncate" title={transaction.description || transaction.name}>
+            <DialogTitle className="text-lg font-bold break-words" title={transaction.description || transaction.name}>
               {transaction.description || transaction.name}
             </DialogTitle>
             <p className="text-sm text-muted-foreground">

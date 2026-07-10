@@ -69,4 +69,16 @@ describe('SelectInput', () => {
     expect(screen.getByPlaceholderText('Buscar...')).toHaveValue('');
     expect(screen.getByText('Alimentação')).toBeInTheDocument();
   });
+
+  it('renders the dropdown panel outside an overflow-clipped ancestor (e.g. a modal)', async () => {
+    const { container } = render(
+      <div data-testid="clipping-modal" style={{ overflow: 'hidden', height: 50 }}>
+        <SelectInput value="" onChange={vi.fn()} options={options} id="test-select" />
+      </div>
+    );
+    await userEvent.click(screen.getByRole('button', { name: 'Selecione...' }));
+    const option = await screen.findByText('Transporte');
+    const clippingModal = container.querySelector('[data-testid="clipping-modal"]');
+    expect(clippingModal.contains(option)).toBe(false);
+  });
 });
