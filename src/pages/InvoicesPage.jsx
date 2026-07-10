@@ -19,6 +19,7 @@ import { parseValueFilterString } from '@/components/FilterRangeInput';
 import { supabase } from '@/lib/customSupabaseClient';
 import InvoiceSelectionBar from '@/components/InvoiceSelectionBar';
 import DeleteConfirmationDialog from '@/components/DeleteConfirmationDialog';
+import InvoiceDetailModal from '@/components/InvoiceDetailModal';
 import { PRIMARY, SUCCESS, DANGER } from '@/utils/colors';
 import DateFilterSelect from '@/components/ui/DateFilterSelect';
 import { getDateFilterDefaults, matchesDateFilter } from '@/utils/dateFilter';
@@ -37,6 +38,7 @@ const InvoicesPage = () => {
   const [isImportOpen, setIsImportOpen] = useState(false);
   const [isEditOpen, setIsEditOpen] = useState(false);
   const [deleteId, setDeleteId] = useState(null);
+  const [selectedDetailInvoice, setSelectedDetailInvoice] = useState(null);
 
   const [filteredItems, setComprasFiltro] = useState([]);
   const [isFiltering, setIsFiltering] = useState(false);
@@ -242,7 +244,7 @@ const InvoicesPage = () => {
     }
   };
 
-  const handleRowClick = (invoice) => {
+  const handleEditClick = (invoice) => {
     setEditFormData({
       id: invoice.id,
       invoice_number: invoice.invoice_number || '',
@@ -252,6 +254,10 @@ const InvoicesPage = () => {
       status: invoice.status || 'open'
     });
     setIsEditOpen(true);
+  };
+
+  const handleRowClick = (invoice) => {
+    setSelectedDetailInvoice(invoice);
   };
 
   const requestSort = (key) => {
@@ -530,7 +536,7 @@ const InvoicesPage = () => {
                               <Button
                                 size="sm"
                                 variant="outline"
-                                onClick={() => handleRowClick(invoice)}
+                                onClick={() => handleEditClick(invoice)}
                                 className="h-8 w-8 p-0 rounded-lg border transition-colors bg-transparent"
                                 style={{ borderColor: PRIMARY, color: PRIMARY }}
                                 onMouseEnter={e => { e.currentTarget.style.backgroundColor = PRIMARY; e.currentTarget.style.color = '#000'; }}
@@ -642,6 +648,15 @@ const InvoicesPage = () => {
           </form>
         </DialogContent>
       </Dialog>
+
+      <InvoiceDetailModal
+        isOpen={!!selectedDetailInvoice}
+        onClose={() => setSelectedDetailInvoice(null)}
+        invoice={selectedDetailInvoice}
+        total={selectedDetailInvoice ? (invoiceTotals[selectedDetailInvoice.id] || 0) : 0}
+        onEdit={(invoice) => handleEditClick(invoice)}
+        onDelete={(id) => setDeleteId(id)}
+      />
 
       <DeleteConfirmationDialog
         open={!!deleteId}
