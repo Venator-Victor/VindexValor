@@ -20,6 +20,7 @@ import MetaProgressCard from '@/components/MetaProgressCard';
 import MetaCategorySelector from '@/components/MetaCategorySelector';
 import GaugeSummaryCard from '@/components/GaugeSummaryCard';
 import DeleteConfirmationDialog from '@/components/DeleteConfirmationDialog';
+import EmptyState from '@/components/EmptyState';
 import GoalDetailModal from '@/components/GoalDetailModal';
 import ViewToggle from '@/components/ui/ViewToggle';
 import { useToast } from '@/components/ui/use-toast';
@@ -186,7 +187,7 @@ const Goals = () => {
             {filterType === 'monthly_value' && (
                 <div className="w-full sm:w-40 animate-in fade-in slide-in-from-right-4">
                     <Select value={selectedPeriod} onValueChange={setSelectedPeriod}>
-                        <SelectTrigger className="bg-white dark:bg-vindex-card border-gray-200 dark:border-vindex-border text-gray-700 dark:text-gray-300">
+                        <SelectTrigger className="h-[42px] bg-white dark:bg-vindex-card border-gray-200 dark:border-vindex-border text-gray-700 dark:text-gray-300">
                             <div className="flex items-center gap-2">
                                 <Calendar className="w-4 h-4 text-gray-500" />
                                 <SelectValue />
@@ -203,9 +204,9 @@ const Goals = () => {
                 </div>
             )}
 
-            <div className="flex items-center gap-3 justify-end">
+            <div className="flex items-center gap-4 justify-end">
                 {/* Type Filter Toggle */}
-                <div className="flex items-center bg-white dark:bg-vindex-card rounded-lg border border-gray-200 dark:border-vindex-border p-1 shadow-sm">
+                <div className="flex items-center h-[42px] bg-white dark:bg-vindex-card rounded-lg border border-gray-200 dark:border-vindex-border p-1 shadow-sm">
                     <button
                         onClick={() => setFilterType('target_value')}
                         className={`px-3 py-1.5 text-xs font-medium rounded-md transition-all flex items-center gap-2 ${filterType === 'target_value' ? 'bg-gray-100 dark:bg-vindex-bg text-gray-900 dark:text-gray-100 shadow-sm' : 'text-gray-500 hover:text-gray-700 dark:hover:text-gray-300'}`}
@@ -225,11 +226,11 @@ const Goals = () => {
                 </div>
 
                 {/* View Toggle */}
-                <ViewToggle value={goalsViewMode} onChange={setGoalsViewPreference} />
+                <ViewToggle value={goalsViewMode} onChange={setGoalsViewPreference} className="h-[42px]" />
 
-                <Button 
+                <Button
                     onClick={openNewGoalModal}
-                    className="text-gray-900 rounded-lg border-none font-semibold shadow-md hover:shadow-lg transition-all px-3 sm:px-4"
+                    className="text-gray-900 rounded-lg border-none font-semibold shadow-md hover:shadow-lg transition-all px-3 sm:px-4 h-[42px]"
                     style={{ backgroundColor: CYAN_COLOR }}
                     onMouseEnter={(e) => e.currentTarget.style.backgroundColor = CYAN_HOVER}
                     onMouseLeave={(e) => e.currentTarget.style.backgroundColor = CYAN_COLOR}
@@ -290,18 +291,7 @@ const Goals = () => {
       </AnimatePresence>
 
       {goals.length === 0 ? (
-         <div className="text-center py-16 bg-white dark:bg-vindex-card rounded-xl border border-gray-200 dark:border-vindex-border border-dashed shadow-sm">
-            <div className="mx-auto h-20 w-20 bg-gray-50 dark:bg-gray-800 rounded-full flex items-center justify-center mb-6">
-                <Target className="h-10 w-10 text-gray-400 dark:text-gray-500" />
-            </div>
-            <h3 className="text-lg font-semibold text-gray-900 dark:text-gray-100 mb-2">{t('goals.empty_title')}</h3>
-            <p className="text-gray-500 dark:text-gray-400 mb-8 max-w-sm mx-auto">
-              {t('goals.empty_desc')}
-            </p>
-            <Button onClick={openNewGoalModal} className="bg-gray-900 text-white dark:bg-gray-100 dark:text-gray-900 hover:bg-gray-800 dark:hover:bg-gray-200">
-              {t('goals.create_first')}
-            </Button>
-         </div>
+        <EmptyState icon={Target} message={t('goals.empty_title')} buttonLabel={t('goals.create_first')} onButtonClick={openNewGoalModal} />
       ) : (
         <>
             {/* If goals exist but filter returns empty */}

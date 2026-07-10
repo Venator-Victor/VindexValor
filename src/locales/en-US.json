@@ -380,7 +380,7 @@
     "new_short": "New",
     "edit": "Edit Goal",
     "details": "Goal Details",
-    "empty_title": "No goals found",
+    "empty_title": "You have no goals yet.",
     "empty_desc": "Setting goals is the first step to turning the invisible into the visible. Start now!",
     "create_first": "Create First Goal",
     "filter_empty": "No goals found for this filter.",

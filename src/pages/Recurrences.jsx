@@ -234,14 +234,14 @@ const Recurrences = () => {
         <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-4 w-full md:w-auto">
             <DateFilterSelect value={dateFilter} onChange={setDateFilter} />
 
-            <div className="flex items-center gap-2">
-                <ViewToggle value={viewMode} onChange={setViewMode} />
+            <div className="flex items-center gap-4">
+                <ViewToggle value={viewMode} onChange={setViewMode} className="h-[42px]" />
 
             <Dialog open={isDialogOpen} onOpenChange={(open) => { if(!open) resetForm(); setIsDialogOpen(open); }}>
                 <DialogTrigger asChild>
-                <Button 
-                    onClick={resetForm} 
-                    className="text-gray-900 rounded-lg flex-1 sm:flex-none whitespace-nowrap border-none"
+                <Button
+                    onClick={resetForm}
+                    className="text-gray-900 rounded-lg flex-1 sm:flex-none whitespace-nowrap border-none h-[42px]"
                     style={{ backgroundColor: PRIMARY }}
                     onMouseEnter={(e) => e.currentTarget.style.backgroundColor = PRIMARY_HOVER}
                     onMouseLeave={(e) => e.currentTarget.style.backgroundColor = PRIMARY}

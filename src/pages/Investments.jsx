@@ -3,7 +3,7 @@ import React, { useState, useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Helmet } from 'react-helmet';
 import { motion } from 'framer-motion';
-import { Calendar, AlertTriangle, Plus, Edit as Edit2, TrashAlt as Trash2, TrendingUp, TrendingDown } from '@/components/BxIcon';
+import { AlertTriangle, Plus, Edit as Edit2, TrashAlt as Trash2, TrendingUp, TrendingDown } from '@/components/BxIcon';
 import { useFinance } from '@/context/FinanceContext';
 import { Button } from '@/components/ui/button';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
@@ -15,21 +15,15 @@ import { useToast } from '@/components/ui/use-toast';
 import { calculateInvestmentReturn, formatCurrency } from '@/utils/calculations';
 import SelectInput from '@/components/ui/SelectInput';
 import DatePicker from '@/components/ui/DatePicker';
+import DateFilterSelect from '@/components/ui/DateFilterSelect';
 import ViewToggle from '@/components/ui/ViewToggle';
 import NumberInput from '@/components/ui/NumberInput';
 import InvestmentsChart from '@/components/InvestmentsChart';
 import { useSortableList } from '@/hooks/useSortableList';
 import InvestmentTypeSelector from '@/components/InvestmentTypeSelector';
-import { CHART_PERIOD_OPTIONS } from '@/utils/periodOptions';
 import InvestmentSubtypeSelector from '@/components/InvestmentSubtypeSelector';
 import InvestimentoCard from '@/components/cards/InvestmentCard';
-import {
-    Select,
-    SelectContent,
-    SelectItem,
-    SelectTrigger,
-    SelectValue,
-} from "@/components/ui/select";
+import { getDateFilterDefaults, getDateFilterRange } from '@/utils/dateFilter';
 import { INVESTMENT_TYPES } from '@/utils/investmentTypes';
 
 const Investments = () => {
@@ -44,7 +38,7 @@ const Investments = () => {
   const { items: sortedInvestments, requestSort, sortConfig } = useSortableList(investments);
 
   // Chart Controls
-  const [chartPeriod, setChartPeriod] = useState('monthly');
+  const [dateFilter, setDateFilter] = useState(getDateFilterDefaults());
   const [displayMode, setDisplayMode] = useState('valor_atual'); // 'valor_atual' | 'rentabilidade'
 
   const [formData, setFormData] = useState({
@@ -71,24 +65,20 @@ const Investments = () => {
   fundingAccounts.unshift({ label: t('investments.source_account_placeholder'), value: "" });
 
   const chartData = useMemo(() => {
-    // Calculate start date based on period
     const now = new Date();
-    const startDate = new Date();
-    
-    switch(chartPeriod) {
-        case 'daily': startDate.setDate(now.getDate() - 1); break;
-        case 'weekly': startDate.setDate(now.getDate() - 7); break;
-        case 'biweekly': startDate.setDate(now.getDate() - 15); break;
-        case 'monthly': startDate.setDate(now.getDate() - 30); break;
-        case 'quarterly': startDate.setDate(now.getDate() - 90); break;
-        case 'semiannual': startDate.setDate(now.getDate() - 180); break;
-        case 'yearly': startDate.setDate(now.getDate() - 365); break;
-        default: startDate.setDate(now.getDate() - 30); // default month
-    }
+
+    // 'all' (no filter type) falls back to the earliest purchase date on record.
+    const earliestPurchase = investments.reduce((earliest, inv) => {
+        const d = new Date(inv.purchaseDate);
+        return !earliest || d < earliest ? d : earliest;
+    }, null);
+    const fallbackStart = earliestPurchase ?? new Date(now.getTime() - 30 * 24 * 60 * 60 * 1000);
+
+    const { startDate, endDate } = getDateFilterRange(dateFilter, fallbackStart);
 
     const days = [];
     const pointsCount = 30; // Approx points for smoothness
-    const totalTime = now.getTime() - startDate.getTime();
+    const totalTime = Math.max(endDate.getTime() - startDate.getTime(), 0);
     const interval = totalTime / pointsCount;
 
     for (let i = 0; i <= pointsCount; i++) {
@@ -125,7 +115,7 @@ const Investments = () => {
     }
 
     return days;
-  }, [investments, chartPeriod, displayMode, i18n.language]);
+  }, [investments, dateFilter, displayMode, i18n.language]);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -204,25 +194,10 @@ const Investments = () => {
 
         <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-4 w-full md:w-auto">
             
-            {/* Period Selector */}
-            <div className="w-full sm:w-40">
-                <Select value={chartPeriod} onValueChange={setChartPeriod}>
-                    <SelectTrigger className="bg-white dark:bg-vindex-card border-gray-200 dark:border-vindex-border text-gray-700 dark:text-gray-300">
-                         <div className="flex items-center gap-2">
-                             <Calendar className="w-4 h-4 text-gray-500" />
-                             <SelectValue />
-                         </div>
-                    </SelectTrigger>
-                    <SelectContent>
-                        {CHART_PERIOD_OPTIONS.map(opt => (
-                            <SelectItem key={opt.value} value={opt.value}>{opt.label}</SelectItem>
-                        ))}
-                    </SelectContent>
-                </Select>
-            </div>
+            <DateFilterSelect value={dateFilter} onChange={setDateFilter} />
 
             {/* Display Mode Toggle */}
-            <div className="flex items-center bg-white dark:bg-vindex-card rounded-lg border border-gray-200 dark:border-vindex-border p-1 shadow-sm">
+            <div className="flex items-center h-[42px] bg-white dark:bg-vindex-card rounded-lg border border-gray-200 dark:border-vindex-border p-1 shadow-sm">
                  <button
                     onClick={() => setDisplayMode('valor_atual')}
                     className={`px-3 py-1.5 text-xs font-medium rounded-md transition-all flex items-center gap-2 ${displayMode === 'valor_atual' ? 'bg-gray-100 dark:bg-vindex-bg text-gray-900 dark:text-gray-100 shadow-sm' : 'text-gray-500 hover:text-gray-700 dark:hover:text-gray-300'}`}
@@ -239,13 +214,13 @@ const Investments = () => {
                  </button>
             </div>
 
-            <ViewToggle value={viewMode} onChange={setViewMode} />
+            <ViewToggle value={viewMode} onChange={setViewMode} className="h-[42px]" />
 
             <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
             <DialogTrigger asChild>
-              <Button 
-                onClick={resetForm} 
-                className="text-gray-900 rounded-lg flex-1 sm:flex-none whitespace-nowrap border-none font-semibold shadow-md"
+              <Button
+                onClick={resetForm}
+                className="text-gray-900 rounded-lg flex-1 sm:flex-none whitespace-nowrap border-none font-semibold shadow-md h-[42px]"
                 style={{ backgroundColor: PRIMARY }}
                 onMouseEnter={(e) => e.currentTarget.style.backgroundColor = PRIMARY_HOVER}
                 onMouseLeave={(e) => e.currentTarget.style.backgroundColor = PRIMARY}

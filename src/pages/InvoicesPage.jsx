@@ -284,7 +284,7 @@ const InvoicesPage = () => {
 
           <Dialog open={isImportOpen} onOpenChange={setIsImportOpen}>
             <DialogTrigger asChild>
-              <Button variant="outline" className="gap-2">
+              <Button variant="outline" className="gap-2 h-[42px]">
                 <UploadCloud className="w-4 h-4" /> <span className="hidden sm:inline">{t('invoices.import_csv')}</span>
               </Button>
             </DialogTrigger>
@@ -298,7 +298,7 @@ const InvoicesPage = () => {
 
           <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
             <DialogTrigger asChild>
-              <Button className="gap-2">
+              <Button className="gap-2 h-[42px]">
                 <Plus className="w-4 h-4" /> <span className="hidden sm:inline">{t('invoices.new')}</span>
               </Button>
             </DialogTrigger>

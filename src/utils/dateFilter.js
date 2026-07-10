@@ -17,6 +17,50 @@ export const getDateFilterDefaults = () => {
 
 export const isDateFilterActive = (filter) => !!filter?.type;
 
+// Resolves a filter into a concrete [startDate, endDate] Date range, for
+// callers that need actual bounds (e.g. a chart x-axis) rather than a
+// per-item predicate. `fallbackStartDate` is used for open-ended cases
+// ('all', or a 'month'/'year'/'period' filter missing its bound).
+export const getDateFilterRange = (filter, fallbackStartDate) => {
+  const now = new Date();
+  const endOfDay = (d) => new Date(d.getFullYear(), d.getMonth(), d.getDate(), 23, 59, 59, 999);
+  const fallbackStart = fallbackStartDate ?? now;
+
+  switch (filter?.type) {
+    case 'last_week': {
+      const start = new Date(now);
+      start.setDate(now.getDate() - 7);
+      return { startDate: start, endDate: now };
+    }
+    case 'last_month': {
+      const prevMonth = new Date(now.getFullYear(), now.getMonth() - 1, 1);
+      const end = new Date(prevMonth.getFullYear(), prevMonth.getMonth() + 1, 0);
+      return { startDate: prevMonth, endDate: endOfDay(end) };
+    }
+    case 'last_year': {
+      const year = now.getFullYear() - 1;
+      return { startDate: new Date(year, 0, 1), endDate: endOfDay(new Date(year, 11, 31)) };
+    }
+    case 'month': {
+      if (!filter.month || !filter.year) return { startDate: fallbackStart, endDate: now };
+      const start = new Date(filter.year, filter.month - 1, 1);
+      const end = new Date(filter.year, filter.month, 0);
+      return { startDate: start, endDate: endOfDay(end) };
+    }
+    case 'year': {
+      if (!filter.year) return { startDate: fallbackStart, endDate: now };
+      return { startDate: new Date(filter.year, 0, 1), endDate: endOfDay(new Date(filter.year, 11, 31)) };
+    }
+    case 'period': {
+      const start = filter.startDate ? new Date(`${filter.startDate}T00:00:00`) : fallbackStart;
+      const end = filter.endDate ? new Date(`${filter.endDate}T23:59:59`) : now;
+      return { startDate: start, endDate: end };
+    }
+    default:
+      return { startDate: fallbackStart, endDate: now };
+  }
+};
+
 export const matchesDateFilter = (dateStr, filter) => {
   if (!filter || !filter.type) return true;
   if (!dateStr) return false;

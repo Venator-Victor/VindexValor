@@ -21,7 +21,7 @@ const CategoryMappingManager = () => {
   return (
     <Dialog open={isOpen} onOpenChange={setIsOpen}>
       <DialogTrigger asChild>
-        <Button variant="outline" size="sm" className="gap-2">
+        <Button variant="outline" className="gap-2 h-[42px]">
           <LinkIcon className="h-4 w-4" />
           {t('categories.auto_mappings_button')}
         </Button>

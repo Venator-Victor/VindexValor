@@ -121,16 +121,16 @@ const Accounts = () => {
                     value={period}
                     options={PERIOD_OPTIONS}
                     onChange={(e) => setPeriod(e.target.value)}
-                    className="bg-white dark:bg-vindex-card border-gray-200 dark:border-vindex-border text-gray-700 dark:text-gray-300"
+                    className="h-[42px] bg-white dark:bg-vindex-card border-gray-200 dark:border-vindex-border text-gray-700 dark:text-gray-300"
                 />
             </div>
 
-            <Button 
+            <Button
                 onClick={() => setShowNetWorth(!showNetWorth)}
                 variant="outline"
-                className={`flex items-center gap-2 border-gray-200 dark:border-vindex-border ${
-                    showNetWorth 
-                    ? 'bg-blue-50 text-blue-600 border-blue-200 dark:bg-blue-900/20 dark:text-blue-400 dark:border-blue-900/50' 
+                className={`flex items-center gap-2 h-[42px] border-gray-200 dark:border-vindex-border ${
+                    showNetWorth
+                    ? 'bg-blue-50 text-blue-600 border-blue-200 dark:bg-blue-900/20 dark:text-blue-400 dark:border-blue-900/50'
                     : 'bg-white text-gray-600 hover:bg-gray-50 dark:bg-vindex-card dark:text-gray-400 dark:hover:bg-vindex-bg'
                 }`}
             >
@@ -139,12 +139,12 @@ const Accounts = () => {
                 <span className="sm:hidden">{t('accounts.net_worth_short')}</span>
             </Button>
 
-            <div className="flex items-center gap-2">
-                <ViewToggle value={viewMode} onChange={handleViewModeChange} />
+            <div className="flex items-center gap-4">
+                <ViewToggle value={viewMode} onChange={handleViewModeChange} className="h-[42px]" />
 
-                <Button 
-                    onClick={handleOpenSuggestions} 
-                    className="border-none text-gray-900 rounded-lg whitespace-nowrap"
+                <Button
+                    onClick={handleOpenSuggestions}
+                    className="border-none text-gray-900 rounded-lg whitespace-nowrap h-[42px]"
                     style={{ backgroundColor: PRIMARY }}
                     onMouseEnter={(e) => e.currentTarget.style.backgroundColor = PRIMARY_HOVER}
                     onMouseLeave={(e) => e.currentTarget.style.backgroundColor = PRIMARY}

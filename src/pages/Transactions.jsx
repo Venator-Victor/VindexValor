@@ -168,7 +168,7 @@ const Transactions = () => {
 
           <CategoryMappingManager />
           
-          <Button variant="outline" onClick={() => setIsImportOpen(true)} className="gap-2">
+          <Button variant="outline" onClick={() => setIsImportOpen(true)} className="gap-2 h-[42px]">
             <UploadCloud className="w-4 h-4" /> {t('transactions.import_csv')}
           </Button>
 
@@ -186,7 +186,7 @@ const Transactions = () => {
             setIsDialogOpen(open);
           }}>
             <DialogTrigger asChild>
-              <Button className="gap-2">
+              <Button className="gap-2 h-[42px]">
                 <Plus className="w-4 h-4" /> {t('transactions.new')}
               </Button>
             </DialogTrigger>

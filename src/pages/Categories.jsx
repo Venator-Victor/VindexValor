@@ -291,25 +291,25 @@ const Categories = () => {
 
         <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-4 w-full md:w-auto">
           <div className="relative w-full sm:w-52">
-            <Search className="absolute left-3 top-2.5 h-4 w-4 text-gray-400 dark:text-vindex-text/40" />
+            <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400 dark:text-vindex-text/40" />
             <input
               type="text"
               placeholder={t('categories.search_placeholder')}
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
-              className="w-full pl-9 pr-8 py-2 rounded-lg border border-gray-200 dark:border-vindex-border bg-white dark:bg-vindex-card text-sm text-gray-900 dark:text-gray-100 outline-none hover:border-primary focus:border-primary"
+              className="w-full h-[42px] pl-9 pr-8 rounded-lg border border-gray-200 dark:border-vindex-border bg-white dark:bg-vindex-card text-sm text-gray-900 dark:text-gray-100 outline-none hover:border-primary focus:border-primary"
             />
             {searchTerm && (
-              <button onClick={() => setSearchTerm('')} className="absolute right-2 top-2.5 text-gray-400 hover:text-gray-600 dark:hover:text-gray-200">
+              <button onClick={() => setSearchTerm('')} className="absolute right-2 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600 dark:hover:text-gray-200">
                 <X className="h-4 w-4" />
               </button>
             )}
           </div>
 
-          <div className="flex items-center gap-2">
-            <ViewToggle value={displayLayout} onChange={handleLayoutChange} />
+          <div className="flex items-center gap-4">
+            <ViewToggle value={displayLayout} onChange={handleLayoutChange} className="h-[42px]" />
 
-            <Button onClick={() => setIsDefaultModalOpen(true)} className="border-none text-gray-900 rounded-lg flex-1 sm:flex-none whitespace-nowrap transition-colors" style={{ backgroundColor: PRIMARY }} onMouseEnter={e => e.currentTarget.style.backgroundColor = PRIMARY_HOVER} onMouseLeave={e => e.currentTarget.style.backgroundColor = PRIMARY}>
+            <Button onClick={() => setIsDefaultModalOpen(true)} className="border-none text-gray-900 rounded-lg flex-1 sm:flex-none whitespace-nowrap transition-colors h-[42px]" style={{ backgroundColor: PRIMARY }} onMouseEnter={e => e.currentTarget.style.backgroundColor = PRIMARY_HOVER} onMouseLeave={e => e.currentTarget.style.backgroundColor = PRIMARY}>
               <Plus className="mr-2 h-5 w-5" />
               <span className="hidden sm:inline">{t('categories.new')}</span>
               <span className="sm:hidden">{t('common.new')}</span>
