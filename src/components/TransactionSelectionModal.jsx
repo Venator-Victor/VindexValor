@@ -85,6 +85,7 @@ const TransactionSelectionModal = ({ selectedIds, transactions, onClearSelection
         title: t('transactions.bulk_categories_updated_title'),
         description: t('transactions.bulk_categories_updated_desc'),
       });
+      onClearSelection();
       if (onRefresh) onRefresh();
       setShowCategoryModal(false);
     } catch (error) {

@@ -106,7 +106,11 @@ const SelectInput = ({
                 />
               </div>
             )}
-            <div className="max-h-60 overflow-auto py-1">
+            {/* Manual scroll: a Radix Dialog ancestor's scroll-lock blocks native wheel scroll here since this popover portals outside the Dialog's DOM subtree. */}
+            <div
+              className="max-h-60 overflow-auto py-1"
+              onWheel={(e) => { e.currentTarget.scrollTop += e.deltaY; }}
+            >
               {visibleOptions.length === 0 && !showCreateOption ? (
                 <div className="px-2 py-2 text-sm text-gray-500 dark:text-vindex-text/60 text-center">
                   {searchable && searchTerm ? t('common.no_search_results') : t('common.no_options')}

@@ -81,4 +81,13 @@ describe('SelectInput', () => {
     const clippingModal = container.querySelector('[data-testid="clipping-modal"]');
     expect(clippingModal.contains(option)).toBe(false);
   });
+
+  it('scrolls the options list manually on wheel, bypassing a Dialog scroll-lock', async () => {
+    renderSelect();
+    await userEvent.click(screen.getByRole('button', { name: 'Selecione...' }));
+    const list = screen.getByText('Transporte').closest('div.overflow-auto');
+    list.scrollTop = 0;
+    list.dispatchEvent(new WheelEvent('wheel', { deltaY: 40, bubbles: true }));
+    expect(list.scrollTop).toBe(40);
+  });
 });
