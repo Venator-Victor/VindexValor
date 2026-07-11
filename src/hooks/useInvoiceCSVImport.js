@@ -111,7 +111,11 @@ export const useInvoiceCSVImport = () => {
         category_id: '',
         is_installment: isParcelado,
         parcel_number: current,
-        total_parcels: total
+        total_parcels: total,
+        // Whether this line is the "payment received" settlement for the *previous*
+        // invoice is only ever suggested (see suggestIsPayment) and confirmed by the
+        // user in the import review step — never decided silently here.
+        is_payment: false
       };
     });
   };
@@ -131,7 +135,8 @@ export const useInvoiceCSVImport = () => {
         category_id: t.category_id || null,
         is_installment: t.is_installment,
         parcel_number: t.parcel_number,
-        total_parcels: t.total_parcels
+        total_parcels: t.total_parcels,
+        is_payment: t.is_payment || false
       }));
 
       const { data, error } = await supabase.from('invoice_items').insert(dbData).select();

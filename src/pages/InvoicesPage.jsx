@@ -23,6 +23,7 @@ import InvoiceDetailModal from '@/components/InvoiceDetailModal';
 import { PRIMARY, SUCCESS, DANGER } from '@/utils/colors';
 import DateFilterSelect from '@/components/ui/DateFilterSelect';
 import { getDateFilterDefaults, matchesDateFilter } from '@/utils/dateFilter';
+import { computeInvoiceBalances } from '@/utils/invoiceBalance';
 
 const SortIcon = ({ column, sortConfig }) => {
   if (sortConfig.key !== column) return <div className="w-4 h-4 opacity-0" />;
@@ -82,7 +83,7 @@ const InvoicesPage = () => {
   const fetchTotals = async (faturasList) => {
     if (!faturasList || faturasList.length === 0) return;
     const ids = faturasList.map(f => f.id);
-    
+
     try {
       const { data, error } = await supabase
         .from('invoice_items')
@@ -91,13 +92,19 @@ const InvoicesPage = () => {
 
       if (error) throw error;
 
-      const totals = {};
+      const itemsByInvoiceId = {};
       data.forEach(item => {
-        if (!totals[item.invoice_id]) totals[item.invoice_id] = 0;
-        // Only sum actual purchases (negative values)
-        if (Number(item.amount) < 0) {
-          totals[item.invoice_id] += Number(item.amount);
-        }
+        if (!itemsByInvoiceId[item.invoice_id]) itemsByInvoiceId[item.invoice_id] = [];
+        itemsByInvoiceId[item.invoice_id].push(item);
+      });
+
+      // "Total" shown per invoice is the carried closing balance (what you actually
+      // owe as of that statement), not just this period's raw item sum — a payment
+      // line always settles the *previous* invoice, not this one.
+      const balances = computeInvoiceBalances(faturasList, itemsByInvoiceId);
+      const totals = {};
+      Object.keys(balances).forEach(id => {
+        totals[id] = balances[id].closingBalance;
       });
       setInvoiceTotals(totals);
     } catch (err) {

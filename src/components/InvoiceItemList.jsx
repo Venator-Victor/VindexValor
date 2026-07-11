@@ -74,6 +74,9 @@ const InvoiceItemList = ({ items, onEdit, onDelete, onRowClick, selectedIds = []
     return sorted;
   }, [items, sortConfig]);
 
+  // Sum of everything on this statement, payment line included — this is the period's
+  // raw activity, which combined with the carried opening balance (shown above this
+  // list) produces the invoice's actual closing balance ("what's owed").
   const total = items.reduce((sum, item) => sum + Number(item.amount || 0), 0);
 
   if (!items || items.length === 0) {

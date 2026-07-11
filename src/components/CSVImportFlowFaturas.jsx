@@ -6,10 +6,14 @@ import { useFinance } from '@/context/FinanceContext';
 import { useInvoiceCSVImport } from '@/hooks/useInvoiceCSVImport';
 import { Share as UploadCloud, AlertCircle, File as FileText, RefreshCw as Loader2, X } from '@/components/BxIcon';
 import { useToast } from '@/components/ui/use-toast';
+import { supabase } from '@/lib/customSupabaseClient';
+import { computeInvoiceBalances } from '@/utils/invoiceBalance';
+import { suggestIsPayment } from '@/utils/paymentDetection';
 import MultiFileImportResults from './MultiFileImportResults';
 import ColumnMappingStep from './ColumnMappingStep';
+import PaymentReviewStep from './PaymentReviewStep';
 
-// step: 'upload' | 'mapping' | 'processing' | 'completed'
+// step: 'upload' | 'mapping' | 'review-payments' | 'processing' | 'completed'
 const CSVImportFlowFaturas = ({ onSuccess, onCancel }) => {
   const { t, i18n } = useTranslation();
   const { accounts, createInvoice } = useFinance();
@@ -23,6 +27,8 @@ const CSVImportFlowFaturas = ({ onSuccess, onCancel }) => {
   const [mapping, setMapping] = useState({ date: '', description: '', amount: '' });
   const [currentFileIndex, setCurrentFileIndex] = useState(0);
   const [results, setResults] = useState([]);
+  const [filesData, setFilesData] = useState([]);
+  const [isPreparingReview, setIsPreparingReview] = useState(false);
 
   const fileInputRef = useRef(null);
 
@@ -63,7 +69,67 @@ const CSVImportFlowFaturas = ({ onSuccess, onCancel }) => {
     }
   };
 
-  const processBatch = async () => {
+  // Fetches the given account's existing invoices/items and returns the closing balance
+  // of the most recently closed one — the reference point new imports would carry in as
+  // their opening balance, used to suggest which line is the payment settlement.
+  const fetchPreviousBalance = async (accountId) => {
+    const { data: accountInvoices } = await supabase
+      .from('invoices')
+      .select('id, account_id, closing_date')
+      .eq('account_id', accountId);
+
+    if (!accountInvoices || accountInvoices.length === 0) return 0;
+
+    const { data: accountItems } = await supabase
+      .from('invoice_items')
+      .select('invoice_id, amount')
+      .in('invoice_id', accountInvoices.map(inv => inv.id));
+
+    const itemsByInvoiceId = {};
+    (accountItems || []).forEach(item => {
+      if (!itemsByInvoiceId[item.invoice_id]) itemsByInvoiceId[item.invoice_id] = [];
+      itemsByInvoiceId[item.invoice_id].push(item);
+    });
+
+    const balances = computeInvoiceBalances(accountInvoices, itemsByInvoiceId);
+    const latest = [...accountInvoices].sort((a, b) => new Date(b.closing_date) - new Date(a.closing_date))[0];
+    return balances[latest.id]?.closingBalance || 0;
+  };
+
+  const handleMappingConfirmed = async () => {
+    setIsPreparingReview(true);
+    try {
+      const previousBalance = await fetchPreviousBalance(selectedAccountForAuto);
+
+      const data = [];
+      for (const file of selectedFiles) {
+        const { data: rawData } = await parseFilesRaw([file]);
+        const rows = applyMapping(rawData, mapping).map(row => ({
+          ...row,
+          is_payment: suggestIsPayment(row, previousBalance)
+        }));
+        data.push({ fileName: file.name, rows });
+      }
+      setFilesData(data);
+
+      const hasCandidates = data.some(f => f.rows.some(r => Number(r.amount) > 0));
+      setStep(hasCandidates ? 'review-payments' : 'processing');
+      if (!hasCandidates) await processBatch(data);
+    } catch (err) {
+      toast({ title: t('invoices.import_generic_error_title'), description: err.message || t('invoices.import_read_file_error'), variant: 'destructive' });
+    } finally {
+      setIsPreparingReview(false);
+    }
+  };
+
+  const togglePaymentFlag = (fileIdx, rowIdx) => {
+    setFilesData(prev => prev.map((f, fi) => fi !== fileIdx ? f : {
+      ...f,
+      rows: f.rows.map((r, ri) => ri !== rowIdx ? r : { ...r, is_payment: !r.is_payment })
+    }));
+  };
+
+  const processBatch = async (dataToProcess) => {
     setStep('processing');
     setResults([]);
     setCurrentFileIndex(0);
@@ -72,18 +138,15 @@ const CSVImportFlowFaturas = ({ onSuccess, onCancel }) => {
     let successCount = 0;
     let errorCount = 0;
 
-    for (let i = 0; i < selectedFiles.length; i++) {
+    for (let i = 0; i < dataToProcess.length; i++) {
       setCurrentFileIndex(i);
-      const file = selectedFiles[i];
-      let resultItem = { fileName: file.name, status: 'error', count: 0, error: '' };
+      const { fileName, rows } = dataToProcess[i];
+      let resultItem = { fileName, status: 'error', count: 0, error: '' };
 
       try {
-        const { data: rawData } = await parseFilesRaw([file]);
-        const parsedData = applyMapping(rawData, mapping);
+        if (rows.length === 0) throw new Error(t('invoices.import_no_valid_data'));
 
-        if (parsedData.length === 0) throw new Error(t('invoices.import_no_valid_data'));
-
-        const dates = parsedData.map(m => new Date(m.date)).filter(d => !isNaN(d.getTime()));
+        const dates = rows.map(m => new Date(m.date)).filter(d => !isNaN(d.getTime()));
         let autoFaturaName = t('invoices.default_name_fallback');
         let minDateStr = new Date().toISOString().split('T')[0];
         let maxDateStr = new Date().toISOString().split('T')[0];
@@ -108,7 +171,7 @@ const CSVImportFlowFaturas = ({ onSuccess, onCancel }) => {
 
         if (!newFatura?.id) throw new Error(t('invoices.import_create_error'));
 
-        const { count } = await importData(newFatura.id, parsedData);
+        const { count } = await importData(newFatura.id, rows);
         resultItem = { ...resultItem, status: 'success', count };
         successCount++;
       } catch (err) {
@@ -135,6 +198,7 @@ const CSVImportFlowFaturas = ({ onSuccess, onCancel }) => {
     setStep('upload');
     setResults([]);
     setCurrentFileIndex(0);
+    setFilesData([]);
   };
 
   if (step === 'completed') {
@@ -147,8 +211,20 @@ const CSVImportFlowFaturas = ({ onSuccess, onCancel }) => {
         headers={rawHeaders}
         mapping={mapping}
         onChange={setMapping}
-        onConfirm={processBatch}
+        onConfirm={handleMappingConfirmed}
         onBack={() => setStep('upload')}
+        isLoading={isPreparingReview}
+      />
+    );
+  }
+
+  if (step === 'review-payments') {
+    return (
+      <PaymentReviewStep
+        filesData={filesData}
+        onToggle={togglePaymentFlag}
+        onBack={() => setStep('mapping')}
+        onConfirm={() => processBatch(filesData)}
       />
     );
   }

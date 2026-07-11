@@ -2,7 +2,7 @@ import React from 'react';
 import { useTranslation } from 'react-i18next';
 import { Button } from '@/components/ui/button';
 
-const ColumnMappingStep = ({ headers, mapping, onChange, onConfirm, onBack }) => {
+const ColumnMappingStep = ({ headers, mapping, onChange, onConfirm, onBack, isLoading = false }) => {
   const { t } = useTranslation();
 
   const FIELDS = [
@@ -48,11 +48,11 @@ const ColumnMappingStep = ({ headers, mapping, onChange, onConfirm, onBack }) =>
       )}
 
       <div className="flex flex-col sm:flex-row justify-end gap-3">
-        <Button variant="outline" onClick={onBack} className="w-full sm:w-auto">
+        <Button variant="outline" onClick={onBack} disabled={isLoading} className="w-full sm:w-auto">
           {t('csv.back')}
         </Button>
-        <Button onClick={onConfirm} disabled={!canConfirm} className="w-full sm:w-auto">
-          {t('csv.continue')}
+        <Button onClick={onConfirm} disabled={!canConfirm || isLoading} className="w-full sm:w-auto">
+          {isLoading ? t('common.loading') : t('csv.continue')}
         </Button>
       </div>
     </div>

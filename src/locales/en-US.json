@@ -618,13 +618,18 @@
     "import_credit_card_account_label": "Credit Card Account for New Invoices *",
     "import_select_card_placeholder": "Select the card...",
     "import_processing_status": "Processing file {{current}} of {{total}}...",
-    "import_continue_to_mapping": "Continue to Mapping"
+    "import_continue_to_mapping": "Continue to Mapping",
+    "review_payments_title": "Confirm invoice payments",
+    "review_payments_desc": "We pre-checked lines that look like a \"payment received\" settling the previous invoice, based on the description or the amount owed. Review and adjust before importing.",
+    "review_payments_checkbox_hint": "Checked lines won't count toward this invoice's spending total — they'll be treated as paying off the previous invoice's balance instead.",
+    "review_payments_confirm_button": "Confirm & Import"
   },
 
   "invoice_detail": {
     "title": "Invoice Details",
     "total_outflows": "Total Outflows (Expenses)",
     "net_total": "Net Invoice Total",
+    "opening_balance_carried": "Includes {{amount}} carried from the previous invoice",
     "related_payments": "Related Payments",
     "select_payment": "Select Payment",
     "total_paid": "Total Paid",
@@ -675,7 +680,7 @@
     "item_list_empty": "No transactions recorded for this invoice.",
     "col_status_description": "Status (Description)",
     "col_type": "Type",
-    "net_invoice_total": "Invoice Net Total:",
+    "net_invoice_total": "This Period's Total:",
     "delete_item_confirm": "Are you sure you want to delete this transaction?",
     "item_is_payment_badge": "Invoice Payment",
     "bulk_selected_count": "{{count}} item(s) selected",

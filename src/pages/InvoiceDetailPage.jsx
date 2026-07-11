@@ -18,6 +18,7 @@ import DeleteConfirmationDialog from '@/components/DeleteConfirmationDialog';
 import { supabase } from '@/lib/customSupabaseClient';
 import { useToast } from '@/components/ui/use-toast';
 import { DANGER } from '@/utils/colors';
+import { computeInvoiceBalances } from '@/utils/invoiceBalance';
 
 const isValidUUID = (id) => {
   const uuidRegex = /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
@@ -35,6 +36,7 @@ const InvoiceDetailPage = () => {
   const [invoice, setInvoice] = useState(null);
   const [items, setItems] = useState([]);
   const [payments, setPayments] = useState([]);
+  const [balance, setBalance] = useState({ openingBalance: 0, closingBalance: 0 });
   const [isLoading, setIsLoading] = useState(true);
   const [uuidError, setUuidError] = useState('');
   
@@ -62,7 +64,7 @@ const InvoiceDetailPage = () => {
       
       if (faturaData) {
         setInvoice(faturaData);
-        
+
         const comprasData = await fetchInvoiceItems(id);
         setItems(comprasData);
 
@@ -70,8 +72,30 @@ const InvoiceDetailPage = () => {
           .from('transactions')
           .select('*, account:accounts!fk_transacoes_conta(name, currency)')
           .eq('invoice_id', id);
-        
+
         setPayments(pagamentosData || []);
+
+        // Carried balance requires the account's full invoice history, not just this
+        // invoice's own items — a payment line here settles the *previous* invoice.
+        const { data: accountInvoices } = await supabase
+          .from('invoices')
+          .select('id, account_id, closing_date')
+          .eq('account_id', faturaData.account_id)
+          .eq('user_id', user.id);
+
+        const { data: accountItems } = await supabase
+          .from('invoice_items')
+          .select('invoice_id, amount')
+          .in('invoice_id', (accountInvoices || []).map(inv => inv.id));
+
+        const itemsByInvoiceId = {};
+        (accountItems || []).forEach(item => {
+          if (!itemsByInvoiceId[item.invoice_id]) itemsByInvoiceId[item.invoice_id] = [];
+          itemsByInvoiceId[item.invoice_id].push(item);
+        });
+
+        const balances = computeInvoiceBalances(accountInvoices || [], itemsByInvoiceId);
+        setBalance(balances[id] || { openingBalance: 0, closingBalance: 0 });
       }
     } catch (err) {
       console.error("Unexpected error:", err);
@@ -95,15 +119,12 @@ const InvoiceDetailPage = () => {
     loadData();
   }, [id]);
 
-  // "Total Outflows" is true net spending: purchases (negative) plus refunds (positive,
-  // not the payment item), so the payment settlement line never counts as "less spent".
+  // Real spend this period only: purchases (negative) plus refunds (positive, not the
+  // payment item). "What's actually owed" is a separate, cross-invoice figure — see
+  // `balance.closingBalance`, computed via computeInvoiceBalances further down.
   const totalSaidas = items
     .filter(c => Number(c.amount) < 0 || !c.is_payment)
     .reduce((acc, c) => acc + Number(c.amount || 0), 0);
-  // The actual invoice balance nets every item, both signs — the payment/refund lines
-  // included in the imported statement offset the purchases, matching InvoiceItemList's
-  // own footer total and what's actually owed.
-  const calculatedTotal = items.reduce((acc, c) => acc + Number(c.amount || 0), 0);
 
   const handleOpenPaymentModal = () => {
     setIsPaymentModalOpen(true);
@@ -125,7 +146,7 @@ const InvoiceDetailPage = () => {
         .filter(p => p.id !== paymentId)
         .reduce((acc, p) => acc + Math.abs(p.amount), 0);
 
-      if (remainingTotalPaid < Math.abs(calculatedTotal)) {
+      if (remainingTotalPaid < Math.abs(balance.closingBalance)) {
         await supabase.from('invoices').update({ status: 'open' }).eq('id', id).eq('user_id', user.id);
       }
 
@@ -183,9 +204,9 @@ const InvoiceDetailPage = () => {
   );
 
   const totalPaid = payments.reduce((acc, p) => acc + Math.abs(p.amount), 0);
-  const remaining = Math.abs(calculatedTotal) - totalPaid;
-  
-  const calcTotalColor = calculatedTotal < 0 ? 'text-red-600 dark:text-red-400' : 'text-foreground';
+  const remaining = Math.abs(balance.closingBalance) - totalPaid;
+
+  const calcTotalColor = balance.closingBalance < 0 ? 'text-red-600 dark:text-red-400' : 'text-foreground';
 
   return (
     <div className="space-y-6 pb-20 md:pb-0">
@@ -226,7 +247,12 @@ const InvoiceDetailPage = () => {
             <Sigma className="w-4 h-4" />
             <span className="text-sm font-medium">{t('invoice_detail.net_total')}</span>
           </div>
-          <p className={`text-2xl font-bold ${calcTotalColor}`}>{formatCurrency(calculatedTotal)}</p>
+          <p className={`text-2xl font-bold ${calcTotalColor}`}>{formatCurrency(balance.closingBalance)}</p>
+          {balance.openingBalance !== 0 && (
+            <p className="text-xs text-muted-foreground mt-1">
+              {t('invoice_detail.opening_balance_carried', { amount: formatCurrency(balance.openingBalance) })}
+            </p>
+          )}
         </motion.div>
       </div>
 
@@ -359,7 +385,7 @@ const InvoiceDetailPage = () => {
         isOpen={isPaymentModalOpen}
         onOpenChange={setIsPaymentModalOpen}
         invoiceId={id}
-        invoiceTotal={calculatedTotal}
+        invoiceTotal={balance.closingBalance}
         invoiceCurrency={invoice.account?.currency}
         onLinked={loadData}
       />

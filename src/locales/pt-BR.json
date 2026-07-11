@@ -618,13 +618,18 @@
     "import_credit_card_account_label": "Conta de Cartão de Crédito para Novas Faturas *",
     "import_select_card_placeholder": "Selecione o cartão...",
     "import_processing_status": "Processando arquivo {{current}} de {{total}}...",
-    "import_continue_to_mapping": "Continuar para Mapeamento"
+    "import_continue_to_mapping": "Continuar para Mapeamento",
+    "review_payments_title": "Confirme os pagamentos da fatura",
+    "review_payments_desc": "Pré-marcamos as linhas que parecem ser um \"pagamento recebido\" quitando a fatura anterior, com base na descrição ou no valor devido. Revise e ajuste antes de importar.",
+    "review_payments_checkbox_hint": "Linhas marcadas não entram no total de gastos desta fatura — serão tratadas como quitação do saldo da fatura anterior.",
+    "review_payments_confirm_button": "Confirmar e Importar"
   },
 
   "invoice_detail": {
     "title": "Detalhes da Fatura",
     "total_outflows": "Total de Saídas (Despesas)",
     "net_total": "Total Líquido da Fatura",
+    "opening_balance_carried": "Inclui {{amount}} trazido da fatura anterior",
     "related_payments": "Pagamentos Relacionados",
     "select_payment": "Selecionar Pagamento",
     "total_paid": "Total Pago",
@@ -675,7 +680,7 @@
     "item_list_empty": "Nenhuma movimentação registrada nesta fatura.",
     "col_status_description": "Status (Descrição)",
     "col_type": "Tipo",
-    "net_invoice_total": "Líquido da Fatura:",
+    "net_invoice_total": "Total Deste Período:",
     "delete_item_confirm": "Tem certeza que deseja excluir esta movimentação?",
     "item_is_payment_badge": "Pagamento da Fatura",
     "bulk_selected_count": "{{count}} item(ns) selecionado(s)",
