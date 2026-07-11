@@ -8,17 +8,16 @@ import { useFinance } from '@/context/FinanceContext';
 import { useAuth } from '@/context/SupabaseAuthContext';
 import { Button } from '@/components/ui/button';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
-import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from '@/components/ui/alert-dialog';
 import { formatCurrency, formatCurrencyWithSymbol } from '@/utils/calculations';
 import InvoiceItemList from '@/components/InvoiceItemList';
 import InvoiceItemForm from '@/components/InvoiceItemForm';
 import InvoiceItemSelectionBar from '@/components/InvoiceItemSelectionBar';
 import InvoiceItemDetailModal from '@/components/InvoiceItemDetailModal';
+import InvoicePaymentLinkModal from '@/components/InvoicePaymentLinkModal';
 import DeleteConfirmationDialog from '@/components/DeleteConfirmationDialog';
 import { supabase } from '@/lib/customSupabaseClient';
 import { useToast } from '@/components/ui/use-toast';
 import { DANGER } from '@/utils/colors';
-import SelectInput from '@/components/ui/SelectInput';
 
 const isValidUUID = (id) => {
   const uuidRegex = /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
@@ -30,7 +29,7 @@ const InvoiceDetailPage = () => {
   const { id } = useParams();
   const navigate = useNavigate();
   const { user } = useAuth();
-  const { fetchInvoiceItems, deleteInvoiceItem, categories } = useFinance();
+  const { fetchInvoiceItems, deleteInvoiceItem } = useFinance();
   const { toast } = useToast();
   
   const [invoice, setInvoice] = useState(null);
@@ -46,12 +45,6 @@ const InvoiceDetailPage = () => {
   const [selectedDetailItem, setSelectedDetailItem] = useState(null);
 
   const [isPaymentModalOpen, setIsPaymentModalOpen] = useState(false);
-  const [eligiblePayments, setEligiblePayments] = useState([]);
-  const [isLoadingPayments, setIsLoadingPayments] = useState(false);
-  const [paymentCategoryFilter, setPaymentCategoryFilter] = useState('');
-
-  const [paymentToConfirm, setPaymentToConfirm] = useState(null);
-  const [isConfirmDialogOpen, setIsConfirmDialogOpen] = useState(false);
 
   const loadData = async () => {
     setIsLoading(true);
@@ -112,86 +105,8 @@ const InvoiceDetailPage = () => {
   // own footer total and what's actually owed.
   const calculatedTotal = items.reduce((acc, c) => acc + Number(c.amount || 0), 0);
 
-  const fetchEligiblePayments = async () => {
-    if (!user) return;
-    setIsLoadingPayments(true);
-    try {
-      // Fetch ALL payments from ANY account of the user that aren't linked to a fatura
-      const { data, error } = await supabase
-        .from('transactions')
-        .select('*, account:accounts!fk_transacoes_conta(name, currency), categories(name, color)')
-        .eq('user_id', user.id)
-        .in('type', ['expense', 'payment', 'transfer'])
-        .is('invoice_id', null)
-        .order('date', { ascending: false });
-
-      if (error) throw error;
-      setEligiblePayments(data || []);
-    } catch (err) {
-      console.error("Error fetching payments:", err);
-      toast({ title: t('invoice_detail.fetch_payments_error'), description: err.message, variant: "destructive" });
-    } finally {
-      setIsLoadingPayments(false);
-    }
-  };
-
   const handleOpenPaymentModal = () => {
     setIsPaymentModalOpen(true);
-    setPaymentCategoryFilter('');
-    fetchEligiblePayments();
-  };
-
-  const filteredEligiblePayments = paymentCategoryFilter
-    ? eligiblePayments.filter(p => p.category_id === paymentCategoryFilter)
-    : eligiblePayments;
-
-  const handleSelectPayment = (payment) => {
-    const paymentAmount = Math.abs(payment.amount);
-    const invoiceTotal = Math.abs(calculatedTotal);
-    // Amounts in different currencies can't be compared as raw numbers (e.g. $500 vs R$500
-    // aren't equal just because the digits match) — always ask for confirmation in that case.
-    const currencyMismatch = payment.account?.currency && invoice.account?.currency &&
-      payment.account.currency !== invoice.account.currency;
-    // Compare in whole cents to avoid floating-point rounding turning an exact match into a "divergent" one.
-    const amountsMatch = !currencyMismatch && Math.round(paymentAmount * 100) === Math.round(invoiceTotal * 100);
-
-    if (!amountsMatch) {
-      setPaymentToConfirm(payment);
-      setIsConfirmDialogOpen(true);
-    } else {
-      linkPayment(payment.id);
-    }
-  };
-
-  const linkPayment = async (paymentId) => {
-    try {
-      const { error } = await supabase
-        .from('transactions')
-        .update({ invoice_id: id })
-        .eq('id', paymentId)
-        .eq('user_id', user.id);
-
-      if (error) throw error;
-
-      // Auto-update fatura status to 'paid' if this payment covers the remainder
-      const paymentRecord = eligiblePayments.find(p => p.id === paymentId) || paymentToConfirm;
-      const amountPaid = paymentRecord ? Math.abs(paymentRecord.amount) : 0;
-
-      const currentTotalPaid = payments.reduce((acc, p) => acc + Math.abs(p.amount), 0);
-      const newTotalPaid = currentTotalPaid + amountPaid;
-
-      if (newTotalPaid >= Math.abs(calculatedTotal)) {
-        await supabase.from('invoices').update({ status: 'paid' }).eq('id', id).eq('user_id', user.id);
-      }
-
-      toast({ title: t('invoice_detail.payment_linked_success') });
-      setIsPaymentModalOpen(false);
-      setPaymentToConfirm(null);
-      setIsConfirmDialogOpen(false);
-      loadData();
-    } catch (err) {
-      toast({ title: t('invoice_detail.link_error'), description: err.message, variant: "destructive" });
-    }
   };
 
   const handleUnlinkPayment = async (paymentId) => {
@@ -440,97 +355,14 @@ const InvoiceDetailPage = () => {
         </DialogContent>
       </Dialog>
 
-      {/* Modal: Link Payments */}
-      <Dialog open={isPaymentModalOpen} onOpenChange={setIsPaymentModalOpen}>
-        <DialogContent className="dialog-responsive p-4 md:p-6">
-          <DialogHeader>
-            <DialogTitle>{t('invoice_detail.link_payment_title')}</DialogTitle>
-          </DialogHeader>
-          <div className="space-y-4 pt-4">
-            <div className="max-w-xs">
-              <SelectInput
-                label={t('common.category')}
-                searchable
-                value={paymentCategoryFilter}
-                onChange={e => setPaymentCategoryFilter(e.target.value)}
-                options={[{ label: t('transactions.all_categories'), value: '' }, ...categories.map(c => ({ label: c.name, value: c.id }))]}
-              />
-            </div>
-
-            {isLoadingPayments ? (
-              <div className="text-center py-8 text-muted-foreground">{t('invoice_detail.loading_payments')}</div>
-            ) : filteredEligiblePayments.length === 0 ? (
-              <div className="text-center py-8 text-muted-foreground border border-dashed rounded-lg bg-muted/20">
-                {t('invoice_detail.no_payments_available')}
-              </div>
-            ) : (
-              <div className="max-h-[60vh] overflow-y-auto pr-2 custom-scrollbar">
-                <table className="w-full min-w-[760px] text-sm border border-gray-200 dark:border-vindex-border rounded-lg overflow-hidden table-fixed">
-                  <thead className="bg-gray-50 dark:bg-vindex-bg border-b border-gray-200 dark:border-vindex-border">
-                    <tr>
-                      <th className="px-6 py-3 w-[12%] text-left font-medium text-gray-700 dark:text-gray-300">{t('invoice_detail.col_date')}</th>
-                      <th className="px-6 py-3 w-[26%] text-left font-medium text-gray-700 dark:text-gray-300">{t('invoice_detail.col_description')}</th>
-                      <th className="px-6 py-3 w-[16%] text-left font-medium text-gray-700 dark:text-gray-300">{t('common.category')}</th>
-                      <th className="px-6 py-3 w-[16%] text-left font-medium text-gray-700 dark:text-gray-300">{t('invoice_detail.col_account')}</th>
-                      <th className="px-6 py-3 w-[16%] text-right font-medium text-gray-700 dark:text-gray-300">{t('invoice_detail.col_value')}</th>
-                      <th className="px-6 py-3 w-[14%] text-center font-medium text-gray-700 dark:text-gray-300">{t('invoice_detail.col_action')}</th>
-                    </tr>
-                  </thead>
-                  <tbody className="divide-y divide-gray-200 dark:divide-vindex-border">
-                    {filteredEligiblePayments.map(p => {
-                      const modalPayColor = p.amount < 0 ? 'text-red-600 dark:text-red-400' : p.amount > 0 ? 'text-green-600 dark:text-green-400' : 'text-foreground';
-                      return (
-                        <tr key={p.id} className="hover:bg-gray-50 dark:hover:bg-vindex-bg/50 transition-colors">
-                          <td className="px-6 py-4 whitespace-nowrap text-gray-700 dark:text-gray-300">{formatDate(p.date)}</td>
-                          <td className="px-6 py-4 font-medium text-gray-900 dark:text-gray-50 truncate" title={p.description}>{p.description}</td>
-                          <td className="px-6 py-4">
-                            {p.categories ? (
-                              <div className="flex items-center gap-2 min-w-0">
-                                <div className="w-2.5 h-2.5 rounded-full shrink-0" style={{ backgroundColor: p.categories.color }} />
-                                <span className="truncate text-gray-700 dark:text-gray-300">{p.categories.name}</span>
-                              </div>
-                            ) : (
-                              <span className="text-gray-500 text-xs">{t('common.no_category')}</span>
-                            )}
-                          </td>
-                          <td className="px-6 py-4 text-gray-700 dark:text-gray-300 truncate">{p.account?.name || 'N/A'}</td>
-                          <td className={`px-6 py-4 text-right font-medium whitespace-nowrap ${modalPayColor}`}>
-                            {formatCurrencyWithSymbol(p.amount, p.account?.currency || 'BRL')}
-                          </td>
-                          <td className="px-6 py-4 text-center">
-                            <Button size="sm" variant="outline" onClick={() => handleSelectPayment(p)}>
-                              {t('invoice_detail.link_action')}
-                            </Button>
-                          </td>
-                        </tr>
-                      );
-                    })}
-                  </tbody>
-                </table>
-              </div>
-            )}
-          </div>
-        </DialogContent>
-      </Dialog>
-
-      {/* Alert Dialog: Confirm mismatched amounts */}
-      <AlertDialog open={isConfirmDialogOpen} onOpenChange={setIsConfirmDialogOpen}>
-        <AlertDialogContent>
-          <AlertDialogHeader>
-            <AlertDialogTitle>{t('invoice_detail.divergent_title')}</AlertDialogTitle>
-            <AlertDialogDescription>
-              {t('invoice_detail.divergent_desc', {
-                payment: paymentToConfirm && formatCurrency(Math.abs(paymentToConfirm.amount), paymentToConfirm.account?.currency || 'BRL'),
-                total: formatCurrency(Math.abs(calculatedTotal), invoice.account?.currency || 'BRL')
-              })}
-            </AlertDialogDescription>
-          </AlertDialogHeader>
-          <AlertDialogFooter>
-            <AlertDialogCancel onClick={() => setPaymentToConfirm(null)}>{t('common.cancel')}</AlertDialogCancel>
-            <AlertDialogAction onClick={() => linkPayment(paymentToConfirm?.id)}>{t('invoice_detail.confirm_link')}</AlertDialogAction>
-          </AlertDialogFooter>
-        </AlertDialogContent>
-      </AlertDialog>
+      <InvoicePaymentLinkModal
+        isOpen={isPaymentModalOpen}
+        onOpenChange={setIsPaymentModalOpen}
+        invoiceId={id}
+        invoiceTotal={calculatedTotal}
+        invoiceCurrency={invoice.account?.currency}
+        onLinked={loadData}
+      />
 
     </div>
   );
