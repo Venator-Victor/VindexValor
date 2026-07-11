@@ -10,6 +10,7 @@ import { useNavigate } from 'react-router-dom';
 import { useFinance } from '@/context/FinanceContext';
 import { useAuth } from '@/context/SupabaseAuthContext';
 import { formatCurrency, formatCurrencyWithSymbol } from '@/utils/calculations';
+import SelectInput from '@/components/ui/SelectInput';
 
 const InvoiceSelectionBar = ({ selectedIds, invoices, invoiceTotals = {}, onClearSelection, onRefresh }) => {
   const { t } = useTranslation();
@@ -22,8 +23,9 @@ const InvoiceSelectionBar = ({ selectedIds, invoices, invoiceTotals = {}, onClea
   const [paymentToConfirm, setPaymentToConfirm] = useState(null);
   const [isConfirmDialogOpen, setIsConfirmDialogOpen] = useState(false);
   const [isLinking, setIsLinking] = useState(false);
+  const [paymentCategoryFilter, setPaymentCategoryFilter] = useState('');
 
-  const { accounts } = useFinance();
+  const { accounts, categories } = useFinance();
   const { user } = useAuth();
 
   const { toast } = useToast();
@@ -72,9 +74,9 @@ const InvoiceSelectionBar = ({ selectedIds, invoices, invoiceTotals = {}, onClea
     try {
       const { data, error } = await supabase
         .from('transactions')
-        .select('*, account:accounts!fk_transacoes_conta(name, currency)')
+        .select('*, account:accounts!fk_transacoes_conta(name, currency), categories(name, color)')
         .eq('user_id', user.id)
-        .in('type', ['payment', 'transfer'])
+        .in('type', ['expense', 'payment', 'transfer'])
         .is('invoice_id', null)
         .order('date', { ascending: false });
 
@@ -90,8 +92,13 @@ const InvoiceSelectionBar = ({ selectedIds, invoices, invoiceTotals = {}, onClea
   const handleOpenPaymentModal = () => {
     if (!selectedInvoice) return;
     setIsPaymentModalOpen(true);
+    setPaymentCategoryFilter('');
     fetchEligiblePayments();
   };
+
+  const filteredEligiblePayments = paymentCategoryFilter
+    ? eligiblePayments.filter(p => p.category_id === paymentCategoryFilter)
+    : eligiblePayments;
 
   const handlePickPayment = (payment) => {
     const paymentAmount = Math.abs(payment.amount);
@@ -251,36 +258,57 @@ const InvoiceSelectionBar = ({ selectedIds, invoices, invoiceTotals = {}, onClea
       </AlertDialog>
 
       <Dialog open={isPaymentModalOpen} onOpenChange={setIsPaymentModalOpen}>
-        <DialogContent className="max-w-2xl">
+        <DialogContent className="dialog-responsive p-4 md:p-6">
           <DialogHeader>
             <DialogTitle>{t('invoice_detail.link_payment_title')}</DialogTitle>
           </DialogHeader>
           <div className="space-y-4 pt-4">
+            <div className="max-w-xs">
+              <SelectInput
+                label={t('common.category')}
+                searchable
+                value={paymentCategoryFilter}
+                onChange={e => setPaymentCategoryFilter(e.target.value)}
+                options={[{ label: t('transactions.all_categories'), value: '' }, ...categories.map(c => ({ label: c.name, value: c.id }))]}
+              />
+            </div>
+
             {isLoadingPayments ? (
               <div className="text-center py-8 text-muted-foreground">{t('invoice_detail.loading_payments')}</div>
-            ) : eligiblePayments.length === 0 ? (
+            ) : filteredEligiblePayments.length === 0 ? (
               <div className="text-center py-8 text-muted-foreground border border-dashed rounded-lg bg-muted/20">
                 {t('invoice_detail.no_payments_available')}
               </div>
             ) : (
               <div className="max-h-[60vh] overflow-y-auto pr-2 custom-scrollbar">
-                <table className="w-full min-w-[640px] text-sm border border-gray-200 dark:border-vindex-border rounded-lg overflow-hidden table-fixed">
+                <table className="w-full min-w-[760px] text-sm border border-gray-200 dark:border-vindex-border rounded-lg overflow-hidden table-fixed">
                   <thead className="bg-gray-50 dark:bg-vindex-bg border-b border-gray-200 dark:border-vindex-border">
                     <tr>
-                      <th className="px-6 py-3 w-[14%] text-left font-medium text-gray-700 dark:text-gray-300">{t('invoice_detail.col_date')}</th>
-                      <th className="px-6 py-3 w-[34%] text-left font-medium text-gray-700 dark:text-gray-300">{t('invoice_detail.col_description')}</th>
-                      <th className="px-6 py-3 w-[20%] text-left font-medium text-gray-700 dark:text-gray-300">{t('invoice_detail.col_account')}</th>
-                      <th className="px-6 py-3 w-[18%] text-right font-medium text-gray-700 dark:text-gray-300">{t('invoice_detail.col_value')}</th>
+                      <th className="px-6 py-3 w-[12%] text-left font-medium text-gray-700 dark:text-gray-300">{t('invoice_detail.col_date')}</th>
+                      <th className="px-6 py-3 w-[26%] text-left font-medium text-gray-700 dark:text-gray-300">{t('invoice_detail.col_description')}</th>
+                      <th className="px-6 py-3 w-[16%] text-left font-medium text-gray-700 dark:text-gray-300">{t('common.category')}</th>
+                      <th className="px-6 py-3 w-[16%] text-left font-medium text-gray-700 dark:text-gray-300">{t('invoice_detail.col_account')}</th>
+                      <th className="px-6 py-3 w-[16%] text-right font-medium text-gray-700 dark:text-gray-300">{t('invoice_detail.col_value')}</th>
                       <th className="px-6 py-3 w-[14%] text-center font-medium text-gray-700 dark:text-gray-300">{t('invoice_detail.col_action')}</th>
                     </tr>
                   </thead>
                   <tbody className="divide-y divide-gray-200 dark:divide-vindex-border">
-                    {eligiblePayments.map(p => {
+                    {filteredEligiblePayments.map(p => {
                       const modalPayColor = p.amount < 0 ? 'text-red-600 dark:text-red-400' : p.amount > 0 ? 'text-green-600 dark:text-green-400' : 'text-foreground';
                       return (
                         <tr key={p.id} className="hover:bg-gray-50 dark:hover:bg-vindex-bg/50 transition-colors">
                           <td className="px-6 py-4 whitespace-nowrap text-gray-700 dark:text-gray-300">{formatDate(p.date)}</td>
                           <td className="px-6 py-4 font-medium text-gray-900 dark:text-gray-50 truncate" title={p.description}>{p.description}</td>
+                          <td className="px-6 py-4">
+                            {p.categories ? (
+                              <div className="flex items-center gap-2 min-w-0">
+                                <div className="w-2.5 h-2.5 rounded-full shrink-0" style={{ backgroundColor: p.categories.color }} />
+                                <span className="truncate text-gray-700 dark:text-gray-300">{p.categories.name}</span>
+                              </div>
+                            ) : (
+                              <span className="text-gray-500 text-xs">{t('common.no_category')}</span>
+                            )}
+                          </td>
                           <td className="px-6 py-4 text-gray-700 dark:text-gray-300 truncate">{p.account?.name || 'N/A'}</td>
                           <td className={`px-6 py-4 text-right font-medium whitespace-nowrap ${modalPayColor}`}>
                             {formatCurrencyWithSymbol(p.amount, p.account?.currency || 'BRL')}
