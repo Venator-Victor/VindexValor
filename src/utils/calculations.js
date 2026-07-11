@@ -1,7 +1,7 @@
 import { CURRENCY_MAP, getCurrencySymbol, getCurrencyDecimals, getCurrencyLocale } from './currencySymbolMap';
 
 export const isCryptoCurrency = (currency) => {
-  const cryptoSymbols = ['BTC', 'ETH', 'USDT', 'BNB', 'SOL', 'XRP', 'USDC', 'ADA', 'DOGE', 'AVAX', 'DOT', 'MATIC', 'LINK', 'SHIB', 'LTC'];
+  const cryptoSymbols = ['BTC', 'USDT', 'XMR'];
   return cryptoSymbols.includes(currency);
 };
 
@@ -171,7 +171,6 @@ export const formatCurrencyWithSymbol = (amount, currencyCode = 'BRL') => {
     if (!symbol || symbol === currencyCode) {
       symbol = currencyCode;
       if (currencyCode === 'BTC') symbol = '₿';
-      if (currencyCode === 'ETH') symbol = 'Ξ';
     }
   }
 

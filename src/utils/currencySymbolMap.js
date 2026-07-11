@@ -5,12 +5,8 @@ export const CURRENCY_MAP = {
   USD: { symbol: '$', name: 'Dollar', decimals: 2, locale: 'en-US' },
   EUR: { symbol: '€', name: 'Euro', decimals: 2, locale: 'en-US' },
   BTC: { symbol: '₿', name: 'Bitcoin', decimals: 8, locale: 'pt-BR' },
-  ETH: { symbol: 'Ξ', name: 'Ethereum', decimals: 8, locale: 'pt-BR' },
-  XRP: { symbol: 'XRP', name: 'Ripple', decimals: 6, locale: 'pt-BR' },
   USDT: { symbol: '₮', name: 'Tether', decimals: 6, locale: 'pt-BR' },
-  DOGE: { symbol: 'Ð', name: 'Dogecoin', decimals: 6, locale: 'pt-BR' },
-  ADA: { symbol: '₳', name: 'Cardano', decimals: 6, locale: 'pt-BR' },
-  SOL: { symbol: 'SOL', name: 'Solana', decimals: 6, locale: 'pt-BR' }
+  XMR: { symbol: 'ɱ', name: 'Monero', decimals: 8, locale: 'pt-BR' }
 };
 
 export const FIAT_OPTIONS = [
@@ -21,12 +17,8 @@ export const FIAT_OPTIONS = [
 
 export const CRYPTO_OPTIONS = [
   { value: 'BTC', label: 'Bitcoin (BTC)' },
-  { value: 'ETH', label: 'Ethereum (ETH)' },
-  { value: 'XRP', label: 'Ripple (XRP)' },
   { value: 'USDT', label: 'Tether (USDT)' },
-  { value: 'DOGE', label: 'Dogecoin (DOGE)' },
-  { value: 'ADA', label: 'Cardano (ADA)' },
-  { value: 'SOL', label: 'Solana (SOL)' }
+  { value: 'XMR', label: 'Monero (XMR)' }
 ];
 
 export const getCurrencySymbol = (currencyCode) => {

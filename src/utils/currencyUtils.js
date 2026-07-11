@@ -3,20 +3,14 @@ export const CURRENCY_SYMBOLS = {
   USD: '$',
   EUR: '€',
   BTC: '₿',
-  ETH: 'Ξ',
-  XRP: 'XRP',
-  ADA: '₳',
-  SOL: 'SOL',
-  DOGE: 'Ð'
+  USDT: '₮',
+  XMR: 'ɱ'
 };
 
 export const CRYPTO_IDS = {
   BTC: 'bitcoin',
-  ETH: 'ethereum',
-  XRP: 'ripple',
-  ADA: 'cardano',
-  SOL: 'solana',
-  DOGE: 'dogecoin'
+  USDT: 'tether',
+  XMR: 'monero'
 };
 
 export const getCurrencySymbol = (currency) => {

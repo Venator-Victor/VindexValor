@@ -24,9 +24,8 @@ import {
 describe('isCryptoCurrency', () => {
   it('returns true for known crypto symbols', () => {
     expect(isCryptoCurrency('BTC')).toBe(true);
-    expect(isCryptoCurrency('ETH')).toBe(true);
-    expect(isCryptoCurrency('SOL')).toBe(true);
-    expect(isCryptoCurrency('DOGE')).toBe(true);
+    expect(isCryptoCurrency('USDT')).toBe(true);
+    expect(isCryptoCurrency('XMR')).toBe(true);
   });
 
   it('returns false for fiat currencies', () => {
