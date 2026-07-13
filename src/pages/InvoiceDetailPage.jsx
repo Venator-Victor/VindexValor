@@ -3,7 +3,7 @@ import { useTranslation } from 'react-i18next';
 import { useParams, useNavigate } from 'react-router-dom';
 import { Helmet } from 'react-helmet';
 import { motion } from 'framer-motion';
-import { ArrowLeft, Plus, AlertCircle, Wallet, Link as Link2, TrashAlt as Trash2, ArrowDownRight, ArrowUpRight, Sigma } from '@/components/BxIcon';
+import { ArrowLeft, Plus, AlertCircle, Wallet, Link as Link2, TrashAlt as Trash2, ArrowDownRight, Sigma } from '@/components/BxIcon';
 import { useFinance } from '@/context/FinanceContext';
 import { useAuth } from '@/context/SupabaseAuthContext';
 import { Button } from '@/components/ui/button';
@@ -79,12 +79,20 @@ const InvoiceDetailPage = () => {
         // invoice's own items — a payment line here settles the *previous* invoice.
         const { data: accountInvoices } = await supabase
           .from('invoices')
-          .select('id, account_id, closing_date')
+          .select('id, account_id, closing_date, status')
           .eq('account_id', faturaData.account_id)
           .eq('user_id', user.id);
 
         const { data: accountItems } = await supabase
           .from('invoice_items')
+          .select('invoice_id, amount')
+          .in('invoice_id', (accountInvoices || []).map(inv => inv.id));
+
+        // Any transaction can be linked as a payment (expense/transfer/payment — see
+        // InvoicePaymentLinkModal's eligible-payments query), so what actually settles an
+        // invoice is invoice_id being set, not the transaction's type.
+        const { data: accountPayments } = await supabase
+          .from('transactions')
           .select('invoice_id, amount')
           .in('invoice_id', (accountInvoices || []).map(inv => inv.id));
 
@@ -94,7 +102,13 @@ const InvoiceDetailPage = () => {
           itemsByInvoiceId[item.invoice_id].push(item);
         });
 
-        const balances = computeInvoiceBalances(accountInvoices || [], itemsByInvoiceId);
+        const paymentsByInvoiceId = {};
+        (accountPayments || []).forEach(p => {
+          if (!paymentsByInvoiceId[p.invoice_id]) paymentsByInvoiceId[p.invoice_id] = [];
+          paymentsByInvoiceId[p.invoice_id].push(p);
+        });
+
+        const balances = computeInvoiceBalances(accountInvoices || [], itemsByInvoiceId, paymentsByInvoiceId);
         setBalance(balances[id] || { openingBalance: 0, closingBalance: 0 });
       }
     } catch (err) {
@@ -119,11 +133,12 @@ const InvoiceDetailPage = () => {
     loadData();
   }, [id]);
 
-  // Real spend this period only: purchases (negative) plus refunds (positive, not the
-  // payment item). "What's actually owed" is a separate, cross-invoice figure — see
-  // `balance.closingBalance`, computed via computeInvoiceBalances further down.
+  // This invoice's own period activity: purchases and refunds, excluding only the
+  // payment settlement line (which pays off the *previous* invoice, not this one).
+  // "What's currently owed" (which includes carried-in debt) is a separate figure —
+  // see `remaining`/`balance.closingBalance` further down.
   const totalSaidas = items
-    .filter(c => Number(c.amount) < 0 || !c.is_payment)
+    .filter(c => !c.is_payment)
     .reduce((acc, c) => acc + Number(c.amount || 0), 0);
 
   const handleOpenPaymentModal = () => {
@@ -140,13 +155,13 @@ const InvoiceDetailPage = () => {
 
       if (error) throw error;
 
-      // Only reopen the invoice if the remaining linked payments no longer cover the total —
-      // unlinking one of several payments shouldn't reset the status if the others still add up.
-      const remainingTotalPaid = payments
-        .filter(p => p.id !== paymentId)
-        .reduce((acc, p) => acc + Math.abs(p.amount), 0);
+      // balance.closingBalance already has every currently-linked payment netted in, so
+      // removing this one means adding its magnitude back as debt — only reopen if that
+      // leaves the invoice still owing something (other payments might still cover it).
+      const removedPayment = payments.find(p => p.id === paymentId);
+      const balanceAfterUnlink = balance.closingBalance - Math.abs(removedPayment?.amount || 0);
 
-      if (remainingTotalPaid < Math.abs(balance.closingBalance)) {
+      if (balanceAfterUnlink < 0) {
         await supabase.from('invoices').update({ status: 'open' }).eq('id', id).eq('user_id', user.id);
       }
 
@@ -204,9 +219,10 @@ const InvoiceDetailPage = () => {
   );
 
   const totalPaid = payments.reduce((acc, p) => acc + Math.abs(p.amount), 0);
-  const remaining = Math.abs(balance.closingBalance) - totalPaid;
-
-  const calcTotalColor = balance.closingBalance < 0 ? 'text-red-600 dark:text-red-400' : 'text-foreground';
+  // balance.closingBalance already nets linked payments in (via computeInvoiceBalances),
+  // so what's left owed is just however negative it still is — subtracting totalPaid
+  // again here would double-count every linked payment.
+  const remaining = balance.closingBalance < 0 ? Math.abs(balance.closingBalance) : 0;
 
   return (
     <div className="space-y-6 pb-20 md:pb-0">
@@ -247,7 +263,9 @@ const InvoiceDetailPage = () => {
             <Sigma className="w-4 h-4" />
             <span className="text-sm font-medium">{t('invoice_detail.net_total')}</span>
           </div>
-          <p className={`text-2xl font-bold ${calcTotalColor}`}>{formatCurrency(balance.closingBalance)}</p>
+          <p className={`text-2xl font-bold ${balance.closingBalance < 0 ? 'text-red-600 dark:text-red-400' : 'text-foreground'}`}>
+            {formatCurrency(balance.closingBalance)}
+          </p>
           {balance.openingBalance !== 0 && (
             <p className="text-xs text-muted-foreground mt-1">
               {t('invoice_detail.opening_balance_carried', { amount: formatCurrency(balance.openingBalance) })}
