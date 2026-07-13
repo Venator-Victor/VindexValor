@@ -56,6 +56,8 @@ const Categories = () => {
     addCategory,
     updateCategory,
     deleteCategory,
+    settings,
+    saveSettings,
   } = useFinance();
 
   const { toast } = useToast();
@@ -68,15 +70,12 @@ const Categories = () => {
   const [collapsedIds, setCollapsedIds] = useState(() => new Set());
   const [selectedIds, setSelectedIds] = useState([]);
 
-  const [displayLayout, setDisplayLayout] = useState(() => {
-    return localStorage.getItem('categories_view_preference') || 'card';
-  });
+  const displayLayout = settings.categories_view_preference || 'card';
 
   const [formData, setFormData] = useState(emptyFormData);
 
   const handleLayoutChange = layout => {
-    setDisplayLayout(layout);
-    localStorage.setItem('categories_view_preference', layout);
+    saveSettings({ categories_view_preference: layout });
     setSelectedIds([]);
   };
 

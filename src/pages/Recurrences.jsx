@@ -63,7 +63,8 @@ const Recurrences = () => {
     saveSettings({ recurring_items_view_preference: mode });
   };
 
-  const [dateFilter, setDateFilter] = useState(getDateFilterDefaults());
+  const dateFilter = settings.recurring_items_date_filter || getDateFilterDefaults();
+  const setDateFilter = (filter) => saveSettings({ recurring_items_date_filter: filter });
 
   const statusOptions = [
       { label: t('recurrences.status_active'), value: "active" },

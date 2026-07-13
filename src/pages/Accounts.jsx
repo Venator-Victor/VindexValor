@@ -34,7 +34,8 @@ const Accounts = () => {
   const [editingAccount, setEditingAccount] = useState(null);
   const [deleteId, setDeleteId] = useState(null);
   const [accountInitialData, setAccountInitialData] = useState(null);
-  const [dateFilter, setDateFilter] = useState(getDateFilterDefaults());
+  const dateFilter = settings.accounts_date_filter || getDateFilterDefaults();
+  const setDateFilter = (filter) => saveSettings({ accounts_date_filter: filter });
   const [showNetWorth, setShowNetWorth] = useState(false);
   const [selectedDetailAccount, setSelectedDetailAccount] = useState(null);
   
@@ -57,7 +58,6 @@ const Accounts = () => {
     try {
       if (saveSettings) {
         await saveSettings({ accounts_view_preference: mode });
-        toast({ title: t('accounts.view_updated'), description: t('accounts.view_updated_desc') });
       } else {
         toast({ title: t('common.warning'), description: t('accounts.save_pref_unavailable_desc'), variant: "destructive" });
       }
