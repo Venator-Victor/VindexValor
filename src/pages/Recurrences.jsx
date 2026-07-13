@@ -486,7 +486,7 @@ const Recurrences = () => {
                         </td>
                         <td className="px-6 py-4 text-sm text-gray-700 dark:text-gray-300">
                           <div className="flex items-center gap-2">
-                            <span className="bg-gray-100 text-gray-700 dark:bg-gray-800 dark:text-gray-300 px-2 py-0.5 rounded text-xs font-medium">{item.frequency}</span>
+                            <span className="bg-gray-100 text-gray-700 dark:bg-gray-800 dark:text-gray-300 px-2 py-0.5 rounded text-xs font-medium">{t(`period.${item.frequency}`, item.frequency)}</span>
                           </div>
                         </td>
                         <td className="px-6 py-4 text-sm text-gray-700 dark:text-gray-300">

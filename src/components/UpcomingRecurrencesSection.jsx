@@ -70,7 +70,7 @@ const UpcomingRecurrencesSection = ({ recurrences, selectedPeriod }) => {
             {t('dashboard.upcoming_recurrences_title')}
         </h3>
         <span className="text-xs font-medium px-2 py-1 bg-gray-100 dark:bg-gray-800 rounded-md text-gray-500 dark:text-gray-400">
-            {selectedPeriod}
+            {t(`period.${selectedPeriod}`, selectedPeriod)}
         </span>
       </div>
 
@@ -101,7 +101,7 @@ const UpcomingRecurrencesSection = ({ recurrences, selectedPeriod }) => {
                   </h4>
                   <div className="flex items-center gap-2 mt-1">
                     <span className="text-xs text-gray-500 dark:text-gray-400 bg-white dark:bg-gray-800 px-2 py-0.5 rounded border border-gray-200 dark:border-gray-700">
-                      {item.frequency}
+                      {t(`period.${item.frequency}`, item.frequency)}
                     </span>
                     <span className={`text-xs font-medium ${
                       isLate ? 'text-red-500' : isToday ? 'text-orange-500' : 'text-blue-500'
