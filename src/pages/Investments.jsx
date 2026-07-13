@@ -24,6 +24,7 @@ import InvestmentTypeSelector from '@/components/InvestmentTypeSelector';
 import InvestmentSubtypeSelector from '@/components/InvestmentSubtypeSelector';
 import InvestimentoCard from '@/components/cards/InvestmentCard';
 import { getDateFilterDefaults, getDateFilterRange } from '@/utils/dateFilter';
+import { formatChartDate } from '@/utils/chartDateFormat';
 import { INVESTMENT_TYPES } from '@/utils/investmentTypes';
 
 const Investments = () => {
@@ -38,8 +39,8 @@ const Investments = () => {
   const { items: sortedInvestments, requestSort, sortConfig } = useSortableList(investments);
 
   // Chart Controls
-  const [dateFilter, setDateFilter] = useState(getDateFilterDefaults());
-  const [displayMode, setDisplayMode] = useState('valor_atual'); // 'valor_atual' | 'rentabilidade'
+  const dateFilter = settings.investments_date_filter || getDateFilterDefaults();
+  const setDateFilter = (filter) => saveSettings({ investments_date_filter: filter });
 
   const [formData, setFormData] = useState({
     name: '',
@@ -75,6 +76,7 @@ const Investments = () => {
     const fallbackStart = earliestPurchase ?? new Date(now.getTime() - 30 * 24 * 60 * 60 * 1000);
 
     const { startDate, endDate } = getDateFilterRange(dateFilter, fallbackStart);
+    const totalDays = Math.round((endDate - startDate) / (1000 * 60 * 60 * 24)) + 1;
 
     const days = [];
     const pointsCount = 30; // Approx points for smoothness
@@ -107,15 +109,15 @@ const Investments = () => {
         });
 
         days.push({
-            date: currentDate.toLocaleDateString(i18n.language, { day: '2-digit', month: '2-digit' }),
-            value: displayMode === 'rentabilidade' 
-                ? (dailyTotalInvested > 0 ? ((dailyTotalCurrent - dailyTotalInvested) / dailyTotalInvested) * 100 : 0)
-                : dailyTotalCurrent
+            xKey: i,
+            displayDate: formatChartDate(currentDate, i18n.language, totalDays),
+            invested: dailyTotalInvested,
+            profitability: dailyTotalInvested > 0 ? ((dailyTotalCurrent - dailyTotalInvested) / dailyTotalInvested) * 100 : 0
         });
     }
 
     return days;
-  }, [investments, dateFilter, displayMode, i18n.language]);
+  }, [investments, dateFilter, i18n.language]);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -195,24 +197,6 @@ const Investments = () => {
         <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-4 w-full md:w-auto">
             
             <DateFilterSelect value={dateFilter} onChange={setDateFilter} />
-
-            {/* Display Mode Toggle */}
-            <div className="flex items-center h-[42px] bg-white dark:bg-vindex-card rounded-lg border border-gray-200 dark:border-vindex-border p-1 shadow-sm">
-                 <button
-                    onClick={() => setDisplayMode('valor_atual')}
-                    className={`px-3 py-1.5 text-xs font-medium rounded-md transition-all flex items-center gap-2 ${displayMode === 'valor_atual' ? 'bg-gray-100 dark:bg-vindex-bg text-gray-900 dark:text-gray-100 shadow-sm' : 'text-gray-500 hover:text-gray-700 dark:hover:text-gray-300'}`}
-                 >
-                    <span className="hidden sm:inline">{t('investments.display_current_value')}</span>
-                    <span className="sm:hidden">{t('common.amount')}</span>
-                 </button>
-                 <button
-                    onClick={() => setDisplayMode('rentabilidade')}
-                    className={`px-3 py-1.5 text-xs font-medium rounded-md transition-all flex items-center gap-2 ${displayMode === 'rentabilidade' ? 'bg-gray-100 dark:bg-vindex-bg text-gray-900 dark:text-gray-100 shadow-sm' : 'text-gray-500 hover:text-gray-700 dark:hover:text-gray-300'}`}
-                 >
-                    <TrendingUp size={14} />
-                    <span className="hidden sm:inline">{t('investments.display_return')}</span>
-                 </button>
-            </div>
 
             <ViewToggle value={viewMode} onChange={setViewMode} className="h-[42px]" />
 
@@ -329,9 +313,8 @@ const Investments = () => {
 
       {/* Chart Section - Always Visible */}
       <div className="animate-in fade-in zoom-in-95 duration-300">
-         <InvestmentsChart 
-             data={chartData} 
-             displayMode={displayMode}
+         <InvestmentsChart
+             data={chartData}
          />
       </div>
 
