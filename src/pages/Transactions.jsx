@@ -133,7 +133,7 @@ const Transactions = () => {
     setValueFilterStr('');
     setSelectedCategoryIds([]);
     setDateFilter(getDateFilterDefaults());
-    setFilters({ tipo: '', account_id: '' });
+    setFilters({ type: '', account_id: '' });
   };
 
   const activeCount = [
@@ -268,7 +268,7 @@ const Transactions = () => {
           <div className="flex flex-col lg:col-span-1">
             <SelectInput
               value={filters.type}
-              onChange={(e) => setFilters({ ...filters, tipo: e.target.value })}
+              onChange={(e) => setFilters({ ...filters, type: e.target.value })}
               options={[
                 { label: t('transactions.all_types'), value: "" },
                 { label: t('transactions.type_income'), value: "income" },
