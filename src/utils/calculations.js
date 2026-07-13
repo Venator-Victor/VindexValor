@@ -5,17 +5,32 @@ export const isCryptoCurrency = (currency) => {
   return cryptoSymbols.includes(currency);
 };
 
-// Normalizes a free-typed number so both "1234.56" and "1234,56" parse correctly,
-// regardless of the user's OS/keyboard locale. When both separators are present,
-// "." is treated as a thousands separator and "," as the decimal ("1.234,56" -> "1234.56").
+// Normalizes a free-typed or CSV-sourced number so "1234.56", "1234,56", "R$ 1.234,56"
+// and "(1.234,56)" all parse correctly, regardless of the user's OS/keyboard locale or
+// how a bank export happens to format a particular line. Bank statement CSVs often
+// format one line differently from the rest (a currency prefix, a "CR"/"DB" suffix, a
+// stray non-breaking space) — without stripping that first, parseFloat chokes on the
+// leading garbage and silently returns 0 instead of the real amount. When both "." and
+// "," are present, "." is treated as a thousands separator and "," as the decimal
+// ("1.234,56" -> "1234.56").
 export const parseLocaleNumber = (input) => {
   let str = String(input ?? '').trim();
+
+  // Accounting convention: a value wrapped in parentheses is negative, e.g. "(1.234,56)".
+  const isParenNegative = /^\(.*\)$/.test(str);
+  if (isParenNegative) str = str.slice(1, -1).trim();
+
+  // Strip everything except digits, separators, and a leading minus — currency symbols,
+  // whitespace, and letter suffixes ("R$", "CR", "BRL"...) would otherwise make parseFloat fail.
+  str = str.replace(/[^\d.,-]/g, '');
+
   if (str.includes('.') && str.includes(',')) {
     str = str.replace(/\./g, '').replace(',', '.');
   } else if (str.includes(',')) {
     str = str.replace(',', '.');
   }
-  return str;
+
+  return isParenNegative && !str.startsWith('-') ? `-${str}` : str;
 };
 
 export const calculateTotalBalance = (accounts) => {
@@ -232,6 +247,11 @@ export const calculateAccountBalance = (transactions, accountId, initialBalance 
   return Number(initialBalance || 0) + transactionsSum;
 };
 
+// Accounts of these types are debt by nature — their balance magnitude is
+// always a liability, regardless of sign (a credit card sitting at 0 isn't
+// an asset). Everything else falls back to the sign of its balance.
+const LIABILITY_ACCOUNT_TYPES = ['credit_card', 'loan'];
+
 export const calculateAssetsLiabilities = (transactions = [], accounts = [], recurring = [], exchangeRates = {}) => {
   let assets = 0;
   let liabilities = 0;
@@ -240,11 +260,29 @@ export const calculateAssetsLiabilities = (transactions = [], accounts = [], rec
     accounts.forEach(acc => {
       const currency = acc.currency || 'BRL';
       const rate = exchangeRates[currency] || 1;
+      const convert = (v) => v * (currency === 'BRL' ? 1 : rate);
+      const isCreditCard = acc.type === 'credit_card' || acc.account_subtype === 'credit_card';
+      const isLiabilityType = isCreditCard || LIABILITY_ACCOUNT_TYPES.includes(acc.type) || LIABILITY_ACCOUNT_TYPES.includes(acc.account_subtype);
+
+      // A credit card's `balance` is computed purely from transactions, but card
+      // purchases live in invoices instead — so balance is disconnected from what's
+      // actually owed. current_fatura_value (the invoice system's running total) is
+      // the real debt figure when it's available.
+      if (isCreditCard && acc.current_fatura_value !== undefined) {
+        liabilities += convert(Number(acc.current_fatura_value));
+        return;
+      }
+
       const bal = Number(acc.balance !== undefined ? acc.balance : (acc.initial_balance || 0));
-      const convertedBal = bal * (currency === 'BRL' ? 1 : rate);
-      
-      if (convertedBal > 0) assets += convertedBal;
-      if (convertedBal < 0) liabilities += Math.abs(convertedBal);
+      const convertedBal = convert(bal);
+
+      if (isLiabilityType) {
+        liabilities += Math.abs(convertedBal);
+      } else if (convertedBal > 0) {
+        assets += convertedBal;
+      } else if (convertedBal < 0) {
+        liabilities += Math.abs(convertedBal);
+      }
     });
   }
 

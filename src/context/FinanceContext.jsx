@@ -7,6 +7,7 @@ import { useExchangeRate } from '@/hooks/useExchangeRate';
 import { isCryptoCurrency } from '@/utils/calculations';
 import { validateCreditCardAccount } from '@/utils/accountValidation';
 import { sanitizeUserInput } from '@/utils/securityUtils';
+import { computeInvoiceBalances } from '@/utils/invoiceBalance';
 import i18n from '@/i18n';
 
 const FinanceContext = createContext();
@@ -51,12 +52,14 @@ export const FinanceProvider = ({ children }) => {
   const [transactionTypes, setTransactionTypes] = useState([]);
   const [inflationHistory, setInflationHistory] = useState(mockData.inflationHistory || []);
   const [invoices, setInvoices] = useState([]);
+  const [invoiceItems, setInvoiceItems] = useState([]);
   const [settings, setSettings] = useState({
     theme: 'dark',
     currency: 'BRL',
     language: 'pt-BR',
     transactions_view_preference: 'list',
     categories_period_preference: 'monthly',
+    categories_view_preference: 'card',
     accounts_view_preference: 'card'
   });
   
@@ -87,6 +90,7 @@ export const FinanceProvider = ({ children }) => {
         { data: accData, error: accError },
         { data: catData, error: catError },
         { data: faturaData, error: faturaError },
+        { data: invoiceItemsData, error: invoiceItemsError },
         { data: settingsData, error: settingsError },
         { data: recurringData, error: recurringError },
         { data: parcelsData, error: parcelsError },
@@ -99,6 +103,7 @@ export const FinanceProvider = ({ children }) => {
         supabase.from('accounts').select('id, user_id, name, type, bank, balance, color, created_at, icon, account_subtype, credit_limit, closing_date, due_date, investment_type, expected_return, reload_value, reload_date, total_amount, interest_rate, term_months, amortization_type, holders, initial_balance, currency, crypto_symbol').eq('user_id', user.id),
         supabase.from('categories').select('*').eq('user_id', user.id),
         supabase.from('invoices').select('*, account:accounts(name)').eq('user_id', user.id).order('opening_date', { ascending: false }),
+        supabase.from('invoice_items').select('id, invoice_id, amount, is_payment').eq('user_id', user.id),
         supabase.from('settings').select('*').eq('user_id', user.id).maybeSingle(),
         supabase.from('recurring_items').select('*, categories(name, color)').eq('user_id', user.id).order('next_date', { ascending: true }),
         supabase.from('recurring_installments').select('*').eq('user_id', user.id),
@@ -112,6 +117,7 @@ export const FinanceProvider = ({ children }) => {
       if (accError) console.error("Error fetching accounts:", accError);
       if (catError) console.error("Error fetching categories:", catError);
       if (faturaError) console.error("Error fetching faturas:", faturaError);
+      if (invoiceItemsError) console.error("Error fetching invoice items:", invoiceItemsError);
       if (settingsError && settingsError.code !== 'PGRST116') console.error("Error fetching settings:", settingsError);
       if (recurringError) console.error("Error fetching recurring:", recurringError);
       if (parcelsError) console.error("Error fetching parcels:", parcelsError);
@@ -122,6 +128,7 @@ export const FinanceProvider = ({ children }) => {
       setAccounts(accData || []);
       setCategories(catData || []);
       setInvoices(faturaData || []);
+      setInvoiceItems(invoiceItemsData || []);
       setRecurring(recurringData || []);
       setParcels(parcelsData || []);
       setTransactionTypes(txTypesData || []);
@@ -224,12 +231,50 @@ export const FinanceProvider = ({ children }) => {
     return rates;
   }, [fetchedExchangeRates, accounts]);
 
+  // Per-invoice running balances (purchases minus linked payments, carried across
+  // billing cycles) — the same calculation the Invoices page's own "Total" column
+  // uses, computed once here so credit card accounts can surface their current debt.
+  const invoiceBalancesByInvoiceId = useMemo(() => {
+    const itemsByInvoiceId = {};
+    invoiceItems.forEach(item => {
+      if (!itemsByInvoiceId[item.invoice_id]) itemsByInvoiceId[item.invoice_id] = [];
+      itemsByInvoiceId[item.invoice_id].push(item);
+    });
+
+    // Any transaction can be linked as a payment (expense/transfer/payment — see
+    // InvoicePaymentLinkModal's eligible-payments query), so what actually settles an
+    // invoice is invoice_id being set, not the transaction's type.
+    const paymentsByInvoiceId = {};
+    transactions.forEach(tx => {
+      if (!tx.invoice_id) return;
+      if (!paymentsByInvoiceId[tx.invoice_id]) paymentsByInvoiceId[tx.invoice_id] = [];
+      paymentsByInvoiceId[tx.invoice_id].push(tx);
+    });
+
+    return computeInvoiceBalances(invoices, itemsByInvoiceId, paymentsByInvoiceId);
+  }, [invoices, invoiceItems, transactions]);
+
   const calculatedAccounts = useMemo(() => {
-    return accounts.map(acc => ({
-      ...acc,
-      balance: accountBalances[acc.id] ?? acc.initial_balance ?? 0
-    }));
-  }, [accounts, accountBalances]);
+    return accounts.map(acc => {
+      const isCreditCard = acc.type === 'credit_card' || acc.account_subtype === 'credit_card';
+      if (!isCreditCard) {
+        return { ...acc, balance: accountBalances[acc.id] ?? acc.initial_balance ?? 0 };
+      }
+
+      // "Current invoice" debt = the most recent invoice's carried closing balance
+      // (negative = owed, positive/zero = nothing owed or a credit).
+      const latestInvoice = invoices
+        .filter(inv => inv.account_id === acc.id)
+        .sort((a, b) => new Date(b.closing_date) - new Date(a.closing_date) || new Date(b.opening_date) - new Date(a.opening_date))[0];
+      const closingBalance = latestInvoice ? (invoiceBalancesByInvoiceId[latestInvoice.id]?.closingBalance ?? 0) : 0;
+
+      return {
+        ...acc,
+        balance: accountBalances[acc.id] ?? acc.initial_balance ?? 0,
+        current_fatura_value: closingBalance < 0 ? Math.abs(closingBalance) : 0,
+      };
+    });
+  }, [accounts, accountBalances, invoices, invoiceBalancesByInvoiceId]);
 
   // Fatura Operations
   const fetchInvoices = async () => {
@@ -271,6 +316,7 @@ export const FinanceProvider = ({ children }) => {
       .select()
       .single();
     if (error) throw error;
+    setInvoiceItems(prev => [...prev, { id: data.id, invoice_id: data.invoice_id, amount: data.amount, is_payment: data.is_payment }]);
     return data;
   };
 
@@ -284,6 +330,7 @@ export const FinanceProvider = ({ children }) => {
       .select()
       .single();
     if (error) throw error;
+    setInvoiceItems(prev => prev.map(item => item.id === id ? { id: data.id, invoice_id: data.invoice_id, amount: data.amount, is_payment: data.is_payment } : item));
     return data;
   };
 
@@ -295,6 +342,7 @@ export const FinanceProvider = ({ children }) => {
       .eq('id', id)
       .eq('user_id', user.id);
     if (error) throw error;
+    setInvoiceItems(prev => prev.filter(item => item.id !== id));
     return true;
   };
 
@@ -647,6 +695,7 @@ export const FinanceProvider = ({ children }) => {
     transactionTypes,
     inflationHistory,
     invoices,
+    invoiceItems,
     settings,
     setSettings,
     isLoading,

@@ -13,6 +13,7 @@ import {
   convertCurrency,
   calculateAccountBalance,
   calculateAssetsLiabilities,
+  parseLocaleNumber,
   calculateFaturaTotal,
   calculateFaturaSaidas,
   calculateFaturaEntradas,
@@ -38,6 +39,46 @@ describe('isCryptoCurrency', () => {
     expect(isCryptoCurrency('')).toBe(false);
     expect(isCryptoCurrency(undefined)).toBe(false);
     expect(isCryptoCurrency(null)).toBe(false);
+  });
+});
+
+// ─── parseLocaleNumber ────────────────────────────────────────────────────────
+
+describe('parseLocaleNumber', () => {
+  it('parses plain and dot-decimal numbers unchanged', () => {
+    expect(parseLocaleNumber('1234.56')).toBe('1234.56');
+    expect(parseLocaleNumber('1234')).toBe('1234');
+  });
+
+  it('converts a comma decimal to a dot', () => {
+    expect(parseLocaleNumber('1234,56')).toBe('1234.56');
+  });
+
+  it('treats "." as a thousands separator when both "." and "," are present', () => {
+    expect(parseLocaleNumber('1.234,56')).toBe('1234.56');
+  });
+
+  it('preserves a leading minus sign', () => {
+    expect(parseLocaleNumber('-1.234,56')).toBe('-1234.56');
+  });
+
+  it('strips a currency symbol and stray whitespace', () => {
+    expect(parseLocaleNumber('R$ 1.234,56')).toBe('1234.56');
+    expect(parseLocaleNumber(' 1.234,56 ')).toBe('1234.56');
+  });
+
+  it('strips a trailing bank credit/debit suffix', () => {
+    expect(parseLocaleNumber('1.234,56 CR')).toBe('1234.56');
+  });
+
+  it('treats a parenthesized value as negative (accounting convention)', () => {
+    expect(parseLocaleNumber('(1.234,56)')).toBe('-1234.56');
+  });
+
+  it('handles empty/nullish input', () => {
+    expect(parseLocaleNumber('')).toBe('');
+    expect(parseLocaleNumber(null)).toBe('');
+    expect(parseLocaleNumber(undefined)).toBe('');
   });
 });
 
@@ -387,6 +428,27 @@ describe('calculateAssetsLiabilities', () => {
     const { assets, liabilities } = calculateAssetsLiabilities([], accounts);
     expect(assets).toBe(0);
     expect(liabilities).toBe(500);
+  });
+
+  it('counts a credit card balance as a liability even when positive', () => {
+    const accounts = [{ balance: 350, currency: 'BRL', type: 'credit_card' }];
+    const { assets, liabilities } = calculateAssetsLiabilities([], accounts);
+    expect(assets).toBe(0);
+    expect(liabilities).toBe(350);
+  });
+
+  it('prefers current_fatura_value over balance for a credit card, since balance is disconnected from invoice debt', () => {
+    const accounts = [{ balance: 0, currency: 'BRL', type: 'credit_card', current_fatura_value: 842.5 }];
+    const { assets, liabilities } = calculateAssetsLiabilities([], accounts);
+    expect(assets).toBe(0);
+    expect(liabilities).toBe(842.5);
+  });
+
+  it('counts a loan account (identified via account_subtype) as a liability', () => {
+    const accounts = [{ balance: 1200, currency: 'BRL', account_subtype: 'loan' }];
+    const { assets, liabilities } = calculateAssetsLiabilities([], accounts);
+    expect(assets).toBe(0);
+    expect(liabilities).toBe(1200);
   });
 
   it('applies exchange rate to foreign currency accounts', () => {

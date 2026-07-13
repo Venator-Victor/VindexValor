@@ -67,6 +67,78 @@ describe('computeInvoiceBalances', () => {
     const result = computeInvoiceBalances(invoices, {});
     expect(result.empty).toEqual({ openingBalance: 0, periodTotal: 0, closingBalance: 0 });
   });
+
+  it('nets a linked payment transaction against the invoice it was paid through, carrying the reduced balance forward', () => {
+    const invoices = [
+      { id: 'i1', account_id: 'acc1', closing_date: '2024-05-01' },
+      { id: 'i2', account_id: 'acc1', closing_date: '2024-06-01' },
+    ];
+    const itemsByInvoiceId = {
+      i1: [{ amount: -100 }],
+      i2: [{ amount: -40 }],
+    };
+    // App-linked payment: a transactions row (negative amount) attached via invoice_id,
+    // not an invoice_items row — fully settles i1's 100 debt.
+    const paymentsByInvoiceId = {
+      i1: [{ amount: -100 }],
+    };
+
+    const result = computeInvoiceBalances(invoices, itemsByInvoiceId, paymentsByInvoiceId);
+
+    expect(result.i1.closingBalance).toBe(0);
+    // i1 was fully paid, so i2 should start from 0, not from -100.
+    expect(result.i2.openingBalance).toBe(0);
+    expect(result.i2.closingBalance).toBe(-40);
+  });
+
+  it('does not carry a paid invoice\'s debt forward, even if its own items/payments do not net to zero', () => {
+    // Three invoices marked paid (e.g. via a manual status edit, or paid by some means
+    // outside the app) with no offsetting items/payments recorded at all — each still
+    // reports its own historical -1000, but none of that should reach the last invoice.
+    const invoices = [
+      { id: 'jan', account_id: 'acc1', closing_date: '2024-01-01', status: 'paid' },
+      { id: 'feb', account_id: 'acc1', closing_date: '2024-02-01', status: 'paid' },
+      { id: 'mar', account_id: 'acc1', closing_date: '2024-03-01', status: 'paid' },
+      { id: 'apr', account_id: 'acc1', closing_date: '2024-04-01', status: 'open' },
+    ];
+    const itemsByInvoiceId = {
+      jan: [{ amount: -1000 }],
+      feb: [{ amount: -1000 }],
+      mar: [{ amount: -1000 }],
+      apr: [{ amount: -1000 }],
+    };
+
+    const result = computeInvoiceBalances(invoices, itemsByInvoiceId);
+
+    // Each paid invoice still shows what it actually billed, historically.
+    expect(result.jan.closingBalance).toBe(-1000);
+    expect(result.feb.closingBalance).toBe(-1000);
+    expect(result.mar.closingBalance).toBe(-1000);
+    // But none of that carries forward — the last (unpaid) invoice only owes its own amount.
+    expect(result.apr.openingBalance).toBe(0);
+    expect(result.apr.closingBalance).toBe(-1000);
+  });
+
+  it('resumes carrying the balance forward again after an unpaid invoice breaks the paid streak', () => {
+    const invoices = [
+      { id: 'jan', account_id: 'acc1', closing_date: '2024-01-01', status: 'paid' },
+      { id: 'feb', account_id: 'acc1', closing_date: '2024-02-01', status: 'open' },
+      { id: 'mar', account_id: 'acc1', closing_date: '2024-03-01', status: 'open' },
+    ];
+    const itemsByInvoiceId = {
+      jan: [{ amount: -1000 }],
+      feb: [{ amount: -500 }],
+      mar: [{ amount: -200 }],
+    };
+
+    const result = computeInvoiceBalances(invoices, itemsByInvoiceId);
+
+    expect(result.feb.openingBalance).toBe(0);
+    expect(result.feb.closingBalance).toBe(-500);
+    // feb is unpaid, so mar carries feb's debt forward as usual.
+    expect(result.mar.openingBalance).toBe(-500);
+    expect(result.mar.closingBalance).toBe(-700);
+  });
 });
 
 describe('getEffectiveInvoiceStatus', () => {

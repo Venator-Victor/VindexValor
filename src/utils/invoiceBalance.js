@@ -4,10 +4,26 @@
 // previous invoice's carried balance plus this period's activity, same as how account
 // balances are computed client-side from transaction history rather than stored.
 //
+// A payment can settle an invoice two different ways: a CSV-imported statement may
+// include its own payment line directly in invoice_items (flagged is_payment, already
+// netted into the item sum below), or the app's own "link a payment" flow attaches an
+// existing transactions row via invoice_id instead (any type — expense/transfer/payment,
+// see InvoicePaymentLinkModal's eligible-payments query) — that one lives outside
+// invoice_items, so it has to be netted in separately or a linked payment would never
+// actually reduce the running balance carried into the next invoice.
+//
+// An invoice marked 'paid' — whether that came from the numbers above reconciling, a
+// manual status edit, or the CSV import's "confirmed payment" flag — is settled by
+// definition, so nothing about it carries into the next invoice's opening balance even
+// if its own items/payments don't add up to a clean zero (rounding, a payment made
+// outside the app, interest the statement doesn't itemize...). Without this, three paid
+// invoices at -1000 each still pile their debt onto the fourth, showing -4000 owed
+// instead of just that invoice's own -1000.
+//
 // Walks each account's invoices in chronological order (by closing_date) and returns,
 // per invoice: the balance carried in, this period's raw item sum, and the resulting
 // balance carried out (which becomes the next invoice's opening balance).
-export const computeInvoiceBalances = (invoices, itemsByInvoiceId) => {
+export const computeInvoiceBalances = (invoices, itemsByInvoiceId, paymentsByInvoiceId = {}) => {
   const byAccount = {};
   for (const inv of invoices) {
     if (!byAccount[inv.account_id]) byAccount[inv.account_id] = [];
@@ -22,11 +38,16 @@ export const computeInvoiceBalances = (invoices, itemsByInvoiceId) => {
     let runningBalance = 0;
     for (const inv of sorted) {
       const items = itemsByInvoiceId[inv.id] || [];
-      const periodTotal = items.reduce((sum, item) => sum + Number(item.amount || 0), 0);
+      const payments = paymentsByInvoiceId[inv.id] || [];
+      const itemsTotal = items.reduce((sum, item) => sum + Number(item.amount || 0), 0);
+      // Payment transaction amounts are stored negative (money leaving the paying
+      // account) — their magnitude offsets debt the same direction an is_payment item does.
+      const paymentsTotal = payments.reduce((sum, p) => sum + Math.abs(Number(p.amount || 0)), 0);
+      const periodTotal = itemsTotal + paymentsTotal;
       const openingBalance = runningBalance;
       const closingBalance = openingBalance + periodTotal;
       result[inv.id] = { openingBalance, periodTotal, closingBalance };
-      runningBalance = closingBalance;
+      runningBalance = inv.status === 'paid' ? 0 : closingBalance;
     }
   }
   return result;
