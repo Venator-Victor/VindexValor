@@ -4,9 +4,10 @@ import { formatCurrency } from '@/utils/calculations';
 import { motion } from 'framer-motion';
 import { useNavigate } from 'react-router-dom';
 import BxIcon, { ListUl, Ghost } from '@/components/BxIcon';
+import { getDateFilterLabel } from '@/utils/dateFilter';
 
-const RecentTransactionsSection = ({ transactions, categories, selectedPeriod }) => {
-  const { t } = useTranslation();
+const RecentTransactionsSection = ({ transactions, categories, dateFilter }) => {
+  const { t, i18n } = useTranslation();
   const navigate = useNavigate();
   
   // Transactions are already filtered by parent for the selected period
@@ -33,7 +34,7 @@ const RecentTransactionsSection = ({ transactions, categories, selectedPeriod })
             {t('nav.transactions')}
         </h3>
         <span className="text-xs font-medium px-2 py-1 bg-gray-100 dark:bg-gray-800 rounded-md text-gray-500 dark:text-gray-400">
-            {t(`period.${selectedPeriod}`)}
+            {getDateFilterLabel(dateFilter, t, i18n)}
         </span>
       </div>
 

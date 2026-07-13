@@ -61,6 +61,40 @@ export const getDateFilterRange = (filter, fallbackStartDate) => {
   }
 };
 
+// Human-readable label for a filter, mirroring DateFilterSelect's own trigger
+// label — used by components that only need to *display* the active period
+// (badges, captions) rather than filter by it.
+export const getDateFilterLabel = (filter, t, i18n) => {
+  const formatDate = (isoStr) => {
+    if (!isoStr) return '';
+    const [y, m, d] = isoStr.split('-');
+    return new Date(Number(y), Number(m) - 1, Number(d)).toLocaleDateString(i18n.language);
+  };
+
+  switch (filter?.type) {
+    case 'last_week':
+      return t('common.date_filter_last_week');
+    case 'last_month':
+      return t('common.date_filter_last_month');
+    case 'last_year':
+      return t('common.date_filter_last_year');
+    case 'month': {
+      if (!filter.month || !filter.year) return t('common.date_filter_month');
+      const monthLabel = new Date(2000, filter.month - 1, 1).toLocaleDateString(i18n.language, { month: 'long' });
+      return `${monthLabel} ${filter.year}`;
+    }
+    case 'year':
+      return filter.year ? String(filter.year) : t('common.date_filter_year');
+    case 'period':
+      if (filter.startDate || filter.endDate) {
+        return `${formatDate(filter.startDate) || '…'} - ${formatDate(filter.endDate) || '…'}`;
+      }
+      return t('common.date_filter_period');
+    default:
+      return t('common.date_filter_all');
+  }
+};
+
 export const matchesDateFilter = (dateStr, filter) => {
   if (!filter || !filter.type) return true;
   if (!dateStr) return false;

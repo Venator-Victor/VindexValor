@@ -6,6 +6,7 @@ import { formatCurrency, isCryptoCurrency } from '@/utils/calculations';
 import { motion } from 'framer-motion';
 import { useTheme } from '@/context/ThemeContext';
 import { DoughnutChart } from '@/components/BxIcon';
+import { getDateFilterLabel } from '@/utils/dateFilter';
 
 const CustomTooltip = ({ active, payload, data, t }) => {
   if (active && payload && payload.length && !data.isEmpty) {
@@ -24,8 +25,8 @@ const CustomTooltip = ({ active, payload, data, t }) => {
   return null;
 };
 
-const AssetCompositionChart = ({ accounts = [], investments = [], recurring = [], exchangeRates = {}, selectedPeriod }) => {
-  const { t } = useTranslation();
+const AssetCompositionChart = ({ accounts = [], investments = [], recurring = [], exchangeRates = {}, dateFilter }) => {
+  const { t, i18n } = useTranslation();
   const { theme } = useTheme();
   const isDark = theme === 'dark';
 
@@ -97,7 +98,7 @@ const AssetCompositionChart = ({ accounts = [], investments = [], recurring = []
             {t('dashboard.composition_title')}
           </h3>
           <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">
-             {t('dashboard.assets_vs_liabilities', { period: t(`period.${selectedPeriod}`) })}
+             {t('dashboard.assets_vs_liabilities', { period: getDateFilterLabel(dateFilter, t, i18n) })}
           </p>
         </div>
       </div>

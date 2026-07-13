@@ -15,29 +15,30 @@ import { formatCurrency } from '@/utils/calculations';
 import { RefreshCw as Loader2 } from '@/components/BxIcon';
 import { useTranslation } from 'react-i18next';
 import { motion } from 'framer-motion';
-const BudgetConsumptionChart = ({ selectedPeriod, filteredTransactions }) => {
+import { getDateFilterRange, getDateFilterLabel } from '@/utils/dateFilter';
+
+// Beyond ~2 months, day-level labels ("13/07") are too dense to be useful — switch to
+// short month+day labels instead.
+const MONTH_LABEL_THRESHOLD_DAYS = 60;
+
+const BudgetConsumptionChart = ({ dateFilter, filteredTransactions }) => {
   const { t, i18n } = useTranslation();
   const { categories, isLoading } = useFinance();
   const { theme } = useTheme();
   const isDark = theme === 'dark';
 
-  // 1. Calculate Total Planned Budget proportional to the period
-  const totalPeriodBudget = useMemo(() => {
+  // 1. Calculate Total Planned Budget proportional to the selected period's day span
+  const { totalPeriodBudget, periodDays } = useMemo(() => {
     // Sum monthly limits
     const monthlyTotal = categories.reduce((sum, cat) => sum + (cat.budget_enabled ? Number(cat.spending_limit || 0) : 0), 0);
-    
-    // Adjust based on period (approximation)
-    switch(selectedPeriod) {
-        case 'daily': return monthlyTotal / 30;
-        case 'weekly': return (monthlyTotal / 30) * 7;
-        case 'biweekly': return monthlyTotal / 2;
-        case 'quarterly': return monthlyTotal * 3;
-        case 'semiannual': return monthlyTotal * 6;
-        case 'yearly': return monthlyTotal * 12;
-        case 'monthly':
-        default: return monthlyTotal;
-    }
-  }, [categories, selectedPeriod]);
+
+    const fallbackStart = new Date();
+    fallbackStart.setDate(fallbackStart.getDate() - 30);
+    const { startDate, endDate } = getDateFilterRange(dateFilter, fallbackStart);
+    const days = Math.max(1, Math.round((endDate - startDate) / (1000 * 60 * 60 * 24)) + 1);
+
+    return { totalPeriodBudget: monthlyTotal * (days / 30), periodDays: days };
+  }, [categories, dateFilter]);
 
   // 2. Generate Trend Data based on Filtered Transactions and Period
   const data = useMemo(() => {
@@ -82,7 +83,7 @@ const BudgetConsumptionChart = ({ selectedPeriod, filteredTransactions }) => {
         const dateObj = new Date(dateStr + 'T12:00:00');
         
         let label = '';
-        if (selectedPeriod === 'yearly' || selectedPeriod === 'semiannual') {
+        if (periodDays > MONTH_LABEL_THRESHOLD_DAYS) {
              label = dateObj.toLocaleDateString(i18n.language, { month: 'short', day: 'numeric' });
         } else {
              label = dateObj.toLocaleDateString(i18n.language, { day: '2-digit', month: '2-digit' });
@@ -97,7 +98,7 @@ const BudgetConsumptionChart = ({ selectedPeriod, filteredTransactions }) => {
     });
 
     return result;
-  }, [filteredTransactions, selectedPeriod, totalPeriodBudget, i18n.language]);
+  }, [filteredTransactions, periodDays, totalPeriodBudget, i18n.language]);
 
   const currentConsumption = data.length > 0 ? data[data.length - 1].accumulated : 0;
   const remaining = totalPeriodBudget - currentConsumption;
@@ -139,7 +140,7 @@ const BudgetConsumptionChart = ({ selectedPeriod, filteredTransactions }) => {
            <span className="text-lg font-normal text-gray-500 dark:text-gray-400"> {remaining >= 0 ? t('dashboard.remaining_label') : t('dashboard.exceeded_label')}</span>
         </h3>
         <p className="text-sm font-medium text-gray-500 dark:text-gray-400 mt-1 bg-white/50 dark:bg-black/20 px-3 py-1 rounded-full backdrop-blur-sm">
-           {t('dashboard.budgeted_label', { amount: formatCurrency(totalPeriodBudget), period: t(`period.${selectedPeriod}`) })}
+           {t('dashboard.budgeted_label', { amount: formatCurrency(totalPeriodBudget), period: getDateFilterLabel(dateFilter, t, i18n) })}
         </p>
       </div>
 

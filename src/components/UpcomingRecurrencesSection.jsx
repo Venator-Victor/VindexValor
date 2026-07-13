@@ -4,27 +4,25 @@ import { formatCurrency } from '@/utils/calculations';
 import { motion } from 'framer-motion';
 import { Calendar as CalendarClock } from '@/components/BxIcon';
 import { CalendarCheck } from '@/components/BxIcon';
+import { getDateFilterRange, getDateFilterLabel } from '@/utils/dateFilter';
 
-const UpcomingRecurrencesSection = ({ recurrences, selectedPeriod }) => {
+const UpcomingRecurrencesSection = ({ recurrences, dateFilter }) => {
   const { t, i18n } = useTranslation();
 
-  // Filter recurrences based on selected period window
+  // "Upcoming" always looks forward from today — the calendar date filter can point at
+  // a past or specific range, so we borrow only its *span length* as how far ahead to
+  // look, rather than its literal start/end (which would often be behind today).
   const upcoming = useMemo(() => {
     const today = new Date();
     today.setHours(0,0,0,0);
-    
-    // Define end date based on period
+
+    const fallbackStart = new Date(today);
+    fallbackStart.setDate(today.getDate() - 30);
+    const { startDate: rangeStart, endDate: rangeEnd } = getDateFilterRange(dateFilter, fallbackStart);
+    const spanDays = Math.max(1, Math.round((rangeEnd - rangeStart) / (1000 * 60 * 60 * 24)) + 1);
+
     const endDate = new Date(today);
-    switch(selectedPeriod) {
-        case 'daily': endDate.setDate(today.getDate() + 1); break;
-        case 'weekly': endDate.setDate(today.getDate() + 7); break;
-        case 'biweekly': endDate.setDate(today.getDate() + 15); break;
-        case 'monthly': endDate.setMonth(today.getMonth() + 1); break;
-        case 'quarterly': endDate.setMonth(today.getMonth() + 3); break;
-        case 'semiannual': endDate.setMonth(today.getMonth() + 6); break;
-        case 'yearly': endDate.setFullYear(today.getFullYear() + 1); break;
-        default: endDate.setMonth(today.getMonth() + 1);
-    }
+    endDate.setDate(today.getDate() + spanDays);
 
     return recurrences
       .filter(r => {
@@ -37,7 +35,7 @@ const UpcomingRecurrencesSection = ({ recurrences, selectedPeriod }) => {
       })
       .sort((a, b) => new Date(a.next_date) - new Date(b.next_date))
       .slice(0, 5);
-  }, [recurrences, selectedPeriod]);
+  }, [recurrences, dateFilter]);
 
   const formatDate = (dateString) => {
     if (!dateString) return t('dashboard.undefined_date');
@@ -70,7 +68,7 @@ const UpcomingRecurrencesSection = ({ recurrences, selectedPeriod }) => {
             {t('dashboard.upcoming_recurrences_title')}
         </h3>
         <span className="text-xs font-medium px-2 py-1 bg-gray-100 dark:bg-gray-800 rounded-md text-gray-500 dark:text-gray-400">
-            {t(`period.${selectedPeriod}`, selectedPeriod)}
+            {getDateFilterLabel(dateFilter, t, i18n)}
         </span>
       </div>
 

@@ -1,4 +1,4 @@
-import React, { useState, useMemo } from 'react';
+import React, { useMemo } from 'react';
 import { Helmet } from 'react-helmet';
 import { motion } from 'framer-motion';
 import { useTranslation } from 'react-i18next';
@@ -14,7 +14,7 @@ import { Wallet, TrendingDown, TrendingUp } from '@/components/BxIcon';
 import BudgetConsumptionChart from '@/components/BudgetConsumptionChart';
 import AssetLiabilityChart from '@/components/AssetLiabilityChart';
 import AssetCompositionChart from '@/components/AssetCompositionChart';
-import DashboardPeriodSelector from '@/components/DashboardPeriodSelector';
+import DateFilterSelect from '@/components/ui/DateFilterSelect';
 import TopCategoriesSection from '@/components/TopCategoriesSection';
 import RecentTransactionsSection from '@/components/RecentTransactionsSection';
 import UpcomingRecurrencesSection from '@/components/UpcomingRecurrencesSection';
@@ -23,53 +23,27 @@ import BetaWarningModal from '@/components/BetaWarningModal';
 import useBetaWarning from '@/hooks/useBetaWarning';
 import OnboardingChecklist from '@/components/OnboardingChecklist';
 import { useTheme } from '@/context/ThemeContext';
+import { getDateFilterDefaults, matchesDateFilter } from '@/utils/dateFilter';
 
 const Dashboard = () => {
   const { t } = useTranslation();
-  const { transactions, accounts, investments, recurring, categories, exchangeRates } = useFinance();
+  const { transactions, accounts, investments, recurring, categories, exchangeRates, settings, saveSettings } = useFinance();
   const { theme } = useTheme();
 
-  const [selectedPeriod, setSelectedPeriod] = useState('monthly');
-  
+  const dateFilter = settings.dashboard_date_filter || getDateFilterDefaults();
+  const setDateFilter = (filter) => saveSettings({ dashboard_date_filter: filter });
+
   const { showModal, dismissModal } = useBetaWarning();
-
-  const getStartDate = (period) => {
-    const now = new Date();
-    const today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
-
-    switch(period) {
-      case 'daily': return today;
-      case 'weekly': { const d = new Date(today); d.setDate(today.getDate() - 7); return d; }
-      case 'biweekly': { const d = new Date(today); d.setDate(today.getDate() - 15); return d; }
-      case 'monthly': return new Date(today.getFullYear(), today.getMonth(), 1);
-      case 'quarterly': { const d = new Date(today); d.setMonth(today.getMonth() - 3); return d; }
-      case 'semiannual': { const d = new Date(today); d.setMonth(today.getMonth() - 6); return d; }
-      case 'yearly': return new Date(today.getFullYear(), 0, 1);
-      default: return new Date(0);
-    }
-  };
-
-  const startDate = useMemo(() => getStartDate(selectedPeriod), [selectedPeriod]);
-  const now = new Date();
-  const endDate = new Date(now.getFullYear(), now.getMonth(), now.getDate(), 23, 59, 59);
 
   const filteredTransactions = useMemo(() => {
     if (!Array.isArray(transactions)) return [];
-    return transactions.filter(t => {
-      if (!t || !t.date) return false;
-      const tDate = new Date(t.date + 'T12:00:00');
-      return tDate >= startDate && tDate <= endDate;
-    });
-  }, [transactions, startDate, endDate]);
+    return transactions.filter(t => t && matchesDateFilter(t.date, dateFilter));
+  }, [transactions, dateFilter]);
 
   const filteredInvestments = useMemo(() => {
     if (!Array.isArray(investments)) return [];
-    return investments.filter(inv => {
-      if (!inv || !inv.purchase_date) return false;
-      const invDate = new Date(inv.purchase_date + 'T12:00:00');
-      return invDate >= startDate && invDate <= endDate;
-    });
-  }, [investments, startDate, endDate]);
+    return investments.filter(inv => inv && matchesDateFilter(inv.purchase_date, dateFilter));
+  }, [investments, dateFilter]);
 
   const totalBalanceBRL = accounts.reduce((sum, acc) => {
     const currency = acc.currency || 'BRL';
@@ -150,7 +124,7 @@ const Dashboard = () => {
           <p className="text-gray-600 dark:text-gray-400 text-sm">{t('dashboard.subtitle')}</p>
         </div>
         <div className="flex items-center gap-3">
-          <DashboardPeriodSelector value={selectedPeriod} onChange={setSelectedPeriod} />
+          <DateFilterSelect value={dateFilter} onChange={setDateFilter} />
         </div>
       </div>
 
@@ -180,28 +154,28 @@ const Dashboard = () => {
       </div>
 
       <div className="w-full">
-         <BudgetConsumptionChart selectedPeriod={selectedPeriod} filteredTransactions={filteredTransactions} />
+         <BudgetConsumptionChart dateFilter={dateFilter} filteredTransactions={filteredTransactions} />
       </div>
 
       <div className="w-full">
-        <AssetLiabilityChart totalAssets={totalAssets} totalLiabilities={totalLiabilities} selectedPeriod={selectedPeriod} filteredTransactions={filteredTransactions} />
+        <AssetLiabilityChart totalAssets={totalAssets} totalLiabilities={totalLiabilities} dateFilter={dateFilter} filteredTransactions={filteredTransactions} />
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
         <div className="col-span-1 h-[400px]">
-          <TopCategoriesSection transactions={filteredTransactions} categories={categories} selectedPeriod={selectedPeriod} />
+          <TopCategoriesSection transactions={filteredTransactions} categories={categories} dateFilter={dateFilter} />
         </div>
         <div className="col-span-1 h-[400px]">
-          <RecentTransactionsSection transactions={filteredTransactions} categories={categories} selectedPeriod={selectedPeriod} />
+          <RecentTransactionsSection transactions={filteredTransactions} categories={categories} dateFilter={dateFilter} />
         </div>
         <div className="col-span-1 h-[400px]">
-          <UpcomingRecurrencesSection recurrences={recurring} selectedPeriod={selectedPeriod} />
+          <UpcomingRecurrencesSection recurrences={recurring} dateFilter={dateFilter} />
         </div>
       </div>
 
       <div className="grid grid-cols-1 gap-6">
         <div className="h-[400px]">
-          <AssetCompositionChart accounts={accounts} investments={investments} recurring={recurring} exchangeRates={exchangeRates} selectedPeriod={selectedPeriod} />
+          <AssetCompositionChart accounts={accounts} investments={investments} recurring={recurring} exchangeRates={exchangeRates} dateFilter={dateFilter} />
         </div>
       </div>
       
