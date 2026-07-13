@@ -5,6 +5,10 @@ import { BarChart, Bar, Tooltip, ResponsiveContainer, XAxis, CartesianGrid } fro
 import { formatCurrency } from '@/utils/calculations';
 import { motion } from 'framer-motion';
 import { useTheme } from '@/context/ThemeContext';
+import { getDateFilterRange } from '@/utils/dateFilter';
+
+// Custom 'period' ranges can span arbitrary years; cap bars so the chart stays readable/fast.
+const MAX_CHART_DAYS = 400;
 
 const CustomTooltip = ({ active, payload, label, t }) => {
   if (active && payload && payload.length) {
@@ -27,11 +31,23 @@ const CustomTooltip = ({ active, payload, label, t }) => {
   return null;
 };
 
+// Legacy rolling-window periods (still used by the Dashboard's own period selector).
+const ROLLING_WINDOW_DAYS = {
+  daily: 1,
+  weekly: 7,
+  biweekly: 15,
+  monthly: 30,
+  quarterly: 90,
+  semiannual: 180,
+  yearly: 365,
+};
+
 const AssetLiabilityChart = ({
   totalAssets,
   totalLiabilities,
+  dateFilter,
   selectedPeriod,
-  filteredTransactions = [], 
+  filteredTransactions = [],
   showNetWorth = true
 }) => {
   const { t, i18n } = useTranslation();
@@ -40,7 +56,7 @@ const AssetLiabilityChart = ({
 
   const data = useMemo(() => {
     const safeTransactions = Array.isArray(filteredTransactions) ? filteredTransactions : [];
-    
+
     // Group transactions by date
     const txByDate = {};
     safeTransactions.forEach(tx => {
@@ -49,7 +65,7 @@ const AssetLiabilityChart = ({
         if (!txByDate[d]) {
            txByDate[d] = { name: d, assets: 0, liabilities: 0 };
         }
-        
+
         if (tx.type === 'income') {
            txByDate[d].assets += Math.abs(tx.amount);
         } else if (tx.type === 'expense') {
@@ -57,24 +73,45 @@ const AssetLiabilityChart = ({
         }
     });
 
-    let daysToShow = 30;
-    if (selectedPeriod === 'daily') daysToShow = 1;
-    else if (selectedPeriod === 'weekly') daysToShow = 7;
-    else if (selectedPeriod === 'biweekly') daysToShow = 15;
-    else if (selectedPeriod === 'quarterly') daysToShow = 90;
-    else if (selectedPeriod === 'semiannual') daysToShow = 180;
-    else if (selectedPeriod === 'yearly') daysToShow = 365;
-    
     const today = new Date();
-    today.setHours(0,0,0,0);
-    const chartData = [];
+    today.setHours(0, 0, 0, 0);
 
-    // Generate array of dates backwards
-    for (let i = daysToShow - 1; i >= 0; i--) {
-        const d = new Date(today);
-        d.setDate(d.getDate() - i);
+    let startDate, endDate;
+
+    if (dateFilter) {
+      // Calendar-anchored range (Accounts page): 'all' falls back to the earliest transaction on record.
+      const earliestTx = safeTransactions.reduce((earliest, tx) => {
+          if (!tx?.date) return earliest;
+          const d = new Date(`${tx.date}T00:00:00`);
+          return !earliest || d < earliest ? d : earliest;
+      }, null);
+      const fallbackStart = earliestTx ?? new Date(today.getTime() - 30 * 24 * 60 * 60 * 1000);
+
+      ({ startDate, endDate } = getDateFilterRange(dateFilter, fallbackStart));
+      startDate = new Date(startDate.getFullYear(), startDate.getMonth(), startDate.getDate());
+      endDate = new Date(endDate.getFullYear(), endDate.getMonth(), endDate.getDate());
+      if (endDate < startDate) endDate = startDate;
+    } else {
+      // Rolling window ending today (Dashboard page).
+      const daysToShow = ROLLING_WINDOW_DAYS[selectedPeriod] ?? 30;
+      endDate = today;
+      startDate = new Date(today);
+      startDate.setDate(today.getDate() - (daysToShow - 1));
+    }
+
+    let totalDays = Math.round((endDate - startDate) / (1000 * 60 * 60 * 24)) + 1;
+    if (totalDays > MAX_CHART_DAYS) {
+        startDate = new Date(endDate);
+        startDate.setDate(endDate.getDate() - (MAX_CHART_DAYS - 1));
+        totalDays = MAX_CHART_DAYS;
+    }
+
+    const chartData = [];
+    for (let i = 0; i < totalDays; i++) {
+        const d = new Date(startDate);
+        d.setDate(startDate.getDate() + i);
         const dateStr = d.toISOString().slice(0, 10);
-        
+
         const dayData = txByDate[dateStr] || { assets: 0, liabilities: 0 };
         chartData.push({
             name: d.toLocaleDateString(i18n.language, { day: '2-digit', month: '2-digit' }),
@@ -85,7 +122,7 @@ const AssetLiabilityChart = ({
     }
 
     return chartData;
-  }, [filteredTransactions, selectedPeriod, i18n.language]);
+  }, [filteredTransactions, dateFilter, selectedPeriod, i18n.language]);
 
   return (
     <motion.div

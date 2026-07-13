@@ -11,14 +11,14 @@ import EmptyState from '@/components/EmptyState';
 import DeleteConfirmationDialog from '@/components/DeleteConfirmationDialog';
 import { useToast } from '@/components/ui/use-toast';
 import { calculateAssetsLiabilities, formatCurrencyWithSymbol } from '@/utils/calculations';
-import SelectInput from '@/components/ui/SelectInput';
 import ViewToggle from '@/components/ui/ViewToggle';
 import AssetLiabilityChart from '@/components/AssetLiabilityChart';
 import AccountSuggestionsModal from '@/components/AccountSuggestionsModal';
 import AccountModal from '@/components/AccountModal';
 import AccountDetailModal from '@/components/AccountDetailModal';
 import { useSortableList } from '@/hooks/useSortableList';
-import { PERIOD_OPTIONS } from '@/utils/periodOptions';
+import DateFilterSelect from '@/components/ui/DateFilterSelect';
+import { getDateFilterDefaults } from '@/utils/dateFilter';
 import { ACCOUNT_TYPE_LABEL_KEYS } from '@/utils/accountMappings';
 
 const Accounts = () => {
@@ -34,7 +34,7 @@ const Accounts = () => {
   const [editingAccount, setEditingAccount] = useState(null);
   const [deleteId, setDeleteId] = useState(null);
   const [accountInitialData, setAccountInitialData] = useState(null);
-  const [period, setPeriod] = useState('monthly');
+  const [dateFilter, setDateFilter] = useState(getDateFilterDefaults());
   const [showNetWorth, setShowNetWorth] = useState(false);
   const [selectedDetailAccount, setSelectedDetailAccount] = useState(null);
   
@@ -116,14 +116,7 @@ const Accounts = () => {
         </div>
         
         <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-4 w-full md:w-auto">
-            <div className="w-full sm:w-40">
-                <SelectInput
-                    value={period}
-                    options={PERIOD_OPTIONS}
-                    onChange={(e) => setPeriod(e.target.value)}
-                    className="h-[42px] bg-white dark:bg-vindex-card border-gray-200 dark:border-vindex-border text-gray-700 dark:text-gray-300"
-                />
-            </div>
+            <DateFilterSelect value={dateFilter} onChange={setDateFilter} />
 
             <Button
                 onClick={() => setShowNetWorth(!showNetWorth)}
@@ -176,7 +169,7 @@ const Accounts = () => {
         totalLiabilities={totalLiabilities}
         filteredTransactions={transactions}
         showNetWorth={showNetWorth}
-        selectedPeriod={period}
+        dateFilter={dateFilter}
       />
 
       {sortedAccounts.length === 0 ? (
