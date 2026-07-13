@@ -23,10 +23,16 @@ export const TEXT_NEUTRAL = 'text-gray-900 dark:text-vindex-text';
 export const DANGER_DARK = '#e3365e';
 
 // Chart helpers — grid, tooltip, axis labels adapt to dark/light
-export const chartGrid        = (isDark) => isDark ? '#374151' : '#e5e7eb';
+// Grid lines are meant to be a faint reference, not a visible pattern — keep them
+// close to the card's own border color rather than a stronger gray that competes
+// with the data lines.
+export const chartGrid        = (isDark) => isDark ? '#1e293b' : '#f1f5f9';
 export const chartTooltipBg   = (isDark) => isDark ? '#0b122d' : '#ffffff';
 export const chartTooltipBorder = (isDark) => isDark ? '#283768' : '#e2e8f0';
-export const chartText        = (isDark) => isDark ? '#9ca3af' : '#6b7280';
+// Matches the app's own --muted-foreground token (a blue-tinted slate) rather
+// than Tailwind's flat neutral gray, so axis labels read as part of the same
+// theme instead of a slightly-off gray pasted on top.
+export const chartText        = (isDark) => isDark ? '#94a3b8' : '#64748b';
 export const chartCursor      = (isDark) => isDark ? '#374151' : '#f3f4f6';
 
 // Rgba helpers for activeDot glow

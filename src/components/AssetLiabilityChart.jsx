@@ -1,20 +1,29 @@
-import { PRIMARY, PRIMARY_HOVER, SUCCESS, DANGER, DANGER_DARK, WARNING, INFO, successAlpha, dangerAlpha, infoAlpha, primaryAlpha, chartGrid, chartTooltipBg, chartTooltipBorder, chartText, chartCursor } from '@/utils/colors';
-import React, { useMemo } from 'react';
+import { PRIMARY, DANGER, DANGER_DARK, chartGrid, chartText, chartCursor } from '@/utils/colors';
+import React, { useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { BarChart, Bar, Tooltip, ResponsiveContainer, XAxis, CartesianGrid } from 'recharts';
+import { ComposedChart, Area, Tooltip, ResponsiveContainer, XAxis, YAxis, CartesianGrid } from 'recharts';
 import { formatCurrency } from '@/utils/calculations';
 import { motion } from 'framer-motion';
 import { useTheme } from '@/context/ThemeContext';
 import { getDateFilterRange } from '@/utils/dateFilter';
+import { MONTH_YEAR_THRESHOLD_DAYS, formatDayMonth, formatMonthYear } from '@/utils/chartDateFormat';
+import { Eye, EyeSlash } from '@/components/BxIcon';
+
+const formatYAxis = (v) => {
+  if (Math.abs(v) >= 1_000_000) return `${(v / 1_000_000).toFixed(1)}M`;
+  if (Math.abs(v) >= 1_000) return `${(v / 1_000).toFixed(0)}k`;
+  return v;
+};
 
 // Custom 'period' ranges can span arbitrary years; cap bars so the chart stays readable/fast.
 const MAX_CHART_DAYS = 400;
 
-const CustomTooltip = ({ active, payload, label, t }) => {
+const CustomTooltip = ({ active, payload, t }) => {
   if (active && payload && payload.length) {
+    const displayDate = payload[0]?.payload?.displayDate;
     return (
       <div className="bg-white dark:bg-vindex-card p-3 border border-gray-200 dark:border-vindex-border rounded-lg shadow-lg">
-        <p className="text-xs text-gray-500 mb-2">{label}</p>
+        <p className="text-xs text-gray-500 mb-2">{displayDate}</p>
         {payload.map((entry, index) => (
            <div key={index} className="flex items-center justify-between gap-4 mb-1">
               <span className="text-sm text-gray-600 dark:text-gray-300 capitalize">
@@ -31,30 +40,19 @@ const CustomTooltip = ({ active, payload, label, t }) => {
   return null;
 };
 
-// Legacy rolling-window periods (still used by the Dashboard's own period selector).
-const ROLLING_WINDOW_DAYS = {
-  daily: 1,
-  weekly: 7,
-  biweekly: 15,
-  monthly: 30,
-  quarterly: 90,
-  semiannual: 180,
-  yearly: 365,
-};
-
 const AssetLiabilityChart = ({
   totalAssets,
   totalLiabilities,
   dateFilter,
-  selectedPeriod,
   filteredTransactions = [],
-  showNetWorth = true
+  showNetWorth = false
 }) => {
   const { t, i18n } = useTranslation();
   const { theme } = useTheme();
   const isDark = theme === 'dark';
+  const [showAxis, setShowAxis] = useState(true);
 
-  const data = useMemo(() => {
+  const { data, xAxisTicks } = useMemo(() => {
     const safeTransactions = Array.isArray(filteredTransactions) ? filteredTransactions : [];
 
     // Group transactions by date
@@ -76,28 +74,18 @@ const AssetLiabilityChart = ({
     const today = new Date();
     today.setHours(0, 0, 0, 0);
 
-    let startDate, endDate;
+    // 'all' falls back to the earliest transaction on record.
+    const earliestTx = safeTransactions.reduce((earliest, tx) => {
+        if (!tx?.date) return earliest;
+        const d = new Date(`${tx.date}T00:00:00`);
+        return !earliest || d < earliest ? d : earliest;
+    }, null);
+    const fallbackStart = earliestTx ?? new Date(today.getTime() - 30 * 24 * 60 * 60 * 1000);
 
-    if (dateFilter) {
-      // Calendar-anchored range (Accounts page): 'all' falls back to the earliest transaction on record.
-      const earliestTx = safeTransactions.reduce((earliest, tx) => {
-          if (!tx?.date) return earliest;
-          const d = new Date(`${tx.date}T00:00:00`);
-          return !earliest || d < earliest ? d : earliest;
-      }, null);
-      const fallbackStart = earliestTx ?? new Date(today.getTime() - 30 * 24 * 60 * 60 * 1000);
-
-      ({ startDate, endDate } = getDateFilterRange(dateFilter, fallbackStart));
-      startDate = new Date(startDate.getFullYear(), startDate.getMonth(), startDate.getDate());
-      endDate = new Date(endDate.getFullYear(), endDate.getMonth(), endDate.getDate());
-      if (endDate < startDate) endDate = startDate;
-    } else {
-      // Rolling window ending today (Dashboard page).
-      const daysToShow = ROLLING_WINDOW_DAYS[selectedPeriod] ?? 30;
-      endDate = today;
-      startDate = new Date(today);
-      startDate.setDate(today.getDate() - (daysToShow - 1));
-    }
+    let { startDate, endDate } = getDateFilterRange(dateFilter, fallbackStart);
+    startDate = new Date(startDate.getFullYear(), startDate.getMonth(), startDate.getDate());
+    endDate = new Date(endDate.getFullYear(), endDate.getMonth(), endDate.getDate());
+    if (endDate < startDate) endDate = startDate;
 
     let totalDays = Math.round((endDate - startDate) / (1000 * 60 * 60 * 24)) + 1;
     if (totalDays > MAX_CHART_DAYS) {
@@ -106,6 +94,12 @@ const AssetLiabilityChart = ({
         totalDays = MAX_CHART_DAYS;
     }
 
+    // Running totals, not per-day amounts — most days have no transactions at
+    // all, so a per-day series is mostly zeroes; accumulating keeps the line
+    // flat between transactions instead of collapsing back to zero.
+    const useMonthYearLabels = totalDays > MONTH_YEAR_THRESHOLD_DAYS;
+    let accAssets = 0;
+    let accLiabilities = 0;
     const chartData = [];
     for (let i = 0; i < totalDays; i++) {
         const d = new Date(startDate);
@@ -113,16 +107,29 @@ const AssetLiabilityChart = ({
         const dateStr = d.toISOString().slice(0, 10);
 
         const dayData = txByDate[dateStr] || { assets: 0, liabilities: 0 };
+        accAssets += dayData.assets;
+        accLiabilities += dayData.liabilities;
         chartData.push({
-            name: d.toLocaleDateString(i18n.language, { day: '2-digit', month: '2-digit' }),
-            assets: dayData.assets,
-            liabilities: dayData.liabilities,
-            netWorth: dayData.assets - dayData.liabilities
+            xKey: i,
+            displayDate: useMonthYearLabels ? formatMonthYear(d, i18n.language) : formatDayMonth(d, i18n.language),
+            assets: accAssets,
+            liabilities: accLiabilities,
+            netWorth: accAssets - accLiabilities
         });
     }
 
-    return chartData;
-  }, [filteredTransactions, dateFilter, selectedPeriod, i18n.language]);
+    // Recharts picks tick positions by index, not by calendar boundaries, so with one
+    // point per day it can land two different ticks in the same month — printing that
+    // month's label twice in a row. In month-year mode, force exactly one tick per
+    // month (its first day) instead of leaving tick selection to Recharts.
+    const ticks = useMonthYearLabels
+      ? chartData
+          .filter((d, i) => i === 0 || chartData[i - 1].displayDate !== d.displayDate)
+          .map(d => d.xKey)
+      : undefined;
+
+    return { data: chartData, xAxisTicks: ticks };
+  }, [filteredTransactions, dateFilter, i18n.language]);
 
   return (
     <motion.div
@@ -130,11 +137,20 @@ const AssetLiabilityChart = ({
         animate={{ opacity: 1, y: 0 }}
         className="bg-white dark:bg-vindex-card rounded-2xl p-6 border border-gray-200 dark:border-vindex-border shadow-sm mb-6 relative"
     >
+        <button
+            type="button"
+            onClick={() => setShowAxis(v => !v)}
+            title={showAxis ? t('common.hide_axis_labels') : t('common.show_axis_labels')}
+            className="absolute top-4 right-4 p-1.5 rounded-md text-gray-400 hover:text-gray-600 hover:bg-gray-100 dark:text-gray-500 dark:hover:text-gray-300 dark:hover:bg-vindex-bg transition-colors z-10"
+        >
+            {showAxis ? <Eye size={16} /> : <EyeSlash size={16} />}
+        </button>
+
         {/* Header Stats */}
         <div className="flex flex-wrap justify-center gap-8 md:gap-24 mb-6 pt-2">
             <div className="text-center">
                 <div className="flex items-center justify-center gap-2 mb-2">
-                    <div className="w-3 h-3 rounded bg-emerald-500"></div>
+                    <div className="w-3 h-3 rounded bg-primary"></div>
                     <span className="text-gray-500 dark:text-gray-400 font-medium">{t('dashboard.total_assets')}</span>
                 </div>
                 <div className="text-3xl font-bold text-gray-900 dark:text-white mb-2 tracking-tight">
@@ -144,7 +160,7 @@ const AssetLiabilityChart = ({
 
             <div className="text-center">
                 <div className="flex items-center justify-center gap-2 mb-2">
-                    <div className="w-3 h-3 rounded bg-red-500"></div>
+                    <div className="w-3 h-3 rounded bg-red-600 dark:bg-vindex-danger"></div>
                     <span className="text-gray-500 dark:text-gray-400 font-medium">{t('dashboard.total_liabilities')}</span>
                 </div>
                 <div className="text-3xl font-bold text-gray-900 dark:text-white mb-2 tracking-tight">
@@ -155,36 +171,81 @@ const AssetLiabilityChart = ({
 
         {/* Chart Area */}
         <div className="h-[250px] w-full">
+          {filteredTransactions.length === 0 ? (
+            <div className="h-full w-full flex items-center justify-center text-sm text-gray-400 dark:text-gray-500">
+              {t('dashboard.chart_no_data')}
+            </div>
+          ) : (
             <ResponsiveContainer width="100%" height="100%">
-                <BarChart data={data} margin={{ top: 10, right: 10, left: 10, bottom: 0 }}>
-                    <CartesianGrid strokeDasharray="3 3" vertical={false} stroke={chartGrid(isDark)} />
-                    <Tooltip content={<CustomTooltip t={t} />} cursor={{ fill: chartCursor(isDark) }} />
-                    <XAxis 
-                        dataKey="name" 
-                        hide={data.length > 20} 
-                        tick={{ fontSize: 10, fill: chartText(isDark) }} 
+                <ComposedChart data={data} margin={{ top: 10, right: 10, left: 4, bottom: 0 }}>
+                    <defs>
+                        <linearGradient id="alcAssetsGradient" x1="0" y1="0" x2="0" y2="1">
+                            <stop offset="5%" stopColor={PRIMARY} stopOpacity={0.3} />
+                            <stop offset="95%" stopColor={PRIMARY} stopOpacity={0} />
+                        </linearGradient>
+                        <linearGradient id="alcLiabilitiesGradient" x1="0" y1="0" x2="0" y2="1">
+                            <stop offset="5%" stopColor={isDark ? DANGER_DARK : DANGER} stopOpacity={0.3} />
+                            <stop offset="95%" stopColor={isDark ? DANGER_DARK : DANGER} stopOpacity={0} />
+                        </linearGradient>
+                    </defs>
+                    {showAxis && <CartesianGrid strokeDasharray="3 3" vertical={false} stroke={chartGrid(isDark)} />}
+                    <Tooltip content={<CustomTooltip t={t} />} cursor={{ stroke: chartCursor(isDark) }} />
+                    <XAxis
+                        dataKey="xKey"
+                        ticks={xAxisTicks}
+                        tickFormatter={(xKey) => data[xKey]?.displayDate ?? ''}
+                        tick={showAxis ? { fontSize: 10, fill: chartText(isDark) } : false}
                         axisLine={false}
                         tickLine={false}
                         dy={10}
                     />
-                    
-                    {/* Assets Bar */}
-                    <Bar 
-                        dataKey="assets" 
-                        fill={SUCCESS} 
-                        radius={[4, 4, 0, 0]}
-                        maxBarSize={40}
+                    <YAxis
+                        tick={showAxis ? { fontSize: 10, fill: chartText(isDark) } : false}
+                        axisLine={false}
+                        tickLine={false}
+                        tickFormatter={formatYAxis}
+                        width={showAxis ? 40 : 0}
                     />
-                    
-                    {/* Liabilities Bar */}
-                    <Bar 
-                        dataKey="liabilities" 
-                        fill={DANGER} 
-                        radius={[4, 4, 0, 0]}
-                        maxBarSize={40}
-                    />
-                </BarChart>
+
+                    {showNetWorth ? (
+                        /* Net Worth Area (Assets - Liabilities) */
+                        <Area
+                            type="natural"
+                            dataKey="netWorth"
+                            stroke={PRIMARY}
+                            strokeWidth={2}
+                            fill="url(#alcAssetsGradient)"
+                            dot={false}
+                            activeDot={{ r: 4 }}
+                        />
+                    ) : (
+                        <>
+                            {/* Assets Area */}
+                            <Area
+                                type="natural"
+                                dataKey="assets"
+                                stroke={PRIMARY}
+                                strokeWidth={2}
+                                fill="url(#alcAssetsGradient)"
+                                dot={false}
+                                activeDot={{ r: 4 }}
+                            />
+
+                            {/* Liabilities Area */}
+                            <Area
+                                type="natural"
+                                dataKey="liabilities"
+                                stroke={isDark ? DANGER_DARK : DANGER}
+                                strokeWidth={2}
+                                fill="url(#alcLiabilitiesGradient)"
+                                dot={false}
+                                activeDot={{ r: 4 }}
+                            />
+                        </>
+                    )}
+                </ComposedChart>
             </ResponsiveContainer>
+          )}
         </div>
     </motion.div>
   );
