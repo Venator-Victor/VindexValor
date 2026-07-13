@@ -15,6 +15,7 @@ import DatePicker from '@/components/ui/DatePicker';
 import { useToast } from '@/components/ui/use-toast';
 import CSVImportFlowFaturas from '@/components/CSVImportFlowFaturas';
 import InvoiceFilterBar from '@/components/InvoiceFilterBar';
+import InvoiceBalanceChart from '@/components/InvoiceBalanceChart';
 import { parseValueFilterString } from '@/components/FilterRangeInput';
 import { supabase } from '@/lib/customSupabaseClient';
 import InvoiceSelectionBar from '@/components/InvoiceSelectionBar';
@@ -23,7 +24,7 @@ import InvoiceDetailModal from '@/components/InvoiceDetailModal';
 import { PRIMARY, SUCCESS, DANGER } from '@/utils/colors';
 import DateFilterSelect from '@/components/ui/DateFilterSelect';
 import { getDateFilterDefaults, matchesDateFilter } from '@/utils/dateFilter';
-import { computeInvoiceBalances, getEffectiveInvoiceStatus } from '@/utils/invoiceBalance';
+import { getEffectiveInvoiceStatus } from '@/utils/invoiceBalance';
 
 const SortIcon = ({ column, sortConfig }) => {
   if (sortConfig.key !== column) return <div className="w-4 h-4 opacity-0" />;
@@ -33,7 +34,7 @@ const SortIcon = ({ column, sortConfig }) => {
 const InvoicesPage = () => {
   const { t } = useTranslation();
   const { user } = useAuth();
-  const { invoices, fetchInvoices, createInvoice, accounts } = useFinance();
+  const { invoices, fetchInvoices, createInvoice, accounts, settings, saveSettings } = useFinance();
   const [isLoading, setIsLoading] = useState(true);
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [isImportOpen, setIsImportOpen] = useState(false);
@@ -43,11 +44,13 @@ const InvoicesPage = () => {
 
   const [filteredItems, setComprasFiltro] = useState([]);
   const [isFiltering, setIsFiltering] = useState(false);
+  const [activeFilters, setActiveFilters] = useState(null);
   const [statusFilter, setStatusFilter] = useState('');
   const [selectedInvoices, setSelectedFaturas] = useState([]);
   const [invoiceTotals, setInvoiceTotals] = useState({});
 
-  const [dateFilter, setDateFilter] = useState(getDateFilterDefaults());
+  const dateFilter = settings.invoices_date_filter || getDateFilterDefaults();
+  const setDateFilter = (filter) => saveSettings({ invoices_date_filter: filter });
   
   const [sortConfig, setSortConfig] = useState({ key: 'opening_date', direction: 'descending' });
   
@@ -88,24 +91,20 @@ const InvoicesPage = () => {
     try {
       const { data, error } = await supabase
         .from('invoice_items')
-        .select('invoice_id, amount')
+        .select('invoice_id, amount, is_payment')
         .in('invoice_id', ids);
 
       if (error) throw error;
 
-      const itemsByInvoiceId = {};
-      data.forEach(item => {
-        if (!itemsByInvoiceId[item.invoice_id]) itemsByInvoiceId[item.invoice_id] = [];
-        itemsByInvoiceId[item.invoice_id].push(item);
-      });
-
-      // "Total" shown per invoice is the carried closing balance (what you actually
-      // owe as of that statement), not just this period's raw item sum — a payment
-      // line always settles the *previous* invoice, not this one.
-      const balances = computeInvoiceBalances(faturasList, itemsByInvoiceId);
+      // "Value" shown per invoice is just that invoice's own period activity —
+      // purchases and refunds, excluding the payment settlement line — not a
+      // cumulative carried balance. A payment always settles the *previous*
+      // invoice, so folding it into a running total here didn't make sense; the
+      // cumulative view now lives in the chart above the list instead.
       const totals = {};
-      Object.keys(balances).forEach(id => {
-        totals[id] = balances[id].closingBalance;
+      data.forEach(item => {
+        if (item.is_payment) return;
+        totals[item.invoice_id] = (totals[item.invoice_id] || 0) + Number(item.amount || 0);
       });
       setInvoiceTotals(totals);
     } catch (err) {
@@ -189,7 +188,7 @@ const InvoicesPage = () => {
     }
   };
 
-  const handleFilterChange = async (filters) => {
+  const runInvoiceItemSearch = async (filters) => {
     const parsedValueFilter = filters.valorRange ? parseValueFilterString(filters.valorRange) : null;
     const hasActiveValueFilter = parsedValueFilter && parsedValueFilter.isValid && parsedValueFilter.conditions.length > 0;
 
@@ -217,7 +216,7 @@ const InvoicesPage = () => {
 
       if (filters.installment === 'installment') query = query.eq('is_installment', true);
       if (filters.installment === 'not_installment') query = query.eq('is_installment', false);
-      
+
       if (filters.account_id) {
         const matchedFaturas = invoices.filter(f => f.account_id === filters.account_id).map(f => f.id);
         if (matchedFaturas.length > 0) {
@@ -233,6 +232,20 @@ const InvoicesPage = () => {
       setComprasFiltro([]);
     }
   };
+
+  const handleFilterChange = async (filters) => {
+    setActiveFilters(filters);
+    await runInvoiceItemSearch(filters);
+  };
+
+  // The filtered-items view above is a one-shot query, not derived from `invoices` —
+  // without this, editing/deleting an invoice while a search/value/account/installment
+  // filter is active leaves this view showing stale rows until a filter is re-touched.
+  useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect -- re-runs the Supabase purchase-item search when invoices changes; runInvoiceItemSearch's own setState calls happen after that await, not synchronously in the effect body.
+    if (activeFilters) runInvoiceItemSearch(activeFilters);
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- only reacts to `invoices` changing; filter changes are already handled directly by handleFilterChange.
+  }, [invoices]);
 
   const handleImportSuccess = () => {
     loadInvoices();
@@ -405,6 +418,8 @@ const InvoicesPage = () => {
           </Dialog>
         </div>
       </div>
+
+      <InvoiceBalanceChart dateFilter={dateFilter} />
 
       <InvoiceFilterBar onFilterChange={handleFilterChange} />
 
