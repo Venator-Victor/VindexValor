@@ -590,6 +590,7 @@
     "filter_installment_only": "Apenas Parcelados",
     "filter_installment_none": "Não Parcelados",
     "filter_all_accounts": "Todas contas",
+    "filter_status_all": "Todos os status",
     "bulk_deleted_success": "{{count}} faturas excluídas com sucesso.",
     "delete_error": "Erro ao excluir",
     "select_account_error_title": "Selecione uma conta",

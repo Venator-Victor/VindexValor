@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest';
-import { computeInvoiceBalances } from '../invoiceBalance';
+import { computeInvoiceBalances, getEffectiveInvoiceStatus } from '../invoiceBalance';
 
 describe('computeInvoiceBalances', () => {
   it('carries the previous invoice balance into the next one', () => {
@@ -66,5 +66,35 @@ describe('computeInvoiceBalances', () => {
     const invoices = [{ id: 'empty', account_id: 'acc1', closing_date: '2024-05-01' }];
     const result = computeInvoiceBalances(invoices, {});
     expect(result.empty).toEqual({ openingBalance: 0, periodTotal: 0, closingBalance: 0 });
+  });
+});
+
+describe('getEffectiveInvoiceStatus', () => {
+  it('promotes an open invoice to closed once its closing_date has passed', () => {
+    const invoice = { status: 'open', closing_date: '2020-01-01' };
+    expect(getEffectiveInvoiceStatus(invoice)).toBe('closed');
+  });
+
+  it('treats an open invoice closing today as closed', () => {
+    const today = new Date().toISOString().slice(0, 10);
+    const invoice = { status: 'open', closing_date: today };
+    expect(getEffectiveInvoiceStatus(invoice)).toBe('closed');
+  });
+
+  it('leaves an open invoice open when its closing_date is in the future', () => {
+    const farFuture = new Date();
+    farFuture.setFullYear(farFuture.getFullYear() + 5);
+    const invoice = { status: 'open', closing_date: farFuture.toISOString().slice(0, 10) };
+    expect(getEffectiveInvoiceStatus(invoice)).toBe('open');
+  });
+
+  it('never reverts an already-closed or paid invoice', () => {
+    expect(getEffectiveInvoiceStatus({ status: 'closed', closing_date: '2099-01-01' })).toBe('closed');
+    expect(getEffectiveInvoiceStatus({ status: 'paid', closing_date: '2020-01-01' })).toBe('paid');
+  });
+
+  it('handles a missing closing_date gracefully', () => {
+    expect(getEffectiveInvoiceStatus({ status: 'open', closing_date: null })).toBe('open');
+    expect(getEffectiveInvoiceStatus(null)).toBe('open');
   });
 });

@@ -590,6 +590,7 @@
     "filter_installment_only": "Installments Only",
     "filter_installment_none": "Non-Installments",
     "filter_all_accounts": "All accounts",
+    "filter_status_all": "All statuses",
     "bulk_deleted_success": "{{count}} invoices deleted successfully.",
     "delete_error": "Error deleting",
     "select_account_error_title": "Select an account",

@@ -6,16 +6,15 @@ import SelectInput from '@/components/ui/SelectInput';
 import FilterRangeInput from './FilterRangeInput';
 import { useFinance } from '@/context/FinanceContext';
 import InfoTooltip from './InfoTooltip';
-import { buildFlatIndentedOptions } from '@/utils/categoryTree';
 
 const InvoiceFilterBar = ({ onFilterChange }) => {
   const { t } = useTranslation();
-  const { categories, accounts } = useFinance();
-  
+  const { accounts } = useFinance();
+
   const [filters, setFilters] = useState({
     search: '',
     valorRange: '',
-    category_id: '',
+    status: '',
     installment: 'todos',
     account_id: ''
   });
@@ -30,7 +29,7 @@ const InvoiceFilterBar = ({ onFilterChange }) => {
     const cleared = {
       search: '',
       valorRange: '',
-      category_id: '',
+      status: '',
       installment: 'todos',
       account_id: ''
     };
@@ -94,14 +93,16 @@ const InvoiceFilterBar = ({ onFilterChange }) => {
           />
         </div>
 
-        {/* Category */}
+        {/* Status */}
         <div className="flex flex-col lg:col-span-1">
           <SelectInput
-            value={filters.category_id}
-            onChange={(e) => handleChange('category_id', e.target.value)}
+            value={filters.status}
+            onChange={(e) => handleChange('status', e.target.value)}
             options={[
-              { label: t('transactions.all_categories'), value: "" },
-              ...buildFlatIndentedOptions(categories)
+              { label: t('invoices.filter_status_all'), value: "" },
+              { label: t('invoices.status_open'), value: "open" },
+              { label: t('invoices.status_closed'), value: "closed" },
+              { label: t('invoices.status_paid'), value: "paid" }
             ]}
             className="h-[42px]"
           />

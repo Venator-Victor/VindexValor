@@ -6,6 +6,7 @@ import { Button } from '@/components/ui/button';
 import { formatCurrency } from '@/utils/calculations';
 import { CreditCard, Edit as Edit2, TrashAlt as Trash2, ArrowRight } from '@/components/BxIcon';
 import { PRIMARY, DANGER } from '@/utils/colors';
+import { getEffectiveInvoiceStatus } from '@/utils/invoiceBalance';
 
 const STATUS_COLORS = {
   open: '#3b82f6',
@@ -19,7 +20,8 @@ const InvoiceDetailModal = ({ isOpen, onClose, invoice, total, onEdit, onDelete 
 
   if (!invoice) return null;
 
-  const statusColor = STATUS_COLORS[invoice.status] || PRIMARY;
+  const effectiveStatus = getEffectiveInvoiceStatus(invoice);
+  const statusColor = STATUS_COLORS[effectiveStatus] || PRIMARY;
   const formatDate = (dateStr) => {
     if (!dateStr) return '-';
     const [y, m, d] = dateStr.split('-');
@@ -52,7 +54,7 @@ const InvoiceDetailModal = ({ isOpen, onClose, invoice, total, onEdit, onDelete 
             {formatCurrency(total)}
           </p>
           <span className="inline-block mt-2 text-xs font-medium px-2 py-0.5 rounded-full" style={{ backgroundColor: statusColor + '22', color: statusColor }}>
-            {t(`invoices.status_${invoice.status}`)}
+            {t(`invoices.status_${effectiveStatus}`)}
           </span>
         </div>
 

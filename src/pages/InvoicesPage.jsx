@@ -23,7 +23,7 @@ import InvoiceDetailModal from '@/components/InvoiceDetailModal';
 import { PRIMARY, SUCCESS, DANGER } from '@/utils/colors';
 import DateFilterSelect from '@/components/ui/DateFilterSelect';
 import { getDateFilterDefaults, matchesDateFilter } from '@/utils/dateFilter';
-import { computeInvoiceBalances } from '@/utils/invoiceBalance';
+import { computeInvoiceBalances, getEffectiveInvoiceStatus } from '@/utils/invoiceBalance';
 
 const SortIcon = ({ column, sortConfig }) => {
   if (sortConfig.key !== column) return <div className="w-4 h-4 opacity-0" />;
@@ -43,6 +43,7 @@ const InvoicesPage = () => {
 
   const [filteredItems, setComprasFiltro] = useState([]);
   const [isFiltering, setIsFiltering] = useState(false);
+  const [statusFilter, setStatusFilter] = useState('');
   const [selectedInvoices, setSelectedFaturas] = useState([]);
   const [invoiceTotals, setInvoiceTotals] = useState({});
 
@@ -191,15 +192,19 @@ const InvoicesPage = () => {
   const handleFilterChange = async (filters) => {
     const parsedValueFilter = filters.valorRange ? parseValueFilterString(filters.valorRange) : null;
     const hasActiveValueFilter = parsedValueFilter && parsedValueFilter.isValid && parsedValueFilter.conditions.length > 0;
-    
-    const hasActiveFilters = filters.search || hasActiveValueFilter || filters.category_id || filters.account_id || filters.installment !== 'todos';
+
+    // Status is a property of the invoice itself, so it filters the main
+    // invoices list directly instead of switching to the purchase-items search below.
+    setStatusFilter(filters.status || '');
+
+    const hasActiveFilters = filters.search || hasActiveValueFilter || filters.account_id || filters.installment !== 'todos';
     setIsFiltering(hasActiveFilters);
-    
+
     if (hasActiveFilters) {
       let query = supabase.from('invoice_items').select('*, invoices(invoice_number), categories(name, color)');
-      
+
       if (filters.search) query = query.ilike('description', `%${filters.search}%`);
-      
+
       if (hasActiveValueFilter) {
         parsedValueFilter.conditions.forEach(cond => {
           if (cond.op === '>') query = query.gt('amount', cond.val);
@@ -209,9 +214,7 @@ const InvoicesPage = () => {
           else query = query.eq('amount', cond.val);
         });
       }
-      
-      if (filters.category_id) query = query.eq('category_id', filters.category_id);
-      
+
       if (filters.installment === 'installment') query = query.eq('is_installment', true);
       if (filters.installment === 'not_installment') query = query.eq('is_installment', false);
       
@@ -258,7 +261,7 @@ const InvoicesPage = () => {
       opening_date: invoice.opening_date || '',
       closing_date: invoice.closing_date || '',
       account_id: invoice.account_id || '',
-      status: invoice.status || 'open'
+      status: getEffectiveInvoiceStatus(invoice)
     });
     setIsEditOpen(true);
   };
@@ -286,8 +289,8 @@ const InvoicesPage = () => {
          aValue = new Date(a.opening_date || 0).getTime();
          bValue = new Date(b.opening_date || 0).getTime();
       } else if (sortConfig.key === 'status') {
-         aValue = a.status || '';
-         bValue = b.status || '';
+         aValue = getEffectiveInvoiceStatus(a);
+         bValue = getEffectiveInvoiceStatus(b);
       } else {
          aValue = a[sortConfig.key];
          bValue = b[sortConfig.key];
@@ -298,7 +301,7 @@ const InvoicesPage = () => {
       return 0;
     });
 
-    return sorted.filter(f => matchesDateFilter(f.opening_date, dateFilter));
+    return sorted.filter(f => matchesDateFilter(f.opening_date, dateFilter) && (!statusFilter || getEffectiveInvoiceStatus(f) === statusFilter));
   })();
 
   return (
@@ -536,7 +539,7 @@ const InvoicesPage = () => {
                             {formatCurrency(totalValue)}
                           </td>
                           <td className="px-6 py-4 text-center">
-                            {getStatusBadge(invoice.status)}
+                            {getStatusBadge(getEffectiveInvoiceStatus(invoice))}
                           </td>
                           <td className="px-6 py-4" onClick={(e) => e.stopPropagation()}>
                             <div className="flex justify-end gap-2">
@@ -601,7 +604,20 @@ const InvoicesPage = () => {
             </div>
             <div className="grid grid-cols-2 gap-4">
               <DatePicker label={t('invoices.opening_date')} value={editFormData.opening_date} onChange={e => setEditFormData({...editFormData, opening_date: e.target.value})} />
-              <DatePicker label={t('invoices.closing_date')} value={editFormData.closing_date} onChange={e => setEditFormData({...editFormData, closing_date: e.target.value})} />
+              <DatePicker
+                label={t('invoices.closing_date')}
+                value={editFormData.closing_date}
+                onChange={e => setEditFormData({
+                  ...editFormData,
+                  closing_date: e.target.value,
+                  // Re-derive open/closed for the new date so the Status field
+                  // below doesn't keep showing the stale value computed when the
+                  // dialog opened; an explicit 'paid' is left alone.
+                  status: editFormData.status === 'paid'
+                    ? 'paid'
+                    : getEffectiveInvoiceStatus({ status: 'open', closing_date: e.target.value }),
+                })}
+              />
             </div>
             <div>
               <SelectInput

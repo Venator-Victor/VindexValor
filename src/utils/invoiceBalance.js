@@ -31,3 +31,22 @@ export const computeInvoiceBalances = (invoices, itemsByInvoiceId) => {
   }
   return result;
 };
+
+// Nothing ever transitions an invoice from 'open' to 'closed' in the
+// database — there's no cron/trigger for it, status is only ever written by
+// user actions (create/edit forms, linking a payment). So once an invoice's
+// billing cycle has actually ended (closing_date has passed), derive
+// 'closed' for display instead of trusting the stale stored value. 'paid'
+// and an explicit manual 'closed' are left alone — this only ever promotes
+// 'open' forward, never reverts a status the user (or a payment link) set.
+export const getEffectiveInvoiceStatus = (invoice) => {
+  if (!invoice) return 'open';
+  if (invoice.status !== 'open') return invoice.status;
+  if (invoice.closing_date) {
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+    const closing = new Date(`${invoice.closing_date}T00:00:00`);
+    if (closing <= today) return 'closed';
+  }
+  return 'open';
+};
