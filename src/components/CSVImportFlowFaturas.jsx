@@ -3,6 +3,7 @@ import { useTranslation } from 'react-i18next';
 import { Button } from '@/components/ui/button';
 import SelectInput from '@/components/ui/SelectInput';
 import { useFinance } from '@/context/FinanceContext';
+import { useAuth } from '@/context/SupabaseAuthContext';
 import { useInvoiceCSVImport } from '@/hooks/useInvoiceCSVImport';
 import { Share as UploadCloud, AlertCircle, File as FileText, RefreshCw as Loader2, X } from '@/components/BxIcon';
 import { useToast } from '@/components/ui/use-toast';
@@ -17,6 +18,7 @@ import PaymentReviewStep from './PaymentReviewStep';
 const CSVImportFlowFaturas = ({ onSuccess, onCancel }) => {
   const { t, i18n } = useTranslation();
   const { accounts, createInvoice } = useFinance();
+  const { user } = useAuth();
   const { parseFilesRaw, autoDetectMapping, applyMapping, importData } = useInvoiceCSVImport();
   const { toast } = useToast();
 
@@ -29,6 +31,9 @@ const CSVImportFlowFaturas = ({ onSuccess, onCancel }) => {
   const [results, setResults] = useState([]);
   const [filesData, setFilesData] = useState([]);
   const [isPreparingReview, setIsPreparingReview] = useState(false);
+  // The account's existing invoice (if any) and its carried balance, as of before this
+  // import batch — a confirmed payment row in the first new invoice settles this one.
+  const [previousInvoice, setPreviousInvoice] = useState({ id: null, balance: 0, hasLinkedPayment: false });
 
   const fileInputRef = useRef(null);
 
@@ -69,19 +74,28 @@ const CSVImportFlowFaturas = ({ onSuccess, onCancel }) => {
     }
   };
 
-  // Fetches the given account's existing invoices/items and returns the closing balance
-  // of the most recently closed one — the reference point new imports would carry in as
-  // their opening balance, used to suggest which line is the payment settlement.
+  // Fetches the given account's existing invoices/items and returns the id + closing
+  // balance of the most recently closed one — the reference point new imports would
+  // carry in as their opening balance, used both to suggest which line is the payment
+  // settlement and (once confirmed) to mark that invoice paid.
   const fetchPreviousBalance = async (accountId) => {
     const { data: accountInvoices } = await supabase
       .from('invoices')
-      .select('id, account_id, closing_date')
+      .select('id, account_id, closing_date, status')
       .eq('account_id', accountId);
 
-    if (!accountInvoices || accountInvoices.length === 0) return 0;
+    if (!accountInvoices || accountInvoices.length === 0) return { id: null, balance: 0 };
 
     const { data: accountItems } = await supabase
       .from('invoice_items')
+      .select('invoice_id, amount')
+      .in('invoice_id', accountInvoices.map(inv => inv.id));
+
+    // Any transaction can be linked as a payment (expense/transfer/payment — see
+    // InvoicePaymentLinkModal's eligible-payments query), so what actually settles an
+    // invoice is invoice_id being set, not the transaction's type.
+    const { data: accountPayments } = await supabase
+      .from('transactions')
       .select('invoice_id, amount')
       .in('invoice_id', accountInvoices.map(inv => inv.id));
 
@@ -91,30 +105,53 @@ const CSVImportFlowFaturas = ({ onSuccess, onCancel }) => {
       itemsByInvoiceId[item.invoice_id].push(item);
     });
 
-    const balances = computeInvoiceBalances(accountInvoices, itemsByInvoiceId);
+    const paymentsByInvoiceId = {};
+    (accountPayments || []).forEach(p => {
+      if (!paymentsByInvoiceId[p.invoice_id]) paymentsByInvoiceId[p.invoice_id] = [];
+      paymentsByInvoiceId[p.invoice_id].push(p);
+    });
+
+    const balances = computeInvoiceBalances(accountInvoices, itemsByInvoiceId, paymentsByInvoiceId);
     const latest = [...accountInvoices].sort((a, b) => new Date(b.closing_date) - new Date(a.closing_date))[0];
-    return balances[latest.id]?.closingBalance || 0;
+    return {
+      id: latest.id,
+      balance: balances[latest.id]?.closingBalance || 0,
+      // A confirmed payment row here would settle `latest` — if it already has a linked
+      // transaction payment, that'd double-count the same real-world payment.
+      hasLinkedPayment: (paymentsByInvoiceId[latest.id] || []).length > 0,
+    };
   };
 
   const handleMappingConfirmed = async () => {
     setIsPreparingReview(true);
     try {
-      const previousBalance = await fetchPreviousBalance(selectedAccountForAuto);
+      const previousInvoice = await fetchPreviousBalance(selectedAccountForAuto);
+      setPreviousInvoice(previousInvoice);
 
+      // Rolled forward file-by-file: file 2's payment line settles file 1's balance,
+      // not the batch's original pre-existing balance — same carry-forward processBatch
+      // uses once rows are confirmed, done here too so the suggestion for each later
+      // file is actually compared against what it would owe, not a stale reference.
+      let referenceBalance = previousInvoice.balance;
       const data = [];
       for (const file of selectedFiles) {
         const { data: rawData } = await parseFilesRaw([file]);
         const rows = applyMapping(rawData, mapping).map(row => ({
           ...row,
-          is_payment: suggestIsPayment(row, previousBalance)
+          is_payment: suggestIsPayment(row, referenceBalance)
         }));
         data.push({ fileName: file.name, rows });
+
+        const itemsTotal = rows.reduce((sum, r) => sum + Number(r.amount || 0), 0);
+        referenceBalance = referenceBalance + itemsTotal;
       }
       setFilesData(data);
 
       const hasCandidates = data.some(f => f.rows.some(r => Number(r.amount) > 0));
       setStep(hasCandidates ? 'review-payments' : 'processing');
-      if (!hasCandidates) await processBatch(data);
+      // Pass the just-fetched value directly rather than relying on the
+      // setPreviousInvoice state update above, which hasn't flushed yet here.
+      if (!hasCandidates) await processBatch(data, previousInvoice);
     } catch (err) {
       toast({ title: t('invoices.import_generic_error_title'), description: err.message || t('invoices.import_read_file_error'), variant: 'destructive' });
     } finally {
@@ -129,7 +166,7 @@ const CSVImportFlowFaturas = ({ onSuccess, onCancel }) => {
     }));
   };
 
-  const processBatch = async (dataToProcess) => {
+  const processBatch = async (dataToProcess, startingInvoice = previousInvoice) => {
     setStep('processing');
     setResults([]);
     setCurrentFileIndex(0);
@@ -137,6 +174,13 @@ const CSVImportFlowFaturas = ({ onSuccess, onCancel }) => {
     const newResults = [];
     let successCount = 0;
     let errorCount = 0;
+
+    // Chains through the batch the same way computeInvoiceBalances carries a balance
+    // invoice-to-invoice: each file's confirmed payment rows settle the previous
+    // invoice (starting with the account's pre-existing one), then this file's own
+    // invoice becomes what the *next* file's payment needs to cover.
+    let invoiceToSettle = startingInvoice.id;
+    let priorBalance = startingInvoice.balance;
 
     for (let i = 0; i < dataToProcess.length; i++) {
       setCurrentFileIndex(i);
@@ -174,6 +218,19 @@ const CSVImportFlowFaturas = ({ onSuccess, onCancel }) => {
         const { count } = await importData(newFatura.id, rows);
         resultItem = { ...resultItem, status: 'success', count };
         successCount++;
+
+        const itemsTotal = rows.reduce((sum, r) => sum + Number(r.amount || 0), 0);
+        const hasConfirmedPayment = rows.some(r => r.is_payment);
+
+        // Trust the user's confirmation from the review step over our own reconciliation —
+        // real statements rarely match the computed balance to the cent (interest, fees,
+        // rounding), so requiring an exact/over match silently skipped almost every invoice.
+        if (invoiceToSettle && hasConfirmedPayment) {
+          await supabase.from('invoices').update({ status: 'paid' }).eq('id', invoiceToSettle).eq('user_id', user.id);
+        }
+
+        invoiceToSettle = newFatura.id;
+        priorBalance = priorBalance + itemsTotal;
       } catch (err) {
         resultItem.error = err.message || t('invoices.import_unknown_file_error');
         errorCount++;
@@ -225,6 +282,7 @@ const CSVImportFlowFaturas = ({ onSuccess, onCancel }) => {
         onToggle={togglePaymentFlag}
         onBack={() => setStep('mapping')}
         onConfirm={() => processBatch(filesData)}
+        showAlreadySettledWarning={previousInvoice.hasLinkedPayment}
       />
     );
   }
@@ -250,9 +308,9 @@ const CSVImportFlowFaturas = ({ onSuccess, onCancel }) => {
           <div className="mt-6 space-y-4">
             <div className="bg-card p-4 rounded-xl border">
               <h4 className="font-semibold text-sm mb-3">{t('invoices.import_selected_files_title', { count: selectedFiles.length })}</h4>
-              <ul className="space-y-2 max-h-[200px] overflow-y-auto custom-scrollbar pr-2">
+              <ul className="space-y-2 max-h-[320px] overflow-y-auto custom-scrollbar pr-2">
                 {selectedFiles.map((file, idx) => (
-                  <li key={`${file.name}-${idx}`} className={`flex items-center justify-between p-2 rounded-lg border text-sm ${isProcessing && currentFileIndex === idx ? 'border-primary bg-primary/5' : 'bg-background'}`}>
+                  <li key={`${file.name}-${file.size}-${file.lastModified}`} className={`flex items-center justify-between p-2 rounded-lg border text-sm ${isProcessing && currentFileIndex === idx ? 'border-primary bg-primary/5' : 'bg-background'}`}>
                     <div className="flex items-center gap-3 overflow-hidden">
                       <FileText className="w-4 h-4 text-muted-foreground shrink-0" />
                       <span className="truncate font-medium">{file.name}</span>
