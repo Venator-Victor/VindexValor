@@ -6,12 +6,14 @@ import { motion, AnimatePresence } from 'framer-motion';
 import BxIcon, {
   Plus, Folder, TrashAlt as Trash2, Edit as Edit2,
   ChevronDown, ChevronRight, Search, X,
+  ArrowDownUp as ArrowUpDown, ArrowUp, ArrowDown,
 } from '@/components/BxIcon';
 import { useFinance } from '@/context/FinanceContext';
 import { Button } from '@/components/ui/button';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Label } from '@/components/ui/label';
-import SortableHeader from '@/components/SortableHeader';
+import { Checkbox } from '@/components/ui/checkbox';
+import CategorySelectionBar from '@/components/CategorySelectionBar';
 import EmptyState from '@/components/EmptyState';
 import DeleteConfirmationDialog from '@/components/DeleteConfirmationDialog';
 import { useToast } from '@/components/ui/use-toast';
@@ -30,6 +32,11 @@ import { PERIOD_OPTIONS } from '@/utils/periodOptions';
 import CategoryDetailModal from '@/components/CategoryDetailModal';
 import BudgetPeriodBreakdown from '@/components/BudgetPeriodBreakdown';
 import ViewToggle from '@/components/ui/ViewToggle';
+
+const SortIcon = ({ column, sortConfig }) => {
+  if (!sortConfig || sortConfig.key !== column) return <ArrowUpDown className="w-3 h-3 ml-1 opacity-30" />;
+  return sortConfig.direction === 'ascending' ? <ArrowUp className="w-3 h-3 ml-1 text-primary" /> : <ArrowDown className="w-3 h-3 ml-1 text-primary" />;
+};
 
 const emptyFormData = {
   name: '',
@@ -59,6 +66,7 @@ const Categories = () => {
   const [selectedDetailCategory, setSelectedDetailCategory] = useState(null);
   const [searchTerm, setSearchTerm] = useState('');
   const [collapsedIds, setCollapsedIds] = useState(() => new Set());
+  const [selectedIds, setSelectedIds] = useState([]);
 
   const [displayLayout, setDisplayLayout] = useState(() => {
     return localStorage.getItem('categories_view_preference') || 'card';
@@ -69,6 +77,7 @@ const Categories = () => {
   const handleLayoutChange = layout => {
     setDisplayLayout(layout);
     localStorage.setItem('categories_view_preference', layout);
+    setSelectedIds([]);
   };
 
   // Fallback period for categories without a budget (they have no "own"
@@ -172,11 +181,25 @@ const Categories = () => {
     });
   }, [sortedCategories, childrenByParentId, normalizedSearch, matchesSearchTerm]);
 
-  const getVisibleChildren = (parent) => {
-    const children = childrenByParentId.get(parent.id) || [];
+  // Same grouping as childrenByParentId, but ordered by the table's current
+  // sort column/direction (childrenByParentId always groups off the
+  // unsorted base list) — so clicking a header reorders subcategory rows
+  // too, matching how sorting reorders every row in the Transactions table.
+  const sortedChildrenByParentId = useMemo(() => {
+    const map = new Map();
+    sortedCategories.forEach(c => {
+      if (!c.parent_id) return;
+      if (!map.has(c.parent_id)) map.set(c.parent_id, []);
+      map.get(c.parent_id).push(c);
+    });
+    return map;
+  }, [sortedCategories]);
+
+  const getVisibleChildren = useCallback((parent) => {
+    const children = sortedChildrenByParentId.get(parent.id) || [];
     if (!normalizedSearch || matchesSearchTerm(parent)) return children;
     return children.filter(matchesSearchTerm);
-  };
+  }, [sortedChildrenByParentId, normalizedSearch, matchesSearchTerm]);
 
   const toggleExpanded = (id, e) => {
     if (e) e.stopPropagation();
@@ -185,6 +208,26 @@ const Categories = () => {
       if (next.has(id)) next.delete(id); else next.add(id);
       return next;
     });
+  };
+
+  // Every id currently rendered in the table (top-level rows + their visible
+  // children, respecting the active search), used for "select all".
+  const tableVisibleIds = useMemo(
+    () => tableTopLevel.flatMap(cat => [cat.id, ...getVisibleChildren(cat).map(c => c.id)]),
+    [tableTopLevel, getVisibleChildren]
+  );
+
+  const toggleSelectAll = () => {
+    if (selectedIds.length === tableVisibleIds.length && tableVisibleIds.length > 0) {
+      setSelectedIds([]);
+    } else {
+      setSelectedIds(tableVisibleIds);
+    }
+  };
+
+  const toggleSelect = (id, e) => {
+    if (e) e.stopPropagation();
+    setSelectedIds(prev => prev.includes(id) ? prev.filter(selId => selId !== id) : [...prev, id]);
   };
 
   const parentCategoryOptions = useMemo(
@@ -393,16 +436,28 @@ const Categories = () => {
            {/* List View */}
            {displayLayout === 'list' && (
              <div className="bg-white dark:bg-vindex-card rounded-xl border border-gray-200 dark:border-vindex-border overflow-hidden shadow-sm">
-                <div className="overflow-x-auto">
-                   <table className="w-full text-sm">
+                <div className="overflow-x-auto custom-scrollbar">
+                   <table className="w-full min-w-[760px] text-sm text-left table-fixed">
                       <thead className="bg-gray-50 dark:bg-vindex-bg border-b border-gray-200 dark:border-vindex-border">
                          <tr>
-                            <SortableHeader label={t('categories.col_category')} column="name" sortConfig={sortConfig} onSort={requestSort} />
-                            <th className="px-6 py-3 text-left font-medium text-gray-700 dark:text-gray-300">{t('categories.col_transactions')}</th>
-                            <th className="px-6 py-3 text-left font-medium text-gray-700 dark:text-gray-300">{t('categories.col_usage')}</th>
-                            <SortableHeader label={t('categories.col_budget')} column="spending_limit" sortConfig={sortConfig} onSort={requestSort} />
-                            <SortableHeader label={t('categories.col_period')} column="budget_period" sortConfig={sortConfig} onSort={requestSort} />
-                            <th className="px-6 py-3 text-right font-medium text-gray-700 dark:text-gray-300">{t('common.actions')}</th>
+                            <th className="px-6 py-3 w-[5%]">
+                               <Checkbox
+                                  checked={tableVisibleIds.length > 0 && selectedIds.length === tableVisibleIds.length}
+                                  onCheckedChange={toggleSelectAll}
+                               />
+                            </th>
+                            <th className="px-6 py-3 w-[27%] text-left font-medium text-gray-700 dark:text-gray-300 cursor-pointer hover:bg-gray-100 dark:hover:bg-vindex-bg/50 transition-colors" onClick={() => requestSort('name')}>
+                               <div className="flex items-center">{t('categories.col_category')} <SortIcon column="name" sortConfig={sortConfig} /></div>
+                            </th>
+                            <th className="px-6 py-3 w-[12%] text-left font-medium text-gray-700 dark:text-gray-300">{t('categories.col_transactions')}</th>
+                            <th className="px-6 py-3 w-[16%] text-left font-medium text-gray-700 dark:text-gray-300">{t('categories.col_usage')}</th>
+                            <th className="px-6 py-3 w-[16%] text-left font-medium text-gray-700 dark:text-gray-300 cursor-pointer hover:bg-gray-100 dark:hover:bg-vindex-bg/50 transition-colors" onClick={() => requestSort('spending_limit')}>
+                               <div className="flex items-center">{t('categories.col_budget')} <SortIcon column="spending_limit" sortConfig={sortConfig} /></div>
+                            </th>
+                            <th className="px-6 py-3 w-[12%] text-left font-medium text-gray-700 dark:text-gray-300 cursor-pointer hover:bg-gray-100 dark:hover:bg-vindex-bg/50 transition-colors" onClick={() => requestSort('budget_period')}>
+                               <div className="flex items-center">{t('categories.col_period')} <SortIcon column="budget_period" sortConfig={sortConfig} /></div>
+                            </th>
+                            <th className="px-6 py-3 w-[12%] text-right font-medium text-gray-700 dark:text-gray-300">{t('common.actions')}</th>
                          </tr>
                       </thead>
                       <tbody className="divide-y divide-gray-200 dark:divide-vindex-border">
@@ -413,7 +468,13 @@ const Categories = () => {
                             const hasLimit = category.hasBudget;
 
                             const rows = [
-                              <tr key={category.id} onClick={() => handleCardClick(category)} className="cursor-pointer transition-colors" onMouseEnter={e => e.currentTarget.style.backgroundColor = PRIMARY + '18'} onMouseLeave={e => e.currentTarget.style.backgroundColor = ''}>
+                              <tr key={category.id} onClick={() => handleCardClick(category)} className={`cursor-pointer transition-colors ${selectedIds.includes(category.id) ? 'bg-primary/5 dark:bg-primary/10' : ''}`} onMouseEnter={e => e.currentTarget.style.backgroundColor = PRIMARY + '18'} onMouseLeave={e => e.currentTarget.style.backgroundColor = ''}>
+                                  <td className="px-6 py-4" onClick={(e) => e.stopPropagation()}>
+                                     <Checkbox
+                                        checked={selectedIds.includes(category.id)}
+                                        onCheckedChange={() => toggleSelect(category.id)}
+                                     />
+                                  </td>
                                   <td className="px-6 py-4">
                                      <div className="flex items-center gap-2">
                                         <button
@@ -427,7 +488,7 @@ const Categories = () => {
                                         <div className="w-8 h-8 rounded-full flex items-center justify-center text-sm shrink-0" style={{ backgroundColor: category.color + '22', color: category.color }}>
                                            <BxIcon iconClass={category.icon} size={18} style={{ color: category.color }} />
                                         </div>
-                                        <span className="font-medium text-gray-900 dark:text-gray-50">{category.name}</span>
+                                        <span className="font-medium text-gray-900 dark:text-gray-50 truncate">{category.name}</span>
                                      </div>
                                   </td>
                                   <td className="px-6 py-4 text-gray-700 dark:text-gray-300">
@@ -480,13 +541,19 @@ const Categories = () => {
                                visibleChildren.forEach(child => {
                                   const childHasLimit = child.hasBudget;
                                   rows.push(
-                                     <tr key={child.id} onClick={() => handleCardClick(child)} className="cursor-pointer transition-colors bg-gray-50/50 dark:bg-vindex-bg/30" onMouseEnter={e => e.currentTarget.style.backgroundColor = PRIMARY + '18'} onMouseLeave={e => e.currentTarget.style.backgroundColor = ''}>
+                                     <tr key={child.id} onClick={() => handleCardClick(child)} className={`cursor-pointer transition-colors ${selectedIds.includes(child.id) ? 'bg-primary/5 dark:bg-primary/10' : 'bg-gray-50/50 dark:bg-vindex-bg/30'}`} onMouseEnter={e => e.currentTarget.style.backgroundColor = PRIMARY + '18'} onMouseLeave={e => e.currentTarget.style.backgroundColor = ''}>
+                                        <td className="px-6 py-3" onClick={(e) => e.stopPropagation()}>
+                                           <Checkbox
+                                              checked={selectedIds.includes(child.id)}
+                                              onCheckedChange={() => toggleSelect(child.id)}
+                                           />
+                                        </td>
                                         <td className="px-6 py-3">
                                            <div className="flex items-center gap-2 pl-7">
                                               <div className="w-7 h-7 rounded-full flex items-center justify-center text-sm shrink-0" style={{ backgroundColor: child.color + '22', color: child.color }}>
                                                  <BxIcon iconClass={child.icon} size={16} style={{ color: child.color }} />
                                               </div>
-                                              <span className="text-gray-700 dark:text-gray-300">{child.name}</span>
+                                              <span className="text-gray-700 dark:text-gray-300 truncate">{child.name}</span>
                                            </div>
                                         </td>
                                         <td className="px-6 py-3 text-gray-700 dark:text-gray-300">
@@ -541,6 +608,14 @@ const Categories = () => {
            )}
          </>
       )}
+
+      <CategorySelectionBar
+        selectedIds={selectedIds}
+        categories={categories}
+        transactions={transactions}
+        childrenByParentId={childrenByParentId}
+        onClearSelection={() => setSelectedIds([])}
+      />
 
       {/* Category Details Modal */}
       <CategoryDetailModal

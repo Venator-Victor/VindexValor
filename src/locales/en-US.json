@@ -341,7 +341,15 @@
     "cannot_delete_has_subcategories_title": "Cannot delete",
     "cannot_delete_has_subcategories_desc": "This category has {{count}} subcategory(ies). Delete or move them first.",
     "expand_subcategories": "Expand subcategories",
-    "collapse_subcategories": "Collapse subcategories"
+    "collapse_subcategories": "Collapse subcategories",
+    "bulk_selected_count": "{{count}} categories selected",
+    "bulk_delete_button": "Delete",
+    "bulk_delete_confirm_title": "Delete {{count}} categories?",
+    "bulk_delete_confirm_desc": "This action cannot be undone. Categories with subcategories or associated transactions outside the selection will be skipped.",
+    "bulk_deleted_success_desc": "{{count}} categories deleted.",
+    "bulk_deleted_partial_desc": "{{deleted}} categories deleted, {{skipped}} skipped (subcategories or transactions still attached).",
+    "bulk_delete_error_title": "Error deleting categories",
+    "bulk_delete_all_skipped_desc": "No categories were deleted — all selected categories still have subcategories or associated transactions."
   },
   "default_categories": {
     "vestuario": { "name": "Clothing", "description": "Clothes and accessories" },

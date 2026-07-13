@@ -341,7 +341,15 @@
     "cannot_delete_has_subcategories_title": "Não é possível excluir",
     "cannot_delete_has_subcategories_desc": "Esta categoria possui {{count}} subcategoria(s). Exclua ou mova-as primeiro.",
     "expand_subcategories": "Expandir subcategorias",
-    "collapse_subcategories": "Recolher subcategorias"
+    "collapse_subcategories": "Recolher subcategorias",
+    "bulk_selected_count": "{{count}} categoria(s) selecionada(s)",
+    "bulk_delete_button": "Excluir",
+    "bulk_delete_confirm_title": "Excluir {{count}} categoria(s)?",
+    "bulk_delete_confirm_desc": "Esta ação não pode ser desfeita. Categorias com subcategorias ou transações associadas fora da seleção serão ignoradas.",
+    "bulk_deleted_success_desc": "{{count}} categoria(s) excluída(s).",
+    "bulk_deleted_partial_desc": "{{deleted}} categoria(s) excluída(s), {{skipped}} ignorada(s) (ainda possuem subcategorias ou transações).",
+    "bulk_delete_error_title": "Erro ao excluir categorias",
+    "bulk_delete_all_skipped_desc": "Nenhuma categoria foi excluída — todas as categorias selecionadas ainda possuem subcategorias ou transações associadas."
   },
   "default_categories": {
     "vestuario": { "name": "Vestuário", "description": "Roupas e acessórios" },
