@@ -16,6 +16,25 @@ import {
   TooltipTrigger,
 } from "@/components/ui/tooltip";
 
+const CustomTooltip = ({ active, payload, label, t }) => {
+  if (active && payload && payload.length) {
+    return (
+      <div className="bg-white dark:bg-vindex-card p-3 border border-gray-200 dark:border-vindex-border rounded-lg shadow-lg">
+        <p className="text-xs text-gray-500 mb-2">{label}</p>
+        {payload.map((entry, index) => (
+          <div key={index} className="flex items-center justify-between gap-4 mb-1">
+            <span className="text-sm text-gray-600 dark:text-gray-300">{t('inflation.cumulative_tooltip')}</span>
+            <span className="text-sm font-bold font-mono" style={{ color: entry.color }}>
+              {entry.value.toFixed(2)}%
+            </span>
+          </div>
+        ))}
+      </div>
+    );
+  }
+  return null;
+};
+
 const StyledSelect = ({ className = '', ...props }) => (
   <div className="relative">
     <select
@@ -64,8 +83,6 @@ const InflationCard = ({ currentBalance }) => {
 
   const textColor = isDark ? "#d1dcf0" : "#1f2937";
   const gridColor = isDark ? "#283768" : "#e5e7eb";
-  const tooltipBg = isDark ? "#161e3b" : "#ffffff";
-  const tooltipBorder = isDark ? "#283768" : "#e2e8f0";
 
   useEffect(() => {
     const loadData = async () => {
@@ -292,11 +309,7 @@ const InflationCard = ({ currentBalance }) => {
                   tickMargin={10}
                 />
                 <YAxis stroke={textColor} fontSize={12} tickLine={false} axisLine={false} unit="%" tickMargin={8} width={48} />
-                <Tooltip
-                  contentStyle={{ backgroundColor: tooltipBg, borderColor: tooltipBorder, borderRadius: '8px', color: textColor }}
-                  itemStyle={{ color: textColor }}
-                  formatter={(value) => [`${value.toFixed(2)}%`, t('inflation.cumulative_tooltip')]}
-                />
+                <Tooltip content={<CustomTooltip t={t} />} cursor={{ stroke: gridColor }} />
                 <Area type="monotone" dataKey="cumulative" stroke={DANGER_DARK} fillOpacity={1} fill="url(#colorInflation)" />
               </AreaChart>
             </ResponsiveContainer>

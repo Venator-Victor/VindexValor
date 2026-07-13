@@ -10,6 +10,27 @@ import { useTheme } from '@/context/ThemeContext';
 import { TrendingDown, TrendingUp } from '@/components/BxIcon';
 import { SUCCESS, DANGER_DARK } from '@/utils/colors';
 
+const CustomTooltip = ({ active, payload, label, t }) => {
+  if (active && payload && payload.length) {
+    return (
+      <div className="bg-white dark:bg-vindex-card p-3 border border-gray-200 dark:border-vindex-border rounded-lg shadow-lg">
+        <p className="text-xs text-gray-500 mb-2">{label}</p>
+        {payload.map((entry, index) => (
+          <div key={index} className="flex items-center justify-between gap-4 mb-1">
+            <span className="text-sm text-gray-600 dark:text-gray-300">
+              {entry.dataKey === 'needed' ? t('inflation.needed_label') : t('inflation.return_investment_label')}
+            </span>
+            <span className="text-sm font-bold font-mono" style={{ color: entry.color }}>
+              {formatCurrency(entry.value)}
+            </span>
+          </div>
+        ))}
+      </div>
+    );
+  }
+  return null;
+};
+
 const InflationSimulator = () => {
   const { t } = useTranslation();
   const { theme } = useTheme();
@@ -22,8 +43,6 @@ const InflationSimulator = () => {
 
   const textColor = isDark ? '#d1dcf0' : '#1f2937';
   const gridColor = isDark ? '#283768' : '#e5e7eb';
-  const tooltipBg = isDark ? '#161e3b' : '#ffffff';
-  const tooltipBorder = isDark ? '#283768' : '#e2e8f0';
 
   const chartData = useMemo(() => {
     return Array.from({ length: years }, (_, i) => {
@@ -167,14 +186,7 @@ const InflationSimulator = () => {
                 tickMargin={8}
                 width={52}
               />
-              <Tooltip
-                contentStyle={{ backgroundColor: tooltipBg, borderColor: tooltipBorder, borderRadius: '8px', color: textColor }}
-                itemStyle={{ color: textColor }}
-                formatter={(value, name) => [
-                  formatCurrency(value),
-                  name === 'needed' ? t('inflation.needed_label') : t('inflation.return_investment_label'),
-                ]}
-              />
+              <Tooltip content={<CustomTooltip t={t} />} cursor={{ stroke: gridColor }} />
               <Legend
                 wrapperStyle={{ fontSize: 12, paddingTop: 8 }}
                 formatter={(value) =>
