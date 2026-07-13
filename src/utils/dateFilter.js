@@ -33,13 +33,13 @@ export const getDateFilterRange = (filter, fallbackStartDate) => {
       return { startDate: start, endDate: now };
     }
     case 'last_month': {
-      const prevMonth = new Date(now.getFullYear(), now.getMonth() - 1, 1);
-      const end = new Date(prevMonth.getFullYear(), prevMonth.getMonth() + 1, 0);
-      return { startDate: prevMonth, endDate: endOfDay(end) };
+      const start = new Date(now);
+      start.setDate(now.getDate() - 30);
+      return { startDate: start, endDate: now };
     }
     case 'last_year': {
-      const year = now.getFullYear() - 1;
-      return { startDate: new Date(year, 0, 1), endDate: endOfDay(new Date(year, 11, 31)) };
+      const start = new Date(now.getFullYear(), now.getMonth() - 11, 1);
+      return { startDate: start, endDate: now };
     }
     case 'month': {
       if (!filter.month || !filter.year) return { startDate: fallbackStart, endDate: now };
@@ -74,12 +74,13 @@ export const matchesDateFilter = (dateStr, filter) => {
       return dateStr >= toISODate(weekAgo) && dateStr <= toISODate(now);
     }
     case 'last_month': {
-      const prevMonth = new Date(now.getFullYear(), now.getMonth() - 1, 1);
-      const prefix = `${prevMonth.getFullYear()}-${String(prevMonth.getMonth() + 1).padStart(2, '0')}`;
-      return dateStr.startsWith(prefix);
+      const monthAgo = new Date(now);
+      monthAgo.setDate(now.getDate() - 30);
+      return dateStr >= toISODate(monthAgo) && dateStr <= toISODate(now);
     }
     case 'last_year': {
-      return dateStr.startsWith(String(now.getFullYear() - 1));
+      const start = new Date(now.getFullYear(), now.getMonth() - 11, 1);
+      return dateStr >= toISODate(start) && dateStr <= toISODate(now);
     }
     case 'month': {
       if (!filter.month || !filter.year) return true;

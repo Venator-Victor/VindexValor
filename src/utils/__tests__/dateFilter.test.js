@@ -43,22 +43,28 @@ describe('matchesDateFilter', () => {
     expect(matchesDateFilter(toISO(eightDaysAgo), { type: 'last_week' })).toBe(false);
   });
 
-  it('last_month matches the previous calendar month only', () => {
-    const now = new Date();
-    const prevMonth = new Date(now.getFullYear(), now.getMonth() - 1, 15);
-    const twoMonthsAgo = new Date(now.getFullYear(), now.getMonth() - 2, 15);
-    const prevMonthStr = `${prevMonth.getFullYear()}-${String(prevMonth.getMonth() + 1).padStart(2, '0')}-15`;
-    const twoMonthsAgoStr = `${twoMonthsAgo.getFullYear()}-${String(twoMonthsAgo.getMonth() + 1).padStart(2, '0')}-15`;
+  it('last_month matches the last 30 days including today', () => {
+    const today = new Date();
+    const toISO = (d) => d.toISOString().split('T')[0];
+    const twentyNineDaysAgo = new Date(today);
+    twentyNineDaysAgo.setDate(today.getDate() - 29);
+    const thirtyOneDaysAgo = new Date(today);
+    thirtyOneDaysAgo.setDate(today.getDate() - 31);
 
-    expect(matchesDateFilter(prevMonthStr, { type: 'last_month' })).toBe(true);
-    expect(matchesDateFilter(twoMonthsAgoStr, { type: 'last_month' })).toBe(false);
+    expect(matchesDateFilter(toISO(today), { type: 'last_month' })).toBe(true);
+    expect(matchesDateFilter(toISO(twentyNineDaysAgo), { type: 'last_month' })).toBe(true);
+    expect(matchesDateFilter(toISO(thirtyOneDaysAgo), { type: 'last_month' })).toBe(false);
   });
 
-  it('last_year matches the previous calendar year only', () => {
-    const lastYear = new Date().getFullYear() - 1;
-    const twoYearsAgo = new Date().getFullYear() - 2;
-    expect(matchesDateFilter(`${lastYear}-06-15`, { type: 'last_year' })).toBe(true);
-    expect(matchesDateFilter(`${twoYearsAgo}-06-15`, { type: 'last_year' })).toBe(false);
+  it('last_year matches the last 12 months including the current one', () => {
+    const now = new Date();
+    const elevenMonthsAgo = new Date(now.getFullYear(), now.getMonth() - 11, 15);
+    const thirteenMonthsAgo = new Date(now.getFullYear(), now.getMonth() - 13, 15);
+    const toISO = (d) => `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
+
+    expect(matchesDateFilter(toISO(now), { type: 'last_year' })).toBe(true);
+    expect(matchesDateFilter(toISO(elevenMonthsAgo), { type: 'last_year' })).toBe(true);
+    expect(matchesDateFilter(toISO(thirteenMonthsAgo), { type: 'last_year' })).toBe(false);
   });
 
   it('month matches only the selected month/year', () => {
