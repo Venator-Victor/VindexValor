@@ -19,12 +19,13 @@ import FilterRangeInput, { parseValueFilterString } from '@/components/FilterRan
 import InfoTooltip from '@/components/InfoTooltip';
 import EmptyState from '@/components/EmptyState';
 import DateFilterSelect from '@/components/ui/DateFilterSelect';
+import TransactionsBalanceChart from '@/components/TransactionsBalanceChart';
 import { buildFlatIndentedOptions } from '@/utils/categoryTree';
 import { getDateFilterDefaults, matchesDateFilter, isDateFilterActive } from '@/utils/dateFilter';
 
 const Transactions = () => {
   const { t } = useTranslation();
-  const { transactions, categories, accounts, isLoading, deleteTransaction, fetchAllData } = useFinance();
+  const { transactions, categories, accounts, isLoading, deleteTransaction, fetchAllData, settings, saveSettings } = useFinance();
   const { toast } = useToast();
   const location = useLocation();
   const navigate = useNavigate();
@@ -41,7 +42,8 @@ const Transactions = () => {
   const [valueFilterStr, setValueFilterStr] = useState('');
   const [selectedCategoryIds, setSelectedCategoryIds] = useState([]);
   
-  const [dateFilter, setDateFilter] = useState(getDateFilterDefaults());
+  const dateFilter = settings.transactions_date_filter || getDateFilterDefaults();
+  const setDateFilter = (filter) => saveSettings({ transactions_date_filter: filter });
 
   useEffect(() => {
     if (location.state && transactions.length > 0) {
@@ -197,6 +199,8 @@ const Transactions = () => {
           </Dialog>
         </div>
       </div>
+
+      <TransactionsBalanceChart transactions={filteredTransactions} dateFilter={dateFilter} />
 
       <div className="bg-card rounded-xl p-4 border shadow-sm space-y-4">
         <div className="flex items-center justify-between mb-2">
