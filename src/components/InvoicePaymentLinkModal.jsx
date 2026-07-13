@@ -41,6 +41,14 @@ const InvoicePaymentLinkModal = ({ isOpen, onOpenChange, invoiceId, invoiceTotal
   const [paymentToConfirm, setPaymentToConfirm] = useState(null);
   const [isConfirmDialogOpen, setIsConfirmDialogOpen] = useState(false);
   const [isLinking, setIsLinking] = useState(false);
+  // An invoice already settled — either by a transaction already linked to it, or by a
+  // CSV-imported is_payment line — can't also take a second linked payment, or the same
+  // real-world payment gets counted twice. Credit card statements settle one billing
+  // cycle late, so a payment line that pays off THIS invoice's debt physically lives in
+  // invoice_items on its *successor* (the next invoice for the same account), not on
+  // this invoice itself — see computeInvoiceBalances.
+  const [alreadySettledReason, setAlreadySettledReason] = useState(null); // 'linked' | 'item' | null
+  const [isCheckingExisting, setIsCheckingExisting] = useState(true);
 
   const fetchEligiblePayments = async () => {
     if (!user) return;
@@ -63,6 +71,57 @@ const InvoicePaymentLinkModal = ({ isOpen, onOpenChange, invoiceId, invoiceTotal
     }
   };
 
+  const checkAlreadySettled = async () => {
+    setIsCheckingExisting(true);
+    try {
+      const { data: existingLinked } = await supabase
+        .from('transactions')
+        .select('id')
+        .eq('invoice_id', invoiceId)
+        .limit(1);
+      if ((existingLinked || []).length > 0) {
+        setAlreadySettledReason('linked');
+        return;
+      }
+
+      const { data: thisInvoice } = await supabase
+        .from('invoices')
+        .select('id, account_id, closing_date, opening_date')
+        .eq('id', invoiceId)
+        .single();
+      if (!thisInvoice) {
+        setAlreadySettledReason(null);
+        return;
+      }
+
+      const { data: accountInvoices } = await supabase
+        .from('invoices')
+        .select('id, closing_date, opening_date')
+        .eq('account_id', thisInvoice.account_id);
+
+      const sorted = [...(accountInvoices || [])].sort((a, b) =>
+        new Date(a.closing_date) - new Date(b.closing_date) || new Date(a.opening_date) - new Date(b.opening_date)
+      );
+      const idx = sorted.findIndex(inv => inv.id === invoiceId);
+      const successor = idx >= 0 ? sorted[idx + 1] : null;
+
+      if (!successor) {
+        setAlreadySettledReason(null);
+        return;
+      }
+
+      const { data: successorItems } = await supabase
+        .from('invoice_items')
+        .select('id')
+        .eq('invoice_id', successor.id)
+        .eq('is_payment', true)
+        .limit(1);
+      setAlreadySettledReason((successorItems || []).length > 0 ? 'item' : null);
+    } finally {
+      setIsCheckingExisting(false);
+    }
+  };
+
   useEffect(() => {
     if (isOpen) {
       // eslint-disable-next-line react-hooks/set-state-in-effect -- resets filters when the modal is reopened for a (possibly different) invoice.
@@ -70,6 +129,7 @@ const InvoicePaymentLinkModal = ({ isOpen, onOpenChange, invoiceId, invoiceTotal
       // eslint-disable-next-line react-hooks/set-state-in-effect -- see above.
       setValueFilterStr('');
       fetchEligiblePayments();
+      checkAlreadySettled();
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [isOpen, invoiceId]);
@@ -173,6 +233,16 @@ const InvoicePaymentLinkModal = ({ isOpen, onOpenChange, invoiceId, invoiceTotal
             <DialogTitle>{t('invoice_detail.link_payment_title')}</DialogTitle>
           </DialogHeader>
           <div className="space-y-4 pt-4">
+            {isCheckingExisting ? (
+              <div className="text-center py-8 text-muted-foreground">{t('invoice_detail.loading_payments')}</div>
+            ) : alreadySettledReason ? (
+              <div className="text-center py-8 px-4 text-sm text-muted-foreground border border-dashed rounded-lg bg-muted/20">
+                {alreadySettledReason === 'linked'
+                  ? t('invoice_detail.already_settled_via_linked')
+                  : t('invoice_detail.already_settled_via_item')}
+              </div>
+            ) : (
+              <>
             <div className="flex flex-col sm:flex-row gap-3">
               <div className="w-full sm:max-w-xs">
                 <SelectInput
@@ -296,6 +366,8 @@ const InvoicePaymentLinkModal = ({ isOpen, onOpenChange, invoiceId, invoiceTotal
                   </table>
                 </div>
               </div>
+            )}
+              </>
             )}
           </div>
         </DialogContent>

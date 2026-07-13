@@ -2,7 +2,7 @@ import React from 'react';
 import { useTranslation } from 'react-i18next';
 import { Button } from '@/components/ui/button';
 import { Checkbox } from '@/components/ui/checkbox';
-import { File as FileText, Wallet } from '@/components/BxIcon';
+import { File as FileText, Wallet, AlertCircle } from '@/components/BxIcon';
 import { formatCurrency } from '@/utils/calculations';
 
 // Lets the user confirm/override which imported lines are the credit card's "payment
@@ -10,7 +10,7 @@ import { formatCurrency } from '@/utils/calculations';
 // is written to the database. Auto-suggestions (by description wording or by amount
 // matching what was owed on the previous invoice) are pre-checked but never final on
 // their own — the user always has the last word here.
-const PaymentReviewStep = ({ filesData, onToggle, onBack, onConfirm }) => {
+const PaymentReviewStep = ({ filesData, onToggle, onBack, onConfirm, showAlreadySettledWarning = false }) => {
   const { t } = useTranslation();
 
   const formatDate = (dateStr) => {
@@ -25,6 +25,13 @@ const PaymentReviewStep = ({ filesData, onToggle, onBack, onConfirm }) => {
         <h3 className="font-semibold text-foreground mb-1">{t('invoices.review_payments_title')}</h3>
         <p className="text-sm text-muted-foreground">{t('invoices.review_payments_desc')}</p>
       </div>
+
+      {showAlreadySettledWarning && (
+        <div className="flex items-start gap-3 p-4 rounded-xl border border-amber-300 dark:border-amber-800 bg-amber-50 dark:bg-amber-900/20 text-amber-800 dark:text-amber-300">
+          <AlertCircle className="w-5 h-5 shrink-0 mt-0.5" />
+          <p className="text-sm">{t('invoices.review_payments_already_settled_warning')}</p>
+        </div>
+      )}
 
       <div className="space-y-4 max-h-[50vh] overflow-y-auto custom-scrollbar pr-2">
         {filesData.map((file, fileIdx) => {
