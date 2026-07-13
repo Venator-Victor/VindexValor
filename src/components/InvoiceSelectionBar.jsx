@@ -1,12 +1,13 @@
 import React, { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Button } from '@/components/ui/button';
-import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from '@/components/ui/alert-dialog';
+import DeleteConfirmationDialog from '@/components/DeleteConfirmationDialog';
 import { TrashAlt as Trash2, X, Eye, CreditCard } from '@/components/BxIcon';
 import { supabase } from '@/lib/customSupabaseClient';
 import { useToast } from '@/components/ui/use-toast';
 import { useNavigate } from 'react-router-dom';
 import { useFinance } from '@/context/FinanceContext';
+import { useAuth } from '@/context/SupabaseAuthContext';
 import { formatCurrency } from '@/utils/calculations';
 import InvoicePaymentLinkModal from '@/components/InvoicePaymentLinkModal';
 
@@ -17,6 +18,7 @@ const InvoiceSelectionBar = ({ selectedIds, invoices, invoiceTotals = {}, onClea
   const [isPaymentModalOpen, setIsPaymentModalOpen] = useState(false);
 
   const { accounts } = useFinance();
+  const { user } = useAuth();
 
   const { toast } = useToast();
   const navigate = useNavigate();
@@ -33,6 +35,10 @@ const InvoiceSelectionBar = ({ selectedIds, invoices, invoiceTotals = {}, onClea
   const handleDelete = async () => {
     setIsDeleting(true);
     try {
+      // Unlink any payments first: invoice_items cascade-delete automatically, but
+      // transactions.invoice_id has no cascade, so deleting would fail with an FK error otherwise.
+      await supabase.from('transactions').update({ invoice_id: null }).in('invoice_id', selectedIds).eq('user_id', user.id);
+
       const { error } = await supabase
         .from('invoices')
         .delete()
@@ -151,26 +157,14 @@ const InvoiceSelectionBar = ({ selectedIds, invoices, invoiceTotals = {}, onClea
         </div>
       </div>
 
-      <AlertDialog open={showConfirmDelete} onOpenChange={setShowConfirmDelete}>
-        <AlertDialogContent>
-          <AlertDialogHeader>
-            <AlertDialogTitle>{t('invoices.delete_bulk_title', { count: selectedIds.length })}</AlertDialogTitle>
-            <AlertDialogDescription>
-              {t('invoices.delete_bulk_desc')}
-            </AlertDialogDescription>
-          </AlertDialogHeader>
-          <AlertDialogFooter>
-            <AlertDialogCancel disabled={isDeleting}>{t('common.cancel')}</AlertDialogCancel>
-            <AlertDialogAction
-              onClick={(e) => { e.preventDefault(); handleDelete(); }}
-              disabled={isDeleting}
-              className="bg-destructive hover:bg-destructive/90 text-destructive-foreground"
-            >
-              {isDeleting ? t('common.deleting') : t('common.confirm_delete')}
-            </AlertDialogAction>
-          </AlertDialogFooter>
-        </AlertDialogContent>
-      </AlertDialog>
+      <DeleteConfirmationDialog
+        open={showConfirmDelete}
+        onOpenChange={setShowConfirmDelete}
+        title={t('invoices.delete_bulk_title', { count: selectedIds.length })}
+        description={t('invoices.delete_bulk_desc')}
+        onConfirm={handleDelete}
+        isLoading={isDeleting}
+      />
 
       {selectedInvoice && (
         <InvoicePaymentLinkModal

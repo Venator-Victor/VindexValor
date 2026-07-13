@@ -30,7 +30,7 @@ const CSVPreviewTable = ({ data, onUpdateRow }) => {
         </div>
       </div>
 
-      <div className="border rounded-xl overflow-hidden max-h-[350px] overflow-y-auto bg-card shadow-sm">
+      <div className="border rounded-xl overflow-hidden max-h-[45vh] overflow-y-auto custom-scrollbar bg-card shadow-sm">
         <table className="w-full text-sm">
           <thead className="bg-muted/50 sticky top-0 border-b z-10">
             <tr>

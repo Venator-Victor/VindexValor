@@ -77,8 +77,8 @@ const CSVImportFlow = ({ onSuccess, onCancel }) => {
 
   if (step === 'upload') {
     return (
-      <div className="p-1">
-        <div className="border-2 border-dashed border-border rounded-xl p-8 text-center flex flex-col items-center justify-center bg-muted/30">
+      <div className="p-1 animate-in fade-in duration-200">
+        <div className="border-2 border-dashed border-border rounded-xl p-6 md:p-8 text-center flex flex-col items-center justify-center bg-muted/30">
           <UploadCloud className="w-12 h-12 text-muted-foreground mb-4" />
           <h3 className="text-lg font-medium text-foreground mb-2">{t('csv.upload_title')}</h3>
           <p className="text-sm text-muted-foreground mb-4 max-w-md">
@@ -110,7 +110,7 @@ const CSVImportFlow = ({ onSuccess, onCancel }) => {
   }
 
   return (
-    <div className="flex flex-col gap-5">
+    <div className="flex flex-col gap-5 animate-in fade-in duration-200">
       <CSVPreviewTable data={parsedData} onUpdateRow={handleUpdateRow} />
 
       <div className="bg-muted/30 p-5 rounded-xl border">

@@ -219,10 +219,6 @@
   }
 }
 
-@utility dialog-responsive {
-  @apply w-[95vw] max-h-[90vh] md:w-full md:max-w-4xl overflow-y-auto custom-scrollbar;
-}
-
 @utility no-spinner {
   &::-webkit-inner-spin-button,
   &::-webkit-outer-spin-button {

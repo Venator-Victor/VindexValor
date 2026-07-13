@@ -322,7 +322,7 @@ const InvoicesPage = () => {
                 <UploadCloud className="w-4 h-4" /> <span className="hidden sm:inline">{t('invoices.import_csv')}</span>
               </Button>
             </DialogTrigger>
-            <DialogContent className="dialog-responsive p-4 md:p-6">
+            <DialogContent className="w-[95vw] max-w-[95vw] md:w-full md:max-w-4xl max-h-[90vh] overflow-y-auto custom-scrollbar p-4 md:p-6">
               <DialogHeader>
                 <DialogTitle>{t('invoices.import_title')}</DialogTitle>
               </DialogHeader>

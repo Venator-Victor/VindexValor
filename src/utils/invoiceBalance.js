@@ -16,7 +16,9 @@ export const computeInvoiceBalances = (invoices, itemsByInvoiceId) => {
 
   const result = {};
   for (const accountId of Object.keys(byAccount)) {
-    const sorted = [...byAccount[accountId]].sort((a, b) => new Date(a.closing_date) - new Date(b.closing_date));
+    const sorted = [...byAccount[accountId]].sort((a, b) =>
+      new Date(a.closing_date) - new Date(b.closing_date) || new Date(a.opening_date) - new Date(b.opening_date)
+    );
     let runningBalance = 0;
     for (const inv of sorted) {
       const items = itemsByInvoiceId[inv.id] || [];

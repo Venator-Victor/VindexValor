@@ -1,8 +1,8 @@
 import React, { useState, useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Button } from '@/components/ui/button';
-import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from '@/components/ui/alert-dialog';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
+import DeleteConfirmationDialog from '@/components/DeleteConfirmationDialog';
 import { TrashAlt as Trash2, X, FolderOpen as FolderEdit } from '@/components/BxIcon';
 import { supabase } from '@/lib/customSupabaseClient';
 import { useToast } from '@/components/ui/use-toast';
@@ -166,26 +166,14 @@ const TransactionSelectionModal = ({ selectedIds, transactions, onClearSelection
         </div>
       </div>
 
-      <AlertDialog open={showConfirmDelete} onOpenChange={setShowConfirmDelete}>
-        <AlertDialogContent>
-          <AlertDialogHeader>
-            <AlertDialogTitle>{t('transactions.bulk_delete_confirm_title', { count: selectedIds.length })}</AlertDialogTitle>
-            <AlertDialogDescription>
-              {t('transactions.bulk_delete_confirm_desc')}
-            </AlertDialogDescription>
-          </AlertDialogHeader>
-          <AlertDialogFooter>
-            <AlertDialogCancel disabled={isDeleting}>{t('common.cancel')}</AlertDialogCancel>
-            <AlertDialogAction
-              onClick={(e) => { e.preventDefault(); handleDelete(); }}
-              disabled={isDeleting}
-              className="bg-destructive hover:bg-destructive/90 text-destructive-foreground"
-            >
-              {isDeleting ? t('transactions.bulk_deleting') : t('transactions.bulk_confirm_delete')}
-            </AlertDialogAction>
-          </AlertDialogFooter>
-        </AlertDialogContent>
-      </AlertDialog>
+      <DeleteConfirmationDialog
+        open={showConfirmDelete}
+        onOpenChange={setShowConfirmDelete}
+        title={t('transactions.bulk_delete_confirm_title', { count: selectedIds.length })}
+        description={t('transactions.bulk_delete_confirm_desc')}
+        onConfirm={handleDelete}
+        isLoading={isDeleting}
+      />
 
       <Dialog open={showCategoryModal} onOpenChange={setShowCategoryModal}>
         <DialogContent className="sm:max-w-[425px]">

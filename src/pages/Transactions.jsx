@@ -167,7 +167,7 @@ const Transactions = () => {
           </Button>
 
           <Dialog open={isImportOpen} onOpenChange={setIsImportOpen}>
-            <DialogContent className="dialog-responsive p-4 md:p-6">
+            <DialogContent className="w-[95vw] max-w-[95vw] md:w-full md:max-w-4xl max-h-[90vh] overflow-y-auto custom-scrollbar p-4 md:p-6">
               <DialogHeader>
                 <DialogTitle>{t('transactions.import_title')}</DialogTitle>
               </DialogHeader>
