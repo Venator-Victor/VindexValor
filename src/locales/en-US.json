@@ -802,6 +802,13 @@
     "export_data": "Export Data",
     "reset_password": "Reset Password",
     "reset_password_confirm": "A password reset email will be sent to {{email}}. Do you want to continue?",
+    "danger_zone": "Danger Zone",
+    "delete_account": "Delete Account",
+    "delete_account_warning": "This action is permanent and cannot be undone. All your data — transactions, accounts, categories, invoices, investments, goals, and recurring items — will be permanently erased.",
+    "delete_account_confirm_label": "To confirm, type your email ({{email}}) below:",
+    "delete_account_confirm_placeholder": "Type your email to confirm",
+    "delete_account_action": "Permanently delete my account",
+    "deleting_account": "Deleting...",
     "export_success_title": "Export Complete",
     "export_success_desc": "Your data has been exported successfully!",
     "section_preferences": "Preferences",
@@ -885,7 +892,9 @@
     "update_password_error_title": "Error updating password",
     "update_password_error_desc": "Could not update the password.",
     "logout_error_title": "Error signing out",
-    "logout_error_desc": "Could not log out properly."
+    "logout_error_desc": "Could not log out properly.",
+    "delete_account_error_title": "Error deleting account",
+    "delete_account_error_desc": "Could not delete your account. Please try again."
   },
 
   "privacy": {

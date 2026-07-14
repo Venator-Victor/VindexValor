@@ -9,17 +9,19 @@ import { useToast } from '@/components/ui/use-toast';
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from '@/components/ui/alert-dialog';
 import { useAuth } from '@/context/SupabaseAuthContext';
 import { useTheme } from '@/context/ThemeContext';
-import BxIcon, { User, Cog, Bell, InfoCircle, Share, Lock, Moon, Sun } from '@/components/BxIcon';
+import BxIcon, { User, Cog, Bell, InfoCircle, Share, Lock, TrashAlt, Moon, Sun } from '@/components/BxIcon';
 
 const Settings = () => {
   const { t } = useTranslation();
   const { settings, setSettings, saveSettings, transactions, accounts, categories, investments, recurring } = useFinance();
-  const { user, resetPasswordForEmail } = useAuth();
+  const { user, resetPasswordForEmail, deleteAccount } = useAuth();
   const { theme, toggleTheme, setTheme } = useTheme();
   const { toast } = useToast();
   const [activeTab, setActiveTab] = useState('conta');
   const [pendingTheme, setPendingTheme] = useState(theme);
   const [pendingLanguage, setPendingLanguage] = useState(settings.language);
+  const [deleteConfirmText, setDeleteConfirmText] = useState('');
+  const [isDeletingAccount, setIsDeletingAccount] = useState(false);
 
   // Keep the pending selections in sync with the persisted values whenever
   // they change from outside this form (initial load, another tab/device).
@@ -68,6 +70,15 @@ const Settings = () => {
     } catch (err) {
       toast({ title: t('settings.reset_password_error'), description: err?.message, variant: "destructive" });
     }
+  };
+
+  const handleDeleteAccount = async () => {
+    setIsDeletingAccount(true);
+    const { error } = await deleteAccount();
+    if (error) {
+      setIsDeletingAccount(false);
+    }
+    // On success, deleteAccount() already signs out and navigates away.
   };
 
   const handleFeatureClick = (feature) => {
@@ -187,6 +198,49 @@ const Settings = () => {
                       </AlertDialogContent>
                     </AlertDialog>
                  </div>
+              </div>
+
+              <div className="border-t border-red-200 dark:border-vindex-danger/30 pt-6 mt-6 space-y-4">
+                 <h3 className="text-lg font-bold text-vindex-danger">{t('settings.danger_zone')}</h3>
+                 <p className="text-sm text-gray-500 dark:text-vindex-text/60">{t('settings.delete_account_warning')}</p>
+
+                 <AlertDialog onOpenChange={(open) => { if (!open) setDeleteConfirmText(''); }}>
+                   <AlertDialogTrigger asChild>
+                      <Button variant="destructive" className="bg-red-50 dark:bg-vindex-danger/20 hover:bg-red-100 dark:hover:bg-vindex-danger/30 text-vindex-danger border border-red-200 dark:border-vindex-danger/50 rounded-lg">
+                         <TrashAlt size={16} className="mr-2" /> {t('settings.delete_account')}
+                      </Button>
+                   </AlertDialogTrigger>
+                   <AlertDialogContent className="bg-white dark:bg-vindex-card text-gray-900 dark:text-vindex-text border-gray-200 dark:border-vindex-border rounded-xl">
+                     <AlertDialogHeader>
+                       <AlertDialogTitle>{t('settings.delete_account')}</AlertDialogTitle>
+                       <AlertDialogDescription className="text-gray-500 dark:text-vindex-text/60">
+                         {t('settings.delete_account_warning')}
+                       </AlertDialogDescription>
+                     </AlertDialogHeader>
+                     <div>
+                       <Label htmlFor="delete_confirm">{t('settings.delete_account_confirm_label', { email: user?.email })}</Label>
+                       <input
+                         id="delete_confirm"
+                         type="text"
+                         autoComplete="off"
+                         value={deleteConfirmText}
+                         onChange={(e) => setDeleteConfirmText(e.target.value)}
+                         placeholder={t('settings.delete_account_confirm_placeholder')}
+                         className="h-10 w-full px-3 py-2 bg-white dark:bg-vindex-bg border border-gray-200 dark:border-vindex-border rounded-lg text-gray-900 dark:text-gray-100 mt-1 hover:border-primary focus:border-primary outline-none"
+                       />
+                     </div>
+                     <AlertDialogFooter>
+                       <AlertDialogCancel className="bg-gray-100 dark:bg-vindex-bg hover:bg-gray-200 dark:hover:bg-vindex-bg/80 border-gray-200 dark:border-vindex-border text-gray-900 dark:text-vindex-text rounded-lg">{t('common.cancel')}</AlertDialogCancel>
+                       <AlertDialogAction
+                         onClick={(e) => { e.preventDefault(); handleDeleteAccount(); }}
+                         disabled={deleteConfirmText !== user?.email || isDeletingAccount}
+                         className="bg-red-600 hover:bg-red-700 rounded-lg text-white dark:bg-vindex-danger dark:hover:bg-vindex-danger/90"
+                       >
+                         {isDeletingAccount ? t('settings.deleting_account') : t('settings.delete_account_action')}
+                       </AlertDialogAction>
+                     </AlertDialogFooter>
+                   </AlertDialogContent>
+                 </AlertDialog>
               </div>
             </div>
           )}

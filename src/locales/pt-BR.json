@@ -804,6 +804,13 @@
     "reset_password_confirm": "Um email de redefinição de senha será enviado para {{email}}. Deseja continuar?",
     "export_success_title": "Exportação Concluída",
     "export_success_desc": "Seus dados foram exportados com sucesso!",
+    "danger_zone": "Zona de Perigo",
+    "delete_account": "Excluir Conta",
+    "delete_account_warning": "Esta ação é permanente e não pode ser desfeita. Todos os seus dados — transações, contas, categorias, faturas, investimentos, metas e recorrências — serão apagados definitivamente.",
+    "delete_account_confirm_label": "Para confirmar, digite seu email ({{email}}) abaixo:",
+    "delete_account_confirm_placeholder": "Digite seu email para confirmar",
+    "delete_account_action": "Excluir minha conta permanentemente",
+    "deleting_account": "Excluindo...",
     "section_preferences": "Preferências",
     "theme_label": "Tema",
     "theme_dark": "Escuro",
@@ -885,7 +892,9 @@
     "update_password_error_title": "Erro ao atualizar senha",
     "update_password_error_desc": "Não foi possível atualizar a senha.",
     "logout_error_title": "Erro ao sair",
-    "logout_error_desc": "Não foi possível realizar o logout corretamente."
+    "logout_error_desc": "Não foi possível realizar o logout corretamente.",
+    "delete_account_error_title": "Erro ao excluir conta",
+    "delete_account_error_desc": "Não foi possível excluir sua conta. Tente novamente."
   },
 
   "privacy": {

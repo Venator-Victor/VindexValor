@@ -112,6 +112,31 @@ export const AuthProvider = ({ children }) => {
     return { error };
   }, [toast, t]);
 
+  const deleteAccount = useCallback(async () => {
+    try {
+      const { data, error } = await supabase.functions.invoke('delete-account');
+      if (error) throw error;
+      if (data?.error) throw new Error(data.error);
+    } catch (error) {
+      toast({
+        variant: "destructive",
+        title: t('auth.delete_account_error_title'),
+        description: error.message || t('auth.delete_account_error_desc'),
+      });
+      return { error };
+    }
+
+    // Account and all data are already gone server-side; just drop the local session.
+    // Target /login (not /) to match signOut()'s destination: ProtectedRoute's own
+    // guard re-renders a <Navigate to="/login?..."> the instant user/session go null,
+    // which otherwise races an explicit navigate('/') and silently wins.
+    await supabase.auth.signOut().catch(() => {});
+    setUser(null);
+    setSession(null);
+    navigate('/login');
+    return { error: null };
+  }, [toast, navigate, t]);
+
   const signOut = useCallback(async () => {
     try {
       const { error } = await supabase.auth.signOut();
@@ -145,7 +170,8 @@ export const AuthProvider = ({ children }) => {
     signOut,
     resetPasswordForEmail,
     updatePassword,
-  }), [user, session, loading, isRecoveryMode, signUp, signIn, signOut, resetPasswordForEmail, updatePassword]);
+    deleteAccount,
+  }), [user, session, loading, isRecoveryMode, signUp, signIn, signOut, resetPasswordForEmail, updatePassword, deleteAccount]);
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
 };
