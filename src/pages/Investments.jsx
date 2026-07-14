@@ -1,4 +1,4 @@
-import { PRIMARY, PRIMARY_HOVER, DANGER } from '@/utils/colors';
+import { PRIMARY, PRIMARY_HOVER, DANGER, SUCCESS } from '@/utils/colors';
 import React, { useState, useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Helmet } from 'react-helmet';
@@ -227,7 +227,7 @@ const Investments = () => {
                     type="text"
                     value={formData.name}
                     onChange={(e) => setFormData({ ...formData, name: e.target.value })}
-                    className="w-full px-3 py-2 bg-white dark:bg-vindex-bg border border-gray-200 dark:border-vindex-border rounded-lg text-gray-900 dark:text-gray-100 hover:border-primary focus:border-primary outline-none"
+                    className="h-10 w-full px-3 py-2 bg-white dark:bg-vindex-bg border border-gray-200 dark:border-vindex-border rounded-lg text-gray-900 dark:text-gray-100 hover:border-primary focus:border-primary outline-none"
                     placeholder={t('investments.name_placeholder')}
                     required
                   />
@@ -291,10 +291,25 @@ const Investments = () => {
                 </div>
 
                 <div className="flex gap-2 pt-4">
-                  <Button type="submit" className="flex-1 bg-green-600 hover:bg-green-700 text-white dark:bg-vindex-success/20 dark:hover:bg-vindex-success/30 dark:text-vindex-success dark:border dark:border-vindex-success/50 rounded-lg">
+                  <Button
+                    type="submit"
+                    variant="outline"
+                    className="flex-1 font-medium rounded-lg transition-colors bg-transparent"
+                    style={{ borderColor: SUCCESS, color: SUCCESS }}
+                    onMouseEnter={e => { e.currentTarget.style.backgroundColor = SUCCESS; e.currentTarget.style.color = '#fff'; }}
+                    onMouseLeave={e => { e.currentTarget.style.backgroundColor = 'transparent'; e.currentTarget.style.color = SUCCESS; }}
+                  >
                     {editingInvestment ? t('common.update') : t('common.create')}
                   </Button>
-                  <Button type="button" variant="outline" onClick={() => setIsDialogOpen(false)} className="flex-1 border-gray-200 dark:border-vindex-border text-gray-900 dark:text-gray-100 hover:bg-gray-100 dark:hover:bg-vindex-bg rounded-lg">
+                  <Button
+                    type="button"
+                    variant="outline"
+                    onClick={() => setIsDialogOpen(false)}
+                    className="flex-1 rounded-lg border transition-colors bg-transparent"
+                    style={{ borderColor: PRIMARY, color: PRIMARY }}
+                    onMouseEnter={e => { e.currentTarget.style.backgroundColor = PRIMARY; e.currentTarget.style.color = '#000'; }}
+                    onMouseLeave={e => { e.currentTarget.style.backgroundColor = 'transparent'; e.currentTarget.style.color = PRIMARY; }}
+                  >
                     {t('common.cancel')}
                   </Button>
                 </div>

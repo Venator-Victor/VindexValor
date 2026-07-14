@@ -529,6 +529,8 @@
     "status_inactive": "Inactive",
     "col_description": "Description",
     "col_type": "Type",
+    "type_installments": "Installments",
+    "type_subscription": "Subscription",
     "col_amount": "Amount",
     "col_frequency": "Frequency",
     "col_next_billing": "Next Billing",

@@ -55,7 +55,7 @@ const RecurrenceCard = ({ item, onEdit, onDelete, onToggleStatus }) => {
             <div>
             <div className="flex items-center gap-2 mb-1">
                  <span className={`text-[10px] uppercase font-bold px-1.5 py-0.5 rounded ${isParceled ? 'bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-300' : 'bg-purple-100 text-purple-700 dark:bg-purple-900/30 dark:text-purple-300'}`}>
-                    {item.recurrence_type || 'subscription'}
+                    {t(`recurrences.type_${item.recurrence_type || 'subscription'}`)}
                  </span>
                  <p className="text-xs text-gray-500 dark:text-gray-400">{categoryName}</p>
             </div>
@@ -75,7 +75,7 @@ const RecurrenceCard = ({ item, onEdit, onDelete, onToggleStatus }) => {
             <div className="flex flex-col">
                 <span className="text-2xl font-bold text-red-600 dark:text-vindex-danger">{formatCurrency(item.amount)}</span>
                 <span className="text-xs text-gray-500 dark:text-gray-400 flex items-center gap-1">
-                <Clock5 size={12} /> {item.frequency}
+                <Clock5 size={12} /> {t(`period.${item.frequency}`, item.frequency)}
                 </span>
             </div>
         </div>

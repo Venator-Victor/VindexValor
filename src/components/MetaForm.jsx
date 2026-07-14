@@ -136,7 +136,7 @@ const MetaForm = ({ initialData, initialName, initialIcon, initialColor, onSubmi
     <form onSubmit={handleSubmit} className="space-y-6">
       
       {/* 1. Goal Type Selection */}
-      <div className="bg-gray-50 dark:bg-vindex-bg/50 p-1 rounded-lg flex">
+      <div className="bg-gray-50 dark:bg-vindex-bg/50 p-1 rounded-lg flex border border-gray-200 dark:border-vindex-border">
         <button
           type="button"
           onClick={() => setFormData({ ...formData, goal_type: 'target_value' })}
@@ -171,7 +171,7 @@ const MetaForm = ({ initialData, initialName, initialIcon, initialColor, onSubmi
             type="text"
             value={formData.name}
             onChange={(e) => setFormData({ ...formData, name: e.target.value })}
-            className="w-full px-3 py-2 mt-1 bg-white dark:bg-vindex-bg border border-gray-200 dark:border-vindex-border rounded-lg text-gray-900 dark:text-gray-100 hover:border-primary focus:border-primary transition-all outline-none"
+            className="h-10 w-full px-3 py-2 mt-1 bg-white dark:bg-vindex-bg border border-gray-200 dark:border-vindex-border rounded-lg text-gray-900 dark:text-gray-100 hover:border-primary focus:border-primary transition-all outline-none"
             required
             placeholder={t('goals.name_placeholder')}
         />

@@ -9,6 +9,7 @@ import { Sparkle as Sparkles } from '@/components/BxIcon';
 import SelectInput from '@/components/ui/SelectInput';
 import DatePicker from '@/components/ui/DatePicker';
 import NumberInput from '@/components/ui/NumberInput';
+import { Checkbox } from '@/components/ui/checkbox';
 import { useAutoMappingCategories } from '@/hooks/useAutoMappingCategories';
 import { formatCurrencyWithSymbol } from '@/utils/calculations';
 import { PERIOD_OPTIONS } from '@/utils/periodOptions';
@@ -201,22 +202,18 @@ const TransactionForm = ({ initialData, onSuccess, onCancel }) => {
 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           <div className={formData.type === 'transfer' || formData.type === 'payment' ? '' : 'md:col-span-2'}>
-            <Label htmlFor="account_id">
-              {formData.type === 'transfer' ? t('transactions.form_account_source_label') :
-               formData.type === 'payment' ? t('transactions.form_account_payment_label') : t('transactions.form_account_label')}
-            </Label>
-            <select
+            <SelectInput
               id="account_id"
+              label={formData.type === 'transfer' ? t('transactions.form_account_source_label') :
+               formData.type === 'payment' ? t('transactions.form_account_payment_label') : t('transactions.form_account_label')}
               value={formData.account_id}
               onChange={(e) => setFormData({ ...formData, account_id: e.target.value })}
-              className={inputClasses}
-              required
-            >
-              <option value="">{t('common.select_placeholder')}</option>
-              {accounts.map(acc => (
-                <option key={acc.id} value={acc.id}>{acc.name} ({formatCurrencyWithSymbol(acc.balance, acc.currency)})</option>
-              ))}
-            </select>
+              searchable
+              options={[
+                { label: t('common.select_placeholder'), value: '' },
+                ...accounts.map(acc => ({ label: `${acc.name} (${formatCurrencyWithSymbol(acc.balance, acc.currency)})`, value: acc.id }))
+              ]}
+            />
             {sourceAccount && (
               <div className="text-xs text-muted-foreground mt-1 ml-1 flex items-center gap-1">
                 {t('transactions.form_account_balance')} <span className="font-medium text-foreground">{formatCurrencyWithSymbol(sourceAccount.balance, sourceAccount.currency)}</span>
@@ -226,19 +223,17 @@ const TransactionForm = ({ initialData, onSuccess, onCancel }) => {
 
           {formData.type === 'transfer' && (
             <div>
-              <Label htmlFor="destination_account_id">{t('transactions.form_account_destination_label')}</Label>
-              <select
+              <SelectInput
                 id="destination_account_id"
+                label={t('transactions.form_account_destination_label')}
                 value={formData.destination_account_id}
                 onChange={(e) => setFormData({ ...formData, destination_account_id: e.target.value })}
-                className={inputClasses}
-                required
-              >
-                <option value="">{t('common.select_placeholder')}</option>
-                {accounts.map(acc => (
-                  <option key={acc.id} value={acc.id}>{acc.name} ({formatCurrencyWithSymbol(acc.balance, acc.currency)})</option>
-                ))}
-              </select>
+                searchable
+                options={[
+                  { label: t('common.select_placeholder'), value: '' },
+                  ...accounts.map(acc => ({ label: `${acc.name} (${formatCurrencyWithSymbol(acc.balance, acc.currency)})`, value: acc.id }))
+                ]}
+              />
               {destAccount && (
                 <div className="text-xs text-muted-foreground mt-1 ml-1 flex items-center gap-1">
                   {t('transactions.form_account_balance')} <span className="font-medium text-foreground">{formatCurrencyWithSymbol(destAccount.balance, destAccount.currency)}</span>
@@ -249,21 +244,19 @@ const TransactionForm = ({ initialData, onSuccess, onCancel }) => {
 
           {formData.type === 'payment' && (
             <div>
-              <Label htmlFor="invoice_id">{t('transactions.form_invoice_to_pay_label')}</Label>
-              <select
+              <SelectInput
                 id="invoice_id"
+                label={t('transactions.form_invoice_to_pay_label')}
                 value={formData.invoice_id}
                 onChange={(e) => setFormData({ ...formData, invoice_id: e.target.value })}
-                className={inputClasses}
-                required
-              >
-                <option value="">{t('transactions.form_invoice_select_placeholder')}</option>
-                {invoices.map(fat => (
-                  <option key={fat.id} value={fat.id}>
-                    {fat.invoice_number || t('transactions.form_invoice_no_number')} - {formatCurrencyWithSymbol(fat.total_amount, 'BRL')}
-                  </option>
-                ))}
-              </select>
+                options={[
+                  { label: t('transactions.form_invoice_select_placeholder'), value: '' },
+                  ...invoices.map(fat => ({
+                    label: `${fat.invoice_number || t('transactions.form_invoice_no_number')} - ${formatCurrencyWithSymbol(fat.total_amount, 'BRL')}`,
+                    value: fat.id
+                  }))
+                ]}
+              />
             </div>
           )}
         </div>
@@ -309,28 +302,22 @@ const TransactionForm = ({ initialData, onSuccess, onCancel }) => {
                 </Badge>
               )}
             </div>
-            <select
+            <SelectInput
               id="category_id"
               value={formData.category_id}
               onChange={handleCategoryChange}
-              className={`${inputClasses} mt-0`}
-            >
-              <option value="">{t('common.no_category')}</option>
-              {categoryOptions.map(opt => (
-                <option key={opt.value} value={opt.value}>{opt.label}</option>
-              ))}
-            </select>
+              searchable
+              options={[{ label: t('common.no_category'), value: '' }, ...categoryOptions]}
+            />
           </div>
         )}
 
         {formData.type !== 'transfer' && formData.type !== 'payment' && !initialData && (
           <div className="border border-gray-200 dark:border-vindex-border rounded-lg p-3 space-y-3">
             <label className="flex items-center gap-2 cursor-pointer select-none">
-              <input
-                type="checkbox"
+              <Checkbox
                 checked={formData.is_recurring}
-                onChange={(e) => setFormData(prev => ({ ...prev, is_recurring: e.target.checked }))}
-                className="w-4 h-4 accent-[#43CFEA]"
+                onCheckedChange={(checked) => setFormData(prev => ({ ...prev, is_recurring: checked === true }))}
               />
               <span className="text-sm font-medium text-gray-700 dark:text-gray-300">{t('transactions.form_recurring_toggle')}</span>
             </label>
@@ -365,7 +352,7 @@ const TransactionForm = ({ initialData, onSuccess, onCancel }) => {
                       value={formData.recurring_installment_count}
                       onChange={(e) => setFormData(prev => ({ ...prev, recurring_installment_count: e.target.value }))}
                       placeholder="Ex: 12"
-                      className={inputClasses}
+                      className={`${inputClasses} h-10 no-spinner`}
                     />
                   </div>
                 )}

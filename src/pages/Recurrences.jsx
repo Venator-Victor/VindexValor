@@ -16,6 +16,7 @@ import { useToast } from '@/components/ui/use-toast';
 import { formatCurrency } from '@/utils/calculations';
 import SelectInput from '@/components/ui/SelectInput';
 import DatePicker from '@/components/ui/DatePicker';
+import NumberInput from '@/components/ui/NumberInput';
 import ViewToggle from '@/components/ui/ViewToggle';
 import DateFilterSelect from '@/components/ui/DateFilterSelect';
 import { getDateFilterDefaults, matchesDateFilter } from '@/utils/dateFilter';
@@ -274,31 +275,27 @@ const Recurrences = () => {
                         placeholder={t('recurrences.description_placeholder')}
                         value={formData.description}
                         onChange={(e) => setFormData({ ...formData, description: e.target.value })}
-                        className="w-full px-3 py-2 bg-white dark:bg-vindex-bg border border-gray-200 dark:border-vindex-border rounded-lg text-gray-900 dark:text-gray-100 hover:border-primary focus:border-primary outline-none"
+                        className="h-10 w-full px-3 py-2 bg-white dark:bg-vindex-bg border border-gray-200 dark:border-vindex-border rounded-lg text-gray-900 dark:text-gray-100 hover:border-primary focus:border-primary outline-none"
                         required
                     />
                     </div>
 
                     <div className="grid grid-cols-2 gap-4">
                        <div>
-                         <Label htmlFor="amount">{t('recurrences.installment_amount')}</Label>
-                         <div className="relative">
-                           <span className="absolute left-3 top-2.5 text-gray-500 dark:text-gray-400 font-medium">R$</span>
-                           <input
+                         <Label htmlFor="amount" className="min-h-[2.5rem] flex items-end">{t('recurrences.installment_amount')}</Label>
+                         <div className="mt-1">
+                           <NumberInput
                               id="amount"
-                              type="number"
-                              step="0.01"
-                              placeholder="0,00"
                               value={formData.amount}
                               onChange={(e) => setFormData({ ...formData, amount: e.target.value })}
-                              className="w-full pl-10 pr-3 py-2 bg-white dark:bg-vindex-bg border border-gray-200 dark:border-vindex-border rounded-lg text-gray-900 dark:text-gray-100 hover:border-primary focus:border-primary outline-none"
-                              required
+                              currencyCode="BRL"
                            />
                          </div>
                        </div>
                        <div>
                         <SelectInput
                            label={t('common.category')}
+                           labelClassName="min-h-[2.5rem] flex items-end"
                            id="category"
                            value={formData.category_id}
                            options={categoryOptions}
@@ -329,7 +326,7 @@ const Recurrences = () => {
                                 onChange={(e) => setFormData({ ...formData, installment_count: e.target.value })}
                                 placeholder={t('recurrences.installment_count_placeholder')}
                                 min={1}
-                                className="w-full px-3 py-2 bg-white dark:bg-vindex-bg border border-gray-200 dark:border-vindex-border rounded-lg text-gray-900 dark:text-gray-100 hover:border-primary focus:border-primary outline-none"
+                                className="h-10 w-full px-3 py-2 bg-white dark:bg-vindex-bg border border-gray-200 dark:border-vindex-border rounded-lg text-gray-900 dark:text-gray-100 hover:border-primary focus:border-primary outline-none no-spinner"
                              />
                         </div>
                     )}
@@ -338,6 +335,7 @@ const Recurrences = () => {
                         <div>
                             <DatePicker
                             label={t('recurrences.start_date')}
+                            labelClassName="min-h-[2.5rem] flex items-end"
                             value={formData.nextDate}
                             onChange={(e) => setFormData({ ...formData, nextDate: e.target.value })}
                             />
@@ -345,6 +343,7 @@ const Recurrences = () => {
                         <div>
                         <SelectInput
                             label={t('common.status')}
+                            labelClassName="min-h-[2.5rem] flex items-end"
                             id="status"
                             value={formData.status}
                             options={statusOptions}
@@ -403,7 +402,7 @@ const Recurrences = () => {
                             type="text"
                             value={newCategoryData.name}
                             onChange={(e) => setNewCategoryData({...newCategoryData, name: e.target.value})}
-                            className="w-full px-3 py-2 bg-white dark:bg-vindex-bg border border-gray-200 dark:border-vindex-border rounded-lg text-gray-900 dark:text-gray-100 outline-none"
+                            className="h-10 w-full px-3 py-2 bg-white dark:bg-vindex-bg border border-gray-200 dark:border-vindex-border rounded-lg text-gray-900 dark:text-gray-100 outline-none"
                             required
                         />
                       </div>
@@ -479,7 +478,7 @@ const Recurrences = () => {
                         </td>
                         <td className="px-6 py-4 text-sm text-gray-700 dark:text-gray-300">
                              <span className={`px-2 py-1 rounded-full text-xs font-medium ${item.recurrence_type === 'installments' ? 'bg-blue-50 text-blue-700 dark:bg-blue-900/30 dark:text-blue-300' : 'bg-purple-50 text-purple-700 dark:bg-purple-900/30 dark:text-purple-300'}`}>
-                                 {item.recurrence_type || 'subscription'}
+                                 {t(`recurrences.type_${item.recurrence_type || 'subscription'}`)}
                              </span>
                         </td>
                         <td className={`px-6 py-4 text-sm font-bold ${Number(item.amount) > 0 ? 'text-green-600 dark:text-vindex-success' : 'text-red-600 dark:text-vindex-danger'}`}>

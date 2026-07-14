@@ -529,6 +529,8 @@
     "status_inactive": "Inativo",
     "col_description": "Descrição",
     "col_type": "Tipo",
+    "type_installments": "Parcelamento",
+    "type_subscription": "Assinatura",
     "col_amount": "Valor",
     "col_frequency": "Frequência",
     "col_next_billing": "Próxima Cobrança",

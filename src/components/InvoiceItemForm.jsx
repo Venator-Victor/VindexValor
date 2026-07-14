@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Button } from '@/components/ui/button';
 import { Label } from '@/components/ui/label';
+import { Checkbox } from '@/components/ui/checkbox';
 import { useFinance } from '@/context/FinanceContext';
 import { useToast } from '@/components/ui/use-toast';
 import DatePicker from '@/components/ui/DatePicker';
@@ -107,44 +108,46 @@ const InvoiceItemForm = ({ invoiceId, initialData, onSuccess, onCancel }) => {
     <form onSubmit={handleSubmit} className="space-y-4">
       <div>
         <Label>{t('invoice_detail.item_form_type_label')}</Label>
-        <div className="grid grid-cols-2 gap-3 mt-2">
-          <Button
+        <div className="bg-gray-50 dark:bg-vindex-bg/50 p-1 rounded-lg flex mt-2 border border-gray-200 dark:border-vindex-border">
+          <button
             type="button"
-            variant={type === 'expense' ? 'default' : 'outline'}
-            className={type === 'expense' ? 'bg-red-600 hover:bg-red-700 text-white' : 'text-muted-foreground'}
             onClick={() => { setType('expense'); setFormData(prev => ({ ...prev, is_payment: false })); }}
+            className={`flex-1 flex items-center justify-center py-2 text-sm font-medium rounded-md transition-all ${
+              type === 'expense'
+                ? 'bg-white dark:bg-vindex-card text-gray-900 dark:text-gray-100 shadow-sm'
+                : 'text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-200'
+            }`}
           >
-            <ArrowDownRight className="w-4 h-4 mr-2" />
+            <ArrowDownRight className="w-4 h-4 mr-2 shrink-0" />
             {t('invoice_detail.item_form_type_expense')}
-          </Button>
-          <Button
+          </button>
+          <button
             type="button"
-            variant={type === 'income' ? 'default' : 'outline'}
-            className={type === 'income' ? 'bg-green-600 hover:bg-green-700 text-white' : 'text-muted-foreground'}
             onClick={() => { setType('income'); setFormData(prev => ({ ...prev, is_carryover: false })); }}
+            className={`flex-1 flex items-center justify-center py-2 text-sm font-medium rounded-md transition-all ${
+              type === 'income'
+                ? 'bg-white dark:bg-vindex-card text-gray-900 dark:text-gray-100 shadow-sm'
+                : 'text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-200'
+            }`}
           >
-            <ArrowUpRight className="w-4 h-4 mr-2" />
+            <ArrowUpRight className="w-4 h-4 mr-2 shrink-0" />
             {t('invoice_detail.item_form_type_income')}
-          </Button>
+          </button>
         </div>
         {type === 'income' && (
           <label className="flex items-center gap-2 cursor-pointer select-none mt-3">
-            <input
-              type="checkbox"
+            <Checkbox
               checked={formData.is_payment}
-              onChange={(e) => setFormData(prev => ({ ...prev, is_payment: e.target.checked }))}
-              className="w-4 h-4 accent-[#43CFEA]"
+              onCheckedChange={(checked) => setFormData(prev => ({ ...prev, is_payment: checked === true }))}
             />
             <span className="text-sm font-medium text-gray-700 dark:text-gray-300">{t('invoice_detail.item_form_is_payment_label')}</span>
           </label>
         )}
         {type === 'expense' && (
           <label className="flex items-center gap-2 cursor-pointer select-none mt-3">
-            <input
-              type="checkbox"
+            <Checkbox
               checked={formData.is_carryover}
-              onChange={(e) => setFormData(prev => ({ ...prev, is_carryover: e.target.checked }))}
-              className="w-4 h-4 accent-[#43CFEA]"
+              onCheckedChange={(checked) => setFormData(prev => ({ ...prev, is_carryover: checked === true }))}
             />
             <span className="text-sm font-medium text-gray-700 dark:text-gray-300">{t('invoice_detail.item_form_is_carryover_label')}</span>
           </label>
@@ -174,7 +177,7 @@ const InvoiceItemForm = ({ invoiceId, initialData, onSuccess, onCancel }) => {
         <Label htmlFor="description">{t('invoice_detail.item_form_description_label')}</Label>
         <input
           id="description"
-          className="w-full px-3 py-2 border rounded-lg bg-background text-foreground mt-1 hover:border-primary focus:border-primary outline-none"
+          className="h-10 w-full px-3 py-2 border rounded-lg bg-background text-foreground mt-1 hover:border-primary focus:border-primary outline-none"
           value={formData.description}
           onChange={(e) => setFormData({ ...formData, description: e.target.value })}
           placeholder={t('invoice_detail.item_form_description_placeholder')}
@@ -217,18 +220,13 @@ const InvoiceItemForm = ({ invoiceId, initialData, onSuccess, onCancel }) => {
 
       <div>
         <Label htmlFor="amount">{t('invoice_detail.item_form_amount_label')}</Label>
-        <div className="mt-1 relative flex items-center">
-          <div className={`absolute left-3 font-bold text-lg pointer-events-none z-10 ${type === 'expense' ? 'text-red-500' : 'text-green-500'}`}>
-            {type === 'expense' ? '-' : '+'}
-          </div>
-          <div className="w-full pl-6">
-            <NumberInput
-              id="amount"
-              value={formData.amount}
-              onChange={(e) => setFormData({ ...formData, amount: e.target.value })}
-              currencyCode="BRL"
-            />
-          </div>
+        <div className="mt-1">
+          <NumberInput
+            id="amount"
+            value={formData.amount}
+            onChange={(e) => setFormData({ ...formData, amount: e.target.value })}
+            currencyCode="BRL"
+          />
         </div>
       </div>
 

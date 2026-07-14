@@ -225,7 +225,7 @@ const AccountModal = ({ isOpen, onClose, accountToEdit, initialData }) => {
             <input
               id="name"
               required
-              className="w-full px-3 py-2 bg-background border rounded-lg outline-none hover:border-primary focus:border-primary mt-1 text-foreground"
+              className="h-10 w-full px-3 py-2 bg-background border rounded-lg outline-none hover:border-primary focus:border-primary mt-1 text-foreground"
               value={formData.name}
               onChange={e => setFormData({ ...formData, name: e.target.value })}
             />
@@ -263,7 +263,7 @@ const AccountModal = ({ isOpen, onClose, accountToEdit, initialData }) => {
                   min="1"
                   max="31"
                   placeholder="Ex: 1"
-                  className="w-full px-3 py-2 bg-background border rounded-lg outline-none hover:border-primary focus:border-primary mt-1 no-spinner text-foreground"
+                  className="h-10 w-full px-3 py-2 bg-background border rounded-lg outline-none hover:border-primary focus:border-primary mt-1 no-spinner text-foreground"
                   value={formData.closing_date}
                   onChange={e => setFormData({ ...formData, closing_date: e.target.value })}
                 />
@@ -276,7 +276,7 @@ const AccountModal = ({ isOpen, onClose, accountToEdit, initialData }) => {
                   min="1"
                   max="31"
                   placeholder="Ex: 15"
-                  className="w-full px-3 py-2 bg-background border rounded-lg outline-none hover:border-primary focus:border-primary mt-1 no-spinner text-foreground"
+                  className="h-10 w-full px-3 py-2 bg-background border rounded-lg outline-none hover:border-primary focus:border-primary mt-1 no-spinner text-foreground"
                   value={formData.due_date}
                   onChange={e => setFormData({ ...formData, due_date: e.target.value })}
                 />
@@ -289,7 +289,7 @@ const AccountModal = ({ isOpen, onClose, accountToEdit, initialData }) => {
               <Label htmlFor="bank">{t('accounts.institution_optional_label')}</Label>
               <input
                 id="bank"
-                className="w-full px-3 py-2 bg-background border rounded-lg outline-none hover:border-primary focus:border-primary mt-1 text-foreground"
+                className="h-10 w-full px-3 py-2 bg-background border rounded-lg outline-none hover:border-primary focus:border-primary mt-1 text-foreground"
                 value={formData.bank}
                 onChange={e => setFormData({ ...formData, bank: e.target.value })}
               />

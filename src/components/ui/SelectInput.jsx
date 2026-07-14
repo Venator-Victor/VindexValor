@@ -8,6 +8,7 @@ import { normalizeText } from '@/utils/text';
 
 const SelectInput = ({
   label,
+  labelClassName,
   options = [],
   value,
   onChange,
@@ -76,7 +77,7 @@ const SelectInput = ({
 
   return (
     <div className="relative w-full">
-      {label && <Label htmlFor={id} className="mb-2 block text-sm font-medium text-gray-700 dark:text-vindex-text/80">{label}</Label>}
+      {label && <Label htmlFor={id} className={cn("mb-2 block text-sm font-medium text-gray-700 dark:text-vindex-text/80", labelClassName)}>{label}</Label>}
 
       <PopoverPrimitive.Root open={isOpen} onOpenChange={(open) => !disabled && setIsOpen(open)}>
         <PopoverPrimitive.Trigger asChild>
@@ -85,7 +86,7 @@ const SelectInput = ({
             id={id}
             disabled={disabled}
             className={cn(
-              "flex w-full items-center justify-between rounded-lg border px-3 py-2 text-sm transition-all outline-none",
+              "flex h-10 w-full items-center justify-between rounded-lg border px-3 py-2 text-sm transition-all outline-none",
               "bg-white dark:bg-vindex-bg border-gray-200 dark:border-vindex-border text-gray-900 dark:text-vindex-text",
               "hover:border-primary focus:border-primary",
               disabled && "opacity-50 cursor-not-allowed bg-gray-100 dark:bg-gray-800",

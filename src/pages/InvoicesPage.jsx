@@ -383,7 +383,7 @@ const InvoicesPage = () => {
                   <Label>{t('invoices.identification_label')}</Label>
                   <input
                     required
-                    className="w-full px-3 py-2 border rounded-lg bg-background text-foreground mt-1 hover:border-primary focus:border-primary outline-none"
+                    className="h-10 w-full px-3 py-2 border rounded-lg bg-background text-foreground mt-1 hover:border-primary focus:border-primary outline-none"
                     value={formData.invoice_number}
                     onChange={e => setFormData({...formData, invoice_number: e.target.value})}
                   />
@@ -418,7 +418,7 @@ const InvoicesPage = () => {
                     variant="outline"
                     className="flex-1 font-medium rounded-lg transition-colors bg-transparent"
                     style={{ borderColor: SUCCESS, color: SUCCESS }}
-                    onMouseEnter={e => { e.currentTarget.style.backgroundColor = SUCCESS; e.currentTarget.style.color = '#000'; }}
+                    onMouseEnter={e => { e.currentTarget.style.backgroundColor = SUCCESS; e.currentTarget.style.color = '#fff'; }}
                     onMouseLeave={e => { e.currentTarget.style.backgroundColor = 'transparent'; e.currentTarget.style.color = SUCCESS; }}
                   >
                     {t('invoices.create_action')}
@@ -691,7 +691,7 @@ const InvoicesPage = () => {
               <Label>{t('invoices.identification_label')}</Label>
               <input
                 required
-                className="w-full px-3 py-2 border rounded-lg bg-background text-foreground mt-1 hover:border-primary focus:border-primary outline-none"
+                className="h-10 w-full px-3 py-2 border rounded-lg bg-background text-foreground mt-1 hover:border-primary focus:border-primary outline-none"
                 value={editFormData.invoice_number}
                 onChange={e => setEditFormData({...editFormData, invoice_number: e.target.value})}
               />
@@ -744,7 +744,7 @@ const InvoicesPage = () => {
                   variant="outline"
                   className="flex-1 font-medium rounded-lg transition-colors bg-transparent"
                   style={{ borderColor: SUCCESS, color: SUCCESS }}
-                  onMouseEnter={e => { e.currentTarget.style.backgroundColor = SUCCESS; e.currentTarget.style.color = '#000'; }}
+                  onMouseEnter={e => { e.currentTarget.style.backgroundColor = SUCCESS; e.currentTarget.style.color = '#fff'; }}
                   onMouseLeave={e => { e.currentTarget.style.backgroundColor = 'transparent'; e.currentTarget.style.color = SUCCESS; }}
                 >
                   {t('invoices.save_changes')}
