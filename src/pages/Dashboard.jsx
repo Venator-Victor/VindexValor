@@ -8,16 +8,18 @@ import {
   formatCurrencyWithSymbol,
   calculateAssetsLiabilities
 } from '@/utils/calculations';
+import { DANGER } from '@/utils/colors';
 
 import InfoTooltip from '@/components/InfoTooltip';
 import { Wallet, TrendingDown, TrendingUp } from '@/components/BxIcon';
 import BudgetConsumptionChart from '@/components/BudgetConsumptionChart';
 import AssetLiabilityChart from '@/components/AssetLiabilityChart';
-import AssetCompositionChart from '@/components/AssetCompositionChart';
 import DateFilterSelect from '@/components/ui/DateFilterSelect';
 import TopCategoriesSection from '@/components/TopCategoriesSection';
 import RecentTransactionsSection from '@/components/RecentTransactionsSection';
 import UpcomingRecurrencesSection from '@/components/UpcomingRecurrencesSection';
+import AccountsSummarySection from '@/components/AccountsSummarySection';
+import AssetCompositionChart from '@/components/AssetCompositionChart';
 import InflationBudgetChart from '@/components/InflationBudgetChart';
 import BetaWarningModal from '@/components/BetaWarningModal';
 import useBetaWarning from '@/hooks/useBetaWarning';
@@ -92,8 +94,8 @@ const Dashboard = () => {
       value: formatCurrencyWithSymbol(filteredExpensesBRL, 'BRL'),
       Icon: TrendingDown,
       textColor: 'text-gray-900 dark:text-gray-50',
-      iconColor: 'text-vindex-danger',
-      borderColor: 'border-red-200 dark:border-vindex-danger/30',
+      iconStyle: { color: DANGER },
+      borderColor: 'border-red-200 dark:border-red-500/30',
       tooltip: t('dashboard.expenses_tooltip'),
     },
     {
@@ -103,7 +105,7 @@ const Dashboard = () => {
       Icon: TrendingUp,
       textColor: 'text-gray-900 dark:text-gray-50',
       iconColor: 'text-primary',
-      borderColor: 'border-green-200 dark:border-vindex-success/30',
+      borderColor: 'border-primary/20 dark:border-primary/30',
       tooltip: t('dashboard.income_tooltip'),
     },
   ];
@@ -146,7 +148,7 @@ const Dashboard = () => {
                 <p className={`text-2xl font-bold crypto-symbol ${metric.textColor}`}>{metric.value}</p>
               </div>
               <div className={`p-3 rounded-lg bg-gray-50 dark:bg-gray-800/50`}>
-                <metric.Icon size={24} className={metric.iconColor} />
+                <metric.Icon size={24} className={metric.iconColor} style={metric.iconStyle} />
               </div>
             </div>
           </motion.div>
@@ -154,11 +156,7 @@ const Dashboard = () => {
       </div>
 
       <div className="w-full">
-         <BudgetConsumptionChart dateFilter={dateFilter} filteredTransactions={filteredTransactions} />
-      </div>
-
-      <div className="w-full">
-        <AssetLiabilityChart totalAssets={totalAssets} totalLiabilities={totalLiabilities} dateFilter={dateFilter} filteredTransactions={filteredTransactions} />
+         <BudgetConsumptionChart dateFilter={dateFilter} filteredTransactions={transactions} />
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
@@ -173,12 +171,19 @@ const Dashboard = () => {
         </div>
       </div>
 
-      <div className="grid grid-cols-1 gap-6">
-        <div className="h-[400px]">
-          <AssetCompositionChart accounts={accounts} investments={investments} recurring={recurring} exchangeRates={exchangeRates} dateFilter={dateFilter} />
+      <div className="w-full">
+        <AssetLiabilityChart totalAssets={totalAssets} totalLiabilities={totalLiabilities} dateFilter={dateFilter} filteredTransactions={transactions} />
+      </div>
+
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        <div className="col-span-1 h-[400px]">
+          <AssetCompositionChart accounts={accounts} investments={investments} exchangeRates={exchangeRates} totalLiabilities={totalLiabilities} />
+        </div>
+        <div className="col-span-1 h-[400px]">
+          <AccountsSummarySection accounts={accounts} />
         </div>
       </div>
-      
+
       <div className="w-full h-[400px]">
         <InflationBudgetChart />
       </div>

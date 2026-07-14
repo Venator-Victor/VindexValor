@@ -5,9 +5,10 @@ import { ComposedChart, Area, Tooltip, ResponsiveContainer, XAxis, YAxis, Cartes
 import { formatCurrency } from '@/utils/calculations';
 import { motion } from 'framer-motion';
 import { useTheme } from '@/context/ThemeContext';
-import { getDateFilterRange } from '@/utils/dateFilter';
+import { getDateFilterRange, matchesDateFilter } from '@/utils/dateFilter';
 import { MONTH_YEAR_THRESHOLD_DAYS, formatDayMonth, formatMonthYear } from '@/utils/chartDateFormat';
-import { Eye, EyeSlash } from '@/components/BxIcon';
+import { GridLines, Equal } from '@/components/BxIcon';
+import { Tooltip as UiTooltip, TooltipTrigger, TooltipContent } from '@/components/ui/tooltip';
 
 const formatYAxis = (v) => {
   if (Math.abs(v) >= 1_000_000) return `${(v / 1_000_000).toFixed(1)}M`;
@@ -40,20 +41,31 @@ const CustomTooltip = ({ active, payload, t }) => {
   return null;
 };
 
+// The cumulative assets/liabilities/net-worth line is scoped to `periodTransactions`
+// (the selected `dateFilter` window), same as the header totals' own calculation —
+// so picking "month" resets the line to that month instead of carrying the account's
+// full history into it.
 const AssetLiabilityChart = ({
   totalAssets,
   totalLiabilities,
   dateFilter,
-  filteredTransactions = [],
-  showNetWorth = false
+  filteredTransactions = []
 }) => {
   const { t, i18n } = useTranslation();
   const { theme } = useTheme();
   const isDark = theme === 'dark';
   const [showAxis, setShowAxis] = useState(true);
+  const [showNetWorth, setShowNetWorth] = useState(false);
+
+  // Used both for the chart's empty state and as the basis for the cumulative line
+  // below — scoped to the visible period, same as the header totals.
+  const periodTransactions = useMemo(
+    () => (Array.isArray(filteredTransactions) ? filteredTransactions : []).filter(tx => tx && matchesDateFilter(tx.date, dateFilter)),
+    [filteredTransactions, dateFilter]
+  );
 
   const { data, xAxisTicks } = useMemo(() => {
-    const safeTransactions = Array.isArray(filteredTransactions) ? filteredTransactions : [];
+    const safeTransactions = periodTransactions;
 
     // Group transactions by date
     const txByDate = {};
@@ -94,12 +106,25 @@ const AssetLiabilityChart = ({
         totalDays = MAX_CHART_DAYS;
     }
 
+    // When the range is capped (> MAX_CHART_DAYS), everything strictly before the
+    // truncated window still needs to count towards the running total — otherwise the
+    // line would silently drop that slice of the selected period instead of just not
+    // drawing it.
+    const startDateStr = startDate.toISOString().slice(0, 10);
+    let seedAssets = 0;
+    let seedLiabilities = 0;
+    safeTransactions.forEach(tx => {
+        if (!tx?.date || tx.date >= startDateStr) return;
+        if (tx.type === 'income') seedAssets += Math.abs(Number(tx.amount));
+        else if (tx.type === 'expense') seedLiabilities += Math.abs(Number(tx.amount));
+    });
+
     // Running totals, not per-day amounts — most days have no transactions at
     // all, so a per-day series is mostly zeroes; accumulating keeps the line
     // flat between transactions instead of collapsing back to zero.
     const useMonthYearLabels = totalDays > MONTH_YEAR_THRESHOLD_DAYS;
-    let accAssets = 0;
-    let accLiabilities = 0;
+    let accAssets = seedAssets;
+    let accLiabilities = seedLiabilities;
     const chartData = [];
     for (let i = 0; i < totalDays; i++) {
         const d = new Date(startDate);
@@ -129,7 +154,10 @@ const AssetLiabilityChart = ({
       : undefined;
 
     return { data: chartData, xAxisTicks: ticks };
-  }, [filteredTransactions, dateFilter, i18n.language]);
+  }, [periodTransactions, dateFilter, i18n.language]);
+
+  const isNetWorthNegative = ((totalAssets || 0) - (totalLiabilities || 0)) < 0;
+  const netWorthColor = isNetWorthNegative ? (isDark ? DANGER_DARK : DANGER) : PRIMARY;
 
   return (
     <motion.div
@@ -137,14 +165,38 @@ const AssetLiabilityChart = ({
         animate={{ opacity: 1, y: 0 }}
         className="bg-white dark:bg-vindex-card rounded-2xl p-6 border border-gray-200 dark:border-vindex-border shadow-sm mb-6 relative"
     >
-        <button
-            type="button"
-            onClick={() => setShowAxis(v => !v)}
-            title={showAxis ? t('common.hide_axis_labels') : t('common.show_axis_labels')}
-            className="absolute top-4 right-4 p-1.5 rounded-md text-gray-400 hover:text-gray-600 hover:bg-gray-100 dark:text-gray-500 dark:hover:text-gray-300 dark:hover:bg-vindex-bg transition-colors z-10"
-        >
-            {showAxis ? <Eye size={16} /> : <EyeSlash size={16} />}
-        </button>
+        <UiTooltip delayDuration={100}>
+          <TooltipTrigger asChild>
+            <button
+                type="button"
+                onClick={() => setShowAxis(v => !v)}
+                className={`absolute top-4 left-4 p-1.5 rounded-md transition-colors z-10 ${
+                  showAxis
+                    ? 'text-primary hover:bg-primary/10'
+                    : 'text-gray-400 hover:text-gray-600 hover:bg-gray-100 dark:text-gray-500 dark:hover:text-gray-300 dark:hover:bg-vindex-bg'
+                }`}
+            >
+                <GridLines size={16} />
+            </button>
+          </TooltipTrigger>
+          <TooltipContent>{showAxis ? t('common.hide_axis_labels') : t('common.show_axis_labels')}</TooltipContent>
+        </UiTooltip>
+        <UiTooltip delayDuration={100}>
+          <TooltipTrigger asChild>
+            <button
+                type="button"
+                onClick={() => setShowNetWorth(v => !v)}
+                className={`absolute top-4 right-4 p-1.5 rounded-md transition-colors z-10 ${
+                  showNetWorth
+                    ? 'text-primary hover:bg-primary/10'
+                    : 'text-gray-400 hover:text-gray-600 hover:bg-gray-100 dark:text-gray-500 dark:hover:text-gray-300 dark:hover:bg-vindex-bg'
+                }`}
+            >
+                <Equal size={16} />
+            </button>
+          </TooltipTrigger>
+          <TooltipContent>{showNetWorth ? t('accounts.chart_hide_net_worth') : t('accounts.chart_show_net_worth')}</TooltipContent>
+        </UiTooltip>
 
         {/* Header Stats */}
         <div className="flex flex-wrap justify-center gap-8 md:gap-24 mb-6 pt-2">
@@ -160,7 +212,7 @@ const AssetLiabilityChart = ({
 
             <div className="text-center">
                 <div className="flex items-center justify-center gap-2 mb-2">
-                    <div className="w-3 h-3 rounded bg-red-600 dark:bg-vindex-danger"></div>
+                    <div className="w-3 h-3 rounded" style={{ backgroundColor: isDark ? DANGER_DARK : DANGER }}></div>
                     <span className="text-gray-500 dark:text-gray-400 font-medium">{t('dashboard.total_liabilities')}</span>
                 </div>
                 <div className="text-3xl font-bold text-gray-900 dark:text-white mb-2 tracking-tight">
@@ -171,7 +223,7 @@ const AssetLiabilityChart = ({
 
         {/* Chart Area */}
         <div className="h-[250px] w-full">
-          {filteredTransactions.length === 0 ? (
+          {periodTransactions.length === 0 ? (
             <div className="h-full w-full flex items-center justify-center text-sm text-gray-400 dark:text-gray-500">
               {t('dashboard.chart_no_data')}
             </div>
@@ -186,6 +238,10 @@ const AssetLiabilityChart = ({
                         <linearGradient id="alcLiabilitiesGradient" x1="0" y1="0" x2="0" y2="1">
                             <stop offset="5%" stopColor={isDark ? DANGER_DARK : DANGER} stopOpacity={0.3} />
                             <stop offset="95%" stopColor={isDark ? DANGER_DARK : DANGER} stopOpacity={0} />
+                        </linearGradient>
+                        <linearGradient id="alcNetWorthGradient" x1="0" y1="0" x2="0" y2="1">
+                            <stop offset="5%" stopColor={netWorthColor} stopOpacity={0.3} />
+                            <stop offset="95%" stopColor={netWorthColor} stopOpacity={0} />
                         </linearGradient>
                     </defs>
                     {showAxis && <CartesianGrid strokeDasharray="3 3" vertical={false} stroke={chartGrid(isDark)} />}
@@ -212,9 +268,9 @@ const AssetLiabilityChart = ({
                         <Area
                             type="natural"
                             dataKey="netWorth"
-                            stroke={PRIMARY}
+                            stroke={netWorthColor}
                             strokeWidth={2}
-                            fill="url(#alcAssetsGradient)"
+                            fill="url(#alcNetWorthGradient)"
                             dot={false}
                             activeDot={{ r: 4 }}
                         />

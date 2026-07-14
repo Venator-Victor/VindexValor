@@ -163,7 +163,7 @@ const Sidebar = () => {
               className={`
                 flex items-center ${isSidebarCollapsed ? 'justify-center px-0' : 'justify-start px-6'} py-3 mx-2 rounded-lg
                 transition-all duration-75 group relative
-                text-red-600 dark:text-vindex-danger hover:bg-red-50 dark:hover:bg-vindex-danger/10
+                text-red-500 hover:bg-red-50 dark:hover:bg-red-500/10
               `}
             >
               <Door size={20} className="flex-shrink-0" />

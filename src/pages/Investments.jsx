@@ -112,6 +112,7 @@ const Investments = () => {
             xKey: i,
             displayDate: formatChartDate(currentDate, i18n.language, totalDays),
             invested: dailyTotalInvested,
+            currentValue: dailyTotalCurrent,
             profitability: dailyTotalInvested > 0 ? ((dailyTotalCurrent - dailyTotalInvested) / dailyTotalInvested) * 100 : 0
         });
     }

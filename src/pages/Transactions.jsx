@@ -70,16 +70,19 @@ const Transactions = () => {
     }
   }, [location.state, transactions, navigate, location.pathname]);
 
-  const filteredTransactions = useMemo(() => {
+  // Every filter except date — the balance chart below applies date itself so its
+  // cumulative line can be seeded from activity before the visible window instead of
+  // resetting to 0 at its edge.
+  const scopedTransactions = useMemo(() => {
     const parsedValueFilter = parseValueFilterString(valueFilterStr);
 
     return transactions.filter(t => {
       const matchesType = !filters.type || t.type === filters.type;
       const matchesAccount = !filters.account_id || t.account_id === filters.account_id || t.destination_account_id === filters.account_id;
-      
+
       const searchLower = searchTerm.toLowerCase();
       const matchesSearch = !searchTerm || (t.description && t.description.toLowerCase().includes(searchLower));
-      
+
       const matchesCategory = selectedCategoryIds.length === 0 ||
         selectedCategoryIds.includes(t.category_id ? t.category_id : 'null');
 
@@ -95,11 +98,14 @@ const Transactions = () => {
         }
       }
 
-      const matchesDate = matchesDateFilter(t.date, dateFilter);
-
-      return matchesType && matchesAccount && matchesSearch && matchesCategory && matchesValue && matchesDate;
+      return matchesType && matchesAccount && matchesSearch && matchesCategory && matchesValue;
     });
-  }, [transactions, filters, searchTerm, valueFilterStr, selectedCategoryIds, dateFilter]);
+  }, [transactions, filters, searchTerm, valueFilterStr, selectedCategoryIds]);
+
+  const filteredTransactions = useMemo(
+    () => scopedTransactions.filter(t => matchesDateFilter(t.date, dateFilter)),
+    [scopedTransactions, dateFilter]
+  );
 
   const handleEdit = (transaction) => {
     setEditingTransaction(transaction);
@@ -200,7 +206,7 @@ const Transactions = () => {
         </div>
       </div>
 
-      <TransactionsBalanceChart transactions={filteredTransactions} dateFilter={dateFilter} />
+      <TransactionsBalanceChart transactions={scopedTransactions} dateFilter={dateFilter} />
 
       <div className="bg-card rounded-xl p-4 border shadow-sm space-y-4">
         <div className="flex items-center justify-between mb-2">

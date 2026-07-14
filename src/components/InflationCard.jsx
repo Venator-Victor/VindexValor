@@ -1,4 +1,4 @@
-import { DANGER_DARK } from '@/utils/colors';
+import { DANGER, chartGrid, chartText, chartCursor } from '@/utils/colors';
 import React, { useState, useMemo, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
 import { motion } from 'framer-motion';
@@ -6,7 +6,7 @@ import { AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContai
 import { formatCurrency } from '@/utils/calculations';
 import { useTheme } from '@/context/ThemeContext';
 import { useIsMobile } from '@/hooks/use-mobile';
-import { InfoCircle as Info, AlertCircle, RefreshCw, TrendingDown } from '@/components/BxIcon';
+import { InfoCircle as Info, AlertCircle, RefreshCw, TrendingDown, GridLines } from '@/components/BxIcon';
 import { supabase } from '@/lib/customSupabaseClient';
 import { Button } from '@/components/ui/button';
 const Loader2 = RefreshCw;
@@ -39,7 +39,7 @@ const StyledSelect = ({ className = '', ...props }) => (
   <div className="relative">
     <select
       {...props}
-      className={`appearance-none bg-gray-50 dark:bg-vindex-bg border border-gray-200 dark:border-vindex-border text-gray-900 dark:text-vindex-text rounded-lg pl-3 pr-7 py-1 text-sm focus:outline-none focus:ring-1 focus:ring-vindex-danger disabled:opacity-50 cursor-pointer ${className}`}
+      className={`appearance-none bg-gray-50 dark:bg-vindex-bg border border-gray-200 dark:border-vindex-border text-gray-900 dark:text-vindex-text rounded-lg pl-3 pr-7 py-1 text-sm focus:outline-none focus:ring-1 focus:ring-red-400 disabled:opacity-50 cursor-pointer ${className}`}
     />
     <svg className="pointer-events-none absolute right-2 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-gray-400 dark:text-vindex-text/40" viewBox="0 0 20 20" fill="currentColor">
       <path fillRule="evenodd" d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" clipRule="evenodd" />
@@ -74,6 +74,7 @@ const InflationCard = ({ currentBalance }) => {
   const [loading, setLoading] = useState(true);
   const [syncing, setSyncing] = useState(false);
   const [error, setError] = useState(null);
+  const [showAxis, setShowAxis] = useState(true);
 
   // 'period' | 'range' | 'all'
   const [mode, setMode] = useState('period');
@@ -81,8 +82,8 @@ const InflationCard = ({ currentBalance }) => {
   const [rangeStart, setRangeStart] = useState(String(CURRENT_YEAR - 5));
   const [rangeEnd, setRangeEnd] = useState(String(CURRENT_YEAR));
 
-  const textColor = isDark ? "#d1dcf0" : "#1f2937";
-  const gridColor = isDark ? "#283768" : "#e5e7eb";
+  const textColor = chartText(isDark);
+  const gridColor = chartGrid(isDark);
 
   useEffect(() => {
     const loadData = async () => {
@@ -187,13 +188,13 @@ const InflationCard = ({ currentBalance }) => {
   const modeButtonClass = (m) =>
     `px-3 py-1 text-sm rounded-md transition-colors ${
       mode === m
-        ? 'bg-vindex-danger text-white font-medium'
+        ? 'bg-red-400 text-white font-medium'
         : 'text-gray-500 dark:text-vindex-text/60 hover:text-gray-800 dark:hover:text-vindex-text'
     }`;
 
   if (error) {
     return (
-      <div className="bg-white dark:bg-vindex-card rounded-xl p-6 border border-red-200 dark:border-vindex-danger/30 shadow-lg flex flex-col items-center justify-center h-[300px]">
+      <div className="bg-white dark:bg-vindex-card rounded-2xl p-6 border border-red-200 dark:border-red-400/30 shadow-lg flex flex-col items-center justify-center h-[300px]">
         <AlertCircle className="w-10 h-10 text-red-500 mb-3" />
         <p className="text-gray-900 dark:text-white font-medium mb-2">{t('common.error_loading')}</p>
         <p className="text-sm text-gray-500 dark:text-gray-400 text-center mb-4">{error}</p>
@@ -208,16 +209,16 @@ const InflationCard = ({ currentBalance }) => {
     <motion.div
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
-      className="bg-white dark:bg-vindex-card rounded-xl p-6 border border-red-200 dark:border-vindex-danger/30 shadow-lg relative overflow-hidden group transition-colors duration-300"
+      className="bg-white dark:bg-vindex-card rounded-2xl p-6 border border-red-200 dark:border-red-400/30 shadow-lg relative overflow-hidden group transition-colors duration-300"
     >
       <div className="absolute top-0 right-0 p-4 opacity-5 dark:opacity-10 group-hover:opacity-10 dark:group-hover:opacity-20 transition-opacity">
-        <TrendingDown size={144} className="text-vindex-danger" />
+        <TrendingDown size={144} className="text-red-400" />
       </div>
 
       {/* Header */}
       <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-6 relative z-10 gap-4">
         <h2 className="text-xl font-bold text-gray-900 dark:text-vindex-text flex items-center gap-2">
-          <TrendingDown size={20} className="text-vindex-danger" />
+          <TrendingDown size={20} className="text-red-400" />
           {t('inflation.card_title')}
           <UiTooltip delayDuration={100}>
             <TooltipTrigger>
@@ -232,10 +233,28 @@ const InflationCard = ({ currentBalance }) => {
         {/* Mode toggle + controls */}
         <div className="flex flex-col items-end gap-2">
           {/* Mode buttons */}
-          <div className="flex items-center gap-1 bg-gray-100 dark:bg-vindex-bg rounded-lg p-1">
-            <button className={modeButtonClass('period')} onClick={() => setMode('period')}>{t('inflation.mode_period')}</button>
-            <button className={modeButtonClass('range')} onClick={() => setMode('range')}>{t('inflation.mode_range')}</button>
-            <button className={modeButtonClass('all')} onClick={() => setMode('all')}>{t('inflation.mode_all')}</button>
+          <div className="flex items-center gap-2">
+            <div className="flex items-center gap-1 bg-gray-100 dark:bg-vindex-bg rounded-lg p-1">
+              <button className={modeButtonClass('period')} onClick={() => setMode('period')}>{t('inflation.mode_period')}</button>
+              <button className={modeButtonClass('range')} onClick={() => setMode('range')}>{t('inflation.mode_range')}</button>
+              <button className={modeButtonClass('all')} onClick={() => setMode('all')}>{t('inflation.mode_all')}</button>
+            </div>
+            <UiTooltip delayDuration={100}>
+              <TooltipTrigger asChild>
+                <button
+                    type="button"
+                    onClick={() => setShowAxis(v => !v)}
+                    className={`p-1.5 rounded-md transition-colors ${
+                      showAxis
+                        ? 'text-primary hover:bg-primary/10'
+                        : 'text-gray-400 hover:text-gray-600 hover:bg-gray-100 dark:text-gray-500 dark:hover:text-gray-300 dark:hover:bg-vindex-bg'
+                    }`}
+                >
+                    <GridLines size={16} />
+                </button>
+              </TooltipTrigger>
+              <TooltipContent>{showAxis ? t('common.hide_axis_labels') : t('common.show_axis_labels')}</TooltipContent>
+            </UiTooltip>
           </div>
 
           {/* Controls per mode */}
@@ -278,7 +297,7 @@ const InflationCard = ({ currentBalance }) => {
 
       {loading ? (
         <div className="h-64 flex flex-col items-center justify-center gap-2">
-          <Loader2 className="w-8 h-8 animate-spin text-vindex-danger" />
+          <Loader2 className="w-8 h-8 animate-spin text-red-400" />
           {syncing && (
             <p className="text-sm text-gray-400 dark:text-vindex-text/50">
               {t('inflation.syncing_bcb')}
@@ -292,11 +311,11 @@ const InflationCard = ({ currentBalance }) => {
               <AreaChart data={chartData} margin={{ top: 8, right: 12, left: 4, bottom: 8 }}>
                 <defs>
                   <linearGradient id="colorInflation" x1="0" y1="0" x2="0" y2="1">
-                    <stop offset="5%" stopColor={DANGER_DARK} stopOpacity={0.8} />
-                    <stop offset="95%" stopColor={DANGER_DARK} stopOpacity={0} />
+                    <stop offset="5%" stopColor={DANGER} stopOpacity={0.8} />
+                    <stop offset="95%" stopColor={DANGER} stopOpacity={0} />
                   </linearGradient>
                 </defs>
-                <CartesianGrid strokeDasharray="3 3" stroke={gridColor} vertical={false} />
+                {showAxis && <CartesianGrid strokeDasharray="3 3" stroke={gridColor} vertical={false} />}
                 <XAxis
                   dataKey="name"
                   stroke={textColor}
@@ -307,10 +326,11 @@ const InflationCard = ({ currentBalance }) => {
                   ticks={xAxisTicks}
                   tickFormatter={xAxisTickFormatter}
                   tickMargin={10}
+                  tick={showAxis ? { fontSize: 12, fill: textColor } : false}
                 />
-                <YAxis stroke={textColor} fontSize={12} tickLine={false} axisLine={false} unit="%" tickMargin={8} width={48} />
-                <Tooltip content={<CustomTooltip t={t} />} cursor={{ stroke: gridColor }} />
-                <Area type="monotone" dataKey="cumulative" stroke={DANGER_DARK} fillOpacity={1} fill="url(#colorInflation)" />
+                <YAxis stroke={textColor} fontSize={12} tickLine={false} axisLine={false} unit="%" tickMargin={8} width={showAxis ? 48 : 0} tick={showAxis ? { fontSize: 12, fill: textColor } : false} />
+                <Tooltip content={<CustomTooltip t={t} />} cursor={{ stroke: chartCursor(isDark) }} />
+                <Area type="monotone" dataKey="cumulative" stroke={DANGER} fillOpacity={1} fill="url(#colorInflation)" />
               </AreaChart>
             </ResponsiveContainer>
           </div>
@@ -318,7 +338,7 @@ const InflationCard = ({ currentBalance }) => {
           <div className="flex flex-col justify-center space-y-4 bg-gray-50 dark:bg-vindex-bg/30 p-4 rounded-lg border border-gray-200 dark:border-vindex-border/30">
             <div>
               <p className="text-sm text-gray-500 dark:text-vindex-text/70">{t('inflation.period_inflation_label')}</p>
-              <p className="text-2xl font-bold text-vindex-danger">+{totalCumulative.toFixed(2)}%</p>
+              <p className="text-2xl font-bold text-red-400">+{totalCumulative.toFixed(2)}%</p>
             </div>
 
             <div>
@@ -326,7 +346,7 @@ const InflationCard = ({ currentBalance }) => {
               <p className="text-sm text-gray-400 dark:text-vindex-text/50 mb-1">{t('inflation.per_amount_hint', { amount: formatCurrency(1000) })}</p>
               <p className="text-xl font-bold text-gray-900 dark:text-vindex-text">
                 {t('inflation.today_worth_label')}{' '}
-                <span className="text-vindex-danger">
+                <span className="text-red-400">
                   {formatCurrency(1000 / (1 + totalCumulative / 100))}
                 </span>
               </p>

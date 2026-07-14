@@ -5,6 +5,7 @@ import { motion } from 'framer-motion';
 import { useNavigate } from 'react-router-dom';
 import BxIcon, { ListUl, Ghost } from '@/components/BxIcon';
 import { getDateFilterLabel } from '@/utils/dateFilter';
+import { PRIMARY } from '@/utils/colors';
 
 const RecentTransactionsSection = ({ transactions, categories, dateFilter }) => {
   const { t, i18n } = useTranslation();
@@ -75,11 +76,14 @@ const RecentTransactionsSection = ({ transactions, categories, dateFilter }) => 
                     </div>
                   </div>
                 </div>
-                <div className={`font-bold text-sm whitespace-nowrap pl-2 shrink-0 ${
-                  tx.type === 'income'
-                    ? 'text-green-600 dark:text-green-400'
-                    : tx.type === 'expense' ? 'text-red-600 dark:text-red-400' : 'text-blue-600 dark:text-blue-400'
-                }`}>
+                <div
+                  className={`font-bold text-sm whitespace-nowrap pl-2 shrink-0 ${
+                    tx.type === 'income'
+                      ? 'text-green-600 dark:text-green-400'
+                      : tx.type === 'expense' ? 'text-red-600 dark:text-red-400' : ''
+                  }`}
+                  style={tx.type !== 'income' && tx.type !== 'expense' ? { color: PRIMARY } : undefined}
+                >
                   {tx.type === 'income' ? '+' : tx.type === 'expense' ? '-' : ''}{formatCurrency(Math.abs(tx.amount))}
                 </div>
               </motion.div>

@@ -5,7 +5,8 @@ import { formatCurrency } from '@/utils/calculations';
 import { motion } from 'framer-motion';
 import { useTheme } from '@/context/ThemeContext';
 import { useTranslation } from 'react-i18next';
-import { Eye, EyeSlash } from '@/components/BxIcon';
+import { GridLines, Equal } from '@/components/BxIcon';
+import { Tooltip as UiTooltip, TooltipTrigger, TooltipContent } from '@/components/ui/tooltip';
 
 const formatValueAxis = (v) => {
   if (Math.abs(v) >= 1_000_000) return `${(v / 1_000_000).toFixed(1)}M`;
@@ -24,10 +25,12 @@ const CustomTooltip = ({ active, payload, t }) => {
         {payload.map((entry, index) => (
           <div key={index} className="flex items-center justify-between gap-4 mb-1">
             <span className="text-sm text-gray-600 dark:text-gray-300">
-              {entry.dataKey === 'invested' ? t('investments.col_invested') : t('investments.display_return')}
+              {entry.dataKey === 'invested' ? t('investments.col_invested')
+                : entry.dataKey === 'currentValue' ? t('investments.display_current_value')
+                : t('investments.display_return')}
             </span>
             <span className="text-sm font-bold font-mono" style={{ color: entry.color }}>
-              {entry.dataKey === 'invested' ? formatCurrency(entry.value) : `${entry.value.toFixed(2)}%`}
+              {entry.dataKey === 'profitability' ? `${entry.value.toFixed(2)}%` : formatCurrency(entry.value)}
             </span>
           </div>
         ))}
@@ -42,6 +45,7 @@ const InvestmentsChart = ({ data = [] }) => {
   const { theme } = useTheme();
   const isDark = theme === 'dark';
   const [showAxis, setShowAxis] = useState(true);
+  const [showCurrentValue, setShowCurrentValue] = useState(false);
 
   // Current values (last point) or default to 0
   const lastPoint = data.length > 0 ? data[data.length - 1] : { invested: 0, profitability: 0 };
@@ -57,14 +61,38 @@ const InvestmentsChart = ({ data = [] }) => {
       animate={{ opacity: 1, y: 0 }}
       className="bg-white dark:bg-vindex-card rounded-2xl p-6 border border-gray-200 dark:border-vindex-border shadow-sm mb-6 relative"
     >
-      <button
-          type="button"
-          onClick={() => setShowAxis(v => !v)}
-          title={showAxis ? t('common.hide_axis_labels') : t('common.show_axis_labels')}
-          className="absolute top-4 right-4 p-1.5 rounded-md text-gray-400 hover:text-gray-600 hover:bg-gray-100 dark:text-gray-500 dark:hover:text-gray-300 dark:hover:bg-vindex-bg transition-colors z-10"
-      >
-          {showAxis ? <Eye size={16} /> : <EyeSlash size={16} />}
-      </button>
+      <UiTooltip delayDuration={100}>
+        <TooltipTrigger asChild>
+          <button
+              type="button"
+              onClick={() => setShowAxis(v => !v)}
+              className={`absolute top-4 left-4 p-1.5 rounded-md transition-colors z-10 ${
+                showAxis
+                  ? 'text-primary hover:bg-primary/10'
+                  : 'text-gray-400 hover:text-gray-600 hover:bg-gray-100 dark:text-gray-500 dark:hover:text-gray-300 dark:hover:bg-vindex-bg'
+              }`}
+          >
+              <GridLines size={16} />
+          </button>
+        </TooltipTrigger>
+        <TooltipContent>{showAxis ? t('common.hide_axis_labels') : t('common.show_axis_labels')}</TooltipContent>
+      </UiTooltip>
+      <UiTooltip delayDuration={100}>
+        <TooltipTrigger asChild>
+          <button
+              type="button"
+              onClick={() => setShowCurrentValue(v => !v)}
+              className={`absolute top-4 right-4 p-1.5 rounded-md transition-colors z-10 ${
+                showCurrentValue
+                  ? 'text-primary hover:bg-primary/10'
+                  : 'text-gray-400 hover:text-gray-600 hover:bg-gray-100 dark:text-gray-500 dark:hover:text-gray-300 dark:hover:bg-vindex-bg'
+              }`}
+          >
+              <Equal size={16} />
+          </button>
+        </TooltipTrigger>
+        <TooltipContent>{showCurrentValue ? t('investments.chart_hide_current_value') : t('investments.chart_show_current_value')}</TooltipContent>
+      </UiTooltip>
 
       {/* Header Stats */}
       <div className="flex flex-wrap justify-center gap-8 md:gap-24 mb-6 pt-2">
@@ -117,7 +145,7 @@ const InvestmentsChart = ({ data = [] }) => {
                 tickFormatter={(xKey) => data[xKey]?.displayDate ?? ''}
                 axisLine={false}
                 tickLine={false}
-                tick={showAxis ? { fill: chartText(isDark), fontSize: 12 } : false}
+                tick={showAxis ? { fill: chartText(isDark), fontSize: 10 } : false}
                 dy={10}
                 minTickGap={40}
               />
@@ -126,41 +154,58 @@ const InvestmentsChart = ({ data = [] }) => {
                 domain={['auto', 'auto']}
                 axisLine={false}
                 tickLine={false}
-                tick={showAxis ? { fill: chartText(isDark), fontSize: 12 } : false}
+                tick={showAxis ? { fill: chartText(isDark), fontSize: 10 } : false}
                 tickFormatter={formatValueAxis}
-                width={showAxis ? 44 : 0}
+                width={showAxis ? 40 : 0}
               />
-              <YAxis
-                yAxisId="profitability"
-                orientation="right"
-                domain={['auto', 'auto']}
-                axisLine={false}
-                tickLine={false}
-                tick={showAxis ? { fill: chartText(isDark), fontSize: 12 } : false}
-                tickFormatter={formatPercentAxis}
-                width={showAxis ? 44 : 0}
-              />
+              {!showCurrentValue && (
+                <YAxis
+                  yAxisId="profitability"
+                  orientation="right"
+                  domain={['auto', 'auto']}
+                  axisLine={false}
+                  tickLine={false}
+                  tick={showAxis ? { fill: chartText(isDark), fontSize: 10 } : false}
+                  tickFormatter={formatPercentAxis}
+                  width={showAxis ? 40 : 0}
+                />
+              )}
               <Tooltip content={<CustomTooltip t={t} />} cursor={{ stroke: chartCursor(isDark) }} />
-              <Area
-                yAxisId="value"
-                type="natural"
-                dataKey="invested"
-                stroke={PRIMARY}
-                strokeWidth={2}
-                fill="url(#investValueGradient)"
-                dot={false}
-                activeDot={{ r: 4 }}
-              />
-              <Area
-                yAxisId="profitability"
-                type="natural"
-                dataKey="profitability"
-                stroke={profitColor}
-                strokeWidth={2}
-                fill="url(#investProfitGradient)"
-                dot={false}
-                activeDot={{ r: 4 }}
-              />
+              {showCurrentValue ? (
+                <Area
+                  yAxisId="value"
+                  type="natural"
+                  dataKey="currentValue"
+                  stroke={PRIMARY}
+                  strokeWidth={2}
+                  fill="url(#investValueGradient)"
+                  dot={false}
+                  activeDot={{ r: 4 }}
+                />
+              ) : (
+                <>
+                  <Area
+                    yAxisId="value"
+                    type="natural"
+                    dataKey="invested"
+                    stroke={PRIMARY}
+                    strokeWidth={2}
+                    fill="url(#investValueGradient)"
+                    dot={false}
+                    activeDot={{ r: 4 }}
+                  />
+                  <Area
+                    yAxisId="profitability"
+                    type="natural"
+                    dataKey="profitability"
+                    stroke={profitColor}
+                    strokeWidth={2}
+                    fill="url(#investProfitGradient)"
+                    dot={false}
+                    activeDot={{ r: 4 }}
+                  />
+                </>
+              )}
             </ComposedChart>
           </ResponsiveContainer>
         )}

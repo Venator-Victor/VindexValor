@@ -2,12 +2,15 @@ import React, { useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
 import { formatCurrency } from '@/utils/calculations';
 import { motion } from 'framer-motion';
+import { useNavigate } from 'react-router-dom';
 import { Calendar as CalendarClock } from '@/components/BxIcon';
 import { CalendarCheck } from '@/components/BxIcon';
 import { getDateFilterRange, getDateFilterLabel } from '@/utils/dateFilter';
+import { PRIMARY } from '@/utils/colors';
 
 const UpcomingRecurrencesSection = ({ recurrences, dateFilter }) => {
   const { t, i18n } = useTranslation();
+  const navigate = useNavigate();
 
   // "Upcoming" always looks forward from today — the calendar date filter can point at
   // a past or specific range, so we borrow only its *span length* as how far ahead to
@@ -61,8 +64,8 @@ const UpcomingRecurrencesSection = ({ recurrences, dateFilter }) => {
   };
 
   return (
-    <div className="bg-white dark:bg-vindex-card rounded-xl p-6 border border-gray-200 dark:border-vindex-border shadow-sm h-full">
-      <div className="flex items-center justify-between mb-6">
+    <div className="bg-white dark:bg-vindex-card rounded-xl p-6 border border-gray-200 dark:border-vindex-border shadow-sm h-full flex flex-col">
+      <div className="flex items-center justify-between mb-4 shrink-0">
         <h3 className="text-lg font-bold text-gray-900 dark:text-gray-50 flex items-center gap-2">
             <CalendarClock className="w-5 h-5 text-orange-500" />
             {t('dashboard.upcoming_recurrences_title')}
@@ -72,13 +75,14 @@ const UpcomingRecurrencesSection = ({ recurrences, dateFilter }) => {
         </span>
       </div>
 
-      <div className="space-y-4">
+      <div className="overflow-y-auto overflow-x-hidden flex-1 pr-2 -mr-2 space-y-2 custom-scrollbar">
         {upcoming.length > 0 ? (
           upcoming.map((item, index) => {
             const diffDays = getDaysUntil(item.next_date);
             const daysText = formatDaysUntil(diffDays);
             const isLate = diffDays < 0;
             const isToday = diffDays === 0;
+            const statusColor = isLate ? '#ef4444' : isToday ? '#f97316' : PRIMARY;
 
             return (
               <motion.div
@@ -86,34 +90,36 @@ const UpcomingRecurrencesSection = ({ recurrences, dateFilter }) => {
                 initial={{ opacity: 0, x: 10 }}
                 animate={{ opacity: 1, x: 0 }}
                 transition={{ delay: index * 0.1 }}
-                className="relative flex items-center justify-between p-4 bg-gray-50 dark:bg-gray-900/40 rounded-lg border border-gray-100 dark:border-gray-800"
+                onClick={() => navigate('/recurrences')}
+                className="flex items-center justify-between p-3 hover:bg-gray-50 dark:hover:bg-gray-800/50 rounded-lg transition-colors border border-transparent hover:border-gray-100 dark:hover:border-gray-800 cursor-pointer"
               >
-                {/* Status Indicator Line */}
-                <div className={`absolute left-0 top-0 bottom-0 w-1 rounded-l-lg ${
-                  isLate ? 'bg-red-500' : isToday ? 'bg-orange-500' : 'bg-blue-500'
-                }`} />
-
-                <div className="pl-3">
-                  <h4 className="font-medium text-gray-900 dark:text-gray-100 text-sm">
-                    {item.description}
-                  </h4>
-                  <div className="flex items-center gap-2 mt-1">
-                    <span className="text-xs text-gray-500 dark:text-gray-400 bg-white dark:bg-gray-800 px-2 py-0.5 rounded border border-gray-200 dark:border-gray-700">
-                      {t(`period.${item.frequency}`, item.frequency)}
-                    </span>
-                    <span className={`text-xs font-medium ${
-                      isLate ? 'text-red-500' : isToday ? 'text-orange-500' : 'text-blue-500'
-                    }`}>
-                      {daysText}
-                    </span>
+                <div className="flex items-center gap-3 overflow-hidden">
+                  <div
+                    className="w-9 h-9 rounded-full flex items-center justify-center shrink-0 border"
+                    style={{ backgroundColor: statusColor + '22', color: statusColor, borderColor: statusColor + '44' }}
+                  >
+                    <CalendarClock className="w-[18px] h-[18px]" />
+                  </div>
+                  <div className="min-w-0 flex-1">
+                    <p className="font-medium text-gray-900 dark:text-gray-100 text-sm truncate max-w-[140px] sm:max-w-[180px]">
+                      {item.description}
+                    </p>
+                    <div className="flex items-center gap-2 mt-0.5">
+                      <span className="text-[10px] px-1.5 py-0.5 rounded-full text-white font-medium opacity-80 truncate max-w-[80px]" style={{ backgroundColor: statusColor }}>
+                        {t(`period.${item.frequency}`, item.frequency)}
+                      </span>
+                      <span className="text-[10px] font-medium whitespace-nowrap" style={{ color: statusColor }}>
+                        {daysText}
+                      </span>
+                    </div>
                   </div>
                 </div>
 
-                <div className="text-right">
-                  <div className="font-bold text-gray-900 dark:text-gray-100 text-sm">
+                <div className="text-right shrink-0 pl-2">
+                  <div className="font-bold text-gray-900 dark:text-gray-100 text-sm whitespace-nowrap">
                     {formatCurrency(item.amount)}
                   </div>
-                  <div className="text-xs text-gray-500 mt-0.5">
+                  <div className="text-[10px] text-gray-400 whitespace-nowrap">
                     {formatDate(item.next_date)}
                   </div>
                 </div>
@@ -121,7 +127,7 @@ const UpcomingRecurrencesSection = ({ recurrences, dateFilter }) => {
             );
           })
         ) : (
-          <div className="flex flex-col items-center justify-center h-48 text-gray-400">
+          <div className="flex flex-col items-center justify-center h-full text-gray-400 pb-8">
             <CalendarCheck size={40} className="mb-2" />
             <p className="text-sm">{t('dashboard.no_recurrences')}</p>
           </div>

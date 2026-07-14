@@ -250,7 +250,7 @@ export const calculateAccountBalance = (transactions, accountId, initialBalance 
 // Accounts of these types are debt by nature — their balance magnitude is
 // always a liability, regardless of sign (a credit card sitting at 0 isn't
 // an asset). Everything else falls back to the sign of its balance.
-const LIABILITY_ACCOUNT_TYPES = ['credit_card', 'loan'];
+export const LIABILITY_ACCOUNT_TYPES = ['credit_card', 'loan'];
 
 export const calculateAssetsLiabilities = (transactions = [], accounts = [], recurring = [], exchangeRates = {}) => {
   let assets = 0;

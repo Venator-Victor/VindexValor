@@ -1,4 +1,4 @@
-import { DANGER, DANGER_DARK, SUCCESS, chartGrid, chartText, chartCursor } from '@/utils/colors';
+import { PRIMARY, DANGER, DANGER_DARK, chartGrid, chartText, chartCursor } from '@/utils/colors';
 import React, { useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { ComposedChart, Area, Tooltip, ResponsiveContainer, XAxis, YAxis, CartesianGrid } from 'recharts';
@@ -8,7 +8,8 @@ import { useTheme } from '@/context/ThemeContext';
 import { useFinance } from '@/context/FinanceContext';
 import { matchesDateFilter } from '@/utils/dateFilter';
 import { formatMonthYear as formatMonthYearShared } from '@/utils/chartDateFormat';
-import { Eye, EyeSlash } from '@/components/BxIcon';
+import { GridLines, Equal } from '@/components/BxIcon';
+import { Tooltip as UiTooltip, TooltipTrigger, TooltipContent } from '@/components/ui/tooltip';
 
 const formatYAxis = (v) => {
   if (Math.abs(v) >= 1_000_000) return `${(v / 1_000_000).toFixed(1)}M`;
@@ -34,7 +35,9 @@ const CustomTooltip = ({ active, payload, t }) => {
         {payload.map((entry, index) => (
           <div key={index} className="flex items-center justify-between gap-4 mb-1">
             <span className="text-sm text-gray-600 dark:text-gray-300">
-              {entry.dataKey === 'expenses' ? t('invoices.chart_expenses_label') : t('invoices.chart_paid_label')}
+              {entry.dataKey === 'expenses' ? t('invoices.chart_expenses_label')
+                : entry.dataKey === 'paid' ? t('invoices.chart_paid_label')
+                : t('transactions.type_balance')}
             </span>
             <span className="text-sm font-bold font-mono" style={{ color: entry.color }}>
               {formatCurrency(entry.value)}
@@ -49,15 +52,16 @@ const CustomTooltip = ({ active, payload, t }) => {
 
 // One point per invoice, in the same order as the invoices list — each invoice's own
 // "Value" column is deliberately non-cumulative (a payment settles the *previous*
-// invoice, not this one), and this chart mirrors that exact figure as its main line
-// instead of a running balance. The second line plots what was paid *through* each
-// invoice's statement (its is_payment items plus any transaction linked to it) as its
-// own series, so the two can be compared side by side without conflating them.
+// invoice, not this one), and the expenses/paid lines mirror that exact per-period
+// figure rather than a running total. The balance toggle is the exception: it's the
+// running cumulative(paid) - cumulative(expenses) across every invoice on record, same
+// accumulating-line approach as TransactionsBalanceChart/AssetLiabilityChart.
 const InvoiceBalanceChart = ({ dateFilter }) => {
   const { t, i18n } = useTranslation();
   const { theme } = useTheme();
   const isDark = theme === 'dark';
   const [showAxis, setShowAxis] = useState(true);
+  const [showBalance, setShowBalance] = useState(false);
   const { invoices: allInvoices, invoiceItems, transactions } = useFinance();
 
   // Same filter the invoices list itself applies (by opening_date), so the graph
@@ -84,38 +88,72 @@ const InvoiceBalanceChart = ({ dateFilter }) => {
       paymentsByInvoiceId[tx.invoice_id].push(tx);
     });
 
-    const sorted = [...invoices].sort((a, b) =>
+    // Walked off the full, unfiltered invoice list (not just `invoices`, which the
+    // page's date filter may have trimmed) so the cumulative balance carried into the
+    // first visible point still reflects everything before it — only points whose
+    // invoice is in the filtered set actually get pushed onto the chart below.
+    const sortedAll = [...allInvoices].sort((a, b) =>
       new Date(a.closing_date) - new Date(b.closing_date) || new Date(a.opening_date) - new Date(b.opening_date)
     );
+    const filteredIds = new Set(invoices.map(inv => inv.id));
 
-    return sorted.map((inv, idx) => {
+    let accPaid = 0;
+    let accExpenses = 0;
+    const chartData = [];
+    let xKey = 0;
+
+    sortedAll.forEach(inv => {
       const items = itemsByInvoiceId[inv.id] || [];
       const payments = paymentsByInvoiceId[inv.id] || [];
 
-      const expenses = items
-        .filter(item => !item.is_payment)
-        .reduce((sum, item) => sum + Number(item.amount || 0), 0);
+      // Expense items store amount negative (see InvoiceItemForm), so the raw sum
+      // nets to a negative number — abs it to get the expense magnitude, matching
+      // how "paid" is already a positive figure. Carryover lines (the previous
+      // invoice's balance restated as a new line, e.g. "Valor pendente do mês
+      // anterior") are excluded here — that debt already shows up as this same
+      // invoice's own unpaid balance the month it was first charged, so counting it
+      // again would double-book it as if it were new spending this period.
+      const expenses = Math.abs(items
+        .filter(item => !item.is_payment && !item.is_carryover)
+        .reduce((sum, item) => sum + Number(item.amount || 0), 0));
 
       const paidViaItems = items
         .filter(item => item.is_payment)
         .reduce((sum, item) => sum + Number(item.amount || 0), 0);
       const paidViaTransactions = payments.reduce((sum, p) => sum + Math.abs(Number(p.amount || 0)), 0);
+      const paid = paidViaItems + paidViaTransactions;
 
-      return {
+      // Running cumulative(entradas) - cumulative(saídas), never reset — same
+      // accumulating-line approach as TransactionsBalanceChart/AssetLiabilityChart,
+      // so all three "saldo" charts in the app read the same way.
+      accPaid += paid;
+      accExpenses += expenses;
+
+      if (!filteredIds.has(inv.id)) return;
+
+      chartData.push({
         // A plain sequential index — guaranteed unique, used only to position points
         // on the axis. Two invoices can share the same closing_date, and a duplicate
         // axis value is what causes Recharts to mis-resolve tooltip/hover to the wrong
         // point; the actual displayed date lives in `displayDate` instead.
-        xKey: idx,
+        xKey: xKey++,
         displayDate: formatMonthYear(inv.closing_date, i18n.language),
         expenses,
-        paid: paidViaItems + paidViaTransactions,
-      };
+        paid,
+        balance: accPaid - accExpenses,
+      });
     });
-  }, [invoices, invoiceItems, transactions, i18n.language]);
+
+    return chartData;
+  }, [invoices, allInvoices, invoiceItems, transactions, i18n.language]);
 
   const totalExpenses = data.reduce((sum, d) => sum + d.expenses, 0);
   const totalPaid = data.reduce((sum, d) => sum + d.paid, 0);
+  // Colored off the most recent point's running balance (what's currently owed/overpaid),
+  // not an aggregate over the whole period — matches how a cumulative line reads.
+  const currentBalance = data.length > 0 ? data[data.length - 1].balance : 0;
+  const isBalanceNegative = currentBalance < 0;
+  const balanceColor = isBalanceNegative ? (isDark ? DANGER_DARK : DANGER) : PRIMARY;
 
   return (
     <motion.div
@@ -123,33 +161,57 @@ const InvoiceBalanceChart = ({ dateFilter }) => {
       animate={{ opacity: 1, y: 0 }}
       className="bg-white dark:bg-vindex-card rounded-2xl p-6 border border-gray-200 dark:border-vindex-border shadow-sm mb-6 relative"
     >
-      <button
-          type="button"
-          onClick={() => setShowAxis(v => !v)}
-          title={showAxis ? t('common.hide_axis_labels') : t('common.show_axis_labels')}
-          className="absolute top-4 right-4 p-1.5 rounded-md text-gray-400 hover:text-gray-600 hover:bg-gray-100 dark:text-gray-500 dark:hover:text-gray-300 dark:hover:bg-vindex-bg transition-colors z-10"
-      >
-          {showAxis ? <Eye size={16} /> : <EyeSlash size={16} />}
-      </button>
+      <UiTooltip delayDuration={100}>
+        <TooltipTrigger asChild>
+          <button
+              type="button"
+              onClick={() => setShowAxis(v => !v)}
+              className={`absolute top-4 left-4 p-1.5 rounded-md transition-colors z-10 ${
+                showAxis
+                  ? 'text-primary hover:bg-primary/10'
+                  : 'text-gray-400 hover:text-gray-600 hover:bg-gray-100 dark:text-gray-500 dark:hover:text-gray-300 dark:hover:bg-vindex-bg'
+              }`}
+          >
+              <GridLines size={16} />
+          </button>
+        </TooltipTrigger>
+        <TooltipContent>{showAxis ? t('common.hide_axis_labels') : t('common.show_axis_labels')}</TooltipContent>
+      </UiTooltip>
+      <UiTooltip delayDuration={100}>
+        <TooltipTrigger asChild>
+          <button
+              type="button"
+              onClick={() => setShowBalance(v => !v)}
+              className={`absolute top-4 right-4 p-1.5 rounded-md transition-colors z-10 ${
+                showBalance
+                  ? 'text-primary hover:bg-primary/10'
+                  : 'text-gray-400 hover:text-gray-600 hover:bg-gray-100 dark:text-gray-500 dark:hover:text-gray-300 dark:hover:bg-vindex-bg'
+              }`}
+          >
+              <Equal size={16} />
+          </button>
+        </TooltipTrigger>
+        <TooltipContent>{showBalance ? t('transactions.chart_hide_balance') : t('transactions.chart_show_balance')}</TooltipContent>
+      </UiTooltip>
 
       <div className="flex flex-wrap justify-center gap-8 md:gap-24 mb-6 pt-2">
         <div className="text-center">
           <div className="flex items-center justify-center gap-2 mb-2">
-            <div className="w-3 h-3 rounded bg-red-600 dark:bg-vindex-danger" />
-            <span className="text-gray-500 dark:text-gray-400 font-medium">{t('invoices.chart_expenses_label')}</span>
+            <div className="w-3 h-3 rounded bg-primary" />
+            <span className="text-gray-500 dark:text-gray-400 font-medium">{t('invoices.chart_paid_label')}</span>
           </div>
           <div className="text-3xl font-bold text-gray-900 dark:text-white tracking-tight">
-            {formatCurrency(totalExpenses)}
+            {formatCurrency(totalPaid)}
           </div>
         </div>
 
         <div className="text-center">
           <div className="flex items-center justify-center gap-2 mb-2">
-            <div className="w-3 h-3 rounded bg-emerald-500" />
-            <span className="text-gray-500 dark:text-gray-400 font-medium">{t('invoices.chart_paid_label')}</span>
+            <div className="w-3 h-3 rounded" style={{ backgroundColor: isDark ? DANGER_DARK : DANGER }} />
+            <span className="text-gray-500 dark:text-gray-400 font-medium">{t('invoices.chart_expenses_label')}</span>
           </div>
           <div className="text-3xl font-bold text-gray-900 dark:text-white tracking-tight">
-            {formatCurrency(totalPaid)}
+            {formatCurrency(totalExpenses)}
           </div>
         </div>
       </div>
@@ -168,8 +230,12 @@ const InvoiceBalanceChart = ({ dateFilter }) => {
                   <stop offset="95%" stopColor={isDark ? DANGER_DARK : DANGER} stopOpacity={0} />
                 </linearGradient>
                 <linearGradient id="ibcPaidGradient" x1="0" y1="0" x2="0" y2="1">
-                  <stop offset="5%" stopColor={SUCCESS} stopOpacity={0.3} />
-                  <stop offset="95%" stopColor={SUCCESS} stopOpacity={0} />
+                  <stop offset="5%" stopColor={PRIMARY} stopOpacity={0.3} />
+                  <stop offset="95%" stopColor={PRIMARY} stopOpacity={0} />
+                </linearGradient>
+                <linearGradient id="ibcBalanceGradient" x1="0" y1="0" x2="0" y2="1">
+                  <stop offset="5%" stopColor={balanceColor} stopOpacity={0.3} />
+                  <stop offset="95%" stopColor={balanceColor} stopOpacity={0} />
                 </linearGradient>
               </defs>
               {showAxis && <CartesianGrid strokeDasharray="3 3" vertical={false} stroke={chartGrid(isDark)} />}
@@ -189,24 +255,38 @@ const InvoiceBalanceChart = ({ dateFilter }) => {
                 tickFormatter={formatYAxis}
                 width={showAxis ? 40 : 0}
               />
-              <Area
-                type="natural"
-                dataKey="expenses"
-                stroke={isDark ? DANGER_DARK : DANGER}
-                strokeWidth={2}
-                fill="url(#ibcExpensesGradient)"
-                dot={false}
-                activeDot={{ r: 4 }}
-              />
-              <Area
-                type="natural"
-                dataKey="paid"
-                stroke={SUCCESS}
-                strokeWidth={2}
-                fill="url(#ibcPaidGradient)"
-                dot={false}
-                activeDot={{ r: 4 }}
-              />
+              {showBalance ? (
+                <Area
+                  type="natural"
+                  dataKey="balance"
+                  stroke={balanceColor}
+                  strokeWidth={2}
+                  fill="url(#ibcBalanceGradient)"
+                  dot={false}
+                  activeDot={{ r: 4 }}
+                />
+              ) : (
+                <>
+                  <Area
+                    type="natural"
+                    dataKey="expenses"
+                    stroke={isDark ? DANGER_DARK : DANGER}
+                    strokeWidth={2}
+                    fill="url(#ibcExpensesGradient)"
+                    dot={false}
+                    activeDot={{ r: 4 }}
+                  />
+                  <Area
+                    type="natural"
+                    dataKey="paid"
+                    stroke={PRIMARY}
+                    strokeWidth={2}
+                    fill="url(#ibcPaidGradient)"
+                    dot={false}
+                    activeDot={{ r: 4 }}
+                  />
+                </>
+              )}
             </ComposedChart>
           </ResponsiveContainer>
         )}

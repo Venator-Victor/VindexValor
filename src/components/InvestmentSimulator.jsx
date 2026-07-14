@@ -7,8 +7,9 @@ import {
 } from 'recharts';
 import { formatCurrency } from '@/utils/calculations';
 import { useTheme } from '@/context/ThemeContext';
-import { TrendingUp } from '@/components/BxIcon';
-import { PRIMARY, SUCCESS } from '@/utils/colors';
+import { TrendingUp, GridLines, Equal } from '@/components/BxIcon';
+import { PRIMARY, SUCCESS, chartGrid, chartText, chartCursor } from '@/utils/colors';
+import { Tooltip as UiTooltip, TooltipTrigger, TooltipContent } from '@/components/ui/tooltip';
 
 const CustomTooltip = ({ active, payload, label, t }) => {
   if (active && payload && payload.length) {
@@ -18,7 +19,9 @@ const CustomTooltip = ({ active, payload, label, t }) => {
         {payload.map((entry, index) => (
           <div key={index} className="flex items-center justify-between gap-4 mb-1">
             <span className="text-sm text-gray-600 dark:text-gray-300">
-              {entry.dataKey === 'invested' ? t('investment_sim.invested_label') : t('investment_sim.interest_label')}
+              {entry.dataKey === 'invested' ? t('investment_sim.invested_label')
+                : entry.dataKey === 'interest' ? t('investment_sim.interest_label')
+                : t('investment_sim.total_label')}
             </span>
             <span className="text-sm font-bold font-mono" style={{ color: entry.color }}>
               {formatCurrency(entry.value)}
@@ -40,9 +43,11 @@ const InvestmentSimulator = () => {
   const [monthlyAmount, setMonthlyAmount] = useState(500);
   const [annualReturn, setAnnualReturn] = useState(10);
   const [years, setYears] = useState(20);
+  const [showAxis, setShowAxis] = useState(true);
+  const [showTotal, setShowTotal] = useState(false);
 
-  const textColor = isDark ? '#d1dcf0' : '#1f2937';
-  const gridColor = isDark ? '#283768' : '#e5e7eb';
+  const textColor = chartText(isDark);
+  const gridColor = chartGrid(isDark);
 
   const chartData = useMemo(() => {
     const monthlyRate = annualReturn / 100 / 12;
@@ -60,10 +65,12 @@ const InvestmentSimulator = () => {
       const invested = initialDeposit + monthlyAmount * n;
       const interest = total - invested;
 
+      const clampedInterest = Math.max(0, interest);
       return {
         year: `${y}${t('investment_sim.year_unit')}`,
         invested: parseFloat(invested.toFixed(2)),
-        interest: parseFloat(Math.max(0, interest).toFixed(2)),
+        interest: parseFloat(clampedInterest.toFixed(2)),
+        total: parseFloat((invested + clampedInterest).toFixed(2)),
       };
     });
   }, [initialDeposit, monthlyAmount, annualReturn, years, t]);
@@ -94,12 +101,47 @@ const InvestmentSimulator = () => {
     <motion.div
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
-      className="bg-white dark:bg-vindex-card rounded-xl border border-gray-200 dark:border-vindex-border shadow-sm overflow-hidden"
+      className="bg-white dark:bg-vindex-card rounded-2xl border border-gray-200 dark:border-vindex-border shadow-sm overflow-hidden relative"
     >
+      <div className="absolute top-4 right-4 z-10 flex items-center gap-1">
+        <UiTooltip delayDuration={100}>
+          <TooltipTrigger asChild>
+            <button
+                type="button"
+                onClick={() => setShowAxis(v => !v)}
+                className={`p-1.5 rounded-md transition-colors ${
+                  showAxis
+                    ? 'text-primary hover:bg-primary/10'
+                    : 'text-gray-400 hover:text-gray-600 hover:bg-gray-100 dark:text-gray-500 dark:hover:text-gray-300 dark:hover:bg-vindex-bg'
+                }`}
+            >
+                <GridLines size={16} />
+            </button>
+          </TooltipTrigger>
+          <TooltipContent>{showAxis ? t('common.hide_axis_labels') : t('common.show_axis_labels')}</TooltipContent>
+        </UiTooltip>
+        <UiTooltip delayDuration={100}>
+          <TooltipTrigger asChild>
+            <button
+                type="button"
+                onClick={() => setShowTotal(v => !v)}
+                className={`p-1.5 rounded-md transition-colors ${
+                  showTotal
+                    ? 'text-primary hover:bg-primary/10'
+                    : 'text-gray-400 hover:text-gray-600 hover:bg-gray-100 dark:text-gray-500 dark:hover:text-gray-300 dark:hover:bg-vindex-bg'
+                }`}
+            >
+                <Equal size={16} />
+            </button>
+          </TooltipTrigger>
+          <TooltipContent>{showTotal ? t('investment_sim.chart_hide_total') : t('investment_sim.chart_show_total')}</TooltipContent>
+        </UiTooltip>
+      </div>
+
       <div className="p-6 border-b border-gray-100 dark:border-gray-800">
         <h3 className="text-lg font-bold text-gray-900 dark:text-gray-50 flex items-center gap-2">
           <div className="p-2 bg-emerald-100 dark:bg-emerald-900/20 rounded-lg">
-            <TrendingUp className="w-5 h-5 text-emerald-600 dark:text-emerald-400" />
+            <TrendingUp className="w-5 h-5 text-emerald-500" />
           </div>
           {t('investment_sim.title')}
         </h3>
@@ -154,7 +196,7 @@ const InvestmentSimulator = () => {
             <input
               type="range" min="1" max="100" value={years}
               onChange={(e) => setYears(Number(e.target.value))}
-              className="w-full accent-vindex-success cursor-pointer"
+              className="w-full accent-emerald-500 cursor-pointer"
             />
             <div className="flex justify-between text-xs text-gray-400 dark:text-gray-600 mt-0.5">
               <span>{`1${t('investment_sim.year_unit')}`}</span><span>{`50${t('investment_sim.year_unit')}`}</span><span>{`100${t('investment_sim.year_unit')}`}</span>
@@ -165,7 +207,7 @@ const InvestmentSimulator = () => {
           <div className="rounded-lg border border-gray-200 dark:border-vindex-border overflow-hidden text-sm">
             <div className="p-3 bg-emerald-50 dark:bg-emerald-900/10">
               <p className="text-xs text-gray-500 dark:text-gray-400">{t('investment_sim.total_label')}</p>
-              <p className="text-2xl font-bold text-vindex-success mt-0.5">
+              <p className="text-2xl font-bold text-emerald-500 mt-0.5">
                 {formatCurrency(totalAccumulated)}
               </p>
             </div>
@@ -183,7 +225,7 @@ const InvestmentSimulator = () => {
                 <span className="w-2 h-2 rounded-full inline-block" style={{ backgroundColor: SUCCESS }} />
                 {t('investment_sim.interest_label')}
               </span>
-              <span className="font-bold text-vindex-success">+{formatCurrency(totalInterest)}</span>
+              <span className="font-bold text-emerald-500">+{formatCurrency(totalInterest)}</span>
             </div>
             <div className="p-3 flex justify-between items-center border-t border-gray-100 dark:border-vindex-border/50">
               <span className="text-gray-500 dark:text-gray-400">{t('investment_sim.interest_ratio', { ratio: interestRatio })}</span>
@@ -191,7 +233,7 @@ const InvestmentSimulator = () => {
             {crossoverPoint && (
               <div className="p-3 flex justify-between items-center border-t border-gray-100 dark:border-vindex-border/50 bg-emerald-50/50 dark:bg-emerald-900/5">
                 <span className="text-gray-500 dark:text-gray-400">{t('investment_sim.interest_overtakes')}</span>
-                <span className="font-semibold text-vindex-success">{t('investment_sim.year_label', { year: crossoverPoint.year.replace(t('investment_sim.year_unit'), '') })}</span>
+                <span className="font-semibold text-emerald-500">{t('investment_sim.year_label', { year: crossoverPoint.year.replace(t('investment_sim.year_unit'), '') })}</span>
               </div>
             )}
           </div>
@@ -210,52 +252,67 @@ const InvestmentSimulator = () => {
                   <stop offset="5%" stopColor={SUCCESS} stopOpacity={0.85} />
                   <stop offset="95%" stopColor={SUCCESS} stopOpacity={0.5} />
                 </linearGradient>
+                <linearGradient id="gradTotal" x1="0" y1="0" x2="0" y2="1">
+                  <stop offset="5%" stopColor={PRIMARY} stopOpacity={0.85} />
+                  <stop offset="95%" stopColor={PRIMARY} stopOpacity={0.4} />
+                </linearGradient>
               </defs>
-              <CartesianGrid strokeDasharray="3 3" stroke={gridColor} vertical={false} />
+              {showAxis && <CartesianGrid strokeDasharray="3 3" stroke={gridColor} vertical={false} />}
               <XAxis
                 dataKey="year"
                 stroke={textColor} fontSize={11}
                 tickLine={false} axisLine={false}
                 interval={xAxisInterval}
                 tickMargin={10}
+                tick={showAxis ? { fontSize: 11, fill: textColor } : false}
               />
               <YAxis
                 stroke={textColor} fontSize={11}
                 tickLine={false} axisLine={false}
                 tickFormatter={formatYAxis}
                 tickMargin={8}
-                width={56}
+                width={showAxis ? 56 : 0}
+                tick={showAxis ? { fontSize: 11, fill: textColor } : false}
               />
-              <Tooltip content={<CustomTooltip t={t} />} cursor={{ stroke: gridColor }} />
-              <Legend
-                wrapperStyle={{ fontSize: 12, paddingTop: 8 }}
-                formatter={(value) =>
-                  value === 'invested' ? t('investment_sim.invested_label') : t('investment_sim.interest_label')
-                }
-              />
-              {crossoverPoint && (
-                <ReferenceLine
-                  x={crossoverPoint.year}
-                  stroke={SUCCESS} strokeDasharray="4 4" strokeOpacity={0.8}
-                >
-                  <Label
-                    value={t('investment_sim.interest_over_capital')}
-                    position="insideTopRight"
-                    fontSize={10}
-                    fill={SUCCESS}
-                    opacity={0.9}
-                    offset={4}
+              <Tooltip content={<CustomTooltip t={t} />} cursor={{ stroke: chartCursor(isDark) }} />
+              {showTotal ? (
+                <Area
+                  type="monotone" dataKey="total"
+                  stroke={PRIMARY} fill="url(#gradTotal)" strokeWidth={1.5}
+                />
+              ) : (
+                <>
+                  <Legend
+                    wrapperStyle={{ fontSize: 12, paddingTop: 8 }}
+                    formatter={(value) =>
+                      value === 'invested' ? t('investment_sim.invested_label') : t('investment_sim.interest_label')
+                    }
                   />
-                </ReferenceLine>
+                  {crossoverPoint && (
+                    <ReferenceLine
+                      x={crossoverPoint.year}
+                      stroke={SUCCESS} strokeDasharray="4 4" strokeOpacity={0.8}
+                    >
+                      <Label
+                        value={t('investment_sim.interest_over_capital')}
+                        position="insideTopRight"
+                        fontSize={10}
+                        fill={SUCCESS}
+                        opacity={0.9}
+                        offset={4}
+                      />
+                    </ReferenceLine>
+                  )}
+                  <Area
+                    type="monotone" dataKey="invested" stackId="1"
+                    stroke={PRIMARY} fill="url(#gradCapital)" strokeWidth={1.5}
+                  />
+                  <Area
+                    type="monotone" dataKey="interest" stackId="1"
+                    stroke={SUCCESS} fill="url(#gradJuros)" strokeWidth={1.5}
+                  />
+                </>
               )}
-              <Area
-                type="monotone" dataKey="invested" stackId="1"
-                stroke={PRIMARY} fill="url(#gradCapital)" strokeWidth={1.5}
-              />
-              <Area
-                type="monotone" dataKey="interest" stackId="1"
-                stroke={SUCCESS} fill="url(#gradJuros)" strokeWidth={1.5}
-              />
             </AreaChart>
           </ResponsiveContainer>
         </div>

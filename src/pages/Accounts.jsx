@@ -1,9 +1,9 @@
-import { PRIMARY, PRIMARY_HOVER, DANGER } from '@/utils/colors';
+import { PRIMARY, PRIMARY_HOVER, SUCCESS, DANGER } from '@/utils/colors';
 import React, { useState, useMemo } from 'react';
 import { Helmet } from 'react-helmet';
 import { useTranslation } from 'react-i18next';
 import { motion } from 'framer-motion';
-import BxIcon, { Wallet as WalletCards, Eye, EyeSlash as EyeOff, Plus, Edit as Edit2, TrashAlt as Trash2 } from '@/components/BxIcon';
+import BxIcon, { Wallet as WalletCards, Plus, Edit as Edit2, TrashAlt as Trash2 } from '@/components/BxIcon';
 import { useFinance } from '@/context/FinanceContext';
 import { Button } from '@/components/ui/button';
 import SortableHeader from '@/components/SortableHeader';
@@ -36,7 +36,6 @@ const Accounts = () => {
   const [accountInitialData, setAccountInitialData] = useState(null);
   const dateFilter = settings.accounts_date_filter || getDateFilterDefaults();
   const setDateFilter = (filter) => saveSettings({ accounts_date_filter: filter });
-  const [showNetWorth, setShowNetWorth] = useState(false);
   const [selectedDetailAccount, setSelectedDetailAccount] = useState(null);
   
   const [viewMode, setViewMode] = useState('card');
@@ -118,20 +117,6 @@ const Accounts = () => {
         <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-4 w-full md:w-auto">
             <DateFilterSelect value={dateFilter} onChange={setDateFilter} />
 
-            <Button
-                onClick={() => setShowNetWorth(!showNetWorth)}
-                variant="outline"
-                className={`flex items-center gap-2 h-[42px] border-gray-200 dark:border-vindex-border ${
-                    showNetWorth
-                    ? 'bg-blue-50 text-blue-600 border-blue-200 dark:bg-blue-900/20 dark:text-blue-400 dark:border-blue-900/50'
-                    : 'bg-white text-gray-600 hover:bg-gray-50 dark:bg-vindex-card dark:text-gray-400 dark:hover:bg-vindex-bg'
-                }`}
-            >
-                {showNetWorth ? <Eye size={16} /> : <EyeOff size={16} />}
-                <span className="hidden sm:inline">{t('accounts.net_worth')}</span>
-                <span className="sm:hidden">{t('accounts.net_worth_short')}</span>
-            </Button>
-
             <div className="flex items-center gap-4">
                 <ViewToggle value={viewMode} onChange={handleViewModeChange} className="h-[42px]" />
 
@@ -164,11 +149,10 @@ const Accounts = () => {
         </div>
       </div>
 
-      <AssetLiabilityChart 
+      <AssetLiabilityChart
         totalAssets={totalAssets}
         totalLiabilities={totalLiabilities}
         filteredTransactions={transactions}
-        showNetWorth={showNetWorth}
         dateFilter={dateFilter}
       />
 
@@ -217,7 +201,7 @@ const Accounts = () => {
                     <div className="flex justify-between items-center mb-2">
                       <div>
                         <p className="text-sm text-gray-700 dark:text-gray-300 mb-1">{t('accounts.current_invoice')}</p>
-                        <p className="text-2xl font-bold text-red-600 dark:text-vindex-danger crypto-symbol">
+                        <p className="text-2xl font-bold crypto-symbol" style={{ color: DANGER }}>
                           {formatCurrencyWithSymbol(account.current_fatura_value || 0, account.currency)}
                         </p>
                       </div>
@@ -232,7 +216,7 @@ const Accounts = () => {
                     <div className="flex justify-between items-center mb-2">
                       <div>
                         <p className="text-sm text-gray-700 dark:text-gray-300 mb-1">{t('accounts.current_balance')}</p>
-                        <p className={`text-2xl font-bold crypto-symbol ${account.balance >= 0 ? 'text-green-600 dark:text-vindex-success' : 'text-red-600 dark:text-vindex-danger'}`}>
+                        <p className="text-2xl font-bold crypto-symbol" style={{ color: account.balance >= 0 ? SUCCESS : DANGER }}>
                           {formatCurrencyWithSymbol(account.balance, account.currency)}
                         </p>
                       </div>
@@ -285,11 +269,11 @@ const Accounts = () => {
                                </td>
                                <td className="px-6 py-4">
                                   {(account.type === 'credit_card' || account.account_subtype === 'credit_card') ? (
-                                     <span className="font-bold text-red-600 dark:text-vindex-danger crypto-symbol">
+                                     <span className="font-bold crypto-symbol" style={{ color: DANGER }}>
                                        {formatCurrencyWithSymbol(account.current_fatura_value || 0, account.currency)}
                                      </span>
                                   ) : (
-                                     <span className={`font-bold crypto-symbol ${account.balance >= 0 ? 'text-green-600 dark:text-vindex-success' : 'text-red-600 dark:text-vindex-danger'}`}>
+                                     <span className="font-bold crypto-symbol" style={{ color: account.balance >= 0 ? SUCCESS : DANGER }}>
                                         {formatCurrencyWithSymbol(account.balance, account.currency)}
                                      </span>
                                   )}

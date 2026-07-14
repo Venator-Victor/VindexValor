@@ -44,7 +44,7 @@ const TopCategoriesSection = ({ transactions, categories, dateFilter }) => {
 
   return (
     <div className="bg-white dark:bg-vindex-card rounded-xl p-6 border border-gray-200 dark:border-vindex-border shadow-sm h-full flex flex-col">
-      <div className="flex items-center justify-between mb-6 shrink-0">
+      <div className="flex items-center justify-between mb-4 shrink-0">
         <h3 className="text-lg font-bold text-gray-900 dark:text-gray-50 flex items-center gap-2">
             <PieChartAlt2 size={20} className="text-blue-500" />
             {t('nav.categories')}
@@ -54,51 +54,51 @@ const TopCategoriesSection = ({ transactions, categories, dateFilter }) => {
         </span>
       </div>
 
-      <div className="space-y-4 flex-1 overflow-y-auto overflow-x-hidden max-h-[400px] pr-2 custom-scrollbar">
+      <div className="overflow-y-auto overflow-x-hidden flex-1 pr-2 -mr-2 space-y-2 custom-scrollbar">
         {categoryStats.length > 0 ? (
           categoryStats.map((cat, index) => (
-            <motion.div 
+            <motion.div
               key={cat.name}
               initial={{ opacity: 0, x: -10 }}
               animate={{ opacity: 1, x: 0 }}
               transition={{ delay: index * 0.1 }}
               onClick={() => navigate('/transactions', { state: { filterCategoryId: cat.id || 'null' } })}
-              className="group cursor-pointer hover:bg-gray-50 dark:hover:bg-gray-800/50 p-2 -mx-2 rounded-lg transition-colors"
+              className="p-3 hover:bg-gray-50 dark:hover:bg-gray-800/50 rounded-lg transition-colors border border-transparent hover:border-gray-100 dark:hover:border-gray-800 cursor-pointer"
             >
-              <div className="flex justify-between items-center mb-2">
-                <div className="flex items-center gap-3">
-                  <div 
-                    className="w-8 h-8 rounded-full flex items-center justify-center text-white text-xs shadow-sm shrink-0"
-                    style={{ backgroundColor: cat.color }}
+              <div className="flex items-center justify-between gap-3">
+                <div className="flex items-center gap-3 overflow-hidden">
+                  <div
+                    className="w-9 h-9 rounded-full flex items-center justify-center shrink-0 border"
+                    style={{ backgroundColor: cat.color + '22', color: cat.color, borderColor: cat.color + '44' }}
                   >
-                    <BxIcon iconClass={cat.icon} size={14} />
+                    <BxIcon iconClass={cat.icon} size={18} />
                   </div>
-                  <span className="font-medium text-gray-700 dark:text-gray-300 text-sm truncate max-w-[120px]" title={cat.name}>
+                  <p className="font-medium text-gray-900 dark:text-gray-100 text-sm truncate max-w-[140px] sm:max-w-[180px]" title={cat.name}>
                     {cat.name}
-                  </span>
+                  </p>
                 </div>
-                <div className="text-right shrink-0">
-                  <span className="block font-bold text-gray-900 dark:text-gray-50 text-sm">
+                <div className="text-right shrink-0 pl-2">
+                  <span className="block font-bold text-gray-900 dark:text-gray-50 text-sm whitespace-nowrap">
                     {formatCurrency(cat.amount)}
                   </span>
-                  <span className="text-xs text-gray-500 dark:text-gray-400">
+                  <span className="text-[10px] text-gray-400 whitespace-nowrap">
                     {cat.percentage.toFixed(1)}%
                   </span>
                 </div>
               </div>
-              <div className="h-2 w-full bg-gray-100 dark:bg-gray-800 rounded-full overflow-hidden">
-                <div 
+              <div className="h-1.5 w-full bg-gray-100 dark:bg-gray-800 rounded-full overflow-hidden mt-2">
+                <div
                   className="h-full rounded-full transition-all duration-500 ease-out"
-                  style={{ 
+                  style={{
                     width: `${cat.percentage}%`,
-                    backgroundColor: cat.color 
+                    backgroundColor: cat.color
                   }}
                 />
               </div>
             </motion.div>
           ))
         ) : (
-          <div className="flex flex-col items-center justify-center h-48 text-gray-400">
+          <div className="flex flex-col items-center justify-center h-full text-gray-400 pb-8">
             <BarChart size={40} className="mb-2" />
             <p className="text-sm">{t('dashboard.no_data_this_period')}</p>
           </div>
