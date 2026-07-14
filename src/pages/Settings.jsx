@@ -304,7 +304,7 @@ const Settings = () => {
                 <img src="/VindexValor.png" alt="VindexValor" className="w-20 h-20 mb-4 object-contain" />
                 <h3 className="text-2xl font-bold text-primary mb-1">VindexValor</h3>
                 <p className="text-gray-500 dark:text-vindex-text/70 mb-4">{t('settings.about_tagline')}</p>
-                <span className="px-3 py-1 bg-gray-200 dark:bg-vindex-border rounded-full text-xs font-mono text-gray-700 dark:text-vindex-text">v0.4</span>
+                <span className="px-3 py-1 bg-gray-200 dark:bg-vindex-border rounded-full text-xs font-mono text-gray-700 dark:text-vindex-text">v0.7</span>
               </div>
 
               <div className="space-y-3 text-sm text-gray-500 dark:text-vindex-text/60">
