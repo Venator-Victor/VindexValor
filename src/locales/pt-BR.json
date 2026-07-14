@@ -1102,6 +1102,8 @@
     "budget_corrected": "Orçamento Corrigido",
     "chart_show_impact": "Mostrar impacto da inflação (corrigido - nominal)",
     "chart_hide_impact": "Mostrar nominal e corrigido separadamente",
+    "chart_show_value": "Mostrar valor em R$ perdido",
+    "chart_hide_value": "Mostrar visão em porcentagem",
     "impact_label": "Impacto da inflação",
     "rate_this_month": "Inflação no mês:",
     "estimated_badge": "Est.",

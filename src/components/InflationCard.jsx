@@ -6,7 +6,7 @@ import { AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContai
 import { formatCurrency } from '@/utils/calculations';
 import { useTheme } from '@/context/ThemeContext';
 import { useIsMobile } from '@/hooks/use-mobile';
-import { InfoCircle as Info, AlertCircle, RefreshCw, TrendingDown, GridLines } from '@/components/BxIcon';
+import { AlertCircle, RefreshCw, GridLines, Equal, TrendingDown } from '@/components/BxIcon';
 import { supabase } from '@/lib/customSupabaseClient';
 import { Button } from '@/components/ui/button';
 const Loader2 = RefreshCw;
@@ -16,16 +16,26 @@ import {
   TooltipTrigger,
 } from "@/components/ui/tooltip";
 
-const CustomTooltip = ({ active, payload, label, t }) => {
+const REFERENCE_AMOUNT = 1000;
+
+const formatYAxisValue = (v) => {
+  if (Math.abs(v) >= 1_000_000) return `${(v / 1_000_000).toFixed(1)}M`;
+  if (Math.abs(v) >= 1_000) return `${(v / 1_000).toFixed(0)}k`;
+  return v;
+};
+
+const CustomTooltip = ({ active, payload, label, showValue, t }) => {
   if (active && payload && payload.length) {
     return (
       <div className="bg-white dark:bg-vindex-card p-3 border border-gray-200 dark:border-vindex-border rounded-lg shadow-lg">
         <p className="text-xs text-gray-500 mb-2">{label}</p>
         {payload.map((entry, index) => (
           <div key={index} className="flex items-center justify-between gap-4 mb-1">
-            <span className="text-sm text-gray-600 dark:text-gray-300">{t('inflation.cumulative_tooltip')}</span>
+            <span className="text-sm text-gray-600 dark:text-gray-300">
+              {showValue ? t('inflation.purchasing_power_loss') : t('inflation.cumulative_tooltip')}
+            </span>
             <span className="text-sm font-bold font-mono" style={{ color: entry.color }}>
-              {entry.value.toFixed(2)}%
+              {showValue ? formatCurrency(entry.value) : `${entry.value.toFixed(2)}%`}
             </span>
           </div>
         ))}
@@ -55,6 +65,9 @@ const ALL_YEARS = Array.from(
   (_, i) => String(FIRST_YEAR + i)
 );
 
+// Same card shell/icon/header pattern as the dashboard charts (AssetLiabilityChart,
+// BudgetConsumptionChart, etc.) — GridLines toggles axis labels, Equal swaps the
+// cumulative-% line for its R$ purchasing-power-loss equivalent.
 const InflationCard = ({ currentBalance }) => {
   const { t } = useTranslation();
   const PERIOD_OPTIONS = [
@@ -75,6 +88,7 @@ const InflationCard = ({ currentBalance }) => {
   const [syncing, setSyncing] = useState(false);
   const [error, setError] = useState(null);
   const [showAxis, setShowAxis] = useState(true);
+  const [showValue, setShowValue] = useState(false);
 
   // 'period' | 'range' | 'all'
   const [mode, setMode] = useState('period');
@@ -153,9 +167,11 @@ const InflationCard = ({ currentBalance }) => {
 
     const data = filteredData.map((item, i) => {
       const [year, month] = item.period.split('-');
+      const cumulative = parseFloat(((compounds[i] - 1) * 100).toFixed(2));
       return {
         name: `${month}/${year}`,
-        cumulative: parseFloat(((compounds[i] - 1) * 100).toFixed(2)),
+        cumulative,
+        worth: parseFloat((REFERENCE_AMOUNT / (1 + cumulative / 100)).toFixed(2)),
       };
     });
 
@@ -164,6 +180,8 @@ const InflationCard = ({ currentBalance }) => {
       totalCumulative: data.length ? data[data.length - 1].cumulative : 0,
     };
   }, [filteredData]);
+
+  const currentWorth = REFERENCE_AMOUNT / (1 + totalCumulative / 100);
 
   const isShortPeriod = chartData.length <= 36;
   const isVeryLongPeriod = chartData.length > 60;
@@ -181,10 +199,6 @@ const InflationCard = ({ currentBalance }) => {
   const xAxisTickFormatter = (value) =>
     isShortPeriod ? value : value.substring(3);
 
-  const periodStartYear = filteredData.length
-    ? filteredData[0].period.substring(0, 4)
-    : String(FIRST_YEAR);
-
   const modeButtonClass = (m) =>
     `px-3 py-1 text-sm rounded-md transition-colors ${
       mode === m
@@ -194,8 +208,8 @@ const InflationCard = ({ currentBalance }) => {
 
   if (error) {
     return (
-      <div className="bg-white dark:bg-vindex-card rounded-2xl p-6 border border-red-200 dark:border-red-400/30 shadow-lg flex flex-col items-center justify-center h-[300px]">
-        <AlertCircle className="w-10 h-10 text-red-500 mb-3" />
+      <div className="bg-white dark:bg-vindex-card rounded-2xl p-6 border border-gray-200 dark:border-vindex-border shadow-sm flex flex-col items-center justify-center h-[300px]">
+        <AlertCircle className="w-10 h-10 text-red-400 mb-3" />
         <p className="text-gray-900 dark:text-white font-medium mb-2">{t('common.error_loading')}</p>
         <p className="text-sm text-gray-500 dark:text-gray-400 text-center mb-4">{error}</p>
         <Button variant="outline" size="sm" onClick={() => window.location.reload()}>
@@ -209,94 +223,98 @@ const InflationCard = ({ currentBalance }) => {
     <motion.div
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
-      className="bg-white dark:bg-vindex-card rounded-2xl p-6 border border-red-200 dark:border-red-400/30 shadow-lg relative overflow-hidden group transition-colors duration-300"
+      className="bg-white dark:bg-vindex-card rounded-2xl p-6 border border-gray-200 dark:border-vindex-border shadow-sm mb-6 relative"
     >
-      <div className="absolute top-0 right-0 p-4 opacity-5 dark:opacity-10 group-hover:opacity-10 dark:group-hover:opacity-20 transition-opacity">
-        <TrendingDown size={144} className="text-red-400" />
+      <UiTooltip delayDuration={100}>
+        <TooltipTrigger asChild>
+          <button
+              type="button"
+              onClick={() => setShowAxis(v => !v)}
+              className={`absolute top-4 left-4 p-1.5 rounded-md transition-colors z-10 ${
+                showAxis
+                  ? 'text-primary hover:bg-primary/10'
+                  : 'text-gray-400 hover:text-gray-600 hover:bg-gray-100 dark:text-gray-500 dark:hover:text-gray-300 dark:hover:bg-vindex-bg'
+              }`}
+          >
+              <GridLines size={16} />
+          </button>
+        </TooltipTrigger>
+        <TooltipContent>{showAxis ? t('common.hide_axis_labels') : t('common.show_axis_labels')}</TooltipContent>
+      </UiTooltip>
+      <UiTooltip delayDuration={100}>
+        <TooltipTrigger asChild>
+          <button
+              type="button"
+              onClick={() => setShowValue(v => !v)}
+              className={`absolute top-4 right-4 p-1.5 rounded-md transition-colors z-10 ${
+                showValue
+                  ? 'text-primary hover:bg-primary/10'
+                  : 'text-gray-400 hover:text-gray-600 hover:bg-gray-100 dark:text-gray-500 dark:hover:text-gray-300 dark:hover:bg-vindex-bg'
+              }`}
+          >
+              <Equal size={16} />
+          </button>
+        </TooltipTrigger>
+        <TooltipContent>{showValue ? t('inflation.chart_hide_value') : t('inflation.chart_show_value')}</TooltipContent>
+      </UiTooltip>
+
+      {/* Title */}
+      <div className="text-center pt-2 mb-6">
+        <h3 className="text-lg font-bold text-gray-900 dark:text-gray-50 flex items-center justify-center gap-2">
+          <TrendingDown className="w-5 h-5 text-red-400" />
+          {t('inflation.card_title')}
+        </h3>
+        <p className="text-sm text-gray-500 dark:text-gray-400 mt-1">
+          {t('inflation.card_tooltip')}
+        </p>
       </div>
 
-      {/* Header */}
-      <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-6 relative z-10 gap-4">
-        <h2 className="text-xl font-bold text-gray-900 dark:text-vindex-text flex items-center gap-2">
-          <TrendingDown size={20} className="text-red-400" />
-          {t('inflation.card_title')}
-          <UiTooltip delayDuration={100}>
-            <TooltipTrigger>
-              <Info className="w-4 h-4 text-gray-500 dark:text-vindex-text/50" />
-            </TooltipTrigger>
-            <TooltipContent className="bg-white dark:bg-vindex-card border border-gray-200 dark:border-vindex-border">
-              <p className="text-gray-900 dark:text-vindex-text">{t('inflation.card_tooltip')}</p>
-            </TooltipContent>
-          </UiTooltip>
-        </h2>
+      {/* Mode + range controls */}
+      <div className="flex flex-wrap items-center justify-center gap-2 mb-6">
+        <div className="flex items-center gap-1 bg-gray-100 dark:bg-vindex-bg rounded-lg p-1">
+          <button className={modeButtonClass('period')} onClick={() => setMode('period')}>{t('inflation.mode_period')}</button>
+          <button className={modeButtonClass('range')} onClick={() => setMode('range')}>{t('inflation.mode_range')}</button>
+          <button className={modeButtonClass('all')} onClick={() => setMode('all')}>{t('inflation.mode_all')}</button>
+        </div>
 
-        {/* Mode toggle + controls */}
-        <div className="flex flex-col items-end gap-2">
-          {/* Mode buttons */}
+        {mode === 'period' && (
+          <StyledSelect value={selectedMonths} onChange={(e) => setSelectedMonths(Number(e.target.value))}>
+            {PERIOD_OPTIONS.map(opt => (
+              <option key={opt.months} value={opt.months}>{t('inflation.last_period', { period: opt.label })}</option>
+            ))}
+          </StyledSelect>
+        )}
+
+        {mode === 'range' && (
           <div className="flex items-center gap-2">
-            <div className="flex items-center gap-1 bg-gray-100 dark:bg-vindex-bg rounded-lg p-1">
-              <button className={modeButtonClass('period')} onClick={() => setMode('period')}>{t('inflation.mode_period')}</button>
-              <button className={modeButtonClass('range')} onClick={() => setMode('range')}>{t('inflation.mode_range')}</button>
-              <button className={modeButtonClass('all')} onClick={() => setMode('all')}>{t('inflation.mode_all')}</button>
-            </div>
-            <UiTooltip delayDuration={100}>
-              <TooltipTrigger asChild>
-                <button
-                    type="button"
-                    onClick={() => setShowAxis(v => !v)}
-                    className={`p-1.5 rounded-md transition-colors ${
-                      showAxis
-                        ? 'text-primary hover:bg-primary/10'
-                        : 'text-gray-400 hover:text-gray-600 hover:bg-gray-100 dark:text-gray-500 dark:hover:text-gray-300 dark:hover:bg-vindex-bg'
-                    }`}
-                >
-                    <GridLines size={16} />
-                </button>
-              </TooltipTrigger>
-              <TooltipContent>{showAxis ? t('common.hide_axis_labels') : t('common.show_axis_labels')}</TooltipContent>
-            </UiTooltip>
-          </div>
-
-          {/* Controls per mode */}
-          {mode === 'period' && (
-            <StyledSelect value={selectedMonths} onChange={(e) => setSelectedMonths(Number(e.target.value))}>
-              {PERIOD_OPTIONS.map(opt => (
-                <option key={opt.months} value={opt.months}>{t('inflation.last_period', { period: opt.label })}</option>
+            <span className="text-sm text-gray-500 dark:text-vindex-text/60">{t('inflation.range_from')}</span>
+            <StyledSelect
+              value={rangeStart}
+              onChange={(e) => {
+                setRangeStart(e.target.value);
+                if (e.target.value > rangeEnd) setRangeEnd(e.target.value);
+              }}
+            >
+              {ALL_YEARS.map(y => <option key={y} value={y}>{y}</option>)}
+            </StyledSelect>
+            <span className="text-sm text-gray-500 dark:text-vindex-text/60">{t('inflation.range_to')}</span>
+            <StyledSelect value={rangeEnd} onChange={(e) => setRangeEnd(e.target.value)}>
+              {ALL_YEARS.filter(y => y >= rangeStart).map(y => (
+                <option key={y} value={y}>{y}</option>
               ))}
             </StyledSelect>
-          )}
+          </div>
+        )}
 
-          {mode === 'range' && (
-            <div className="flex items-center gap-2">
-              <span className="text-sm text-gray-500 dark:text-vindex-text/60">{t('inflation.range_from')}</span>
-              <StyledSelect
-                value={rangeStart}
-                onChange={(e) => {
-                  setRangeStart(e.target.value);
-                  if (e.target.value > rangeEnd) setRangeEnd(e.target.value);
-                }}
-              >
-                {ALL_YEARS.map(y => <option key={y} value={y}>{y}</option>)}
-              </StyledSelect>
-              <span className="text-sm text-gray-500 dark:text-vindex-text/60">{t('inflation.range_to')}</span>
-              <StyledSelect value={rangeEnd} onChange={(e) => setRangeEnd(e.target.value)}>
-                {ALL_YEARS.filter(y => y >= rangeStart).map(y => (
-                  <option key={y} value={y}>{y}</option>
-                ))}
-              </StyledSelect>
-            </div>
-          )}
-
-          {mode === 'all' && (
-            <span className="text-xs text-gray-400 dark:text-vindex-text/40">
-              {FIRST_YEAR} – {CURRENT_YEAR}
-            </span>
-          )}
-        </div>
+        {mode === 'all' && (
+          <span className="text-xs text-gray-400 dark:text-vindex-text/40">
+            {FIRST_YEAR} – {CURRENT_YEAR}
+          </span>
+        )}
       </div>
 
       {loading ? (
-        <div className="h-64 flex flex-col items-center justify-center gap-2">
+        <div className="h-[250px] flex flex-col items-center justify-center gap-2">
           <Loader2 className="w-8 h-8 animate-spin text-red-400" />
           {syncing && (
             <p className="text-sm text-gray-400 dark:text-vindex-text/50">
@@ -305,58 +323,72 @@ const InflationCard = ({ currentBalance }) => {
           )}
         </div>
       ) : (
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 relative z-10">
-          <div className="md:col-span-2 h-64">
-            <ResponsiveContainer width="100%" height="100%">
-              <AreaChart data={chartData} margin={{ top: 8, right: 12, left: 4, bottom: 8 }}>
-                <defs>
-                  <linearGradient id="colorInflation" x1="0" y1="0" x2="0" y2="1">
-                    <stop offset="5%" stopColor={DANGER} stopOpacity={0.8} />
-                    <stop offset="95%" stopColor={DANGER} stopOpacity={0} />
-                  </linearGradient>
-                </defs>
-                {showAxis && <CartesianGrid strokeDasharray="3 3" stroke={gridColor} vertical={false} />}
-                <XAxis
-                  dataKey="name"
-                  stroke={textColor}
-                  fontSize={12}
-                  tickLine={false}
-                  axisLine={false}
-                  interval={isShortPeriod ? 'preserveStartEnd' : 0}
-                  ticks={xAxisTicks}
-                  tickFormatter={xAxisTickFormatter}
-                  tickMargin={10}
-                  tick={showAxis ? { fontSize: 12, fill: textColor } : false}
-                />
-                <YAxis stroke={textColor} fontSize={12} tickLine={false} axisLine={false} unit="%" tickMargin={8} width={showAxis ? 48 : 0} tick={showAxis ? { fontSize: 12, fill: textColor } : false} />
-                <Tooltip content={<CustomTooltip t={t} />} cursor={{ stroke: chartCursor(isDark) }} />
-                <Area type="monotone" dataKey="cumulative" stroke={DANGER} fillOpacity={1} fill="url(#colorInflation)" />
-              </AreaChart>
-            </ResponsiveContainer>
-          </div>
-
-          <div className="flex flex-col justify-center space-y-4 bg-gray-50 dark:bg-vindex-bg/30 p-4 rounded-lg border border-gray-200 dark:border-vindex-border/30">
-            <div>
-              <p className="text-sm text-gray-500 dark:text-vindex-text/70">{t('inflation.period_inflation_label')}</p>
-              <p className="text-2xl font-bold text-red-400">+{totalCumulative.toFixed(2)}%</p>
+        <>
+          {/* Header Stats */}
+          <div className="flex flex-wrap justify-center gap-8 md:gap-24 mb-6">
+            <div className="text-center">
+              <div className="flex items-center justify-center gap-2 mb-2">
+                <div className="w-3 h-3 rounded" style={{ backgroundColor: DANGER }}></div>
+                <span className="text-gray-500 dark:text-gray-400 font-medium">{t('inflation.period_inflation_label')}</span>
+              </div>
+              <div className="text-3xl font-bold text-gray-900 dark:text-white mb-2 tracking-tight">
+                +{totalCumulative.toFixed(2)}%
+              </div>
             </div>
 
-            <div>
-              <p className="text-sm text-gray-500 dark:text-vindex-text/70">{t('inflation.purchasing_power_loss')}</p>
-              <p className="text-sm text-gray-400 dark:text-vindex-text/50 mb-1">{t('inflation.per_amount_hint', { amount: formatCurrency(1000) })}</p>
-              <p className="text-xl font-bold text-gray-900 dark:text-vindex-text">
-                {t('inflation.today_worth_label')}{' '}
-                <span className="text-red-400">
-                  {formatCurrency(1000 / (1 + totalCumulative / 100))}
-                </span>
-              </p>
-            </div>
-
-            <div className="text-xs text-gray-400 dark:text-vindex-text/50">
-              {t('inflation.purchasing_power_desc', { percent: ((1 + totalCumulative / 100) * 100).toFixed(0), year: periodStartYear })}
+            <div className="text-center">
+              <div className="flex items-center justify-center gap-2 mb-2">
+                <div className="w-3 h-3 rounded" style={{ backgroundColor: DANGER }}></div>
+                <span className="text-gray-500 dark:text-gray-400 font-medium">{t('inflation.purchasing_power_loss')}</span>
+              </div>
+              <div className="text-3xl font-bold text-gray-900 dark:text-white mb-1 tracking-tight">
+                {formatCurrency(currentWorth)}
+              </div>
+              <p className="text-xs text-gray-400 dark:text-vindex-text/50">{t('inflation.per_amount_hint', { amount: formatCurrency(REFERENCE_AMOUNT) })}</p>
             </div>
           </div>
-        </div>
+
+          {/* Chart Area */}
+          <div className="h-[250px] w-full">
+            {chartData.length === 0 ? (
+              <div className="h-full w-full flex items-center justify-center text-sm text-gray-400 dark:text-gray-500">
+                {t('dashboard.chart_no_data')}
+              </div>
+            ) : (
+              <ResponsiveContainer width="100%" height="100%">
+                <AreaChart data={chartData} margin={{ top: 10, right: 10, left: 4, bottom: 0 }}>
+                  <defs>
+                    <linearGradient id="colorInflation" x1="0" y1="0" x2="0" y2="1">
+                      <stop offset="5%" stopColor={DANGER} stopOpacity={0.3} />
+                      <stop offset="95%" stopColor={DANGER} stopOpacity={0} />
+                    </linearGradient>
+                  </defs>
+                  {showAxis && <CartesianGrid strokeDasharray="3 3" stroke={gridColor} vertical={false} />}
+                  <XAxis
+                    dataKey="name"
+                    tickLine={false}
+                    axisLine={false}
+                    interval={isShortPeriod ? 'preserveStartEnd' : 0}
+                    ticks={xAxisTicks}
+                    tickFormatter={xAxisTickFormatter}
+                    dy={10}
+                    tick={showAxis ? { fontSize: 10, fill: textColor } : false}
+                  />
+                  <YAxis
+                    tickLine={false}
+                    axisLine={false}
+                    unit={showValue ? undefined : '%'}
+                    tickFormatter={showValue ? formatYAxisValue : undefined}
+                    width={showAxis ? 40 : 0}
+                    tick={showAxis ? { fontSize: 10, fill: textColor } : false}
+                  />
+                  <Tooltip content={<CustomTooltip showValue={showValue} t={t} />} cursor={{ stroke: chartCursor(isDark) }} />
+                  <Area type="monotone" dataKey={showValue ? 'worth' : 'cumulative'} stroke={DANGER} strokeWidth={2} fillOpacity={1} fill="url(#colorInflation)" />
+                </AreaChart>
+              </ResponsiveContainer>
+            )}
+          </div>
+        </>
       )}
     </motion.div>
   );

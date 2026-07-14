@@ -1102,6 +1102,8 @@
     "budget_corrected": "Adjusted Budget",
     "chart_show_impact": "Show inflation impact (adjusted - nominal)",
     "chart_hide_impact": "Show nominal and adjusted separately",
+    "chart_show_value": "Show currency value lost",
+    "chart_hide_value": "Show percentage view",
     "impact_label": "Inflation impact",
     "rate_this_month": "Inflation this month:",
     "estimated_badge": "Est.",
