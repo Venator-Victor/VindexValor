@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Helmet } from 'react-helmet';
 import { useNavigate } from 'react-router-dom';
-import { Plus, CreditCard, Share as UploadCloud, Receipt, ArrowRight, ArrowUp, ArrowDown, Edit as Edit2, TrashAlt as Trash2 } from '@/components/BxIcon';
+import { Plus, CreditCard, Share as UploadCloud, Receipt, ArrowRight, ArrowUp, ArrowDown, Edit as Edit2, TrashAlt as Trash2, ChevronDown, ChevronRight, Wallet, Repeat, ArrowDownRight, ArrowUpRight } from '@/components/BxIcon';
 import { useFinance } from '@/context/FinanceContext';
 import { useAuth } from '@/context/SupabaseAuthContext';
 import { Button } from '@/components/ui/button';
@@ -34,7 +34,10 @@ const SortIcon = ({ column, sortConfig }) => {
 const InvoicesPage = () => {
   const { t } = useTranslation();
   const { user } = useAuth();
-  const { invoices, fetchInvoices, createInvoice, accounts, settings, saveSettings } = useFinance();
+  const { invoices, fetchInvoices, createInvoice, accounts, settings, saveSettings, fetchInvoiceItems } = useFinance();
+  const [expandedInvoiceId, setExpandedInvoiceId] = useState(null);
+  const [expandedItemsByInvoiceId, setExpandedItemsByInvoiceId] = useState({});
+  const [loadingExpandedId, setLoadingExpandedId] = useState(null);
   const [isLoading, setIsLoading] = useState(true);
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [isImportOpen, setIsImportOpen] = useState(false);
@@ -91,7 +94,7 @@ const InvoicesPage = () => {
     try {
       const { data, error } = await supabase
         .from('invoice_items')
-        .select('invoice_id, amount, is_payment')
+        .select('invoice_id, amount, is_payment, is_carryover')
         .in('invoice_id', ids);
 
       if (error) throw error;
@@ -100,10 +103,13 @@ const InvoicesPage = () => {
       // purchases and refunds, excluding the payment settlement line — not a
       // cumulative carried balance. A payment always settles the *previous*
       // invoice, so folding it into a running total here didn't make sense; the
-      // cumulative view now lives in the chart above the list instead.
+      // cumulative view now lives in the chart above the list instead. Carryover
+      // lines (previous invoice's balance restated as a new line) are excluded too —
+      // that debt already carries forward on its own, so counting it again here
+      // would double-book it as if it were new spending this period.
       const totals = {};
       data.forEach(item => {
-        if (item.is_payment) return;
+        if (item.is_payment || item.is_carryover) return;
         totals[item.invoice_id] = (totals[item.invoice_id] || 0) + Number(item.amount || 0);
       });
       setInvoiceTotals(totals);
@@ -281,6 +287,22 @@ const InvoicesPage = () => {
 
   const handleRowClick = (invoice) => {
     setSelectedDetailInvoice(invoice);
+  };
+
+  // Inline preview toggle — lets you peek at an invoice's items without leaving this
+  // page. Items are fetched once per invoice and cached, not refetched on re-collapse.
+  const toggleExpandInvoice = async (invoiceId) => {
+    if (expandedInvoiceId === invoiceId) {
+      setExpandedInvoiceId(null);
+      return;
+    }
+    setExpandedInvoiceId(invoiceId);
+    if (!expandedItemsByInvoiceId[invoiceId]) {
+      setLoadingExpandedId(invoiceId);
+      const data = await fetchInvoiceItems(invoiceId);
+      setExpandedItemsByInvoiceId(prev => ({ ...prev, [invoiceId]: data || [] }));
+      setLoadingExpandedId(null);
+    }
   };
 
   const requestSort = (key) => {
@@ -496,44 +518,57 @@ const InvoicesPage = () => {
                 <table className="w-full text-sm min-w-[700px] table-fixed">
                   <thead className="bg-gray-50 dark:bg-vindex-bg border-b border-gray-200 dark:border-vindex-border">
                     <tr>
-                      <th className="px-6 py-3 w-[5%] text-center">
+                      <th className="px-2 py-3 w-[4%]"></th>
+                      <th className="px-6 py-3 w-[4%] text-center">
                         <Checkbox
                           checked={selectedInvoices.length === filteredInvoices.length && filteredInvoices.length > 0}
                           onCheckedChange={handleSelectAll}
                           aria-label={t('invoices.select_all')}
                         />
                       </th>
-                      <th className="px-6 py-3 w-[19%] text-left font-medium text-gray-700 dark:text-gray-300">{t('invoices.col_invoice')}</th>
-                      <th className="px-6 py-3 w-[16%] text-left font-medium text-gray-700 dark:text-gray-300">{t('common.account')}</th>
+                      <th className="px-6 py-3 w-[18%] text-left font-medium text-gray-700 dark:text-gray-300">{t('invoices.col_invoice')}</th>
+                      <th className="px-6 py-3 w-[15%] text-left font-medium text-gray-700 dark:text-gray-300">{t('common.account')}</th>
                       <th className="px-6 py-3 w-[14%] align-middle">
                         <button onClick={() => requestSort('opening_date')} className="table-header-sortable justify-start text-gray-700 dark:text-gray-300">
                           {t('invoices.col_opening_date')} <SortIcon column="opening_date" sortConfig={sortConfig} />
                         </button>
                       </th>
-                      <th className="px-6 py-3 w-[15%] align-middle">
+                      <th className="px-6 py-3 w-[14%] align-middle">
                         <button onClick={() => requestSort('amount')} className="table-header-sortable justify-end pl-0 pr-0 ml-auto mr-0 text-gray-700 dark:text-gray-300">
                           {t('invoices.col_total')} <SortIcon column="amount" sortConfig={sortConfig} />
                         </button>
                       </th>
-                      <th className="px-6 py-3 w-[15%] align-middle">
+                      <th className="px-6 py-3 w-[14%] align-middle">
                         <button onClick={() => requestSort('status')} className="table-header-sortable justify-center pl-0 pr-0 ml-auto mr-auto text-gray-700 dark:text-gray-300">
                           {t('invoices.col_status')} <SortIcon column="status" sortConfig={sortConfig} />
                         </button>
                       </th>
-                      <th className="px-6 py-3 w-[16%] text-right font-medium text-gray-700 dark:text-gray-300">{t('common.actions')}</th>
+                      <th className="px-6 py-3 w-[17%] text-right font-medium text-gray-700 dark:text-gray-300">{t('common.actions')}</th>
                     </tr>
                   </thead>
                   <tbody className="divide-y divide-gray-200 dark:divide-vindex-border">
                     {filteredInvoices.map(invoice => {
                       const totalValue = invoiceTotals[invoice.id] || 0;
+                      const isExpanded = expandedInvoiceId === invoice.id;
+                      const expandedItems = expandedItemsByInvoiceId[invoice.id];
                       return (
+                      <React.Fragment key={invoice.id}>
                         <tr
-                          key={invoice.id}
                           className={`cursor-pointer transition-colors ${selectedInvoices.includes(invoice.id) ? 'bg-primary/5 dark:bg-primary/10' : ''}`}
                           onClick={() => handleRowClick(invoice)}
                           onMouseEnter={e => e.currentTarget.style.backgroundColor = PRIMARY + '18'}
                           onMouseLeave={e => e.currentTarget.style.backgroundColor = ''}
                         >
+                          <td className="px-2 py-4 text-center" onClick={(e) => e.stopPropagation()}>
+                            <button
+                              type="button"
+                              onClick={() => toggleExpandInvoice(invoice.id)}
+                              aria-label={isExpanded ? t('invoices.collapse_items') : t('invoices.expand_items')}
+                              className="p-1 rounded-md text-gray-400 hover:text-gray-600 hover:bg-gray-100 dark:hover:text-gray-300 dark:hover:bg-vindex-bg transition-colors"
+                            >
+                              {isExpanded ? <ChevronDown className="h-4 w-4" /> : <ChevronRight className="h-4 w-4" />}
+                            </button>
+                          </td>
                           <td className="px-6 py-4 text-center" onClick={(e) => e.stopPropagation()}>
                             <Checkbox
                               checked={selectedInvoices.includes(invoice.id)}
@@ -583,6 +618,50 @@ const InvoicesPage = () => {
                             </div>
                           </td>
                         </tr>
+                        {isExpanded && (
+                          <tr>
+                            <td colSpan="8" className="px-6 py-4 bg-gray-50 dark:bg-vindex-bg/50 border-t border-gray-200 dark:border-vindex-border">
+                              {loadingExpandedId === invoice.id ? (
+                                <div className="text-center py-4 text-sm text-muted-foreground">{t('invoices.loading')}</div>
+                              ) : !expandedItems || expandedItems.length === 0 ? (
+                                <div className="text-center py-4 text-sm text-muted-foreground">{t('invoice_detail.item_list_empty')}</div>
+                              ) : (
+                                <div className="space-y-2">
+                                  {expandedItems.map(c => {
+                                    const isSaida = Number(c.amount) < 0;
+                                    const valColor = isSaida ? 'text-red-600 dark:text-red-400' : c.amount > 0 ? 'text-green-600 dark:text-green-400' : 'text-foreground';
+                                    return (
+                                      <div key={c.id} className="flex items-center justify-between gap-3 bg-white dark:bg-vindex-card px-4 py-2 rounded-lg border border-gray-200 dark:border-vindex-border text-sm">
+                                        <div className="flex items-center gap-3 min-w-0">
+                                          {c.is_payment ? <Wallet className="w-4 h-4 text-primary shrink-0" />
+                                            : c.is_carryover ? <Repeat className="w-4 h-4 text-amber-600 dark:text-amber-400 shrink-0" />
+                                            : isSaida ? <ArrowDownRight className="w-4 h-4 text-red-600 dark:text-red-400 shrink-0" />
+                                            : <ArrowUpRight className="w-4 h-4 text-green-600 dark:text-green-400 shrink-0" />}
+                                          <span className="truncate text-gray-900 dark:text-gray-50">{c.description}</span>
+                                          {c.categories && (
+                                            <span className="text-xs text-gray-500 dark:text-gray-400 truncate shrink-0">{c.categories.name}</span>
+                                          )}
+                                        </div>
+                                        <span className={`font-semibold whitespace-nowrap ${valColor}`}>
+                                          {c.amount > 0 && '+'}{formatCurrency(c.amount)}
+                                        </span>
+                                      </div>
+                                    );
+                                  })}
+                                  <Button
+                                    variant="ghost"
+                                    size="sm"
+                                    onClick={() => navigate(`/invoices/${invoice.id}`)}
+                                    className="w-full text-primary gap-1"
+                                  >
+                                    {t('invoices.view_purchases')} <ArrowRight className="w-3.5 h-3.5" />
+                                  </Button>
+                                </div>
+                              )}
+                            </td>
+                          </tr>
+                        )}
+                      </React.Fragment>
                       );
                     })}
                   </tbody>

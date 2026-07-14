@@ -4,7 +4,7 @@ import { Dialog, DialogContent, DialogTitle } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
 import { formatCurrency } from '@/utils/calculations';
 import BxIcon, { Edit as Edit2, TrashAlt as Trash2 } from '@/components/BxIcon';
-import { PRIMARY, DANGER, SUCCESS } from '@/utils/colors';
+import { PRIMARY, DANGER, SUCCESS, WARNING } from '@/utils/colors';
 
 const InvoiceItemDetailModal = ({ isOpen, onClose, item, onEdit, onDelete }) => {
   const { t, i18n } = useTranslation();
@@ -12,7 +12,7 @@ const InvoiceItemDetailModal = ({ isOpen, onClose, item, onEdit, onDelete }) => 
   if (!item) return null;
 
   const isExpense = Number(item.amount) < 0;
-  const typeColor = isExpense ? DANGER : SUCCESS;
+  const typeColor = item.is_carryover ? WARNING : isExpense ? DANGER : SUCCESS;
 
   return (
     <Dialog open={isOpen} onOpenChange={(open) => !open && onClose()}>
@@ -44,7 +44,9 @@ const InvoiceItemDetailModal = ({ isOpen, onClose, item, onEdit, onDelete }) => 
             {isExpense ? '-' : '+'}{formatCurrency(Math.abs(item.amount))}
           </p>
           <span className="inline-block mt-2 text-xs font-medium px-2 py-0.5 rounded-full" style={{ backgroundColor: typeColor + '22', color: typeColor }}>
-            {item.is_payment ? t('invoice_detail.item_is_payment_badge') : isExpense ? t('transactions.type_expense') : t('transactions.type_income')}
+            {item.is_payment ? t('invoice_detail.item_is_payment_badge')
+              : item.is_carryover ? t('invoice_detail.item_is_carryover_badge')
+              : isExpense ? t('invoice_detail.item_is_purchase_badge') : t('invoice_detail.item_is_refund_badge')}
           </span>
         </div>
 

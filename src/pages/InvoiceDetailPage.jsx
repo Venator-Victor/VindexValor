@@ -18,7 +18,7 @@ import DeleteConfirmationDialog from '@/components/DeleteConfirmationDialog';
 import { supabase } from '@/lib/customSupabaseClient';
 import { useToast } from '@/components/ui/use-toast';
 import { DANGER } from '@/utils/colors';
-import { computeInvoiceBalances } from '@/utils/invoiceBalance';
+import { computeInvoiceBalances, getEffectiveInvoiceStatus } from '@/utils/invoiceBalance';
 
 const isValidUUID = (id) => {
   const uuidRegex = /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
@@ -30,7 +30,7 @@ const InvoiceDetailPage = () => {
   const { id } = useParams();
   const navigate = useNavigate();
   const { user } = useAuth();
-  const { fetchInvoiceItems, deleteInvoiceItem } = useFinance();
+  const { fetchInvoiceItems, deleteInvoiceItem, categories } = useFinance();
   const { toast } = useToast();
   
   const [invoice, setInvoice] = useState(null);
@@ -133,12 +133,15 @@ const InvoiceDetailPage = () => {
     loadData();
   }, [id]);
 
-  // This invoice's own period activity: purchases and refunds, excluding only the
-  // payment settlement line (which pays off the *previous* invoice, not this one).
-  // "What's currently owed" (which includes carried-in debt) is a separate figure —
-  // see `remaining`/`balance.closingBalance` further down.
+  // This invoice's own period activity: purchases and refunds, excluding the payment
+  // settlement line (which pays off the *previous* invoice, not this one) and any
+  // carryover line (the previous invoice's balance restated as a new line, e.g. "Valor
+  // pendente do mês anterior") — that debt already carries forward on its own via
+  // computeInvoiceBalances, so counting it again here would double-book it as if it
+  // were new spending this period. "What's currently owed" (which includes carried-in
+  // debt) is a separate figure — see `remaining`/`balance.closingBalance` further down.
   const totalSaidas = items
-    .filter(c => !c.is_payment)
+    .filter(c => !c.is_payment && !c.is_carryover)
     .reduce((acc, c) => acc + Number(c.amount || 0), 0);
 
   const handleOpenPaymentModal = () => {
@@ -274,6 +277,10 @@ const InvoiceDetailPage = () => {
         </motion.div>
       </div>
 
+      {/* Once an invoice is paid there's nothing left to link/unlink — showing this
+          section would just be clutter, so it hides here and reappears the moment the
+          invoice goes back to open/closed (e.g. after unlinking a payment). */}
+      {getEffectiveInvoiceStatus(invoice) !== 'paid' && (
       <div className="bg-muted/30 p-5 rounded-xl border">
         <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-4 gap-3">
           <h2 className="text-lg font-bold flex items-center gap-2">
@@ -345,6 +352,7 @@ const InvoiceDetailPage = () => {
           </div>
         )}
       </div>
+      )}
 
       <div className="flex justify-between items-center mt-8">
         <h2 className="text-xl font-bold">{t('invoice_detail.transactions_title', { count: items.length })}</h2>
@@ -355,6 +363,7 @@ const InvoiceDetailPage = () => {
 
       <InvoiceItemList
         items={items}
+        categories={categories}
         onEdit={handleEditCompra}
         onDelete={(itemId) => setDeleteItemId(itemId)}
         onRowClick={setSelectedDetailItem}
