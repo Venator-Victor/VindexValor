@@ -1149,21 +1149,5 @@
     "year_label": "ano {{year}}",
     "year_unit": "a",
     "interest_over_capital": "Juros > Capital"
-  },
-
-  "account_types": {
-    "title": "Mapeamento de Tipos de Conta",
-    "subtitle": "Consulte a relação entre os tipos de conta e seus subtipos no sistema.",
-    "info_text": "O subtipo de conta (account_subtype) é usado internamente para aplicar regras específicas, como esconder o campo de \"Saldo Inicial\" e exibir \"Limite do Cartão\" para contas do tipo Cartão de Crédito.",
-    "col_type": "Tipo de Conta",
-    "col_subtype": "Subtipo Interno",
-    "col_description": "Descrição",
-    "credit_card_desc": "Conta usada para gerenciar gastos em cartão de crédito, faturas e limites.",
-    "checking_desc": "Conta corrente padrão para movimentações diárias, pagamentos e recebimentos.",
-    "savings_desc": "Conta poupança para guardar dinheiro a longo prazo com baixo risco.",
-    "investment_desc": "Conta destinada a gerenciar seus investimentos em corretoras.",
-    "crypto_desc": "Conta para ativos digitais e criptomoedas (ex: BTC, ETH).",
-    "cash_desc": "Carteira física ou dinheiro em espécie.",
-    "other_desc": "Outros tipos de contas financeiras não categorizadas acima."
   }
 }

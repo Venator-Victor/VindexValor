@@ -19,7 +19,6 @@ import Analytics from '@/pages/Analytics';
 import Goals from '@/pages/Goals';
 import Support from '@/pages/Support';
 import Settings from '@/pages/Settings';
-import AccountTypesConfigPage from '@/pages/AccountTypesConfigPage';
 import LoginPage from '@/pages/LoginPage';
 import SignupPage from '@/pages/SignupPage';
 import ResetPasswordPage from '@/pages/ResetPasswordPage';
@@ -73,8 +72,7 @@ function App() {
                   <Route path="/goals" element={<ProtectedRoute><Layout><Goals /></Layout></ProtectedRoute>} />
                   <Route path="/support" element={<ProtectedRoute><Layout><Support /></Layout></ProtectedRoute>} />
                   <Route path="/settings" element={<ProtectedRoute><Layout><Settings /></Layout></ProtectedRoute>} />
-                  <Route path="/account-types-config" element={<ProtectedRoute><Layout><AccountTypesConfigPage /></Layout></ProtectedRoute>} />
-                  
+
                   {/* Fallback Route */}
                   <Route path="*" element={<Navigate to="/" replace />} />
                 </Routes>

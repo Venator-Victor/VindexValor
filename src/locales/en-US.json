@@ -1149,21 +1149,5 @@
     "year_label": "year {{year}}",
     "year_unit": "y",
     "interest_over_capital": "Interest > Capital"
-  },
-
-  "account_types": {
-    "title": "Account Type Mapping",
-    "subtitle": "Reference the relationship between account types and their subtypes in the system.",
-    "info_text": "The account subtype (account_subtype) is used internally to apply specific rules, such as hiding the \"Initial Balance\" field and showing \"Card Limit\" for Credit Card accounts.",
-    "col_type": "Account Type",
-    "col_subtype": "Internal Subtype",
-    "col_description": "Description",
-    "credit_card_desc": "Account used to manage credit card spending, invoices, and limits.",
-    "checking_desc": "Standard checking account for daily transactions, payments, and receipts.",
-    "savings_desc": "Savings account to store money long-term with low risk.",
-    "investment_desc": "Account for managing investments at brokerages.",
-    "crypto_desc": "Account for digital assets and cryptocurrencies (e.g. BTC, ETH).",
-    "cash_desc": "Physical wallet or cash.",
-    "other_desc": "Other financial account types not categorized above."
   }
 }
