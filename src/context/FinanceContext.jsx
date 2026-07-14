@@ -7,7 +7,6 @@ import { useExchangeRate } from '@/hooks/useExchangeRate';
 import { isCryptoCurrency } from '@/utils/calculations';
 import { validateCreditCardAccount } from '@/utils/accountValidation';
 import { sanitizeUserInput } from '@/utils/securityUtils';
-import { computeInvoiceBalances } from '@/utils/invoiceBalance';
 import i18n from '@/i18n';
 
 const FinanceContext = createContext();
@@ -103,7 +102,7 @@ export const FinanceProvider = ({ children }) => {
         supabase.from('accounts').select('id, user_id, name, type, bank, balance, color, created_at, icon, account_subtype, credit_limit, closing_date, due_date, investment_type, expected_return, reload_value, reload_date, total_amount, interest_rate, term_months, amortization_type, holders, initial_balance, currency, crypto_symbol').eq('user_id', user.id),
         supabase.from('categories').select('*').eq('user_id', user.id),
         supabase.from('invoices').select('*, account:accounts(name)').eq('user_id', user.id).order('opening_date', { ascending: false }),
-        supabase.from('invoice_items').select('id, invoice_id, amount, is_payment').eq('user_id', user.id),
+        supabase.from('invoice_items').select('id, invoice_id, amount, is_payment, is_carryover').eq('user_id', user.id),
         supabase.from('settings').select('*').eq('user_id', user.id).maybeSingle(),
         supabase.from('recurring_items').select('*, categories(name, color)').eq('user_id', user.id).order('next_date', { ascending: true }),
         supabase.from('recurring_installments').select('*').eq('user_id', user.id),
@@ -231,28 +230,47 @@ export const FinanceProvider = ({ children }) => {
     return rates;
   }, [fetchedExchangeRates, accounts]);
 
-  // Per-invoice running balances (purchases minus linked payments, carried across
-  // billing cycles) — the same calculation the Invoices page's own "Total" column
-  // uses, computed once here so credit card accounts can surface their current debt.
-  const invoiceBalancesByInvoiceId = useMemo(() => {
-    const itemsByInvoiceId = {};
-    invoiceItems.forEach(item => {
-      if (!itemsByInvoiceId[item.invoice_id]) itemsByInvoiceId[item.invoice_id] = [];
-      itemsByInvoiceId[item.invoice_id].push(item);
+  // Lifetime credit-card debt ledger: every invoice_item ever recorded for the
+  // account (expenses minus is_payment settlements, carryover lines excluded since
+  // the debt they restate was already counted the month it was first charged) plus
+  // every linked transaction payment, summed across the account's *entire* invoice
+  // history. Deliberately ignores each invoice's 'paid' status — that only marks one
+  // invoice settled, it doesn't erase the card's running total the way a per-invoice
+  // closing balance would.
+  const creditCardLedgerByAccountId = useMemo(() => {
+    const invoiceIdsByAccountId = {};
+    invoices.forEach(inv => {
+      if (!invoiceIdsByAccountId[inv.account_id]) invoiceIdsByAccountId[inv.account_id] = new Set();
+      invoiceIdsByAccountId[inv.account_id].add(inv.id);
     });
 
-    // Any transaction can be linked as a payment (expense/transfer/payment — see
-    // InvoicePaymentLinkModal's eligible-payments query), so what actually settles an
-    // invoice is invoice_id being set, not the transaction's type.
-    const paymentsByInvoiceId = {};
-    transactions.forEach(tx => {
-      if (!tx.invoice_id) return;
-      if (!paymentsByInvoiceId[tx.invoice_id]) paymentsByInvoiceId[tx.invoice_id] = [];
-      paymentsByInvoiceId[tx.invoice_id].push(tx);
-    });
+    const ledger = {};
+    accounts.forEach(acc => {
+      const isCreditCard = acc.type === 'credit_card' || acc.account_subtype === 'credit_card';
+      if (!isCreditCard) return;
 
-    return computeInvoiceBalances(invoices, itemsByInvoiceId, paymentsByInvoiceId);
-  }, [invoices, invoiceItems, transactions]);
+      const accountInvoiceIds = invoiceIdsByAccountId[acc.id] || new Set();
+      let total = 0;
+
+      invoiceItems.forEach(item => {
+        if (!accountInvoiceIds.has(item.invoice_id) || item.is_carryover) return;
+        // Expense items are already stored negative, is_payment items positive
+        // (see InvoiceItemForm) — summing raw nets them against each other.
+        total += Number(item.amount || 0);
+      });
+
+      // Any transaction can be linked as a payment (expense/transfer/payment — see
+      // InvoicePaymentLinkModal's eligible-payments query), so what actually settles
+      // an invoice is invoice_id being set, not the transaction's type.
+      transactions.forEach(tx => {
+        if (!tx.invoice_id || !accountInvoiceIds.has(tx.invoice_id)) return;
+        total -= Math.abs(Number(tx.amount || 0));
+      });
+
+      ledger[acc.id] = total;
+    });
+    return ledger;
+  }, [accounts, invoices, invoiceItems, transactions]);
 
   const calculatedAccounts = useMemo(() => {
     return accounts.map(acc => {
@@ -261,20 +279,20 @@ export const FinanceProvider = ({ children }) => {
         return { ...acc, balance: accountBalances[acc.id] ?? acc.initial_balance ?? 0 };
       }
 
-      // "Current invoice" debt = the most recent invoice's carried closing balance
-      // (negative = owed, positive/zero = nothing owed or a credit).
-      const latestInvoice = invoices
-        .filter(inv => inv.account_id === acc.id)
-        .sort((a, b) => new Date(b.closing_date) - new Date(a.closing_date) || new Date(b.opening_date) - new Date(a.opening_date))[0];
-      const closingBalance = latestInvoice ? (invoiceBalancesByInvoiceId[latestInvoice.id]?.closingBalance ?? 0) : 0;
+      // Negative = owed, positive/zero = nothing owed or a credit.
+      const total = creditCardLedgerByAccountId[acc.id] ?? 0;
+      const currentFaturaValue = total < 0 ? Math.abs(total) : 0;
 
       return {
         ...acc,
         balance: accountBalances[acc.id] ?? acc.initial_balance ?? 0,
-        current_fatura_value: closingBalance < 0 ? Math.abs(closingBalance) : 0,
+        current_fatura_value: currentFaturaValue,
+        // Negative here means the card's currently over its limit, not just "none
+        // left" — surfaced as-is rather than clamped to 0, since that's real signal.
+        available_limit: (Number(acc.credit_limit) || 0) - currentFaturaValue,
       };
     });
-  }, [accounts, accountBalances, invoices, invoiceBalancesByInvoiceId]);
+  }, [accounts, accountBalances, creditCardLedgerByAccountId]);
 
   // Fatura Operations
   const fetchInvoices = async () => {
@@ -316,7 +334,7 @@ export const FinanceProvider = ({ children }) => {
       .select()
       .single();
     if (error) throw error;
-    setInvoiceItems(prev => [...prev, { id: data.id, invoice_id: data.invoice_id, amount: data.amount, is_payment: data.is_payment }]);
+    setInvoiceItems(prev => [...prev, { id: data.id, invoice_id: data.invoice_id, amount: data.amount, is_payment: data.is_payment, is_carryover: data.is_carryover }]);
     return data;
   };
 
@@ -330,7 +348,7 @@ export const FinanceProvider = ({ children }) => {
       .select()
       .single();
     if (error) throw error;
-    setInvoiceItems(prev => prev.map(item => item.id === id ? { id: data.id, invoice_id: data.invoice_id, amount: data.amount, is_payment: data.is_payment } : item));
+    setInvoiceItems(prev => prev.map(item => item.id === id ? { id: data.id, invoice_id: data.invoice_id, amount: data.amount, is_payment: data.is_payment, is_carryover: data.is_carryover } : item));
     return data;
   };
 

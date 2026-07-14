@@ -2,15 +2,16 @@ import React from 'react';
 import { useTranslation } from 'react-i18next';
 import { Button } from '@/components/ui/button';
 import { Checkbox } from '@/components/ui/checkbox';
-import { File as FileText, Wallet, AlertCircle } from '@/components/BxIcon';
+import { File as FileText, Wallet, Repeat, AlertCircle } from '@/components/BxIcon';
 import { formatCurrency } from '@/utils/calculations';
 
 // Lets the user confirm/override which imported lines are the credit card's "payment
-// received" settlement (as opposed to a purchase or genuine refund), before anything
-// is written to the database. Auto-suggestions (by description wording or by amount
-// matching what was owed on the previous invoice) are pre-checked but never final on
-// their own — the user always has the last word here.
-const PaymentReviewStep = ({ filesData, onToggle, onBack, onConfirm, showAlreadySettledWarning = false }) => {
+// received" settlement (as opposed to a purchase or genuine refund), or a restatement
+// of the previous invoice's already-owed balance (as opposed to a genuine new
+// purchase), before anything is written to the database. Auto-suggestions (by
+// description wording or by amount matching what was owed on the previous invoice)
+// are pre-checked but never final on their own — the user always has the last word.
+const PaymentReviewStep = ({ filesData, onToggle, onToggleCarryover, onBack, onConfirm, showAlreadySettledWarning = false }) => {
   const { t } = useTranslation();
 
   const formatDate = (dateStr) => {
@@ -37,7 +38,7 @@ const PaymentReviewStep = ({ filesData, onToggle, onBack, onConfirm, showAlready
         {filesData.map((file, fileIdx) => {
           const candidateRows = file.rows
             .map((row, rowIdx) => ({ row, rowIdx }))
-            .filter(({ row }) => Number(row.amount) > 0);
+            .filter(({ row }) => Number(row.amount) > 0 || row.is_carryover);
 
           if (candidateRows.length === 0) return null;
 
@@ -48,27 +49,35 @@ const PaymentReviewStep = ({ filesData, onToggle, onBack, onConfirm, showAlready
                 <span className="truncate">{file.fileName}</span>
               </div>
               <div className="space-y-2">
-                {candidateRows.map(({ row, rowIdx }) => (
-                  <label
-                    key={rowIdx}
-                    className="flex items-center gap-3 p-3 rounded-lg border bg-background hover:border-primary cursor-pointer transition-colors"
-                  >
-                    <Checkbox
-                      checked={row.is_payment}
-                      onCheckedChange={() => onToggle(fileIdx, rowIdx)}
-                    />
-                    <div className="min-w-0 flex-1">
-                      <p className="text-sm font-medium text-foreground truncate" title={row.description}>{row.description}</p>
-                      <p className="text-xs text-muted-foreground">{formatDate(row.date)}</p>
-                    </div>
-                    <span className="text-sm font-semibold text-green-600 dark:text-green-400 whitespace-nowrap">
-                      {formatCurrency(row.amount)}
-                    </span>
-                    {row.is_payment && (
-                      <Wallet className="w-4 h-4 text-primary shrink-0" />
-                    )}
-                  </label>
-                ))}
+                {candidateRows.map(({ row, rowIdx }) => {
+                  const isCarryoverRow = Number(row.amount) < 0;
+                  const checked = isCarryoverRow ? row.is_carryover : row.is_payment;
+                  const onCheckedChange = () => (isCarryoverRow ? onToggleCarryover : onToggle)(fileIdx, rowIdx);
+
+                  return (
+                    <label
+                      key={rowIdx}
+                      className="flex items-center gap-3 p-3 rounded-lg border bg-background hover:border-primary cursor-pointer transition-colors"
+                    >
+                      <Checkbox checked={checked} onCheckedChange={onCheckedChange} />
+                      <div className="min-w-0 flex-1">
+                        <p className="text-sm font-medium text-foreground truncate" title={row.description}>{row.description}</p>
+                        <p className="text-xs text-muted-foreground">
+                          {formatDate(row.date)}
+                          {isCarryoverRow && ` · ${t('invoices.review_carryover_hint')}`}
+                        </p>
+                      </div>
+                      <span className={`text-sm font-semibold whitespace-nowrap ${isCarryoverRow ? 'text-red-600 dark:text-red-400' : 'text-green-600 dark:text-green-400'}`}>
+                        {formatCurrency(row.amount)}
+                      </span>
+                      {checked && (
+                        isCarryoverRow
+                          ? <Repeat className="w-4 h-4 text-primary shrink-0" />
+                          : <Wallet className="w-4 h-4 text-primary shrink-0" />
+                      )}
+                    </label>
+                  );
+                })}
               </div>
             </div>
           );

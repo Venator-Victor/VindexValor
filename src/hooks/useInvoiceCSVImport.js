@@ -113,9 +113,11 @@ export const useInvoiceCSVImport = () => {
         parcel_number: current,
         total_parcels: total,
         // Whether this line is the "payment received" settlement for the *previous*
-        // invoice is only ever suggested (see suggestIsPayment) and confirmed by the
-        // user in the import review step — never decided silently here.
-        is_payment: false
+        // invoice, or a restatement of the previous invoice's already-owed balance, is
+        // only ever suggested (see suggestIsPayment/suggestIsCarryover) and confirmed
+        // by the user in the import review step — never decided silently here.
+        is_payment: false,
+        is_carryover: false
       };
     });
   };
@@ -136,7 +138,8 @@ export const useInvoiceCSVImport = () => {
         is_installment: t.is_installment,
         parcel_number: t.parcel_number,
         total_parcels: t.total_parcels,
-        is_payment: t.is_payment || false
+        is_payment: t.is_payment || false,
+        is_carryover: t.is_carryover || false
       }));
 
       const { data, error } = await supabase.from('invoice_items').insert(dbData).select();

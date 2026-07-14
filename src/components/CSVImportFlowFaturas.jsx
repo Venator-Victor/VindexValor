@@ -9,7 +9,7 @@ import { Share as UploadCloud, AlertCircle, File as FileText, RefreshCw as Loade
 import { useToast } from '@/components/ui/use-toast';
 import { supabase } from '@/lib/customSupabaseClient';
 import { computeInvoiceBalances } from '@/utils/invoiceBalance';
-import { suggestIsPayment } from '@/utils/paymentDetection';
+import { suggestIsPayment, suggestIsCarryover } from '@/utils/paymentDetection';
 import MultiFileImportResults from './MultiFileImportResults';
 import ColumnMappingStep from './ColumnMappingStep';
 import PaymentReviewStep from './PaymentReviewStep';
@@ -138,7 +138,8 @@ const CSVImportFlowFaturas = ({ onSuccess, onCancel }) => {
         const { data: rawData } = await parseFilesRaw([file]);
         const rows = applyMapping(rawData, mapping).map(row => ({
           ...row,
-          is_payment: suggestIsPayment(row, referenceBalance)
+          is_payment: suggestIsPayment(row, referenceBalance),
+          is_carryover: suggestIsCarryover(row, referenceBalance)
         }));
         data.push({ fileName: file.name, rows });
 
@@ -147,7 +148,7 @@ const CSVImportFlowFaturas = ({ onSuccess, onCancel }) => {
       }
       setFilesData(data);
 
-      const hasCandidates = data.some(f => f.rows.some(r => Number(r.amount) > 0));
+      const hasCandidates = data.some(f => f.rows.some(r => Number(r.amount) > 0 || r.is_carryover));
       setStep(hasCandidates ? 'review-payments' : 'processing');
       // Pass the just-fetched value directly rather than relying on the
       // setPreviousInvoice state update above, which hasn't flushed yet here.
@@ -163,6 +164,13 @@ const CSVImportFlowFaturas = ({ onSuccess, onCancel }) => {
     setFilesData(prev => prev.map((f, fi) => fi !== fileIdx ? f : {
       ...f,
       rows: f.rows.map((r, ri) => ri !== rowIdx ? r : { ...r, is_payment: !r.is_payment })
+    }));
+  };
+
+  const toggleCarryoverFlag = (fileIdx, rowIdx) => {
+    setFilesData(prev => prev.map((f, fi) => fi !== fileIdx ? f : {
+      ...f,
+      rows: f.rows.map((r, ri) => ri !== rowIdx ? r : { ...r, is_carryover: !r.is_carryover })
     }));
   };
 
@@ -280,6 +288,7 @@ const CSVImportFlowFaturas = ({ onSuccess, onCancel }) => {
       <PaymentReviewStep
         filesData={filesData}
         onToggle={togglePaymentFlag}
+        onToggleCarryover={toggleCarryoverFlag}
         onBack={() => setStep('mapping')}
         onConfirm={() => processBatch(filesData)}
         showAlreadySettledWarning={previousInvoice.hasLinkedPayment}
