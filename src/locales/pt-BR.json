@@ -164,7 +164,7 @@
 
   "transactions": {
     "title": "Transações",
-    "subtitle": "Gerencie suas movimentações e pagamentos",
+    "subtitle": "Gerencie o que entra e sai das suas contas",
     "new": "Nova Transação",
     "edit": "Editar Transação",
     "import_csv": "Importar CSV",
@@ -234,7 +234,7 @@
 
   "accounts": {
     "title": "Contas",
-    "subtitle": "Gerencie suas contas bancárias e carteiras de cripto",
+    "subtitle": "Gerencie contas bancárias, cartões, investimentos, dinheiro e outros ativos",
     "count_label": "{{count}} contas",
     "new": "Nova Conta",
     "bank_institution": "Banco / Instituição",
@@ -556,7 +556,7 @@
 
   "invoices": {
     "title": "Faturas",
-    "subtitle": "Gerencie faturas e importações de cartão de crédito",
+    "subtitle": "Gerencie faturas e dívidas do cartão de crédito",
     "new": "Nova Fatura",
     "new_short": "Nova",
     "create_title": "Criar Nova Fatura",

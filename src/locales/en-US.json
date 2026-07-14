@@ -164,7 +164,7 @@
 
   "transactions": {
     "title": "Transactions",
-    "subtitle": "Manage your transactions and payments",
+    "subtitle": "Manage what comes in and out of your accounts",
     "new": "New Transaction",
     "edit": "Edit Transaction",
     "import_csv": "Import CSV",
@@ -234,7 +234,7 @@
 
   "accounts": {
     "title": "Accounts",
-    "subtitle": "Manage your bank accounts and crypto wallets",
+    "subtitle": "Manage bank accounts, cards, investments, cash and other assets",
     "count_label": "{{count}} accounts",
     "new": "New Account",
     "bank_institution": "Bank / Institution",
@@ -556,7 +556,7 @@
 
   "invoices": {
     "title": "Invoices",
-    "subtitle": "Manage invoices and credit card imports",
+    "subtitle": "Manage invoices and credit card debt",
     "new": "New Invoice",
     "new_short": "New",
     "create_title": "Create New Invoice",
