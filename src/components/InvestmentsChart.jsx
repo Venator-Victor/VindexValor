@@ -139,7 +139,7 @@ const InvestmentsChart = ({ data = [] }) => {
                   <stop offset="95%" stopColor={profitColor} stopOpacity={0}/>
                 </linearGradient>
               </defs>
-              {showAxis && <CartesianGrid strokeDasharray="3 3" vertical={false} stroke={chartGrid(isDark)} />}
+              {showAxis && <CartesianGrid yAxisId="value" strokeDasharray="3 3" vertical={false} stroke={chartGrid(isDark)} />}
               <XAxis
                 dataKey="xKey"
                 tickFormatter={(xKey) => data[xKey]?.displayDate ?? ''}
