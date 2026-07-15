@@ -8,7 +8,11 @@ const CircularProgressBar = ({ current, max, size = 60, strokeWidth = 5, showBud
   const radius = (size - strokeWidth) / 2;
   const circumference = radius * 2 * Math.PI;
 
-  const percentage = max > 0 ? Math.min((current / max) * 100, 100) : 0;
+  // The ring itself can't visually exceed a full circle, so its fill stays capped —
+  // but the printed number shouldn't lie about it, otherwise 150% usage or a goal
+  // overshot at 150% both silently read as a flat "100%".
+  const displayPercentage = max > 0 ? (current / max) * 100 : 0;
+  const percentage = Math.min(displayPercentage, 100);
   const offset = circumference - (percentage / 100) * circumference;
   // "Over the limit" only makes sense for usage (spending past a budget) — a goal
   // exceeding its target is a good thing, not a warning state.
@@ -25,7 +29,7 @@ const CircularProgressBar = ({ current, max, size = 60, strokeWidth = 5, showBud
     return DANGER; // Red
   };
 
-  const color = colorOverride || getColor(percentage);
+  const color = colorOverride || getColor(displayPercentage);
 
   return (
     <div className="flex items-center gap-4">
@@ -56,12 +60,12 @@ const CircularProgressBar = ({ current, max, size = 60, strokeWidth = 5, showBud
           />
         </svg>
         <div className="absolute inset-0 flex items-center justify-center">
-          <span className={`text-[10px] font-bold ${isOverLimit ? 'text-red-500' : 'text-gray-700 dark:text-gray-200'}`}>
-            {Math.round(percentage)}%
+          <span className="text-[10px] font-bold text-gray-700 dark:text-gray-200" style={{ color: isOverLimit ? DANGER : undefined }}>
+            {Math.round(displayPercentage)}%
           </span>
         </div>
       </div>
-      
+
       {showBudget && (
         <div className="flex flex-col justify-center">
           <span className="text-xs text-gray-500 dark:text-gray-400">{t('common.budget')}</span>
@@ -69,7 +73,7 @@ const CircularProgressBar = ({ current, max, size = 60, strokeWidth = 5, showBud
             {formatCurrency(max)}
           </span>
           {isOverLimit && (
-            <span className="text-[10px] text-red-500 font-medium">{t('common.exceeded')}</span>
+            <span className="text-[10px] font-medium" style={{ color: DANGER }}>{t('common.exceeded')}</span>
           )}
         </div>
       )}

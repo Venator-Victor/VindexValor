@@ -13,7 +13,11 @@ const MetaProgressCard = ({ goal, index = 0, onClick }) => {
   // Calculate percentage
   const accumulated = Number(goal.accumulated_amount) || 0;
   const target = Number(isTargetMode ? goal.targetAmount : goal.contributionValue) || 0;
-  const percentage = target > 0 ? Math.min((accumulated / target) * 100, 100) : 0;
+  // The ring itself can't visually exceed a full circle, so its fill stays capped —
+  // but the printed number shouldn't lie about it, otherwise a goal overshot at
+  // 150% would silently read as a flat "100%".
+  const displayPercentage = target > 0 ? (accumulated / target) * 100 : 0;
+  const percentage = Math.min(displayPercentage, 100);
 
   const isAchieved = isTargetMode && percentage >= 100;
   const isOverdue = goal.deadline && isPast(parseISO(goal.deadline)) && !isAchieved;
@@ -26,7 +30,7 @@ const MetaProgressCard = ({ goal, index = 0, onClick }) => {
     return SUCCESS; // Green
   };
 
-  const color = getGaugeColor(percentage);
+  const color = getGaugeColor(displayPercentage);
   
   // SVG config — sized to match CircularProgressBar's 48px/stroke-4 gauge on category cards.
   const size = 48;
@@ -104,7 +108,7 @@ const MetaProgressCard = ({ goal, index = 0, onClick }) => {
             </svg>
             <div className="absolute inset-0 flex items-center justify-center">
                 <span className="text-[10px] font-bold text-gray-700 dark:text-gray-200">
-                    {percentage.toFixed(0)}%
+                    {displayPercentage.toFixed(0)}%
                 </span>
             </div>
         </div>
