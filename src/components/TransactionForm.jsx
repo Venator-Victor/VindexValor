@@ -264,7 +264,7 @@ const TransactionForm = ({ initialData, onSuccess, onCancel }) => {
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           <div className={isCrossCurrencyTransfer ? '' : 'md:col-span-2'}>
             <Label htmlFor="amount">{t('transactions.form_amount_label')} {sourceAccount ? t('transactions.form_amount_in_currency', { currency: sourceAccount.currency }) : ''} *</Label>
-            <div className="relative mt-1">
+            <div className="pt-1">
               <NumberInput
                 id="amount"
                 value={formData.amount}
@@ -278,7 +278,7 @@ const TransactionForm = ({ initialData, onSuccess, onCancel }) => {
           {isCrossCurrencyTransfer && (
             <div>
               <Label htmlFor="converted_amount">{t('transactions.form_converted_amount_label')}</Label>
-              <div className="relative mt-1">
+              <div className="pt-1">
                 <NumberInput
                   id="converted_amount"
                   value={formData.converted_amount}
@@ -294,7 +294,7 @@ const TransactionForm = ({ initialData, onSuccess, onCancel }) => {
 
         {formData.type !== 'transfer' && formData.type !== 'payment' && (
           <div className="relative">
-            <div className="flex justify-between items-center mb-1">
+            <div className="flex justify-between items-center mb-2">
               <Label htmlFor="category_id" className="mb-0">{t('common.category')}</Label>
               {isAutoMapped && formData.category_id && (
                 <Badge variant="secondary" className="h-5 text-[10px] gap-1 bg-blue-50 text-blue-600 border-none">

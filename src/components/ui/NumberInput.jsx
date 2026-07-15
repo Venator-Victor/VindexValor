@@ -52,7 +52,7 @@ const NumberInput = ({ value, onChange, min, max, className, placeholder, id, cu
 
   return (
     <div className={cn("relative", className)}>
-      <div className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-500 dark:text-vindex-text/50 pointer-events-none crypto-symbol">
+      <div className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground pointer-events-none crypto-symbol">
         {symbol}
       </div>
       <input
@@ -62,7 +62,7 @@ const NumberInput = ({ value, onChange, min, max, className, placeholder, id, cu
         value={displayValue}
         onChange={handleChange}
         disabled={disabled}
-        className="flex h-10 w-full rounded-lg border border-gray-200 bg-white pl-10 pr-3 py-2 text-sm file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-gray-500 outline-none hover:border-primary focus-visible:border-primary disabled:cursor-not-allowed disabled:opacity-50 dark:border-vindex-border dark:bg-vindex-bg dark:placeholder:text-vindex-text/30 text-gray-900 dark:text-vindex-text"
+        className="h-10 w-full pl-10 pr-3 py-2 bg-background border rounded-lg outline-none hover:border-primary focus:border-primary disabled:cursor-not-allowed disabled:opacity-50 text-foreground placeholder:text-muted-foreground"
         placeholder={placeholder || formatNumber(0)}
         autoComplete="off"
       />

@@ -297,7 +297,7 @@ const AccountModal = ({ isOpen, onClose, accountToEdit, initialData }) => {
             {formData.type === 'credit_card' ? (
               <div>
                 <Label htmlFor="credit_limit">{t('accounts.credit_limit_label')}</Label>
-                <div className="mt-1">
+                <div className="pt-1">
                   <NumberInput
                     id="credit_limit"
                     value={formData.credit_limit}
@@ -310,7 +310,7 @@ const AccountModal = ({ isOpen, onClose, accountToEdit, initialData }) => {
             ) : (
               <div>
                 <Label htmlFor="initial_balance">{t('accounts.initial_balance')}</Label>
-                <div className="mt-1">
+                <div className="pt-1">
                   <NumberInput
                     id="initial_balance"
                     value={formData.initial_balance}

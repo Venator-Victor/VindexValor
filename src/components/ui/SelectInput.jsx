@@ -77,7 +77,7 @@ const SelectInput = ({
 
   return (
     <div className="relative w-full">
-      {label && <Label htmlFor={id} className={cn("mb-2 block text-sm font-medium text-gray-700 dark:text-vindex-text/80", labelClassName)}>{label}</Label>}
+      {label && <Label htmlFor={id} className={cn("dark:text-vindex-text/80", labelClassName)}>{label}</Label>}
 
       <PopoverPrimitive.Root open={isOpen} onOpenChange={(open) => !disabled && setIsOpen(open)}>
         <PopoverPrimitive.Trigger asChild>

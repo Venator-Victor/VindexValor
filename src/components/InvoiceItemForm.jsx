@@ -220,7 +220,7 @@ const InvoiceItemForm = ({ invoiceId, initialData, onSuccess, onCancel }) => {
 
       <div>
         <Label htmlFor="amount">{t('invoice_detail.item_form_amount_label')}</Label>
-        <div className="mt-1">
+        <div className="pt-1">
           <NumberInput
             id="amount"
             value={formData.amount}

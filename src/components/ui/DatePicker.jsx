@@ -4,6 +4,7 @@ import { ChevronLeft, ChevronRight, Calendar as CalendarIcon } from '@/component
 import { cn } from '@/lib/utils';
 import { Button } from '@/components/ui/button';
 import { Popover, PopoverTrigger, PopoverContent } from '@/components/ui/popover';
+import { Label } from '@/components/ui/label';
 
 const DatePicker = ({ value, onChange, label, labelClassName, className, required }) => {
   const { t, i18n } = useTranslation();
@@ -97,7 +98,7 @@ const DatePicker = ({ value, onChange, label, labelClassName, className, require
 
   return (
     <div className={cn("w-full", className)}>
-      {label && <label className={cn("mb-2 block text-sm font-medium text-gray-700 dark:text-vindex-text/80", labelClassName)}>{label}</label>}
+      {label && <Label className={cn("dark:text-vindex-text/80", labelClassName)}>{label}</Label>}
 
       <Popover open={isOpen} onOpenChange={setIsOpen}>
         <PopoverTrigger asChild>
