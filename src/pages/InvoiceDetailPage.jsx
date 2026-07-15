@@ -17,8 +17,9 @@ import InvoicePaymentLinkModal from '@/components/InvoicePaymentLinkModal';
 import DeleteConfirmationDialog from '@/components/DeleteConfirmationDialog';
 import { supabase } from '@/lib/customSupabaseClient';
 import { useToast } from '@/components/ui/use-toast';
-import { DANGER } from '@/utils/colors';
+import { DANGER, SUCCESS } from '@/utils/colors';
 import { computeInvoiceBalances, getEffectiveInvoiceStatus } from '@/utils/invoiceBalance';
+import SortIcon from '@/components/SortIcon';
 
 const isValidUUID = (id) => {
   const uuidRegex = /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
@@ -47,6 +48,7 @@ const InvoiceDetailPage = () => {
   const [selectedDetailItem, setSelectedDetailItem] = useState(null);
 
   const [isPaymentModalOpen, setIsPaymentModalOpen] = useState(false);
+  const [paymentSortConfig, setPaymentSortConfig] = useState({ key: 'date', direction: 'descending' });
 
   const loadData = async () => {
     setIsLoading(true);
@@ -200,6 +202,33 @@ const InvoiceDetailPage = () => {
     return `${d}/${m}/${y}`;
   };
 
+  const requestPaymentSort = (key) => {
+    let direction = 'ascending';
+    if (paymentSortConfig.key === key && paymentSortConfig.direction === 'ascending') {
+      direction = 'descending';
+    }
+    setPaymentSortConfig({ key, direction });
+  };
+
+  const sortedPayments = [...payments].sort((a, b) => {
+    let aValue, bValue;
+
+    if (paymentSortConfig.key === 'account_name') {
+      aValue = a.account?.name || '';
+      bValue = b.account?.name || '';
+    } else if (paymentSortConfig.key === 'date') {
+      aValue = new Date(a.date || 0).getTime();
+      bValue = new Date(b.date || 0).getTime();
+    } else {
+      aValue = a[paymentSortConfig.key];
+      bValue = b[paymentSortConfig.key];
+    }
+
+    if (aValue < bValue) return paymentSortConfig.direction === 'ascending' ? -1 : 1;
+    if (aValue > bValue) return paymentSortConfig.direction === 'ascending' ? 1 : -1;
+    return 0;
+  });
+
   if (isLoading) return <div className="p-8 text-center text-muted-foreground">{t('invoice_detail.loading')}</div>;
 
   if (uuidError) return (
@@ -249,11 +278,11 @@ const InvoiceDetailPage = () => {
           animate={{ opacity: 1, y: 0 }}
           className="bg-card p-5 rounded-xl border shadow-sm flex flex-col justify-center"
         >
-          <div className="flex items-center gap-2 text-red-600 dark:text-red-400 mb-1">
+          <div className="flex items-center gap-2 mb-1" style={{ color: DANGER }}>
             <ArrowDownRight className="w-4 h-4" />
             <span className="text-sm font-medium">{t('invoice_detail.total_outflows')}</span>
           </div>
-          <p className="text-2xl font-bold text-red-600 dark:text-red-400">{formatCurrency(totalSaidas)}</p>
+          <p className="text-2xl font-bold" style={{ color: DANGER }}>{formatCurrency(totalSaidas)}</p>
         </motion.div>
 
         <motion.div
@@ -266,7 +295,7 @@ const InvoiceDetailPage = () => {
             <Sigma className="w-4 h-4" />
             <span className="text-sm font-medium">{t('invoice_detail.net_total')}</span>
           </div>
-          <p className={`text-2xl font-bold ${balance.closingBalance < 0 ? 'text-red-600 dark:text-red-400' : 'text-foreground'}`}>
+          <p className="text-2xl font-bold text-foreground" style={{ color: balance.closingBalance < 0 ? DANGER : undefined }}>
             {formatCurrency(balance.closingBalance)}
           </p>
           {balance.openingBalance !== 0 && (
@@ -277,10 +306,12 @@ const InvoiceDetailPage = () => {
         </motion.div>
       </div>
 
-      {/* Once an invoice is paid there's nothing left to link/unlink — showing this
-          section would just be clutter, so it hides here and reappears the moment the
-          invoice goes back to open/closed (e.g. after unlinking a payment). */}
-      {getEffectiveInvoiceStatus(invoice) !== 'paid' && (
+      {/* Once an invoice is paid with nothing linked to it (settled via its successor's
+          is_payment item instead — see InvoicePaymentLinkModal's alreadySettledReason
+          'item' case), there's nothing left to link/unlink here, so it hides. But if a
+          transaction *is* linked, keep the section visible — otherwise the user has no
+          way to see or unlink the very payment that made it 'paid'. */}
+      {(getEffectiveInvoiceStatus(invoice) !== 'paid' || payments.length > 0) && (
       <div className="bg-muted/30 p-5 rounded-xl border">
         <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-4 gap-3">
           <h2 className="text-lg font-bold flex items-center gap-2">
@@ -296,7 +327,7 @@ const InvoiceDetailPage = () => {
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div className="bg-background p-4 rounded-lg border">
                 <span className="text-sm text-muted-foreground">{t('invoice_detail.total_paid')}</span>
-                <p className="text-lg font-bold text-green-600 dark:text-green-400 mt-1">{formatCurrency(totalPaid)}</p>
+                <p className="text-lg font-bold mt-1" style={{ color: SUCCESS }}>{formatCurrency(totalPaid)}</p>
               </div>
               <div className="bg-background p-4 rounded-lg border">
                 <span className="text-sm text-muted-foreground">{t('invoice_detail.remaining_balance')}</span>
@@ -308,22 +339,30 @@ const InvoiceDetailPage = () => {
               <table className="w-full min-w-[680px] text-sm table-fixed">
                 <thead className="bg-gray-50 dark:bg-vindex-bg border-b border-gray-200 dark:border-vindex-border">
                   <tr>
-                    <th className="px-6 py-3 w-[14%] text-left font-medium text-gray-700 dark:text-gray-300">{t('invoice_detail.col_date')}</th>
-                    <th className="px-6 py-3 w-[34%] text-left font-medium text-gray-700 dark:text-gray-300">{t('invoice_detail.col_description')}</th>
-                    <th className="px-6 py-3 w-[22%] text-left font-medium text-gray-700 dark:text-gray-300">{t('invoice_detail.col_account_used')}</th>
-                    <th className="px-6 py-3 w-[18%] text-right font-medium text-gray-700 dark:text-gray-300">{t('invoice_detail.col_amount_paid')}</th>
+                    <th className="px-6 py-3 w-[14%] text-left font-medium text-gray-700 dark:text-gray-300 cursor-pointer hover:bg-gray-100 dark:hover:bg-vindex-bg/50 transition-colors" onClick={() => requestPaymentSort('date')}>
+                      <div className="flex items-center">{t('invoice_detail.col_date')} <SortIcon column="date" sortConfig={paymentSortConfig} /></div>
+                    </th>
+                    <th className="px-6 py-3 w-[34%] text-left font-medium text-gray-700 dark:text-gray-300 cursor-pointer hover:bg-gray-100 dark:hover:bg-vindex-bg/50 transition-colors" onClick={() => requestPaymentSort('description')}>
+                      <div className="flex items-center">{t('invoice_detail.col_description')} <SortIcon column="description" sortConfig={paymentSortConfig} /></div>
+                    </th>
+                    <th className="px-6 py-3 w-[22%] text-left font-medium text-gray-700 dark:text-gray-300 cursor-pointer hover:bg-gray-100 dark:hover:bg-vindex-bg/50 transition-colors" onClick={() => requestPaymentSort('account_name')}>
+                      <div className="flex items-center">{t('invoice_detail.col_account_used')} <SortIcon column="account_name" sortConfig={paymentSortConfig} /></div>
+                    </th>
+                    <th className="px-6 py-3 w-[18%] text-right font-medium text-gray-700 dark:text-gray-300 cursor-pointer hover:bg-gray-100 dark:hover:bg-vindex-bg/50 transition-colors" onClick={() => requestPaymentSort('amount')}>
+                      <div className="flex items-center justify-end">{t('invoice_detail.col_amount_paid')} <SortIcon column="amount" sortConfig={paymentSortConfig} /></div>
+                    </th>
                     <th className="px-6 py-3 w-[12%] text-right font-medium text-gray-700 dark:text-gray-300">{t('invoice_detail.col_actions')}</th>
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-gray-200 dark:divide-vindex-border">
-                  {payments.map(p => {
-                    const payColor = p.amount < 0 ? 'text-red-600 dark:text-red-400' : p.amount > 0 ? 'text-green-600 dark:text-green-400' : 'text-foreground';
+                  {sortedPayments.map(p => {
+                    const payColor = p.amount < 0 ? DANGER : p.amount > 0 ? SUCCESS : undefined;
                     return (
                       <tr key={p.id} className="hover:bg-gray-50 dark:hover:bg-vindex-bg/50 transition-colors">
                         <td className="px-6 py-4 whitespace-nowrap text-gray-700 dark:text-gray-300">{formatDate(p.date)}</td>
                         <td className="px-6 py-4 font-medium text-gray-900 dark:text-gray-50 truncate" title={p.description}>{p.description}</td>
                         <td className="px-6 py-4 text-gray-700 dark:text-gray-300 truncate">{p.account?.name || 'N/A'}</td>
-                        <td className={`px-6 py-4 text-right font-bold whitespace-nowrap ${payColor}`}>
+                        <td className="px-6 py-4 text-right font-bold whitespace-nowrap" style={{ color: payColor }}>
                           {formatCurrencyWithSymbol(p.amount, p.account?.currency || 'BRL')}
                         </td>
                         <td className="px-6 py-4 text-right">
@@ -331,7 +370,7 @@ const InvoiceDetailPage = () => {
                             size="sm"
                             variant="outline"
                             onClick={() => handleUnlinkPayment(p.id)}
-                            className="h-8 w-8 p-0 rounded-lg border transition-colors bg-transparent"
+                            className="h-8 w-8 p-0 rounded-lg border transition-colors bg-transparent shrink-0"
                             style={{ borderColor: DANGER, color: DANGER }}
                             onMouseEnter={e => { e.currentTarget.style.backgroundColor = DANGER; e.currentTarget.style.color = '#fff'; }}
                             onMouseLeave={e => { e.currentTarget.style.backgroundColor = 'transparent'; e.currentTarget.style.color = DANGER; }}

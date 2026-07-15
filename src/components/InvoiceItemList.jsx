@@ -1,17 +1,13 @@
 import React, { useState, useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
 import { formatCurrency } from '@/utils/calculations';
-import { Edit as Edit2, TrashAlt as Trash2, ArrowDownRight, ArrowUpRight, ArrowUp, ArrowDown, Wallet, Repeat, Search, Filter, X } from '@/components/BxIcon';
+import { Edit as Edit2, TrashAlt as Trash2, ArrowDownRight, ArrowUpRight, Wallet, Repeat, Search, Filter, X } from '@/components/BxIcon';
 import { Button } from '@/components/ui/button';
 import { Checkbox } from '@/components/ui/checkbox';
 import SelectInput from '@/components/ui/SelectInput';
 import FilterRangeInput, { parseValueFilterString } from './FilterRangeInput';
-import { PRIMARY, DANGER } from '@/utils/colors';
-
-const SortIcon = ({ column, sortConfig }) => {
-  if (sortConfig.key !== column) return <div className="w-4 h-4 opacity-0" />;
-  return sortConfig.direction === 'ascending' ? <ArrowUp className="w-4 h-4 text-primary" /> : <ArrowDown className="w-4 h-4 text-primary" />;
-};
+import SortIcon from '@/components/SortIcon';
+import { PRIMARY, SUCCESS, DANGER } from '@/utils/colors';
 
 const DEFAULT_FILTERS = {
   search: '',
@@ -152,7 +148,7 @@ const InvoiceItemList = ({ items, categories = [], onEdit, onDelete, onRowClick,
     );
   }
 
-  const totalColor = total < 0 ? 'text-red-600 dark:text-red-400' : total > 0 ? 'text-green-600 dark:text-green-400' : 'text-primary';
+  const totalColor = total < 0 ? DANGER : total > 0 ? SUCCESS : PRIMARY;
 
   return (
     <div className="space-y-4">
@@ -252,27 +248,27 @@ const InvoiceItemList = ({ items, categories = [], onEdit, onDelete, onRowClick,
                   />
                 </th>
                 <th className="px-6 py-3 w-[11%] font-medium text-gray-700 dark:text-gray-300">
-                  <button onClick={() => requestSort('date')} className="flex items-center gap-1.5 hover:text-foreground">
+                  <button onClick={() => requestSort('date')} className="flex items-center hover:text-foreground">
                     {t('invoice_detail.col_date')} <SortIcon column="date" sortConfig={sortConfig} />
                   </button>
                 </th>
                 <th className="px-6 py-3 w-[27%] font-medium text-gray-700 dark:text-gray-300">
-                  <button onClick={() => requestSort('description')} className="flex items-center gap-1.5 hover:text-foreground">
+                  <button onClick={() => requestSort('description')} className="flex items-center hover:text-foreground">
                     {t('invoice_detail.col_status_description')} <SortIcon column="description" sortConfig={sortConfig} />
                   </button>
                 </th>
                 <th className="px-6 py-3 w-[14%] font-medium text-gray-700 dark:text-gray-300">
-                  <button onClick={() => requestSort('tipo')} className="flex items-center gap-1.5 hover:text-foreground">
+                  <button onClick={() => requestSort('tipo')} className="flex items-center hover:text-foreground">
                     {t('invoice_detail.col_type')} <SortIcon column="tipo" sortConfig={sortConfig} />
                   </button>
                 </th>
                 <th className="px-6 py-3 w-[16%] font-medium text-gray-700 dark:text-gray-300">
-                  <button onClick={() => requestSort('categoria')} className="flex items-center gap-1.5 hover:text-foreground">
+                  <button onClick={() => requestSort('categoria')} className="flex items-center hover:text-foreground">
                     {t('common.category')} <SortIcon column="categoria" sortConfig={sortConfig} />
                   </button>
                 </th>
                 <th className="px-6 py-3 w-[14%] font-medium text-gray-700 dark:text-gray-300">
-                  <button onClick={() => requestSort('amount')} className="flex items-center gap-1.5 justify-end w-full hover:text-foreground">
+                  <button onClick={() => requestSort('amount')} className="flex items-center justify-end w-full hover:text-foreground">
                     {t('common.amount')} <SortIcon column="amount" sortConfig={sortConfig} />
                   </button>
                 </th>
@@ -282,7 +278,7 @@ const InvoiceItemList = ({ items, categories = [], onEdit, onDelete, onRowClick,
             <tbody className="divide-y divide-gray-200 dark:divide-vindex-border">
               {sortedCompras.map(c => {
                 const isSaida = c.amount < 0;
-                const valColor = isSaida ? 'text-red-600 dark:text-red-400' : c.amount > 0 ? 'text-green-600 dark:text-green-400' : 'text-foreground';
+                const valColor = isSaida ? DANGER : c.amount > 0 ? SUCCESS : undefined;
 
                 return (
                   <tr
@@ -328,7 +324,7 @@ const InvoiceItemList = ({ items, categories = [], onEdit, onDelete, onRowClick,
                         <span className="text-gray-500 text-xs">{t('common.no_category')}</span>
                       )}
                     </td>
-                    <td className={`px-6 py-4 text-right font-semibold whitespace-nowrap ${valColor}`}>
+                    <td className="px-6 py-4 text-right font-semibold whitespace-nowrap" style={{ color: valColor }}>
                       {c.amount > 0 && '+'}{formatCurrency(c.amount)}
                     </td>
                     <td className="px-6 py-4">
@@ -337,7 +333,7 @@ const InvoiceItemList = ({ items, categories = [], onEdit, onDelete, onRowClick,
                           size="sm"
                           variant="outline"
                           onClick={(e) => { e.stopPropagation(); onEdit(c); }}
-                          className="h-8 w-8 p-0 rounded-lg border transition-colors bg-transparent"
+                          className="h-8 w-8 p-0 rounded-lg border transition-colors bg-transparent shrink-0"
                           style={{ borderColor: PRIMARY, color: PRIMARY }}
                           onMouseEnter={e => { e.currentTarget.style.backgroundColor = PRIMARY; e.currentTarget.style.color = '#000'; }}
                           onMouseLeave={e => { e.currentTarget.style.backgroundColor = 'transparent'; e.currentTarget.style.color = PRIMARY; }}
@@ -348,7 +344,7 @@ const InvoiceItemList = ({ items, categories = [], onEdit, onDelete, onRowClick,
                           size="sm"
                           variant="outline"
                           onClick={(e) => { e.stopPropagation(); onDelete(c.id); }}
-                          className="h-8 w-8 p-0 rounded-lg border transition-colors bg-transparent"
+                          className="h-8 w-8 p-0 rounded-lg border transition-colors bg-transparent shrink-0"
                           style={{ borderColor: DANGER, color: DANGER }}
                           onMouseEnter={e => { e.currentTarget.style.backgroundColor = DANGER; e.currentTarget.style.color = '#fff'; }}
                           onMouseLeave={e => { e.currentTarget.style.backgroundColor = 'transparent'; e.currentTarget.style.color = DANGER; }}
@@ -364,7 +360,7 @@ const InvoiceItemList = ({ items, categories = [], onEdit, onDelete, onRowClick,
             <tfoot className="bg-gray-50 dark:bg-vindex-bg font-bold border-t border-gray-200 dark:border-vindex-border">
               <tr>
                 <td colSpan="5" className="px-6 py-3 text-right text-gray-900 dark:text-gray-50">{t('invoice_detail.net_invoice_total')}</td>
-                <td className={`px-6 py-3 text-right whitespace-nowrap ${totalColor}`}>{formatCurrency(total)}</td>
+                <td className="px-6 py-3 text-right whitespace-nowrap" style={{ color: totalColor }}>{formatCurrency(total)}</td>
                 <td></td>
               </tr>
             </tfoot>

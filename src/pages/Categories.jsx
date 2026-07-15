@@ -6,7 +6,6 @@ import { motion, AnimatePresence } from 'framer-motion';
 import BxIcon, {
   Plus, Folder, TrashAlt as Trash2, Edit as Edit2,
   ChevronDown, ChevronRight, Search, X,
-  ArrowDownUp as ArrowUpDown, ArrowUp, ArrowDown,
 } from '@/components/BxIcon';
 import { useFinance } from '@/context/FinanceContext';
 import { Button } from '@/components/ui/button';
@@ -14,6 +13,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/u
 import { Label } from '@/components/ui/label';
 import { Checkbox } from '@/components/ui/checkbox';
 import CategorySelectionBar from '@/components/CategorySelectionBar';
+import CircularProgressBar from '@/components/CircularProgressBar';
 import EmptyState from '@/components/EmptyState';
 import DeleteConfirmationDialog from '@/components/DeleteConfirmationDialog';
 import { useToast } from '@/components/ui/use-toast';
@@ -30,13 +30,8 @@ import GaugeSummaryCard from '@/components/GaugeSummaryCard';
 import { useSortableList } from '@/hooks/useSortableList';
 import { PERIOD_OPTIONS } from '@/utils/periodOptions';
 import CategoryDetailModal from '@/components/CategoryDetailModal';
-import BudgetPeriodBreakdown from '@/components/BudgetPeriodBreakdown';
 import ViewToggle from '@/components/ui/ViewToggle';
-
-const SortIcon = ({ column, sortConfig }) => {
-  if (!sortConfig || sortConfig.key !== column) return <ArrowUpDown className="w-3 h-3 ml-1 opacity-30" />;
-  return sortConfig.direction === 'ascending' ? <ArrowUp className="w-3 h-3 ml-1 text-primary" /> : <ArrowDown className="w-3 h-3 ml-1 text-primary" />;
-};
+import SortIcon from '@/components/SortIcon';
 
 const emptyFormData = {
   name: '',
@@ -377,7 +372,7 @@ const Categories = () => {
         <>
            {/* Grid View */}
            {displayLayout === 'card' && (
-             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
                <AnimatePresence>
                  {gridCategories.map((category, index) => {
                     const parentName = category.parent_id
@@ -396,21 +391,27 @@ const Categories = () => {
                         onMouseEnter={e => e.currentTarget.style.borderColor = PRIMARY}
                         onMouseLeave={e => e.currentTarget.style.borderColor = ''}
                       >
-                        <div className="flex items-center gap-3 w-full border-b border-gray-100 dark:border-vindex-border pb-3">
-                            <div className="w-10 h-10 rounded-lg flex items-center justify-center shadow-sm border shrink-0" style={{ backgroundColor: category.color + '22', borderColor: category.color + '44' }}>
-                              <BxIcon iconClass={category.icon} size={20} style={{ color: category.color }} />
+                        <div className="flex items-start justify-between gap-3 w-full">
+                            <div className="flex items-center gap-3 flex-1 min-w-0">
+                              <div className="w-10 h-10 rounded-lg flex items-center justify-center shadow-sm border shrink-0" style={{ backgroundColor: category.color + '22', borderColor: category.color + '44' }}>
+                                <BxIcon iconClass={category.icon} size={20} style={{ color: category.color }} />
+                              </div>
+
+                              <div className="text-left flex-grow overflow-hidden">
+                                <h3 className="text-sm font-bold text-gray-900 dark:text-gray-50 leading-tight break-words" title={category.name}>{category.name}</h3>
+                                {parentName ? (
+                                  <p className="text-xs text-gray-400 dark:text-gray-500 truncate" title={t('categories.subcategory_of', { parent: parentName })}>
+                                    {t('categories.subcategory_of', { parent: parentName })}
+                                  </p>
+                                ) : (
+                                  <p className="text-xs text-gray-700 dark:text-gray-300">{t('categories.transaction_count', { count: category.transactionCount })}</p>
+                                )}
+                              </div>
                             </div>
 
-                            <div className="text-left flex-grow overflow-hidden">
-                              <h3 className="text-sm font-bold text-gray-900 dark:text-gray-50 leading-tight break-words" title={category.name}>{category.name}</h3>
-                              {parentName ? (
-                                <p className="text-xs text-gray-400 dark:text-gray-500 truncate" title={t('categories.subcategory_of', { parent: parentName })}>
-                                  {t('categories.subcategory_of', { parent: parentName })}
-                                </p>
-                              ) : (
-                                <p className="text-xs text-gray-700 dark:text-gray-300">{t('categories.transaction_count', { count: category.transactionCount })}</p>
-                              )}
-                            </div>
+                            {category.hasBudget && (
+                              <CircularProgressBar current={category.currentSpending} max={category.spending_limit} size={48} strokeWidth={4} showBudget={false} />
+                            )}
                         </div>
 
                         <div className="w-full p-3 bg-gray-50 dark:bg-vindex-bg rounded-lg border border-gray-100 dark:border-vindex-border flex items-center justify-between mt-3">
@@ -448,8 +449,12 @@ const Categories = () => {
                             <th className="px-6 py-3 w-[27%] text-left font-medium text-gray-700 dark:text-gray-300 cursor-pointer hover:bg-gray-100 dark:hover:bg-vindex-bg/50 transition-colors" onClick={() => requestSort('name')}>
                                <div className="flex items-center">{t('categories.col_category')} <SortIcon column="name" sortConfig={sortConfig} /></div>
                             </th>
-                            <th className="px-6 py-3 w-[12%] text-left font-medium text-gray-700 dark:text-gray-300">{t('categories.col_transactions')}</th>
-                            <th className="px-6 py-3 w-[16%] text-left font-medium text-gray-700 dark:text-gray-300">{t('categories.col_usage')}</th>
+                            <th className="px-6 py-3 w-[12%] text-left font-medium text-gray-700 dark:text-gray-300 cursor-pointer hover:bg-gray-100 dark:hover:bg-vindex-bg/50 transition-colors" onClick={() => requestSort('displayTransactionCount')}>
+                               <div className="flex items-center">{t('categories.col_transactions')} <SortIcon column="displayTransactionCount" sortConfig={sortConfig} /></div>
+                            </th>
+                            <th className="px-6 py-3 w-[16%] text-left font-medium text-gray-700 dark:text-gray-300 cursor-pointer hover:bg-gray-100 dark:hover:bg-vindex-bg/50 transition-colors" onClick={() => requestSort('displaySpending')}>
+                               <div className="flex items-center">{t('categories.col_usage')} <SortIcon column="displaySpending" sortConfig={sortConfig} /></div>
+                            </th>
                             <th className="px-6 py-3 w-[16%] text-left font-medium text-gray-700 dark:text-gray-300 cursor-pointer hover:bg-gray-100 dark:hover:bg-vindex-bg/50 transition-colors" onClick={() => requestSort('spending_limit')}>
                                <div className="flex items-center">{t('categories.col_budget')} <SortIcon column="spending_limit" sortConfig={sortConfig} /></div>
                             </th>
@@ -494,7 +499,14 @@ const Categories = () => {
                                      {category.displayTransactionCount}
                                   </td>
                                   <td className="px-6 py-4 font-medium text-gray-900 dark:text-gray-50">
-                                     {formatCurrency(hasLimit ? category.displaySpending : category.displayTotal)}
+                                     {hasLimit ? (
+                                        <div className="flex items-center gap-3">
+                                           <CircularProgressBar current={category.displaySpending} max={category.spending_limit} size={32} strokeWidth={3} showBudget={false} />
+                                           <span>{formatCurrency(category.displaySpending)}</span>
+                                        </div>
+                                     ) : (
+                                        formatCurrency(category.displayTotal)
+                                     )}
                                   </td>
                                   <td className="px-6 py-4 text-gray-700 dark:text-gray-300">
                                      {hasLimit ? <span>{formatCurrency(category.spending_limit)}</span> : '-'}
@@ -513,7 +525,7 @@ const Categories = () => {
                                            size="sm"
                                            variant="outline"
                                            onClick={(e) => handleEdit(category, e)}
-                                           className="h-8 w-8 p-0 rounded-lg border transition-colors bg-transparent"
+                                           className="h-8 w-8 p-0 rounded-lg border transition-colors bg-transparent shrink-0"
                                            style={{ borderColor: PRIMARY, color: PRIMARY }}
                                            onMouseEnter={e => { e.currentTarget.style.backgroundColor = PRIMARY; e.currentTarget.style.color = '#000'; }}
                                            onMouseLeave={e => { e.currentTarget.style.backgroundColor = 'transparent'; e.currentTarget.style.color = PRIMARY; }}
@@ -524,7 +536,7 @@ const Categories = () => {
                                            size="sm"
                                            variant="outline"
                                            onClick={(e) => { e.stopPropagation(); setDeleteId(category.id); }}
-                                           className="h-8 w-8 p-0 rounded-lg border transition-colors bg-transparent"
+                                           className="h-8 w-8 p-0 rounded-lg border transition-colors bg-transparent shrink-0"
                                            style={{ borderColor: DANGER, color: DANGER }}
                                            onMouseEnter={e => { e.currentTarget.style.backgroundColor = DANGER; e.currentTarget.style.color = '#fff'; }}
                                            onMouseLeave={e => { e.currentTarget.style.backgroundColor = 'transparent'; e.currentTarget.style.color = DANGER; }}
@@ -559,7 +571,14 @@ const Categories = () => {
                                            {child.transactionCount}
                                         </td>
                                         <td className="px-6 py-3 text-gray-900 dark:text-gray-50">
-                                           {formatCurrency(childHasLimit ? child.currentSpending : child.totalActivity)}
+                                           {childHasLimit ? (
+                                              <div className="flex items-center gap-3">
+                                                 <CircularProgressBar current={child.currentSpending} max={child.spending_limit} size={32} strokeWidth={3} showBudget={false} />
+                                                 <span>{formatCurrency(child.currentSpending)}</span>
+                                              </div>
+                                           ) : (
+                                              formatCurrency(child.totalActivity)
+                                           )}
                                         </td>
                                         <td className="px-6 py-3 text-gray-700 dark:text-gray-300">
                                            {childHasLimit ? <span>{formatCurrency(child.spending_limit)}</span> : '-'}
@@ -686,13 +705,6 @@ const Categories = () => {
                 <SelectInput label={t('categories.budget_period')} id="budget_period" value={formData.budget_period} options={PERIOD_OPTIONS} onChange={e => setFormData({ ...formData, budget_period: e.target.value })} disabled={!formData.budget_enabled} />
               </div>
             </div>
-
-            {formData.budget_enabled && Number(formData.spending_limit) > 0 && (
-              <div>
-                <Label className="mb-2 block text-xs text-gray-500 dark:text-gray-400">{t('categories.budget_breakdown')}</Label>
-                <BudgetPeriodBreakdown amount={Number(formData.spending_limit)} period={formData.budget_period} />
-              </div>
-            )}
 
             <ColorPicker value={formData.color} onChange={color => setFormData({ ...formData, color })} />
             <IconSelector selectedIcon={formData.icon} onSelect={icon => setFormData({ ...formData, icon })} />

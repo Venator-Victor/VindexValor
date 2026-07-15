@@ -5,18 +5,13 @@ import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, 
 import { Button } from '@/components/ui/button';
 import SelectInput from '@/components/ui/SelectInput';
 import FilterRangeInput, { parseValueFilterString } from '@/components/FilterRangeInput';
-import { ArrowUp, ArrowDown } from '@/components/BxIcon';
 import { formatCurrency, formatCurrencyWithSymbol } from '@/utils/calculations';
 import { supabase } from '@/lib/customSupabaseClient';
 import { useToast } from '@/components/ui/use-toast';
 import { useAuth } from '@/context/SupabaseAuthContext';
 import { useFinance } from '@/context/FinanceContext';
-import { PRIMARY, DANGER } from '@/utils/colors';
-
-const SortIcon = ({ column, sortConfig }) => {
-  if (sortConfig.key !== column) return <div className="w-4 h-4 opacity-0 inline-block" />;
-  return sortConfig.direction === 'ascending' ? <ArrowUp className="w-4 h-4 inline-block" /> : <ArrowDown className="w-4 h-4 inline-block" />;
-};
+import SortIcon from '@/components/SortIcon';
+import { PRIMARY, DANGER, SUCCESS } from '@/utils/colors';
 
 const formatDate = (dateStr) => {
   if (!dateStr) return '-';
@@ -270,7 +265,7 @@ const InvoicePaymentLinkModal = ({ isOpen, onOpenChange, invoiceId, invoiceTotal
                 {/* Mobile: stacked cards, no horizontal scrolling needed */}
                 <div className="md:hidden space-y-2">
                   {visiblePayments.map(p => {
-                    const cardPayColor = p.amount < 0 ? 'text-red-600 dark:text-red-400' : p.amount > 0 ? 'text-green-600 dark:text-green-400' : 'text-foreground';
+                    const cardPayColor = p.amount < 0 ? DANGER : p.amount > 0 ? SUCCESS : undefined;
                     return (
                       <div key={p.id} className="border border-gray-200 dark:border-vindex-border rounded-lg p-3 bg-white dark:bg-vindex-card">
                         <div className="flex justify-between items-start gap-2 min-w-0">
@@ -278,7 +273,7 @@ const InvoicePaymentLinkModal = ({ isOpen, onOpenChange, invoiceId, invoiceTotal
                             <p className="font-medium text-gray-900 dark:text-gray-50 truncate" title={p.description}>{p.description}</p>
                             <p className="text-xs text-gray-500 dark:text-gray-400 truncate">{formatDate(p.date)} · {p.account?.name || 'N/A'}</p>
                           </div>
-                          <p className={`font-semibold whitespace-nowrap shrink-0 ${cardPayColor}`}>
+                          <p className="font-semibold whitespace-nowrap shrink-0" style={{ color: cardPayColor }}>
                             {formatCurrencyWithSymbol(p.amount, p.account?.currency || 'BRL')}
                           </p>
                         </div>
@@ -306,27 +301,27 @@ const InvoicePaymentLinkModal = ({ isOpen, onOpenChange, invoiceId, invoiceTotal
                     <thead className="bg-gray-50 dark:bg-vindex-bg border-b border-gray-200 dark:border-vindex-border">
                       <tr>
                         <th className="px-6 py-3 w-[12%] text-left font-medium text-gray-700 dark:text-gray-300">
-                          <button onClick={() => requestSort('date')} className="flex items-center gap-1.5 hover:text-foreground">
+                          <button onClick={() => requestSort('date')} className="flex items-center hover:text-foreground">
                             {t('invoice_detail.col_date')} <SortIcon column="date" sortConfig={sortConfig} />
                           </button>
                         </th>
                         <th className="px-6 py-3 w-[24%] text-left font-medium text-gray-700 dark:text-gray-300">
-                          <button onClick={() => requestSort('description')} className="flex items-center gap-1.5 hover:text-foreground">
+                          <button onClick={() => requestSort('description')} className="flex items-center hover:text-foreground">
                             {t('invoice_detail.col_description')} <SortIcon column="description" sortConfig={sortConfig} />
                           </button>
                         </th>
                         <th className="px-6 py-3 w-[16%] text-left font-medium text-gray-700 dark:text-gray-300">
-                          <button onClick={() => requestSort('category')} className="flex items-center gap-1.5 hover:text-foreground">
+                          <button onClick={() => requestSort('category')} className="flex items-center hover:text-foreground">
                             {t('common.category')} <SortIcon column="category" sortConfig={sortConfig} />
                           </button>
                         </th>
                         <th className="px-6 py-3 w-[16%] text-left font-medium text-gray-700 dark:text-gray-300">
-                          <button onClick={() => requestSort('account')} className="flex items-center gap-1.5 hover:text-foreground">
+                          <button onClick={() => requestSort('account')} className="flex items-center hover:text-foreground">
                             {t('invoice_detail.col_account')} <SortIcon column="account" sortConfig={sortConfig} />
                           </button>
                         </th>
                         <th className="px-6 py-3 w-[16%] text-right font-medium text-gray-700 dark:text-gray-300">
-                          <button onClick={() => requestSort('amount')} className="flex items-center gap-1.5 justify-end w-full hover:text-foreground">
+                          <button onClick={() => requestSort('amount')} className="flex items-center justify-end w-full hover:text-foreground">
                             {t('invoice_detail.col_value')} <SortIcon column="amount" sortConfig={sortConfig} />
                           </button>
                         </th>
@@ -335,7 +330,7 @@ const InvoicePaymentLinkModal = ({ isOpen, onOpenChange, invoiceId, invoiceTotal
                     </thead>
                     <tbody className="divide-y divide-gray-200 dark:divide-vindex-border">
                       {visiblePayments.map(p => {
-                        const modalPayColor = p.amount < 0 ? 'text-red-600 dark:text-red-400' : p.amount > 0 ? 'text-green-600 dark:text-green-400' : 'text-foreground';
+                        const modalPayColor = p.amount < 0 ? DANGER : p.amount > 0 ? SUCCESS : undefined;
                         return (
                           <tr key={p.id} className="hover:bg-gray-50 dark:hover:bg-vindex-bg/50 transition-colors">
                             <td className="px-6 py-4 whitespace-nowrap text-gray-700 dark:text-gray-300">{formatDate(p.date)}</td>
@@ -351,7 +346,7 @@ const InvoicePaymentLinkModal = ({ isOpen, onOpenChange, invoiceId, invoiceTotal
                               )}
                             </td>
                             <td className="px-6 py-4 text-gray-700 dark:text-gray-300 truncate">{p.account?.name || 'N/A'}</td>
-                            <td className={`px-6 py-4 text-right font-medium whitespace-nowrap ${modalPayColor}`}>
+                            <td className="px-6 py-4 text-right font-medium whitespace-nowrap" style={{ color: modalPayColor }}>
                               {formatCurrencyWithSymbol(p.amount, p.account?.currency || 'BRL')}
                             </td>
                             <td className="px-6 py-4 text-center">

@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Helmet } from 'react-helmet';
 import { useNavigate } from 'react-router-dom';
-import { Plus, CreditCard, Share as UploadCloud, Receipt, ArrowRight, ArrowUp, ArrowDown, Edit as Edit2, TrashAlt as Trash2, ChevronDown, ChevronRight, Wallet, Repeat, ArrowDownRight, ArrowUpRight } from '@/components/BxIcon';
+import { Plus, CreditCard, Share as UploadCloud, Receipt, ArrowRight, Edit as Edit2, TrashAlt as Trash2, ChevronDown, ChevronRight, Wallet, Repeat, ArrowDownRight, ArrowUpRight } from '@/components/BxIcon';
 import { useFinance } from '@/context/FinanceContext';
 import { useAuth } from '@/context/SupabaseAuthContext';
 import { Button } from '@/components/ui/button';
@@ -25,11 +25,7 @@ import { PRIMARY, SUCCESS, DANGER } from '@/utils/colors';
 import DateFilterSelect from '@/components/ui/DateFilterSelect';
 import { getDateFilterDefaults, matchesDateFilter } from '@/utils/dateFilter';
 import { getEffectiveInvoiceStatus } from '@/utils/invoiceBalance';
-
-const SortIcon = ({ column, sortConfig }) => {
-  if (sortConfig.key !== column) return <div className="w-4 h-4 opacity-0" />;
-  return sortConfig.direction === 'ascending' ? <ArrowUp className="w-4 h-4" /> : <ArrowDown className="w-4 h-4" />;
-};
+import SortIcon from '@/components/SortIcon';
 
 const InvoicesPage = () => {
   const { t } = useTranslation();
@@ -56,6 +52,7 @@ const InvoicesPage = () => {
   const setDateFilter = (filter) => saveSettings({ invoices_date_filter: filter });
   
   const [sortConfig, setSortConfig] = useState({ key: 'opening_date', direction: 'descending' });
+  const [itemSortConfig, setItemSortConfig] = useState({ key: 'date', direction: 'descending' });
   
   const navigate = useNavigate();
   const { toast } = useToast();
@@ -313,6 +310,36 @@ const InvoicesPage = () => {
     setSortConfig({ key, direction });
   };
 
+  const requestItemSort = (key) => {
+    let direction = 'ascending';
+    if (itemSortConfig.key === key && itemSortConfig.direction === 'ascending') {
+      direction = 'descending';
+    }
+    setItemSortConfig({ key, direction });
+  };
+
+  const sortedFilteredItems = [...filteredItems].sort((a, b) => {
+    let aValue, bValue;
+
+    if (itemSortConfig.key === 'invoice_number') {
+      aValue = a.invoices?.invoice_number || '';
+      bValue = b.invoices?.invoice_number || '';
+    } else if (itemSortConfig.key === 'category') {
+      aValue = a.categories?.name || '';
+      bValue = b.categories?.name || '';
+    } else if (itemSortConfig.key === 'date') {
+      aValue = new Date(a.date || 0).getTime();
+      bValue = new Date(b.date || 0).getTime();
+    } else {
+      aValue = a[itemSortConfig.key];
+      bValue = b[itemSortConfig.key];
+    }
+
+    if (aValue < bValue) return itemSortConfig.direction === 'ascending' ? -1 : 1;
+    if (aValue > bValue) return itemSortConfig.direction === 'ascending' ? 1 : -1;
+    return 0;
+  });
+
   const filteredInvoices = (() => {
     const sorted = [...invoices].sort((a, b) => {
       let aValue, bValue;
@@ -326,6 +353,9 @@ const InvoicesPage = () => {
       } else if (sortConfig.key === 'status') {
          aValue = getEffectiveInvoiceStatus(a);
          bValue = getEffectiveInvoiceStatus(b);
+      } else if (sortConfig.key === 'accountName') {
+         aValue = a.account?.name || '';
+         bValue = b.account?.name || '';
       } else {
          aValue = a[sortConfig.key];
          bValue = b[sortConfig.key];
@@ -461,15 +491,25 @@ const InvoicesPage = () => {
                 <table className="w-full text-sm min-w-[680px] table-fixed">
                    <thead className="bg-gray-50 dark:bg-vindex-bg border-b border-gray-200 dark:border-vindex-border">
                       <tr>
-                         <th className="px-6 py-3 w-[16%] text-left font-medium text-gray-700 dark:text-gray-300">{t('invoices.col_invoice')}</th>
-                         <th className="px-6 py-3 w-[12%] text-left font-medium text-gray-700 dark:text-gray-300">{t('invoices.col_date')}</th>
-                         <th className="px-6 py-3 w-[34%] text-left font-medium text-gray-700 dark:text-gray-300">{t('invoices.col_description')}</th>
-                         <th className="px-6 py-3 w-[20%] text-left font-medium text-gray-700 dark:text-gray-300">{t('invoices.col_category')}</th>
-                         <th className="px-6 py-3 w-[18%] text-right font-medium text-gray-700 dark:text-gray-300">{t('invoices.col_amount')}</th>
+                         <th className="px-6 py-3 w-[16%] text-left font-medium text-gray-700 dark:text-gray-300 cursor-pointer hover:bg-gray-100 dark:hover:bg-vindex-bg/50 transition-colors" onClick={() => requestItemSort('invoice_number')}>
+                           <div className="flex items-center">{t('invoices.col_invoice')} <SortIcon column="invoice_number" sortConfig={itemSortConfig} /></div>
+                         </th>
+                         <th className="px-6 py-3 w-[12%] text-left font-medium text-gray-700 dark:text-gray-300 cursor-pointer hover:bg-gray-100 dark:hover:bg-vindex-bg/50 transition-colors" onClick={() => requestItemSort('date')}>
+                           <div className="flex items-center">{t('invoices.col_date')} <SortIcon column="date" sortConfig={itemSortConfig} /></div>
+                         </th>
+                         <th className="px-6 py-3 w-[34%] text-left font-medium text-gray-700 dark:text-gray-300 cursor-pointer hover:bg-gray-100 dark:hover:bg-vindex-bg/50 transition-colors" onClick={() => requestItemSort('description')}>
+                           <div className="flex items-center">{t('invoices.col_description')} <SortIcon column="description" sortConfig={itemSortConfig} /></div>
+                         </th>
+                         <th className="px-6 py-3 w-[20%] text-left font-medium text-gray-700 dark:text-gray-300 cursor-pointer hover:bg-gray-100 dark:hover:bg-vindex-bg/50 transition-colors" onClick={() => requestItemSort('category')}>
+                           <div className="flex items-center">{t('invoices.col_category')} <SortIcon column="category" sortConfig={itemSortConfig} /></div>
+                         </th>
+                         <th className="px-6 py-3 w-[18%] text-right font-medium text-gray-700 dark:text-gray-300 cursor-pointer hover:bg-gray-100 dark:hover:bg-vindex-bg/50 transition-colors" onClick={() => requestItemSort('amount')}>
+                           <div className="flex items-center justify-end">{t('invoices.col_amount')} <SortIcon column="amount" sortConfig={itemSortConfig} /></div>
+                         </th>
                       </tr>
                    </thead>
                    <tbody className="divide-y divide-gray-200 dark:divide-vindex-border">
-                      {filteredItems.map(c => (
+                      {sortedFilteredItems.map(c => (
                          <tr key={c.id} className="hover:bg-gray-50 dark:hover:bg-vindex-bg/50 transition-colors">
                             <td className="px-6 py-4 font-medium cursor-pointer text-primary hover:underline truncate" onClick={() => navigate(`/invoices/${c.invoice_id}`)}>
                               {c.invoices?.invoice_number || t('invoices.unknown_invoice')}
@@ -526,22 +566,20 @@ const InvoicesPage = () => {
                           aria-label={t('invoices.select_all')}
                         />
                       </th>
-                      <th className="px-6 py-3 w-[18%] text-left font-medium text-gray-700 dark:text-gray-300">{t('invoices.col_invoice')}</th>
-                      <th className="px-6 py-3 w-[15%] text-left font-medium text-gray-700 dark:text-gray-300">{t('common.account')}</th>
-                      <th className="px-6 py-3 w-[14%] align-middle">
-                        <button onClick={() => requestSort('opening_date')} className="table-header-sortable justify-start text-gray-700 dark:text-gray-300">
-                          {t('invoices.col_opening_date')} <SortIcon column="opening_date" sortConfig={sortConfig} />
-                        </button>
+                      <th className="px-6 py-3 w-[18%] text-left font-medium text-gray-700 dark:text-gray-300 cursor-pointer hover:bg-gray-100 dark:hover:bg-vindex-bg/50 transition-colors" onClick={() => requestSort('invoice_number')}>
+                        <div className="flex items-center">{t('invoices.col_invoice')} <SortIcon column="invoice_number" sortConfig={sortConfig} /></div>
                       </th>
-                      <th className="px-6 py-3 w-[14%] align-middle">
-                        <button onClick={() => requestSort('amount')} className="table-header-sortable justify-end pl-0 pr-0 ml-auto mr-0 text-gray-700 dark:text-gray-300">
-                          {t('invoices.col_total')} <SortIcon column="amount" sortConfig={sortConfig} />
-                        </button>
+                      <th className="px-6 py-3 w-[15%] text-left font-medium text-gray-700 dark:text-gray-300 cursor-pointer hover:bg-gray-100 dark:hover:bg-vindex-bg/50 transition-colors" onClick={() => requestSort('accountName')}>
+                        <div className="flex items-center">{t('common.account')} <SortIcon column="accountName" sortConfig={sortConfig} /></div>
                       </th>
-                      <th className="px-6 py-3 w-[14%] align-middle">
-                        <button onClick={() => requestSort('status')} className="table-header-sortable justify-center pl-0 pr-0 ml-auto mr-auto text-gray-700 dark:text-gray-300">
-                          {t('invoices.col_status')} <SortIcon column="status" sortConfig={sortConfig} />
-                        </button>
+                      <th className="px-6 py-3 w-[14%] text-left font-medium text-gray-700 dark:text-gray-300 cursor-pointer hover:bg-gray-100 dark:hover:bg-vindex-bg/50 transition-colors" onClick={() => requestSort('opening_date')}>
+                        <div className="flex items-center">{t('invoices.col_opening_date')} <SortIcon column="opening_date" sortConfig={sortConfig} /></div>
+                      </th>
+                      <th className="px-6 py-3 w-[14%] text-right font-medium text-gray-700 dark:text-gray-300 cursor-pointer hover:bg-gray-100 dark:hover:bg-vindex-bg/50 transition-colors" onClick={() => requestSort('amount')}>
+                        <div className="flex items-center justify-end">{t('invoices.col_total')} <SortIcon column="amount" sortConfig={sortConfig} /></div>
+                      </th>
+                      <th className="px-6 py-3 w-[14%] text-center font-medium text-gray-700 dark:text-gray-300 cursor-pointer hover:bg-gray-100 dark:hover:bg-vindex-bg/50 transition-colors" onClick={() => requestSort('status')}>
+                        <div className="flex items-center justify-center">{t('invoices.col_status')} <SortIcon column="status" sortConfig={sortConfig} /></div>
                       </th>
                       <th className="px-6 py-3 w-[17%] text-right font-medium text-gray-700 dark:text-gray-300">{t('common.actions')}</th>
                     </tr>
@@ -585,7 +623,7 @@ const InvoicesPage = () => {
                           <td className="px-6 py-4 text-gray-700 dark:text-gray-300 whitespace-nowrap">
                             {formatDate(invoice.opening_date)}
                           </td>
-                          <td className={`px-6 py-4 text-right font-medium whitespace-nowrap ${totalValue < 0 ? 'text-red-600 dark:text-red-400' : totalValue > 0 ? 'text-green-600 dark:text-green-400' : ''}`}>
+                          <td className="px-6 py-4 text-right font-medium whitespace-nowrap" style={{ color: totalValue < 0 ? DANGER : totalValue > 0 ? SUCCESS : undefined }}>
                             {formatCurrency(totalValue)}
                           </td>
                           <td className="px-6 py-4 text-center">
@@ -597,7 +635,7 @@ const InvoicesPage = () => {
                                 size="sm"
                                 variant="outline"
                                 onClick={() => handleEditClick(invoice)}
-                                className="h-8 w-8 p-0 rounded-lg border transition-colors bg-transparent"
+                                className="h-8 w-8 p-0 rounded-lg border transition-colors bg-transparent shrink-0"
                                 style={{ borderColor: PRIMARY, color: PRIMARY }}
                                 onMouseEnter={e => { e.currentTarget.style.backgroundColor = PRIMARY; e.currentTarget.style.color = '#000'; }}
                                 onMouseLeave={e => { e.currentTarget.style.backgroundColor = 'transparent'; e.currentTarget.style.color = PRIMARY; }}
@@ -608,7 +646,7 @@ const InvoicesPage = () => {
                                 size="sm"
                                 variant="outline"
                                 onClick={() => setDeleteId(invoice.id)}
-                                className="h-8 w-8 p-0 rounded-lg border transition-colors bg-transparent"
+                                className="h-8 w-8 p-0 rounded-lg border transition-colors bg-transparent shrink-0"
                                 style={{ borderColor: DANGER, color: DANGER }}
                                 onMouseEnter={e => { e.currentTarget.style.backgroundColor = DANGER; e.currentTarget.style.color = '#fff'; }}
                                 onMouseLeave={e => { e.currentTarget.style.backgroundColor = 'transparent'; e.currentTarget.style.color = DANGER; }}
@@ -629,20 +667,20 @@ const InvoicesPage = () => {
                                 <div className="space-y-2">
                                   {expandedItems.map(c => {
                                     const isSaida = Number(c.amount) < 0;
-                                    const valColor = isSaida ? 'text-red-600 dark:text-red-400' : c.amount > 0 ? 'text-green-600 dark:text-green-400' : 'text-foreground';
+                                    const valColor = isSaida ? DANGER : c.amount > 0 ? SUCCESS : undefined;
                                     return (
                                       <div key={c.id} className="flex items-center justify-between gap-3 bg-white dark:bg-vindex-card px-4 py-2 rounded-lg border border-gray-200 dark:border-vindex-border text-sm">
                                         <div className="flex items-center gap-3 min-w-0">
                                           {c.is_payment ? <Wallet className="w-4 h-4 text-primary shrink-0" />
                                             : c.is_carryover ? <Repeat className="w-4 h-4 text-amber-600 dark:text-amber-400 shrink-0" />
-                                            : isSaida ? <ArrowDownRight className="w-4 h-4 text-red-600 dark:text-red-400 shrink-0" />
-                                            : <ArrowUpRight className="w-4 h-4 text-green-600 dark:text-green-400 shrink-0" />}
+                                            : isSaida ? <ArrowDownRight className="w-4 h-4 shrink-0" style={{ color: DANGER }} />
+                                            : <ArrowUpRight className="w-4 h-4 shrink-0" style={{ color: SUCCESS }} />}
                                           <span className="truncate text-gray-900 dark:text-gray-50">{c.description}</span>
                                           {c.categories && (
                                             <span className="text-xs text-gray-500 dark:text-gray-400 truncate shrink-0">{c.categories.name}</span>
                                           )}
                                         </div>
-                                        <span className={`font-semibold whitespace-nowrap ${valColor}`}>
+                                        <span className="font-semibold whitespace-nowrap" style={{ color: valColor }}>
                                           {c.amount > 0 && '+'}{formatCurrency(c.amount)}
                                         </span>
                                       </div>
