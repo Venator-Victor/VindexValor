@@ -5,6 +5,7 @@ import { motion } from 'framer-motion';
 import { useNavigate } from 'react-router-dom';
 import BxIcon, { PieChartAlt2, BarChart } from '@/components/BxIcon';
 import { getDateFilterLabel } from '@/utils/dateFilter';
+import CircularProgressBar from '@/components/CircularProgressBar';
 
 const TopCategoriesSection = ({ transactions, categories, dateFilter }) => {
   const { t, i18n } = useTranslation();
@@ -65,35 +66,24 @@ const TopCategoriesSection = ({ transactions, categories, dateFilter }) => {
               onClick={() => navigate('/transactions', { state: { filterCategoryId: cat.id || 'null' } })}
               className="p-3 hover:bg-gray-50 dark:hover:bg-gray-800/50 rounded-lg transition-colors border border-transparent hover:border-gray-100 dark:hover:border-gray-800 cursor-pointer"
             >
-              <div className="flex items-center justify-between gap-3">
-                <div className="flex items-center gap-3 overflow-hidden">
+              <div className="flex items-center gap-3">
+                <div className="flex items-center gap-3 shrink-0 w-[112px] sm:w-[152px]">
                   <div
                     className="w-9 h-9 rounded-full flex items-center justify-center shrink-0 border"
                     style={{ backgroundColor: cat.color + '22', color: cat.color, borderColor: cat.color + '44' }}
                   >
                     <BxIcon iconClass={cat.icon} size={18} />
                   </div>
-                  <p className="font-medium text-gray-900 dark:text-gray-100 text-sm truncate max-w-[140px] sm:max-w-[180px]" title={cat.name}>
+                  <p className="font-medium text-gray-900 dark:text-gray-100 text-sm truncate" title={cat.name}>
                     {cat.name}
                   </p>
                 </div>
-                <div className="text-right shrink-0 pl-2">
-                  <span className="block font-bold text-gray-900 dark:text-gray-50 text-sm whitespace-nowrap">
-                    {formatCurrency(cat.amount)}
-                  </span>
-                  <span className="text-[10px] text-gray-400 whitespace-nowrap">
-                    {cat.percentage.toFixed(1)}%
-                  </span>
+                <div className="shrink-0">
+                  <CircularProgressBar current={cat.percentage} max={100} size={36} strokeWidth={3} showBudget={false} color={cat.color} />
                 </div>
-              </div>
-              <div className="h-1.5 w-full bg-gray-100 dark:bg-gray-800 rounded-full overflow-hidden mt-2">
-                <div
-                  className="h-full rounded-full transition-all duration-500 ease-out"
-                  style={{
-                    width: `${cat.percentage}%`,
-                    backgroundColor: cat.color
-                  }}
-                />
+                <span className="text-right ml-auto shrink-0 pl-2 font-bold text-gray-900 dark:text-gray-50 text-sm whitespace-nowrap">
+                  {formatCurrency(cat.amount)}
+                </span>
               </div>
             </motion.div>
           ))
