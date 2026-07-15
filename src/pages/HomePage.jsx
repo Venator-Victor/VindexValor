@@ -8,11 +8,24 @@ import { ViteJs, ReactIcon, Nodejs, Supabase as SupabaseIcon, TailwindCss, Landm
 import Header from '@/components/landing/Header';
 import Footer from '@/components/landing/Footer';
 import FeatureCard from '@/components/landing/FeatureCard';
+import ProductShowcase from '@/components/landing/ProductShowcase';
 import TechBadge from '@/components/landing/TechBadge';
 import { Button } from '@/components/ui/button';
 
+const SHOWCASE_TABS = [
+  { key: 'dashboard', navKey: 'nav.dashboard', src: '/screenshot-dashboard.webp' },
+  { key: 'transactions', navKey: 'nav.transactions', src: '/screenshot-transactions.webp' },
+  { key: 'invoices', navKey: 'nav.invoices', src: '/screenshot-invoices.webp' },
+  { key: 'accounts', navKey: 'nav.accounts', src: '/screenshot-accounts.webp' },
+  { key: 'analytics', navKey: 'nav.analytics', src: '/screenshot-analytics.webp' },
+  { key: 'goals', navKey: 'nav.goals', src: '/screenshot-goals.webp' },
+  { key: 'categories', navKey: 'nav.categories', src: '/screenshot-categories.webp' },
+  { key: 'recurrences', navKey: 'nav.recurrences', src: '/screenshot-recurrences.webp' }
+];
+
 const HomePage = () => {
   const { t } = useTranslation();
+  const showcaseTabs = SHOWCASE_TABS.map(tab => ({ ...tab, label: t(tab.navKey) }));
   return (
     <div className="min-h-screen bg-background text-foreground font-sans flex flex-col">
       <Helmet>
@@ -26,7 +39,7 @@ const HomePage = () => {
         {/* HERO SECTION */}
         <section id="home" className="relative min-h-[90vh] flex items-center justify-center pt-20 overflow-hidden">
           <div className="absolute inset-0 z-0">
-            <img src="/hero.jpg" alt={t('landing.hero_image_alt')} className="w-full h-full object-cover object-center" />
+            <img src="/hero.webp" alt={t('landing.hero_image_alt')} className="w-full h-full object-cover object-center" />
             <div className="absolute inset-0 bg-black/60 backdrop-blur-[2px]"></div>
           </div>
           
@@ -93,6 +106,20 @@ const HomePage = () => {
               <FeatureCard icon={TrendingUp} title={t('landing.feature_investments_title')} description={t('landing.feature_investments_desc')} />
               <FeatureCard icon={Target} title={t('landing.feature_goals_title')} description={t('landing.feature_goals_desc')} />
             </div>
+          </div>
+        </section>
+
+        {/* CAPTURAS DE TELA SECTION */}
+        <section id="capturas" className="py-24 bg-background border-t border-border">
+          <div className="container mx-auto px-4 md:px-6">
+            <div className="text-center mb-16">
+              <h2 className="text-3xl md:text-4xl font-bold mb-4">{t('landing.showcase_title')}</h2>
+              <p className="text-lg text-muted-foreground max-w-2xl mx-auto">
+                {t('landing.showcase_subtitle')}
+              </p>
+            </div>
+
+            <ProductShowcase tabs={showcaseTabs} />
           </div>
         </section>
 
