@@ -1154,13 +1154,10 @@
     "balance_vs_inflation": "Saldo vs. inflação",
     "today_label": "hoje",
     "return_investment_label": "Retorno investimento",
-    "budget_nominal": "Orçamento Nominal",
-    "budget_corrected": "Orçamento Corrigido",
     "chart_show_impact": "Mostrar impacto da inflação (corrigido - nominal)",
     "chart_hide_impact": "Mostrar nominal e corrigido separadamente",
     "chart_show_value": "Mostrar valor em R$ perdido",
     "chart_hide_value": "Mostrar visão em porcentagem",
-    "impact_label": "Impacto da inflação",
     "rate_this_month": "Inflação no mês:",
     "estimated_badge": "Est.",
     "data_label_fallback": "Data",
@@ -1183,7 +1180,13 @@
     "purchasing_power_loss": "Perda de Poder de Compra",
     "per_amount_hint": "Para cada {{amount}}",
     "today_worth_label": "Hoje vale:",
-    "purchasing_power_desc": "Você precisa de {{percent}}% do valor de {{year}} para comprar as mesmas coisas hoje."
+    "purchasing_power_desc": "Você precisa de {{percent}}% do valor de {{year}} para comprar as mesmas coisas hoje.",
+    "income_vs_inflation_title": "Renda vs. Inflação Acumulada",
+    "income_vs_inflation_subtitle": "Compare o crescimento da sua renda com a inflação acumulada (IPCA) nos últimos 12 meses.",
+    "income_index_label": "Índice de Renda",
+    "inflation_index_label": "Índice de Inflação",
+    "gap_label": "Diferença (renda - inflação)",
+    "no_income_data": "Sem receitas registradas nos últimos 12 meses."
   },
 
   "investment_sim": {

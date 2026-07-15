@@ -20,7 +20,7 @@ import RecentTransactionsSection from '@/components/RecentTransactionsSection';
 import UpcomingRecurrencesSection from '@/components/UpcomingRecurrencesSection';
 import AccountsSummarySection from '@/components/AccountsSummarySection';
 import AssetCompositionChart from '@/components/AssetCompositionChart';
-import InflationBudgetChart from '@/components/InflationBudgetChart';
+import IncomeVsInflationChart from '@/components/IncomeVsInflationChart';
 import BetaWarningModal from '@/components/BetaWarningModal';
 import useBetaWarning from '@/hooks/useBetaWarning';
 import OnboardingChecklist from '@/components/OnboardingChecklist';
@@ -185,7 +185,7 @@ const Dashboard = () => {
       </div>
 
       <div className="w-full h-[400px]">
-        <InflationBudgetChart />
+        <IncomeVsInflationChart />
       </div>
     </div>
   );

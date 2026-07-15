@@ -1154,13 +1154,10 @@
     "balance_vs_inflation": "Balance vs. inflation",
     "today_label": "today",
     "return_investment_label": "Investment return",
-    "budget_nominal": "Nominal Budget",
-    "budget_corrected": "Adjusted Budget",
     "chart_show_impact": "Show inflation impact (adjusted - nominal)",
     "chart_hide_impact": "Show nominal and adjusted separately",
     "chart_show_value": "Show currency value lost",
     "chart_hide_value": "Show percentage view",
-    "impact_label": "Inflation impact",
     "rate_this_month": "Inflation this month:",
     "estimated_badge": "Est.",
     "data_label_fallback": "Data",
@@ -1183,7 +1180,13 @@
     "purchasing_power_loss": "Purchasing Power Loss",
     "per_amount_hint": "For every {{amount}}",
     "today_worth_label": "Today it's worth:",
-    "purchasing_power_desc": "You need {{percent}}% of the {{year}} value to buy the same things today."
+    "purchasing_power_desc": "You need {{percent}}% of the {{year}} value to buy the same things today.",
+    "income_vs_inflation_title": "Income vs. Cumulative Inflation",
+    "income_vs_inflation_subtitle": "Compare your income growth with cumulative inflation (IPCA) over the last 12 months.",
+    "income_index_label": "Income Index",
+    "inflation_index_label": "Inflation Index",
+    "gap_label": "Gap (income - inflation)",
+    "no_income_data": "No income recorded in the last 12 months."
   },
 
   "investment_sim": {
