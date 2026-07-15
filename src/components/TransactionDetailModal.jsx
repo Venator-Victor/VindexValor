@@ -36,7 +36,7 @@ const TransactionDetailModal = ({ isOpen, onClose, transaction, onEdit, onDelete
               style={{ color: transaction.categories?.color || typeColor }}
             />
           </div>
-          <div className="min-w-0">
+          <div className="min-w-0 flex-1">
             <DialogTitle className="text-lg font-bold break-words" title={transaction.description || transaction.name}>
               {transaction.description || transaction.name}
             </DialogTitle>
@@ -44,6 +44,9 @@ const TransactionDetailModal = ({ isOpen, onClose, transaction, onEdit, onDelete
               {new Date(transaction.date).toLocaleDateString(i18n.language, { timeZone: 'UTC' })}
             </p>
           </div>
+          {transaction.is_recurring && (
+            <History size={18} className="text-primary shrink-0" title={t('transactions.recurring_transaction_title')} />
+          )}
         </div>
 
         <div className="bg-muted/30 p-4 rounded-xl border border-border text-center">
@@ -93,13 +96,6 @@ const TransactionDetailModal = ({ isOpen, onClose, transaction, onEdit, onDelete
             </div>
           )}
         </div>
-
-        {transaction.is_recurring && (
-          <div className="flex items-center gap-2 text-xs text-primary bg-primary/10 px-3 py-2 rounded-lg">
-            <History size={14} />
-            {t('transactions.recurring_transaction_title')}
-          </div>
-        )}
 
         <div className="flex gap-2">
           <Button
