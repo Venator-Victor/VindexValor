@@ -3,11 +3,12 @@ import { useTranslation } from 'react-i18next';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
 import { DEFAULT_ACCOUNTS } from '@/utils/defaultAccounts';
-import { Plus } from '@/components/BxIcon';
-import BxIcon from '@/components/BxIcon';
+import BxIcon, { Plus } from '@/components/BxIcon';
+import { ACCOUNT_TYPE_LABEL_KEYS } from '@/utils/accountMappings';
 
 const AccountSuggestionsModal = ({ isOpen, onClose, onSelect, onCreateCustom }) => {
   const { t } = useTranslation();
+  const getAccountTypeLabel = (type) => t(ACCOUNT_TYPE_LABEL_KEYS[type] || type);
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
@@ -32,7 +33,7 @@ const AccountSuggestionsModal = ({ isOpen, onClose, onSelect, onCreateCustom }) 
                    <BxIcon iconClass={`bx ${account.icon}`} size={24} />
                 </div>
                 <span className="font-semibold text-gray-900 dark:text-gray-100 text-sm sm:text-base text-center break-words leading-tight flex-grow">{account.name}</span>
-                <span className="text-xs text-gray-500 dark:text-gray-400 mt-1 text-center break-words leading-tight">{account.type}</span>
+                <span className="text-xs text-gray-500 dark:text-gray-400 mt-1 text-center break-words leading-tight">{getAccountTypeLabel(account.type)}</span>
              </button>
           ))}
         </div>
