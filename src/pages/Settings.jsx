@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { Helmet } from 'react-helmet';
 import { useTranslation } from 'react-i18next';
 import { motion } from 'framer-motion';
@@ -9,11 +9,16 @@ import { useToast } from '@/components/ui/use-toast';
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from '@/components/ui/alert-dialog';
 import { useAuth } from '@/context/SupabaseAuthContext';
 import { useTheme } from '@/context/ThemeContext';
-import BxIcon, { User, Cog, Bell, InfoCircle, Share, Lock, TrashAlt, Moon, Sun } from '@/components/BxIcon';
+import BxIcon, { User, Cog, Bell, InfoCircle, Share, Lock, TrashAlt, Moon, Sun, ArrowToBottom } from '@/components/BxIcon';
+import { supabase } from '@/lib/customSupabaseClient';
+import { buildBackupPayload, isValidBackupShape, importBackupData } from '@/utils/dataBackup';
 
 const Settings = () => {
   const { t } = useTranslation();
-  const { settings, setSettings, saveSettings, transactions, accounts, categories, investments, recurring } = useFinance();
+  const {
+    settings, setSettings, saveSettings, fetchAllData,
+    transactions, accounts, categories, investments, recurring, parcels, goals, invoices, invoiceItems
+  } = useFinance();
   const { user, resetPasswordForEmail, deleteAccount } = useAuth();
   const { theme, toggleTheme, setTheme } = useTheme();
   const { toast } = useToast();
@@ -22,6 +27,10 @@ const Settings = () => {
   const [pendingLanguage, setPendingLanguage] = useState(settings.language);
   const [deleteConfirmText, setDeleteConfirmText] = useState('');
   const [isDeletingAccount, setIsDeletingAccount] = useState(false);
+  const importInputRef = useRef(null);
+  const [pendingImport, setPendingImport] = useState(null);
+  const [isImportConfirmOpen, setIsImportConfirmOpen] = useState(false);
+  const [isImporting, setIsImporting] = useState(false);
 
   // Keep the pending selections in sync with the persisted values whenever
   // they change from outside this form (initial load, another tab/device).
@@ -89,32 +98,74 @@ const Settings = () => {
   };
 
   const handleExportData = () => {
-    const dataToExport = {
-      transactions,
-      accounts,
-      categories,
-      investments,
-      recurring,
-      settings: { ...settings, theme },
-      exportDate: new Date().toISOString()
-    };
-    
+    const dataToExport = buildBackupPayload({
+      transactions, accounts, categories, investments, recurring, parcels, goals, invoices, invoiceItems,
+      settings: { ...settings, theme }
+    });
+
     const dataStr = JSON.stringify(dataToExport, null, 2);
     const blob = new Blob([dataStr], { type: 'application/json' });
     const url = URL.createObjectURL(blob);
-    
+
     const link = document.createElement('a');
     link.href = url;
     link.download = `vindex_backup_${new Date().toISOString().slice(0, 10)}.json`;
     document.body.appendChild(link);
     link.click();
     document.body.removeChild(link);
-    
+
     toast({
       title: t('settings.export_success_title'),
       description: t('settings.export_success_desc'),
       className: "bg-green-100 dark:bg-vindex-success/10 border-green-500 dark:border-vindex-success/50 text-green-900 dark:text-vindex-text",
     });
+  };
+
+  const handleImportButtonClick = () => {
+    importInputRef.current?.click();
+  };
+
+  const handleImportFileChange = async (e) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    try {
+      const text = await file.text();
+      const parsed = JSON.parse(text);
+
+      if (!isValidBackupShape(parsed)) {
+        toast({ title: t('settings.import_invalid_file_title'), description: t('settings.import_invalid_file_desc'), variant: "destructive" });
+        return;
+      }
+
+      setPendingImport(parsed);
+      setIsImportConfirmOpen(true);
+    } catch (err) {
+      toast({ title: t('settings.import_invalid_file_title'), description: err.message, variant: "destructive" });
+    } finally {
+      // Clears the input value so re-selecting the same file path fires onChange again.
+      e.target.value = '';
+    }
+  };
+
+  const handleConfirmImport = async () => {
+    if (!pendingImport) return;
+    setIsImporting(true);
+    try {
+      await importBackupData(supabase, user.id, pendingImport);
+      await fetchAllData();
+      toast({
+        title: t('settings.import_success_title'),
+        description: t('settings.import_success_desc'),
+        className: "bg-green-100 dark:bg-vindex-success/10 border-green-500 dark:border-vindex-success/50 text-green-900 dark:text-vindex-text",
+      });
+    } catch (err) {
+      toast({ title: t('settings.import_error_title'), description: err.message, variant: "destructive" });
+    } finally {
+      setIsImporting(false);
+      setIsImportConfirmOpen(false);
+      setPendingImport(null);
+    }
   };
 
   return (
@@ -176,6 +227,17 @@ const Settings = () => {
                       <Share size={16} className="mr-2" /> {t('settings.export_data')}
                     </Button>
 
+                    <input
+                      ref={importInputRef}
+                      type="file"
+                      accept="application/json"
+                      onChange={handleImportFileChange}
+                      className="hidden"
+                    />
+                    <Button onClick={handleImportButtonClick} className="flex-1 bg-white dark:bg-vindex-border hover:bg-gray-100 dark:hover:bg-vindex-border/80 text-gray-900 dark:text-vindex-text border border-gray-200 dark:border-vindex-border/50 rounded-lg shadow-sm">
+                      <ArrowToBottom size={16} className="mr-2" /> {t('settings.import_data')}
+                    </Button>
+
                     <AlertDialog>
                       <AlertDialogTrigger asChild>
                          <Button variant="destructive" className="flex-1 bg-red-50 dark:bg-vindex-danger/20 hover:bg-red-100 dark:hover:bg-vindex-danger/30 text-vindex-danger border border-red-200 dark:border-vindex-danger/50 rounded-lg">
@@ -193,6 +255,34 @@ const Settings = () => {
                           <AlertDialogCancel className="bg-gray-100 dark:bg-vindex-bg hover:bg-gray-200 dark:hover:bg-vindex-bg/80 border-gray-200 dark:border-vindex-border text-gray-900 dark:text-vindex-text rounded-lg">{t('common.cancel')}</AlertDialogCancel>
                           <AlertDialogAction onClick={handleResetPassword} className="bg-primary hover:bg-primary/90 rounded-lg text-primary-foreground">
                             {t('common.confirm')}
+                          </AlertDialogAction>
+                        </AlertDialogFooter>
+                      </AlertDialogContent>
+                    </AlertDialog>
+
+                    <AlertDialog open={isImportConfirmOpen} onOpenChange={(open) => { if (!open && !isImporting) { setIsImportConfirmOpen(false); setPendingImport(null); } }}>
+                      <AlertDialogContent className="bg-white dark:bg-vindex-card text-gray-900 dark:text-vindex-text border-gray-200 dark:border-vindex-border rounded-xl">
+                        <AlertDialogHeader>
+                          <AlertDialogTitle>{t('settings.import_confirm_title')}</AlertDialogTitle>
+                          <AlertDialogDescription className="text-gray-500 dark:text-vindex-text/60">
+                            {t('settings.import_confirm_desc', {
+                              transactions: pendingImport?.transactions?.length || 0,
+                              accounts: pendingImport?.accounts?.length || 0,
+                              categories: pendingImport?.categories?.length || 0,
+                              invoices: pendingImport?.invoices?.length || 0,
+                              goals: pendingImport?.goals?.length || 0,
+                              recurring: pendingImport?.recurring?.length || 0,
+                            })}
+                          </AlertDialogDescription>
+                        </AlertDialogHeader>
+                        <AlertDialogFooter>
+                          <AlertDialogCancel disabled={isImporting} className="bg-gray-100 dark:bg-vindex-bg hover:bg-gray-200 dark:hover:bg-vindex-bg/80 border-gray-200 dark:border-vindex-border text-gray-900 dark:text-vindex-text rounded-lg">{t('common.cancel')}</AlertDialogCancel>
+                          <AlertDialogAction
+                            onClick={(e) => { e.preventDefault(); handleConfirmImport(); }}
+                            disabled={isImporting}
+                            className="bg-primary hover:bg-primary/90 rounded-lg text-primary-foreground"
+                          >
+                            {isImporting ? t('settings.importing') : t('common.confirm')}
                           </AlertDialogAction>
                         </AlertDialogFooter>
                       </AlertDialogContent>
