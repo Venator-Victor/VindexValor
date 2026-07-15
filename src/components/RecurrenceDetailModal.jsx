@@ -6,12 +6,12 @@ import { formatCurrency } from '@/utils/calculations';
 import { Repeat, Edit as Edit2, TrashAlt as Trash2 } from '@/components/BxIcon';
 import { PRIMARY, SUCCESS, DANGER, successAlpha } from '@/utils/colors';
 
-const RecurrenceDetailModal = ({ isOpen, onClose, item, onEdit, onDelete, onToggleStatus }) => {
+const RecurrenceDetailModal = ({ isOpen, onClose, item, onEdit, onDelete }) => {
   const { t, i18n } = useTranslation();
 
   if (!item) return null;
 
-  const isIncome = Number(item.amount) > 0;
+  const isIncome = item.type === 'income';
   const typeColor = isIncome ? SUCCESS : DANGER;
   const isActive = item.status === 'active';
 
@@ -65,17 +65,16 @@ const RecurrenceDetailModal = ({ isOpen, onClose, item, onEdit, onDelete, onTogg
           </div>
         </div>
 
-        <button
-          onClick={() => onToggleStatus(item)}
-          className={`w-full px-3 py-2 text-sm rounded-lg transition-colors border font-medium ${
+        <div
+          className={`w-full px-3 py-2 text-sm rounded-lg border font-medium text-center ${
             isActive
               ? ''
-              : 'bg-gray-50 border-gray-200 dark:bg-vindex-bg/50 dark:border-vindex-border/50 text-gray-500 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-vindex-border'
+              : 'bg-gray-50 border-gray-200 dark:bg-vindex-bg/50 dark:border-vindex-border/50 text-gray-500 dark:text-gray-400'
           }`}
           style={isActive ? { backgroundColor: successAlpha(0.1), borderColor: successAlpha(0.3), color: SUCCESS } : undefined}
         >
           {isActive ? t('recurrences.status_active') : t('recurrences.status_inactive')}
-        </button>
+        </div>
 
         <div className="flex gap-2">
           <Button

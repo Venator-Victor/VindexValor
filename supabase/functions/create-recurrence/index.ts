@@ -51,6 +51,8 @@ Deno.serve(async (req) => {
           next_date: advanceDate(tx.date, frequency),
           status: 'active',
           category_id: tx.category_id || null,
+          type: tx.type,
+          transaction_type_id: tx.transaction_type_id || null,
           recurrence_type: recurrenceType,
           installment_count: installmentCount,
         })
@@ -117,6 +119,9 @@ Deno.serve(async (req) => {
       ? (body.status ? 'active' : 'inactive')
       : (body.status || 'active');
 
+    const recurrenceType = body.recurrence_type || 'subscription';
+    const transactionType = body.type || (body.amount < 0 ? 'expense' : 'income');
+
     const { data: recurrence, error: recError } = await supabase
       .from('recurring_items')
       .insert({
@@ -127,7 +132,9 @@ Deno.serve(async (req) => {
         next_date: body.start_date,
         status: statusStr,
         category_id: body.category_id || null,
-        recurrence_type: body.recurrence_type || 'subscription',
+        type: transactionType,
+        transaction_type_id: body.transaction_type_id || null,
+        recurrence_type: recurrenceType,
         installment_count: body.installment_count || null
       })
       .select()
@@ -145,11 +152,13 @@ Deno.serve(async (req) => {
           user_id: userId,
           description: body.description,
           amount: body.amount,
-          type: body.amount < 0 ? 'expense' : 'income',
+          type: transactionType,
           date: body.start_date,
           category_id: body.category_id || null,
+          transaction_type_id: body.transaction_type_id || null,
           is_recurring: true,
           recurring_id: recurrence.id,
+          recurring_type: recurrenceType,
           original_amount: Math.abs(body.amount)
         })
         .select()
@@ -166,7 +175,7 @@ Deno.serve(async (req) => {
       }
     }
 
-    if (body.recurrence_type === 'installments' && body.installment_count && body.installment_count > 0) {
+    if (recurrenceType === 'installments' && body.installment_count && body.installment_count > 0) {
       const count = parseInt(body.installment_count);
       const installments = [];
       for (let i = 0; i < count; i++) {

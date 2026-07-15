@@ -287,8 +287,11 @@ export const calculateAssetsLiabilities = (transactions = [], accounts = [], rec
   }
 
   if (Array.isArray(recurring)) {
+    // Only active, expense-side recurrences are a liability — a salary recurrence is
+    // future income, not money owed, so it's excluded here entirely (it isn't a
+    // current asset either; it's a projected cash flow, a different metric).
     recurring.forEach(r => {
-      if (r.status !== 'paid' && r.status !== 'pago' && r.status !== 'Concluído') {
+      if (r.status === 'active' && r.type !== 'income') {
         liabilities += Math.abs(Number(r.amount || 0));
       }
     });

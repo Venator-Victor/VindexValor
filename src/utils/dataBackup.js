@@ -37,7 +37,7 @@ const TRANSACTION_COLUMNS = [
 ];
 
 const RECURRING_COLUMNS = [
-  'id', 'description', 'amount', 'frequency', 'next_date', 'status', 'recurrence_type',
+  'id', 'description', 'amount', 'frequency', 'next_date', 'status', 'type', 'transaction_type_id', 'recurrence_type',
   'installment_count', 'category_id', 'created_at'
 ];
 

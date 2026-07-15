@@ -167,7 +167,11 @@ const TransactionForm = ({ initialData, onSuccess, onCancel }) => {
                 ...prev,
                 type: e.target.value,
                 is_recurring: (e.target.value === 'transfer' || e.target.value === 'payment') ? false : prev.is_recurring,
-                category_id: (e.target.value === 'transfer' || e.target.value === 'payment') ? '' : prev.category_id
+                category_id: (e.target.value === 'transfer' || e.target.value === 'payment') ? '' : prev.category_id,
+                // Mirrors the DB's chk_income_recurring/chk_expense_recurring constraints —
+                // a recurring income transaction can only ever be 'salary', never
+                // 'subscription'/'installments', and vice versa.
+                recurring_type: e.target.value === 'income' ? 'salary' : (prev.recurring_type === 'salary' ? 'subscription' : prev.recurring_type)
               }))}
               options={[
                 { label: t('transactions.type_expense'), value: "expense" },
@@ -323,7 +327,7 @@ const TransactionForm = ({ initialData, onSuccess, onCancel }) => {
             </label>
             {formData.is_recurring && (
               <div className="space-y-3 animate-in fade-in slide-in-from-top-2 duration-200">
-                <div className="grid grid-cols-2 gap-3">
+                <div className={formData.type === 'income' ? 'grid grid-cols-1 gap-3' : 'grid grid-cols-2 gap-3'}>
                   <SelectInput
                     label={t('common.frequency')}
                     id="frequency"
@@ -331,16 +335,18 @@ const TransactionForm = ({ initialData, onSuccess, onCancel }) => {
                     options={PERIOD_OPTIONS}
                     onChange={(e) => setFormData(prev => ({ ...prev, frequency: e.target.value }))}
                   />
-                  <SelectInput
-                    label={t('common.type')}
-                    id="recurring_type"
-                    value={formData.recurring_type}
-                    options={[
-                      { label: t('transactions.form_recurring_subscription'), value: 'subscription' },
-                      { label: t('transactions.form_recurring_installments'), value: 'installments' }
-                    ]}
-                    onChange={(e) => setFormData(prev => ({ ...prev, recurring_type: e.target.value }))}
-                  />
+                  {formData.type !== 'income' && (
+                    <SelectInput
+                      label={t('common.type')}
+                      id="recurring_type"
+                      value={formData.recurring_type}
+                      options={[
+                        { label: t('transactions.form_recurring_subscription'), value: 'subscription' },
+                        { label: t('transactions.form_recurring_installments'), value: 'installments' }
+                      ]}
+                      onChange={(e) => setFormData(prev => ({ ...prev, recurring_type: e.target.value }))}
+                    />
+                  )}
                 </div>
                 {formData.recurring_type === 'installments' && (
                   <div>

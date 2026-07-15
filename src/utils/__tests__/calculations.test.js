@@ -458,19 +458,25 @@ describe('calculateAssetsLiabilities', () => {
     expect(assets).toBeCloseTo(520);
   });
 
-  it('adds pending recurring to liabilities', () => {
-    const recurring = [{ status: 'pending', amount: 300 }];
+  it('adds active expense recurring to liabilities', () => {
+    const recurring = [{ status: 'active', type: 'expense', amount: -300 }];
     const { liabilities } = calculateAssetsLiabilities([], [], recurring);
     expect(liabilities).toBe(300);
   });
 
-  it('excludes paid recurring from liabilities', () => {
-    const recurring = [
-      { status: 'pago', amount: 200 },
-      { status: 'Concluído', amount: 150 },
-    ];
+  it('excludes inactive recurring from liabilities', () => {
+    const recurring = [{ status: 'inactive', type: 'expense', amount: -200 }];
     const { liabilities } = calculateAssetsLiabilities([], [], recurring);
     expect(liabilities).toBe(0);
+  });
+
+  it('excludes income (salary) recurring from liabilities', () => {
+    const recurring = [
+      { status: 'active', type: 'income', amount: 5000 },
+      { status: 'active', type: 'expense', amount: -300 },
+    ];
+    const { liabilities } = calculateAssetsLiabilities([], [], recurring);
+    expect(liabilities).toBe(300);
   });
 });
 

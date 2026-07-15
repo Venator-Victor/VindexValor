@@ -46,11 +46,13 @@ Deno.serve(async (req) => {
         user_id: userId,
         description: rule.description,
         amount: rule.amount,
-        type: Number(rule.amount) < 0 ? 'expense' : 'income',
+        type: rule.type || (Number(rule.amount) < 0 ? 'expense' : 'income'),
         date: rule.next_date,
         category_id: rule.category_id,
+        transaction_type_id: rule.transaction_type_id || null,
         is_recurring: true,
         recurring_id: rule.id,
+        recurring_type: rule.recurrence_type || 'subscription',
         original_amount: Math.abs(Number(rule.amount)),
         created_at: new Date().toISOString()
       })

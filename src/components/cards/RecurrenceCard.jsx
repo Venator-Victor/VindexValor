@@ -6,12 +6,12 @@ import { useFinance } from '@/context/FinanceContext';
 import { Repeat, Check, Checks } from '@/components/BxIcon';
 import { PRIMARY, SUCCESS, DANGER } from '@/utils/colors';
 
-const RecurrenceCard = ({ item, onClick, onToggleStatus }) => {
+const RecurrenceCard = ({ item, onClick }) => {
   const { t, i18n } = useTranslation();
   const { parcels, payParcel } = useFinance();
   const isActive = item.status === 'active';
   const isParceled = item.recurrence_type === 'installments';
-  const isIncome = Number(item.amount) > 0;
+  const isIncome = item.type === 'income';
   const typeColor = isIncome ? SUCCESS : DANGER;
 
   // Find related parcels for this recurring item
@@ -31,18 +31,13 @@ const RecurrenceCard = ({ item, onClick, onToggleStatus }) => {
     }
   };
 
-  const handleToggleStatus = (e) => {
-    e.stopPropagation();
-    onToggleStatus(item);
-  };
-
   // Safe access to category name from joined data
   const categoryName = item.categories?.name || t('common.no_category');
 
   return (
     <div
       onClick={() => onClick && onClick(item)}
-      className={`bg-white dark:bg-vindex-card rounded-xl p-4 border transition-shadow shadow-sm hover:shadow-md flex flex-col justify-between cursor-pointer ${isActive ? 'border-gray-200 dark:border-vindex-border' : 'border-gray-100 dark:border-vindex-border/30 opacity-80'}`}
+      className={`bg-white dark:bg-vindex-card rounded-xl p-4 border border-gray-200 dark:border-vindex-border transition-shadow shadow-sm hover:shadow-md flex flex-col justify-between cursor-pointer ${isActive ? '' : 'opacity-80'}`}
       onMouseEnter={e => e.currentTarget.style.borderColor = PRIMARY}
       onMouseLeave={e => e.currentTarget.style.borderColor = ''}
     >
@@ -120,13 +115,9 @@ const RecurrenceCard = ({ item, onClick, onToggleStatus }) => {
           style={isActive ? { backgroundColor: SUCCESS + '1A' } : undefined}
         >
           <span className="text-xs font-medium text-gray-700 dark:text-gray-300">{t('recurrences.col_status')}</span>
-          <button
-            onClick={handleToggleStatus}
-            className="font-bold text-sm hover:underline"
-            style={{ color: isActive ? SUCCESS : undefined }}
-          >
+          <span className="font-bold text-sm" style={{ color: isActive ? SUCCESS : undefined }}>
             {isActive ? t('recurrences.status_active') : t('recurrences.status_inactive')}
-          </button>
+          </span>
         </div>
       )}
     </div>

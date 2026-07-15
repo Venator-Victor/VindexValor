@@ -43,7 +43,7 @@ const Recurrences = () => {
   const [isCategoryDialogOpen, setIsCategoryDialogOpen] = useState(false);
   const [editingRecurring, setEditingRecurring] = useState(null);
   const [deleteId, setDeleteId] = useState(null);
-  const [selectedDetailRecurring, setSelectedDetailRecurring] = useState(null);
+  const [selectedDetailRecurringId, setSelectedDetailRecurringId] = useState(null);
   const [selectedIds, setSelectedIds] = useState([]);
 
   const [formData, setFormData] = useState({
@@ -102,7 +102,8 @@ const Recurrences = () => {
             else totalPending += Number(p.amount);
         });
      }
-     recurring.filter(r => r.status === 'active').forEach(r => {
+     // Salary recurrences are income, not a bill — they don't belong in "left to pay".
+     recurring.filter(r => r.status === 'active' && r.type !== 'income').forEach(r => {
          totalPending += Math.abs(Number(r.amount));
      });
      return { totalPaid, totalPending };
@@ -119,8 +120,13 @@ const Recurrences = () => {
     }
 
     const typeObj = transactionTypes.find(tt => tt.id === formData.transaction_type_id);
-    const finalAmount = typeObj?.type === 'income' ? Math.abs(Number(formData.amount)) : -Math.abs(Number(formData.amount));
+    const isIncome = typeObj?.type === 'income';
+    const finalAmount = isIncome ? Math.abs(Number(formData.amount)) : -Math.abs(Number(formData.amount));
     const isParcelas = typeObj?.name === 'Parcelamento';
+    // Mirrors the same 3-way vocabulary transactions.recurring_type already uses
+    // (salary/subscription/installments) — income recurrences are always 'salary',
+    // never lumped in with 'subscription' the way they used to be.
+    const recurrenceType = isIncome ? 'salary' : (isParcelas ? 'installments' : 'subscription');
     const isActive = formData.status === 'active';
 
     const recurringData = {
@@ -130,7 +136,9 @@ const Recurrences = () => {
       frequency: formData.frequency,
       nextDate: formData.nextDate,
       status: formData.status,
-      recurrence_type: isParcelas ? 'installments' : 'subscription',
+      type: isIncome ? 'income' : 'expense',
+      transaction_type_id: formData.transaction_type_id,
+      recurrence_type: recurrenceType,
       installment_count: isParcelas && formData.installment_count ? parseInt(formData.installment_count) : null
     };
 
@@ -162,15 +170,19 @@ const Recurrences = () => {
 
   const handleEdit = (recurringItem) => {
     setEditingRecurring(recurringItem);
-    
-    // Attempt to guess transaction_type_id based on name/amount (since recurrences might not store it directly, but mapped from transacoes if needed)
-    let guessedTypeId = '';
-    if (recurringItem.recurrence_type === 'installments') {
-       guessedTypeId = transactionTypes.find(tt => tt.name === 'Parcelamento')?.id || '';
-    } else if (Number(recurringItem.amount) > 0) {
-       guessedTypeId = transactionTypes.find(tt => tt.name === 'Salário')?.id || '';
-    } else {
-       guessedTypeId = transactionTypes.find(tt => tt.name === 'Assinatura' || tt.name === 'subscription')?.id || '';
+
+    // transaction_type_id is stored directly on the recurrence since the schema change
+    // that added it — only recurrences created before that migration (whose backfill
+    // couldn't find a matching transaction_types row by name) fall back to a guess.
+    let resolvedTypeId = recurringItem.transaction_type_id || '';
+    if (!resolvedTypeId) {
+      if (recurringItem.recurrence_type === 'installments') {
+         resolvedTypeId = transactionTypes.find(tt => tt.name === 'Parcelamento')?.id || '';
+      } else if (recurringItem.recurrence_type === 'salary' || Number(recurringItem.amount) > 0) {
+         resolvedTypeId = transactionTypes.find(tt => tt.name === 'Salário')?.id || '';
+      } else {
+         resolvedTypeId = transactionTypes.find(tt => tt.name === 'Assinatura' || tt.name === 'subscription')?.id || '';
+      }
     }
 
     setFormData({
@@ -180,7 +192,7 @@ const Recurrences = () => {
       frequency: recurringItem.frequency,
       nextDate: recurringItem.date || recurringItem.next_date,
       status: recurringItem.status === 'active' ? 'active' : 'inactive',
-      transaction_type_id: guessedTypeId,
+      transaction_type_id: resolvedTypeId,
       installment_count: recurringItem.installment_count || ''
     });
     setIsDialogOpen(true);
@@ -189,13 +201,18 @@ const Recurrences = () => {
   const handleDelete = (id) => {
     deleteRecurring(id);
     setDeleteId(null);
-    setSelectedDetailRecurring(null);
+    setSelectedDetailRecurringId(null);
     toast({ title: t('recurrences.deleted_success') });
   };
 
   const handleCardClick = (item) => {
-    setSelectedDetailRecurring(item);
+    setSelectedDetailRecurringId(item.id);
   };
+
+  // Looked up fresh on every render (rather than storing the clicked item snapshot)
+  // so the detail modal reflects status/field changes immediately — e.g. toggling
+  // "Ativo" from inside the modal used to only show up after closing and reopening it.
+  const selectedDetailRecurring = recurring.find(r => r.id === selectedDetailRecurringId) || null;
 
   const toggleSelect = (id) => {
     setSelectedIds(prev => prev.includes(id) ? prev.filter(i => i !== id) : [...prev, id]);
@@ -205,12 +222,6 @@ const Recurrences = () => {
     setSelectedIds(prev => prev.length === sortedRecurring.length ? [] : sortedRecurring.map(r => r.id));
   };
 
-  const toggleStatus = (recurringItem) => {
-    const newStatus = recurringItem.status === 'active' ? 'inactive' : 'active';
-    updateRecurring(recurringItem.id, { status: newStatus });
-    toast({ title: newStatus === 'active' ? t('recurrences.activated_success') : t('recurrences.deactivated_success') });
-  };
-  
   const handleCategoryChange = (e) => {
     const value = e.target.value;
     if (value === '__create_new__') setIsDefaultModalOpen(true);
@@ -302,7 +313,9 @@ const Recurrences = () => {
 
                     <div className="grid grid-cols-2 gap-4">
                        <div>
-                         <Label htmlFor="amount" className="min-h-[2.5rem] flex items-end">{t('recurrences.installment_amount')}</Label>
+                         <Label htmlFor="amount" className="min-h-[2.5rem] flex items-end">
+                           {transactionTypes.find(tt => tt.id === formData.transaction_type_id)?.name === 'Parcelamento' ? t('recurrences.installment_amount') : t('common.amount')}
+                         </Label>
                          <NumberInput
                             id="amount"
                             value={formData.amount}
@@ -462,7 +475,7 @@ const Recurrences = () => {
                   animate={{ opacity: 1, y: 0 }}
                   transition={{ delay: index * 0.05 }}
                 >
-                  <RecorrenciaCard item={item} onClick={handleCardClick} onToggleStatus={toggleStatus} />
+                  <RecorrenciaCard item={item} onClick={handleCardClick} />
                 </motion.div>
               ))}
             </div>
@@ -523,7 +536,7 @@ const Recurrences = () => {
                         <td className="px-6 py-4 text-gray-700 dark:text-gray-300">
                           {t(`recurrences.type_${item.recurrence_type || 'subscription'}`)}
                         </td>
-                        <td className="px-6 py-4 text-right font-bold whitespace-nowrap" style={{ color: Number(item.amount) > 0 ? SUCCESS : DANGER }}>
+                        <td className="px-6 py-4 text-right font-bold whitespace-nowrap" style={{ color: item.type === 'income' ? SUCCESS : DANGER }}>
                           {formatCurrency(item.amount)}
                         </td>
                         <td className="px-6 py-4 text-gray-700 dark:text-gray-300">
@@ -532,14 +545,13 @@ const Recurrences = () => {
                         <td className="px-6 py-4 text-gray-700 dark:text-gray-300">
                           {item.date || item.next_date ? new Date(item.date || item.next_date).toLocaleDateString(i18n.language) : 'N/A'}
                         </td>
-                        <td className="px-6 py-4" onClick={(e) => e.stopPropagation()}>
-                            <button
-                                onClick={() => toggleStatus(item)}
-                                className={`transition-colors hover:underline ${item.status === 'active' ? '' : 'text-gray-500 dark:text-gray-400'}`}
+                        <td className="px-6 py-4">
+                            <span
+                                className={item.status === 'active' ? '' : 'text-gray-500 dark:text-gray-400'}
                                 style={item.status === 'active' ? { color: SUCCESS } : undefined}
                             >
                                 {item.status === 'active' ? t('recurrences.status_active') : t('recurrences.status_inactive')}
-                            </button>
+                            </span>
                         </td>
                         <td className="px-6 py-4" onClick={(e) => e.stopPropagation()}>
                           <div className="flex justify-end gap-2">
@@ -592,11 +604,10 @@ const Recurrences = () => {
 
       <RecurrenceDetailModal
         isOpen={!!selectedDetailRecurring}
-        onClose={() => setSelectedDetailRecurring(null)}
+        onClose={() => setSelectedDetailRecurringId(null)}
         item={selectedDetailRecurring}
         onEdit={handleEdit}
         onDelete={(id) => setDeleteId(id)}
-        onToggleStatus={toggleStatus}
       />
     </div>
   );

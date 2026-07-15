@@ -465,6 +465,8 @@ export const FinanceProvider = ({ children }) => {
         start_date: data.nextDate,
         status: statusStr,
         category_id: data.category_id || null,
+        type: data.type,
+        transaction_type_id: data.transaction_type_id || null,
         recurrence_type: data.recurrence_type,
         installment_count: data.installment_count || null,
         user_id: user.id
@@ -490,6 +492,8 @@ export const FinanceProvider = ({ children }) => {
       next_date: data.nextDate || data.next_date,
       status: statusStr,
       category_id: data.category_id || null,
+      type: data.type,
+      transaction_type_id: data.transaction_type_id || null,
       recurrence_type: data.recurrence_type,
       installment_count: data.installment_count || null
     };
