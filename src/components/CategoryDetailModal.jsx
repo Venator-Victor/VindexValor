@@ -4,7 +4,6 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/u
 import { Button } from '@/components/ui/button';
 import { formatCurrency, getPeriodStartDate } from '@/utils/calculations';
 import CircularProgressBar from '@/components/CircularProgressBar';
-import BudgetPeriodBreakdown from '@/components/BudgetPeriodBreakdown';
 import BxIcon, { ArrowDownRight, ArrowUpRight, Edit as Edit2, TrashAlt as Trash2, ChevronRight } from '@/components/BxIcon';
 import { PRIMARY, DANGER } from '@/utils/colors';
 
@@ -136,7 +135,6 @@ const CategoryDetailModal = ({ isOpen, onClose, category, categories, transactio
                   </span>
                 </div>
               </div>
-              <BudgetPeriodBreakdown amount={spendingLimit} period={category.budget_period} />
             </div>
           )}
 
