@@ -76,6 +76,7 @@ const GoalDetailModal = ({ isOpen, onClose, goal, onEdit, onDelete }) => {
                 size={50}
                 showBudget={false}
                 strokeWidth={5}
+                mode="progress"
               />
               <span className="text-sm font-bold">{percentage.toFixed(0)}%</span>
             </div>

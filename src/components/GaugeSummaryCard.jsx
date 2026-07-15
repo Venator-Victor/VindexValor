@@ -6,11 +6,11 @@ import { TEXT_SUCCESS, TEXT_WARNING, TEXT_DANGER, TEXT_PRIMARY } from '@/utils/c
 const getDynamicLeftColor = (pct, mode) => {
   if (mode === 'progress') {
     if (pct >= 80) return TEXT_SUCCESS;
-    if (pct >= 40) return TEXT_WARNING;
+    if (pct >= 30) return TEXT_WARNING;
     return TEXT_DANGER;
   }
-  if (pct < 80) return TEXT_SUCCESS;
-  if (pct < 100) return TEXT_WARNING;
+  if (pct <= 50) return TEXT_SUCCESS;
+  if (pct < 90) return TEXT_WARNING;
   return TEXT_DANGER;
 };
 

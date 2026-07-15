@@ -1,4 +1,4 @@
-import { SUCCESS, DANGER, WARNING, TEXT_SUCCESS, TEXT_WARNING, TEXT_DANGER, TEXT_NEUTRAL } from '@/utils/colors';
+import { SUCCESS, DANGER, WARNING, TEXT_SUCCESS, TEXT_WARNING, TEXT_DANGER } from '@/utils/colors';
 import React from 'react';
 import { useTranslation } from 'react-i18next';
 
@@ -32,21 +32,23 @@ const GaugeChart = ({ value, max, label, size = 200, strokeWidth = 15, className
   const getColor = (percent) => {
     if (mode === 'progress') {
       if (percent >= 80) return SUCCESS;
-      if (percent >= 40) return WARNING;
+      if (percent >= 30) return WARNING;
       return DANGER;
     }
-    if (percent < 80) return SUCCESS;
-    if (percent < 100) return WARNING;
+    if (percent <= 50) return SUCCESS;
+    if (percent < 90) return WARNING;
     return DANGER;
   };
 
   const getCenterTextClass = (percent) => {
     if (mode === 'progress') {
       if (percent >= 80) return TEXT_SUCCESS;
-      if (percent >= 40) return TEXT_WARNING;
+      if (percent >= 30) return TEXT_WARNING;
       return TEXT_DANGER;
     }
-    return percent > 100 ? TEXT_DANGER : TEXT_NEUTRAL;
+    if (percent <= 50) return TEXT_SUCCESS;
+    if (percent < 90) return TEXT_WARNING;
+    return TEXT_DANGER;
   };
 
   const startAngle = 0;

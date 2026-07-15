@@ -3,22 +3,29 @@ import React from 'react';
 import { useTranslation } from 'react-i18next';
 import { formatCurrency } from '@/utils/calculations';
 
-const CircularProgressBar = ({ current, max, size = 60, strokeWidth = 5, showBudget = true }) => {
+const CircularProgressBar = ({ current, max, size = 60, strokeWidth = 5, showBudget = true, mode = 'usage', color: colorOverride }) => {
   const { t } = useTranslation();
   const radius = (size - strokeWidth) / 2;
   const circumference = radius * 2 * Math.PI;
-  
+
   const percentage = max > 0 ? Math.min((current / max) * 100, 100) : 0;
   const offset = circumference - (percentage / 100) * circumference;
-  const isOverLimit = max > 0 && current > max;
+  // "Over the limit" only makes sense for usage (spending past a budget) — a goal
+  // exceeding its target is a good thing, not a warning state.
+  const isOverLimit = mode === 'usage' && max > 0 && current > max;
 
   const getColor = (percent) => {
-    if (percent < 50) return SUCCESS; // Green
-    if (percent < 80) return WARNING; // Yellow
+    if (mode === 'progress') {
+      if (percent < 30) return DANGER; // Red
+      if (percent < 80) return WARNING; // Yellow
+      return SUCCESS; // Green
+    }
+    if (percent <= 50) return SUCCESS; // Green
+    if (percent < 90) return WARNING; // Yellow
     return DANGER; // Red
   };
 
-  const color = getColor(percentage);
+  const color = colorOverride || getColor(percentage);
 
   return (
     <div className="flex items-center gap-4">
