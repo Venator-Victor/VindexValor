@@ -4,7 +4,7 @@ import { Dialog, DialogContent, DialogTitle } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
 import { formatCurrency, calculateInvestmentReturn } from '@/utils/calculations';
 import { PieChart, TrendingUp, TrendingDown, Edit as Edit2, TrashAlt as Trash2 } from '@/components/BxIcon';
-import { PRIMARY, DANGER } from '@/utils/colors';
+import { PRIMARY, SUCCESS, DANGER, successAlpha, dangerAlpha } from '@/utils/colors';
 
 const InvestmentDetailModal = ({ isOpen, onClose, investment, accounts, onEdit, onDelete }) => {
   const { t, i18n } = useTranslation();
@@ -13,7 +13,7 @@ const InvestmentDetailModal = ({ isOpen, onClose, investment, accounts, onEdit, 
 
   const returnPercent = calculateInvestmentReturn(investment.investedAmount, investment.currentAmount);
   const isProfit = returnPercent >= 0;
-  const profitColor = isProfit ? '#10b981' : '#ef4444';
+  const profitColor = isProfit ? SUCCESS : DANGER;
   const fundingAccount = accounts?.find(acc => acc.id === investment.accountId);
 
   return (
@@ -41,21 +41,21 @@ const InvestmentDetailModal = ({ isOpen, onClose, investment, accounts, onEdit, 
             <p className="text-xs text-muted-foreground mb-1">{t('investments.col_invested')}</p>
             <p className="text-lg font-bold crypto-symbol">{formatCurrency(investment.investedAmount)}</p>
           </div>
-          <div className={`p-3 rounded-lg border ${isProfit ? 'bg-green-50 dark:bg-green-900/20 border-green-100 dark:border-green-900/30' : 'bg-red-50 dark:bg-red-900/20 border-red-100 dark:border-red-900/30'}`}>
-            <p className={`text-xs mb-1 ${isProfit ? 'text-green-700 dark:text-green-400' : 'text-red-700 dark:text-red-400'}`}>
+          <div className="p-3 rounded-lg border" style={{ backgroundColor: isProfit ? successAlpha(0.08) : dangerAlpha(0.08), borderColor: isProfit ? successAlpha(0.3) : dangerAlpha(0.3) }}>
+            <p className="text-xs mb-1" style={{ color: profitColor }}>
               {t('investments.col_current')}
             </p>
-            <p className={`text-lg font-bold crypto-symbol ${isProfit ? 'text-green-700 dark:text-green-400' : 'text-red-700 dark:text-red-400'}`}>
+            <p className="text-lg font-bold crypto-symbol" style={{ color: profitColor }}>
               {formatCurrency(investment.currentAmount)}
             </p>
           </div>
         </div>
 
-        <div className={`flex items-center justify-between p-3 rounded-lg ${isProfit ? 'bg-green-50 dark:bg-vindex-success/10' : 'bg-red-50 dark:bg-vindex-danger/10'}`}>
+        <div className="flex items-center justify-between p-3 rounded-lg" style={{ backgroundColor: isProfit ? successAlpha(0.08) : dangerAlpha(0.08) }}>
           <span className="text-xs font-medium text-gray-700 dark:text-gray-300">{t('investments.col_return')}</span>
-          <div className="flex items-center gap-1">
-            {isProfit ? <TrendingUp size={16} className="text-green-600 dark:text-vindex-success" /> : <TrendingDown size={16} className="text-red-600 dark:text-vindex-danger" />}
-            <span className={`font-bold ${isProfit ? 'text-green-600 dark:text-vindex-success' : 'text-red-600 dark:text-vindex-danger'}`}>
+          <div className="flex items-center gap-1" style={{ color: profitColor }}>
+            {isProfit ? <TrendingUp size={16} /> : <TrendingDown size={16} />}
+            <span className="font-bold">
               {isProfit ? '+' : ''}{returnPercent.toFixed(2)}%
             </span>
           </div>

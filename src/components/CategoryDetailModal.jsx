@@ -5,7 +5,7 @@ import { Button } from '@/components/ui/button';
 import { formatCurrency, getPeriodStartDate } from '@/utils/calculations';
 import CircularProgressBar from '@/components/CircularProgressBar';
 import BxIcon, { ArrowDownRight, ArrowUpRight, Edit as Edit2, TrashAlt as Trash2, ChevronRight } from '@/components/BxIcon';
-import { PRIMARY, DANGER } from '@/utils/colors';
+import { PRIMARY, SUCCESS, DANGER, successAlpha, dangerAlpha } from '@/utils/colors';
 
 const CategoryDetailModal = ({ isOpen, onClose, category, categories, transactions, onEdit, onDelete, onSelectCategory }) => {
   const { t, i18n } = useTranslation();
@@ -99,17 +99,17 @@ const CategoryDetailModal = ({ isOpen, onClose, category, categories, transactio
           </div>
 
           <div className="grid grid-cols-2 gap-4 mb-4">
-            <div className="bg-green-50 dark:bg-green-900/20 p-3 rounded-lg border border-green-100 dark:border-green-900/30">
-              <p className="text-xs text-green-700 dark:text-green-400 mb-1 flex items-center gap-1">
+            <div className="p-3 rounded-lg border" style={{ backgroundColor: successAlpha(0.08), borderColor: successAlpha(0.3) }}>
+              <p className="text-xs mb-1 flex items-center gap-1" style={{ color: SUCCESS }}>
                 <ArrowUpRight className="w-3 h-3" /> {t('common.income_label')}
               </p>
-              <p className="text-lg font-bold text-green-700 dark:text-green-400">{formatCurrency(totalIncome)}</p>
+              <p className="text-lg font-bold" style={{ color: SUCCESS }}>{formatCurrency(totalIncome)}</p>
             </div>
-            <div className="bg-red-50 dark:bg-red-900/20 p-3 rounded-lg border border-red-100 dark:border-red-900/30">
-              <p className="text-xs text-red-700 dark:text-red-400 mb-1 flex items-center gap-1">
+            <div className="p-3 rounded-lg border" style={{ backgroundColor: dangerAlpha(0.08), borderColor: dangerAlpha(0.3) }}>
+              <p className="text-xs mb-1 flex items-center gap-1" style={{ color: DANGER }}>
                 <ArrowDownRight className="w-3 h-3" /> {t('common.expenses_label')}
               </p>
-              <p className="text-lg font-bold text-red-700 dark:text-red-400">{formatCurrency(totalExpense)}</p>
+              <p className="text-lg font-bold" style={{ color: DANGER }}>{formatCurrency(totalExpense)}</p>
             </div>
           </div>
 
@@ -224,7 +224,7 @@ const CategoryDetailModal = ({ isOpen, onClose, category, categories, transactio
                   </div>
                   <div
                     className="font-bold text-sm whitespace-nowrap pl-2"
-                    style={{ color: t.type === 'income' ? '#10b981' : t.type === 'expense' ? '#ef4444' : PRIMARY }}
+                    style={{ color: t.type === 'income' ? SUCCESS : t.type === 'expense' ? DANGER : PRIMARY }}
                   >
                     {t.type === 'income' ? '+' : '-'}{formatCurrency(t.amount)}
                   </div>

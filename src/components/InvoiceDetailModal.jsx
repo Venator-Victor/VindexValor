@@ -5,13 +5,13 @@ import { Dialog, DialogContent, DialogTitle } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
 import { formatCurrency } from '@/utils/calculations';
 import { CreditCard, Edit as Edit2, TrashAlt as Trash2, ArrowRight } from '@/components/BxIcon';
-import { PRIMARY, DANGER } from '@/utils/colors';
+import { PRIMARY, SUCCESS, DANGER, WARNING, INFO } from '@/utils/colors';
 import { getEffectiveInvoiceStatus } from '@/utils/invoiceBalance';
 
 const STATUS_COLORS = {
-  open: '#3b82f6',
-  closed: '#eab308',
-  paid: '#22c55e',
+  open: INFO,
+  closed: WARNING,
+  paid: SUCCESS,
 };
 
 const InvoiceDetailModal = ({ isOpen, onClose, invoice, total, onEdit, onDelete }) => {
@@ -50,7 +50,7 @@ const InvoiceDetailModal = ({ isOpen, onClose, invoice, total, onEdit, onDelete 
 
         <div className="bg-muted/30 p-4 rounded-xl border border-border text-center">
           <p className="text-xs text-muted-foreground mb-1">{t('invoices.col_total')}</p>
-          <p className={`text-3xl font-bold crypto-symbol ${total < 0 ? 'text-red-600 dark:text-red-400' : total > 0 ? 'text-green-600 dark:text-green-400' : ''}`}>
+          <p className="text-3xl font-bold crypto-symbol" style={{ color: total < 0 ? DANGER : total > 0 ? SUCCESS : undefined }}>
             {formatCurrency(total)}
           </p>
           <span className="inline-block mt-2 text-xs font-medium px-2 py-0.5 rounded-full" style={{ backgroundColor: statusColor + '22', color: statusColor }}>

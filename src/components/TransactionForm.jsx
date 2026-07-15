@@ -14,7 +14,7 @@ import { useAutoMappingCategories } from '@/hooks/useAutoMappingCategories';
 import { formatCurrencyWithSymbol } from '@/utils/calculations';
 import { PERIOD_OPTIONS } from '@/utils/periodOptions';
 import { buildFlatIndentedOptions } from '@/utils/categoryTree';
-import { SUCCESS, PRIMARY } from '@/utils/colors';
+import { SUCCESS, PRIMARY, INFO, infoAlpha } from '@/utils/colors';
 
 const TransactionForm = ({ initialData, onSuccess, onCancel }) => {
   const { t } = useTranslation();
@@ -297,7 +297,7 @@ const TransactionForm = ({ initialData, onSuccess, onCancel }) => {
             <div className="flex justify-between items-center mb-2">
               <Label htmlFor="category_id" className="mb-0">{t('common.category')}</Label>
               {isAutoMapped && formData.category_id && (
-                <Badge variant="secondary" className="h-5 text-[10px] gap-1 bg-blue-50 text-blue-600 border-none">
+                <Badge variant="secondary" className="h-5 text-[10px] gap-1 border-none" style={{ backgroundColor: infoAlpha(0.1), color: INFO }}>
                   <Sparkles className="w-3 h-3" /> {t('transactions.form_suggested_badge')}
                 </Badge>
               )}

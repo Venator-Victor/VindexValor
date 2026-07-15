@@ -4,7 +4,7 @@ import { Dialog, DialogContent, DialogTitle } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
 import { formatCurrency } from '@/utils/calculations';
 import { Repeat, Edit as Edit2, TrashAlt as Trash2 } from '@/components/BxIcon';
-import { PRIMARY, DANGER } from '@/utils/colors';
+import { PRIMARY, SUCCESS, DANGER, successAlpha } from '@/utils/colors';
 
 const RecurrenceDetailModal = ({ isOpen, onClose, item, onEdit, onDelete, onToggleStatus }) => {
   const { t, i18n } = useTranslation();
@@ -12,7 +12,7 @@ const RecurrenceDetailModal = ({ isOpen, onClose, item, onEdit, onDelete, onTogg
   if (!item) return null;
 
   const isIncome = Number(item.amount) > 0;
-  const typeColor = isIncome ? '#10b981' : '#ef4444';
+  const typeColor = isIncome ? SUCCESS : DANGER;
   const isActive = item.status === 'active';
 
   return (
@@ -69,9 +69,10 @@ const RecurrenceDetailModal = ({ isOpen, onClose, item, onEdit, onDelete, onTogg
           onClick={() => onToggleStatus(item)}
           className={`w-full px-3 py-2 text-sm rounded-lg transition-colors border font-medium ${
             isActive
-              ? 'bg-green-50 border-green-200 dark:bg-vindex-success/10 dark:border-vindex-success/30 text-green-700 dark:text-vindex-success hover:bg-green-100 dark:hover:bg-vindex-success/20'
+              ? ''
               : 'bg-gray-50 border-gray-200 dark:bg-vindex-bg/50 dark:border-vindex-border/50 text-gray-500 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-vindex-border'
           }`}
+          style={isActive ? { backgroundColor: successAlpha(0.1), borderColor: successAlpha(0.3), color: SUCCESS } : undefined}
         >
           {isActive ? t('recurrences.status_active') : t('recurrences.status_inactive')}
         </button>

@@ -4,7 +4,7 @@ import { Dialog, DialogContent, DialogTitle } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
 import { formatCurrencyWithSymbol } from '@/utils/calculations';
 import BxIcon, { Edit as Edit2, TrashAlt as Trash2 } from '@/components/BxIcon';
-import { PRIMARY, DANGER } from '@/utils/colors';
+import { PRIMARY, SUCCESS, DANGER, successAlpha, dangerAlpha } from '@/utils/colors';
 import { ACCOUNT_TYPE_LABEL_KEYS } from '@/utils/accountMappings';
 
 const AccountDetailModal = ({ isOpen, onClose, account, transactions, onEdit, onDelete }) => {
@@ -51,9 +51,9 @@ const AccountDetailModal = ({ isOpen, onClose, account, transactions, onEdit, on
           <div className="grid grid-cols-2 gap-4 mb-4">
             {isCreditCard ? (
               <>
-                <div className="bg-red-50 dark:bg-red-900/20 p-3 rounded-lg border border-red-100 dark:border-red-900/30">
-                  <p className="text-xs text-red-700 dark:text-red-400 mb-1">{t('accounts.current_invoice')}</p>
-                  <p className="text-lg font-bold text-red-700 dark:text-red-400 crypto-symbol">
+                <div className="p-3 rounded-lg border" style={{ backgroundColor: dangerAlpha(0.08), borderColor: dangerAlpha(0.3) }}>
+                  <p className="text-xs mb-1" style={{ color: DANGER }}>{t('accounts.current_invoice')}</p>
+                  <p className="text-lg font-bold crypto-symbol" style={{ color: DANGER }}>
                     {formatCurrencyWithSymbol(account.current_fatura_value || 0, account.currency)}
                   </p>
                 </div>
@@ -66,11 +66,17 @@ const AccountDetailModal = ({ isOpen, onClose, account, transactions, onEdit, on
               </>
             ) : (
               <>
-                <div className={`p-3 rounded-lg border ${account.balance >= 0 ? 'bg-green-50 dark:bg-green-900/20 border-green-100 dark:border-green-900/30' : 'bg-red-50 dark:bg-red-900/20 border-red-100 dark:border-red-900/30'}`}>
-                  <p className={`text-xs mb-1 ${account.balance >= 0 ? 'text-green-700 dark:text-green-400' : 'text-red-700 dark:text-red-400'}`}>
+                <div
+                  className="p-3 rounded-lg border"
+                  style={{
+                    backgroundColor: account.balance >= 0 ? successAlpha(0.08) : dangerAlpha(0.08),
+                    borderColor: account.balance >= 0 ? successAlpha(0.3) : dangerAlpha(0.3),
+                  }}
+                >
+                  <p className="text-xs mb-1" style={{ color: account.balance >= 0 ? SUCCESS : DANGER }}>
                     {t('accounts.current_balance')}
                   </p>
-                  <p className={`text-lg font-bold crypto-symbol ${account.balance >= 0 ? 'text-green-700 dark:text-green-400' : 'text-red-700 dark:text-red-400'}`}>
+                  <p className="text-lg font-bold crypto-symbol" style={{ color: account.balance >= 0 ? SUCCESS : DANGER }}>
                     {formatCurrencyWithSymbol(account.balance, account.currency)}
                   </p>
                 </div>
@@ -135,7 +141,7 @@ const AccountDetailModal = ({ isOpen, onClose, account, transactions, onEdit, on
                     </div>
                     <div
                       className="font-bold text-sm whitespace-nowrap pl-2 crypto-symbol"
-                      style={{ color: isOutgoing ? '#ef4444' : '#10b981' }}
+                      style={{ color: isOutgoing ? DANGER : SUCCESS }}
                     >
                       {isOutgoing ? '-' : '+'}{formatCurrencyWithSymbol(Math.abs(tr.amount), account.currency)}
                     </div>

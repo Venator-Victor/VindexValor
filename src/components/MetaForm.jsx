@@ -13,7 +13,7 @@ import { Target, CalendarStar } from '@/components/BxIcon';
 import { PERIOD_OPTIONS } from '@/utils/periodOptions';
 import { TrashAlt as Trash2, Plus, AlertCircle } from '@/components/BxIcon';
 import { useToast } from '@/components/ui/use-toast';
-import { PRIMARY, SUCCESS } from '@/utils/colors';
+import { PRIMARY, SUCCESS, DANGER, dangerAlpha } from '@/utils/colors';
 
 const MetaForm = ({ initialData, initialName, initialIcon, initialColor, onSubmit, onCancel }) => {
   const { t } = useTranslation();
@@ -165,7 +165,7 @@ const MetaForm = ({ initialData, initialName, initialIcon, initialColor, onSubmi
 
       {/* 2. Basic Info */}
       <div>
-        <Label htmlFor="name">{t('goals.name_label')} <span className="text-red-500">*</span></Label>
+        <Label htmlFor="name">{t('goals.name_label')} <span style={{ color: DANGER }}>*</span></Label>
         <input
             id="name"
             type="text"
@@ -181,7 +181,7 @@ const MetaForm = ({ initialData, initialName, initialIcon, initialColor, onSubmi
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4 animate-in fade-in slide-in-from-top-2">
         {formData.goal_type === 'target_value' ? (
           <div className="md:col-span-2">
-            <Label htmlFor="targetAmount">{t('goals.target_amount_label')} <span className="text-red-500">*</span></Label>
+            <Label htmlFor="targetAmount">{t('goals.target_amount_label')} <span style={{ color: DANGER }}>*</span></Label>
             <NumberInput
               id="targetAmount"
               value={formData.targetAmount}
@@ -193,7 +193,7 @@ const MetaForm = ({ initialData, initialName, initialIcon, initialColor, onSubmi
         ) : (
           <>
              <div className="md:col-span-2">
-                <Label htmlFor="contributionValue">{t('goals.contribution_value')} (R$) <span className="text-red-500">*</span></Label>
+                <Label htmlFor="contributionValue">{t('goals.contribution_value')} (R$) <span style={{ color: DANGER }}>*</span></Label>
                 <NumberInput
                   id="contributionValue"
                   value={formData.contributionValue}
@@ -296,7 +296,10 @@ const MetaForm = ({ initialData, initialName, initialIcon, initialColor, onSubmi
                          variant="ghost"
                          size="icon"
                          onClick={() => handleRemoveReservation(res.account_id)}
-                         className="h-8 w-8 text-red-500 hover:text-red-700 hover:bg-red-50 dark:hover:bg-red-900/20"
+                         className="h-8 w-8"
+                         style={{ color: DANGER }}
+                         onMouseEnter={e => { e.currentTarget.style.backgroundColor = dangerAlpha(0.1); }}
+                         onMouseLeave={e => { e.currentTarget.style.backgroundColor = 'transparent'; }}
                       >
                          <Trash2 className="w-4 h-4" />
                       </Button>

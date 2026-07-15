@@ -4,12 +4,12 @@ import { Dialog, DialogContent, DialogTitle } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
 import { formatCurrencyWithSymbol } from '@/utils/calculations';
 import BxIcon, { Edit as Edit2, TrashAlt as Trash2, History, ArrowRight } from '@/components/BxIcon';
-import { PRIMARY, DANGER } from '@/utils/colors';
+import { PRIMARY, SUCCESS, DANGER } from '@/utils/colors';
 
 const TYPE_COLORS = {
-  income: '#10b981',
-  expense: '#ef4444',
-  payment: '#ef4444',
+  income: SUCCESS,
+  expense: DANGER,
+  payment: DANGER,
   transfer: PRIMARY,
 };
 
