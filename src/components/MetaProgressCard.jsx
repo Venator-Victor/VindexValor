@@ -22,14 +22,16 @@ const MetaProgressCard = ({ goal, index = 0, onClick }) => {
   // Colors for gauge
   const getGaugeColor = (pct) => {
     if (pct < 30) return DANGER; // Red
-    if (pct < 70) return WARNING; // Yellow
+    if (pct < 80) return WARNING; // Yellow
     return SUCCESS; // Green
   };
 
   const color = getGaugeColor(percentage);
   
-  // SVG Config
-  const radius = 28;
+  // SVG config — sized to match CircularProgressBar's 48px/stroke-4 gauge on category cards.
+  const size = 48;
+  const strokeWidth = 4;
+  const radius = (size - strokeWidth) / 2;
   const circumference = 2 * Math.PI * radius;
   const strokeDashoffset = circumference - (percentage / 100) * circumference;
 
@@ -42,59 +44,57 @@ const MetaProgressCard = ({ goal, index = 0, onClick }) => {
       onClick={() => onClick && onClick(goal)}
       onMouseEnter={e => { if (!isOverdue) e.currentTarget.style.borderColor = PRIMARY; }}
       onMouseLeave={e => { if (!isOverdue) e.currentTarget.style.borderColor = ''; }}
-      className={`bg-white dark:bg-vindex-card rounded-xl p-4 sm:p-5 border shadow-sm hover:shadow-md transition-shadow relative flex flex-col justify-between h-full min-h-[160px] cursor-pointer
+      className={`bg-white dark:bg-vindex-card rounded-xl p-4 border shadow-sm hover:shadow-md transition-shadow flex flex-col justify-between cursor-pointer
         ${isOverdue ? 'border-red-200 dark:border-red-900/50' : 'border-gray-200 dark:border-vindex-border'}
       `}
     >
-      <div className="flex justify-between items-start gap-2 mb-2">
+      <div className="flex items-start justify-between gap-3 w-full">
         {/* Left Side Info */}
-        <div className="flex items-start gap-3 flex-1 min-w-0">
-          <div 
-            className="w-10 h-10 rounded-lg flex items-center justify-center text-xl shadow-sm border flex-shrink-0"
-            style={{ 
-                backgroundColor: goal.color + '22', 
+        <div className="flex items-center gap-3 flex-1 min-w-0">
+          <div
+            className="w-10 h-10 rounded-lg flex items-center justify-center shadow-sm border shrink-0"
+            style={{
+                backgroundColor: goal.color + '22',
                 color: goal.color,
                 borderColor: goal.color + '44'
             }}
           >
             <BxIcon iconClass={`bx ${goal.icon || 'bx-target-lock'}`} size={20} />
           </div>
-          <div className="min-w-0 flex-1">
-            <h3 className="text-base font-bold text-gray-900 dark:text-gray-50 leading-tight truncate pr-1" title={goal.name}>
+          <div className="text-left flex-grow overflow-hidden">
+            <h3 className="text-sm font-bold text-gray-900 dark:text-gray-50 leading-tight break-words" title={goal.name}>
                 {goal.name}
             </h3>
-            <div className="flex flex-wrap items-center gap-2 mt-1">
-                <span className="text-[10px] uppercase tracking-wider px-1.5 py-0.5 rounded bg-gray-100 dark:bg-gray-800 text-gray-600 dark:text-gray-400 font-semibold border border-gray-200 dark:border-gray-700 whitespace-nowrap">
-                    {goal.goal_type === 'monthly_value' ? t('goals.type_recurring') : t('goals.type_fixed_badge')}
-                </span>
-            </div>
+            <p className="text-xs text-gray-700 dark:text-gray-300">
+                {goal.goal_type === 'monthly_value' ? t('goals.type_recurring') : t('goals.type_fixed_badge')}
+            </p>
             {goal.deadline && isTargetMode && (
-                <div className={`text-xs mt-1 truncate ${isOverdue ? 'text-red-600 font-bold' : 'text-gray-500 dark:text-gray-400'}`}>
+                <p className={`text-xs truncate ${isOverdue ? 'text-red-600 font-bold' : 'text-gray-500 dark:text-gray-400'}`}>
                     {isOverdue ? t('goals.overdue_card') : t('goals.days_left_full', { count: daysLeft })}
-                </div>
+                </p>
             )}
           </div>
         </div>
 
-        {/* Right Side Gauge - Fixed Size Container */}
-        <div className="relative flex items-center justify-center flex-shrink-0 w-16 h-16">
-            <svg width="64" height="64" viewBox="0 0 64 64" className="transform -rotate-90">
+        {/* Right Side Gauge */}
+        <div className="relative flex items-center justify-center" style={{ width: size, height: size }}>
+            <svg width={size} height={size} viewBox={`0 0 ${size} ${size}`} className="transform -rotate-90">
               <circle
-                cx="32"
-                cy="32"
+                cx={size / 2}
+                cy={size / 2}
                 r={radius}
                 fill="none"
                 stroke="currentColor"
-                strokeWidth="5"
+                strokeWidth={strokeWidth}
                 className="text-gray-100 dark:text-gray-800"
               />
               <motion.circle
-                cx="32"
-                cy="32"
+                cx={size / 2}
+                cy={size / 2}
                 r={radius}
                 fill="none"
                 stroke={color}
-                strokeWidth="5"
+                strokeWidth={strokeWidth}
                 strokeLinecap="round"
                 strokeDasharray={circumference}
                 initial={{ strokeDashoffset: circumference }}
@@ -103,7 +103,7 @@ const MetaProgressCard = ({ goal, index = 0, onClick }) => {
               />
             </svg>
             <div className="absolute inset-0 flex items-center justify-center">
-                <span className="text-xs font-bold text-gray-900 dark:text-gray-100">
+                <span className="text-[10px] font-bold text-gray-700 dark:text-gray-200">
                     {percentage.toFixed(0)}%
                 </span>
             </div>
@@ -111,22 +111,20 @@ const MetaProgressCard = ({ goal, index = 0, onClick }) => {
       </div>
 
       {/* Values Grid */}
-      <div className="mt-auto pt-3 border-t border-gray-100 dark:border-gray-800 grid grid-cols-2 gap-2 text-sm">
-        <div className="overflow-hidden">
-           <p className="text-gray-500 dark:text-gray-400 text-[10px] uppercase tracking-wide font-semibold truncate">
-             {t('goals.accumulated')}
-           </p>
-           <p className="font-bold text-emerald-600 dark:text-emerald-400 truncate" title={formatCurrency(goal.accumulated_amount)}>
+      <div className="w-full p-3 bg-gray-50 dark:bg-vindex-bg rounded-lg border border-gray-100 dark:border-vindex-border flex items-center justify-between mt-3">
+        <div className="text-left">
+           <span className="text-[10px] text-gray-700 dark:text-gray-300 block">{t('goals.accumulated')}</span>
+           <span className="text-lg font-bold text-emerald-600 dark:text-emerald-400 block truncate" title={formatCurrency(goal.accumulated_amount)}>
              {formatCurrency(goal.accumulated_amount)}
-           </p>
+           </span>
         </div>
-        <div className="text-right overflow-hidden">
-           <p className="text-gray-500 dark:text-gray-400 text-[10px] uppercase tracking-wide font-semibold truncate">
+        <div className="text-right">
+           <span className="text-[10px] text-gray-700 dark:text-gray-300 block">
               {isTargetMode ? t('goals.target_total') : t('goals.target_period')}
-           </p>
-           <p className="font-bold text-gray-900 dark:text-gray-50 truncate" title={isTargetMode ? formatCurrency(goal.targetAmount) : formatCurrency(goal.contributionValue)}>
+           </span>
+           <span className="text-lg font-bold text-gray-900 dark:text-gray-50 block truncate" title={isTargetMode ? formatCurrency(goal.targetAmount) : formatCurrency(goal.contributionValue)}>
              {isTargetMode ? formatCurrency(goal.targetAmount) : formatCurrency(goal.contributionValue)}
-           </p>
+           </span>
         </div>
       </div>
     </motion.div>
