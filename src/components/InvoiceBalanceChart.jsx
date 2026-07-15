@@ -78,14 +78,33 @@ const InvoiceBalanceChart = ({ dateFilter }) => {
       itemsByInvoiceId[item.invoice_id].push(item);
     });
 
+    // A card's bill closes one month and the payment that settles it clears the
+    // next, so a linked transaction's invoice_id (which invoice it settles) isn't
+    // the point it should plot on — that would stack the payment on top of the very
+    // expenses it pays off. Instead, bucket it onto whichever invoice (same account)
+    // covers the calendar month the payment itself actually happened in.
+    const invoiceById = {};
+    allInvoices.forEach(inv => { invoiceById[inv.id] = inv; });
+
+    const invoiceIdByAccountMonth = {};
+    allInvoices.forEach(inv => {
+      if (!inv.closing_date) return;
+      invoiceIdByAccountMonth[`${inv.account_id}|${inv.closing_date.slice(0, 7)}`] = inv.id;
+    });
+
     // Any transaction can be linked as a payment (expense/transfer/payment — see
     // InvoicePaymentLinkModal's eligible-payments query), so what actually settles an
     // invoice is invoice_id being set, not the transaction's type.
     const paymentsByInvoiceId = {};
     transactions.forEach(tx => {
       if (!tx.invoice_id) return;
-      if (!paymentsByInvoiceId[tx.invoice_id]) paymentsByInvoiceId[tx.invoice_id] = [];
-      paymentsByInvoiceId[tx.invoice_id].push(tx);
+      const settledInvoice = invoiceById[tx.invoice_id];
+      if (!settledInvoice) return;
+      // Falls back to the settled invoice itself if no invoice covers the payment's
+      // own month (e.g. paid before any later invoice was ever created).
+      const bucketInvoiceId = invoiceIdByAccountMonth[`${settledInvoice.account_id}|${(tx.date || '').slice(0, 7)}`] || tx.invoice_id;
+      if (!paymentsByInvoiceId[bucketInvoiceId]) paymentsByInvoiceId[bucketInvoiceId] = [];
+      paymentsByInvoiceId[bucketInvoiceId].push(tx);
     });
 
     // Walked off the full, unfiltered invoice list (not just `invoices`, which the
