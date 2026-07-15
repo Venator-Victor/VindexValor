@@ -10,7 +10,7 @@ import { useFinance } from '@/context/FinanceContext';
 import SelectInput from '@/components/ui/SelectInput';
 import { formatCurrency, isCryptoCurrency } from '@/utils/calculations';
 import { buildFlatIndentedOptions } from '@/utils/categoryTree';
-import { SUCCESS, PRIMARY } from '@/utils/colors';
+import { SUCCESS, PRIMARY, DANGER } from '@/utils/colors';
 
 const TransactionSelectionModal = ({ selectedIds, transactions, onClearSelection, onRefresh }) => {
   const { t } = useTranslation();
@@ -111,13 +111,13 @@ const TransactionSelectionModal = ({ selectedIds, transactions, onClearSelection
               {totalBRL !== 0 && (
                 <div>
                   <span className="text-xs text-muted-foreground">{t('transactions.bulk_total_brl')}</span>
-                  <p className={`font-bold text-lg ${totalBRL < 0 ? 'text-red-500' : 'text-green-500'}`}>{formatCurrency(totalBRL)}</p>
+                  <p className="font-bold text-lg" style={{ color: totalBRL < 0 ? DANGER : SUCCESS }}>{formatCurrency(totalBRL)}</p>
                 </div>
               )}
               {totalBTC !== 0 && (
                 <div>
                   <span className="text-xs text-muted-foreground">{t('transactions.bulk_total_btc')}</span>
-                  <p className={`font-bold text-lg ${totalBTC < 0 ? 'text-red-500' : 'text-green-500'}`}>₿ {totalBTC.toFixed(8)}</p>
+                  <p className="font-bold text-lg" style={{ color: totalBTC < 0 ? DANGER : SUCCESS }}>₿ {totalBTC.toFixed(8)}</p>
                 </div>
               )}
               {totalBRL === 0 && totalBTC === 0 && (
@@ -131,10 +131,13 @@ const TransactionSelectionModal = ({ selectedIds, transactions, onClearSelection
         </div>
 
         <div className="grid grid-cols-2 sm:flex sm:flex-row items-center gap-2 sm:gap-3">
-          <Button 
-            variant="outline" 
-            size="sm" 
-            className="w-full sm:w-auto rounded-lg sm:rounded-full gap-2 border-border"
+          <Button
+            variant="outline"
+            size="sm"
+            className="w-full sm:w-auto rounded-lg gap-2 border transition-colors bg-transparent"
+            style={{ borderColor: SUCCESS, color: SUCCESS }}
+            onMouseEnter={e => { e.currentTarget.style.backgroundColor = SUCCESS; e.currentTarget.style.color = '#fff'; }}
+            onMouseLeave={e => { e.currentTarget.style.backgroundColor = 'transparent'; e.currentTarget.style.color = SUCCESS; }}
             onClick={() => {
               setSelectedBulkCategory('');
               setShowCategoryModal(true);
@@ -145,9 +148,12 @@ const TransactionSelectionModal = ({ selectedIds, transactions, onClearSelection
           </Button>
 
           <Button
-            variant="destructive"
+            variant="outline"
             size="sm"
-            className="w-full sm:w-auto rounded-lg sm:rounded-full gap-2"
+            className="w-full sm:w-auto rounded-lg gap-2 border transition-colors bg-transparent"
+            style={{ borderColor: DANGER, color: DANGER }}
+            onMouseEnter={e => { e.currentTarget.style.backgroundColor = DANGER; e.currentTarget.style.color = '#fff'; }}
+            onMouseLeave={e => { e.currentTarget.style.backgroundColor = 'transparent'; e.currentTarget.style.color = DANGER; }}
             onClick={() => setShowConfirmDelete(true)}
           >
             <Trash2 className="h-4 w-4" />
@@ -155,9 +161,12 @@ const TransactionSelectionModal = ({ selectedIds, transactions, onClearSelection
           </Button>
 
           <Button
-            variant="ghost"
+            variant="outline"
             size="sm"
-            className="w-full sm:w-auto rounded-lg sm:rounded-full gap-2"
+            className="w-full sm:w-auto rounded-lg gap-2 border transition-colors bg-transparent"
+            style={{ borderColor: PRIMARY, color: PRIMARY }}
+            onMouseEnter={e => { e.currentTarget.style.backgroundColor = PRIMARY; e.currentTarget.style.color = '#000'; }}
+            onMouseLeave={e => { e.currentTarget.style.backgroundColor = 'transparent'; e.currentTarget.style.color = PRIMARY; }}
             onClick={onClearSelection}
           >
             <X className="h-4 w-4" />

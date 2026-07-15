@@ -6,9 +6,11 @@ import { motion } from 'framer-motion';
 import BxIcon, { Wallet as WalletCards, Plus, Edit as Edit2, TrashAlt as Trash2 } from '@/components/BxIcon';
 import { useFinance } from '@/context/FinanceContext';
 import { Button } from '@/components/ui/button';
+import { Checkbox } from '@/components/ui/checkbox';
 import SortableHeader from '@/components/SortableHeader';
 import EmptyState from '@/components/EmptyState';
 import DeleteConfirmationDialog from '@/components/DeleteConfirmationDialog';
+import AccountSelectionBar from '@/components/AccountSelectionBar';
 import { useToast } from '@/components/ui/use-toast';
 import { calculateAssetsLiabilities, formatCurrencyWithSymbol } from '@/utils/calculations';
 import ViewToggle from '@/components/ui/ViewToggle';
@@ -27,7 +29,19 @@ const Accounts = () => {
   const { accounts, transactions, removeAccount: deleteAccount, settings, saveSettings } = useFinance();
   const { toast } = useToast();
   
-  const { items: sortedAccounts, requestSort, sortConfig } = useSortableList(accounts);
+  // Balance/initial are two different underlying fields depending on account type
+  // (credit cards track current invoice/available limit instead of balance/initial
+  // balance) — these mirror exactly what each column actually displays, so sorting
+  // matches what's on screen regardless of which field backs it for a given row.
+  const sortableAccounts = accounts.map(acc => {
+    const isCreditCard = acc.type === 'credit_card' || acc.account_subtype === 'credit_card';
+    return {
+      ...acc,
+      sortBalance: isCreditCard ? Number(acc.current_fatura_value || 0) : Number(acc.balance || 0),
+      sortInitial: isCreditCard ? Number(acc.available_limit || 0) : Number(acc.initial_balance || 0),
+    };
+  });
+  const { items: sortedAccounts, requestSort, sortConfig } = useSortableList(sortableAccounts);
   
   const [isAccountModalOpen, setIsAccountModalOpen] = useState(false);
   const [isSuggestionsOpen, setIsSuggestionsOpen] = useState(false);
@@ -37,7 +51,16 @@ const Accounts = () => {
   const dateFilter = settings.accounts_date_filter || getDateFilterDefaults();
   const setDateFilter = (filter) => saveSettings({ accounts_date_filter: filter });
   const [selectedDetailAccount, setSelectedDetailAccount] = useState(null);
-  
+  const [selectedIds, setSelectedIds] = useState([]);
+
+  const toggleSelect = (id) => {
+    setSelectedIds(prev => prev.includes(id) ? prev.filter(i => i !== id) : [...prev, id]);
+  };
+
+  const toggleSelectAll = () => {
+    setSelectedIds(prev => prev.length === sortedAccounts.length ? [] : sortedAccounts.map(a => a.id));
+  };
+
   const [viewMode, setViewMode] = useState('card');
 
   // Sync view mode when the persisted preference loads/changes (adjust state during render, per React docs).
@@ -169,62 +192,61 @@ const Accounts = () => {
                   animate={{ opacity: 1, y: 0 }}
                   transition={{ delay: index * 0.1 }}
                   onClick={() => handleCardClick(account)}
-                  className="bg-white dark:bg-vindex-card rounded-xl p-6 border border-gray-200 dark:border-vindex-border transition-shadow shadow-sm hover:shadow-md flex flex-col cursor-pointer"
+                  className="bg-white dark:bg-vindex-card rounded-xl p-4 border border-gray-200 dark:border-vindex-border transition-shadow shadow-sm hover:shadow-md flex flex-col justify-between cursor-pointer"
                   onMouseEnter={e => e.currentTarget.style.borderColor = PRIMARY}
                   onMouseLeave={e => e.currentTarget.style.borderColor = ''}
                 >
-                  <div className="flex items-start justify-between mb-4">
-                    <div className="flex items-center gap-3">
+                  <div className="flex items-start justify-between gap-3 w-full">
+                    <div className="flex items-center gap-3 flex-1 min-w-0">
                       <div
-                        className="w-12 h-12 rounded-lg flex items-center justify-center text-xl shrink-0"
-                        style={{ backgroundColor: account.color + '22', border: `1px solid ${account.color}` }}
+                        className="w-10 h-10 rounded-lg flex items-center justify-center shadow-sm border shrink-0"
+                        style={{ backgroundColor: account.color + '22', borderColor: account.color + '44' }}
                       >
                         <BxIcon iconClass={`bx ${account.icon || 'bx-wallet'}`} size={20} style={{ color: account.color }} />
                       </div>
-                      <div>
-                        <h3 className="text-lg font-bold text-gray-900 dark:text-gray-50 line-clamp-1" title={account.name}>
+                      <div className="text-left flex-grow overflow-hidden">
+                        <h3 className="text-sm font-bold text-gray-900 dark:text-gray-50 leading-tight break-words" title={account.name}>
                           {account.name} {account.currency && `(${account.currency})`}
                         </h3>
-                        <p className="text-sm text-gray-700 dark:text-gray-300">
+                        <p className="text-xs text-gray-700 dark:text-gray-300 truncate">
                           {account.type === 'crypto' && account.currency ? `${getAccountTypeLabel(account.type)} (${account.currency})` : getAccountTypeLabel(account.type)}
                         </p>
                       </div>
                     </div>
                   </div>
 
-                  <div className="mb-4">
-                    <p className="text-sm text-gray-700 dark:text-gray-300 mb-1">{t('accounts.bank_institution')}</p>
-                    <p className="text-gray-900 dark:text-gray-50 font-medium">{account.bank || '-'}</p>
-                  </div>
+                  <p className="text-xs text-gray-700 dark:text-gray-300 mt-3">
+                    {t('accounts.bank_institution')}: <span className="text-gray-900 dark:text-gray-50 font-medium">{account.bank || '-'}</span>
+                  </p>
 
                   {account.type === 'credit_card' || account.account_subtype === 'credit_card' ? (
-                    <div className="flex justify-between items-center mb-2">
-                      <div>
-                        <p className="text-sm text-gray-700 dark:text-gray-300 mb-1">{t('accounts.current_invoice')}</p>
-                        <p className="text-2xl font-bold crypto-symbol" style={{ color: DANGER }}>
+                    <div className="w-full p-3 bg-gray-50 dark:bg-vindex-bg rounded-lg border border-gray-100 dark:border-vindex-border flex items-center justify-between mt-3">
+                      <div className="text-left">
+                        <span className="text-[10px] text-gray-700 dark:text-gray-300 block">{t('accounts.current_invoice')}</span>
+                        <span className="text-lg font-bold crypto-symbol block" style={{ color: DANGER }}>
                           {formatCurrencyWithSymbol(account.current_fatura_value || 0, account.currency)}
-                        </p>
+                        </span>
                       </div>
                       <div className="text-right">
-                         <p className="text-xs text-gray-500 mb-1">{t('accounts.available_limit')}</p>
-                         <p className="text-sm text-gray-600 dark:text-gray-400 font-medium crypto-symbol">
+                         <span className="text-[10px] text-gray-700 dark:text-gray-300 block">{t('accounts.available_limit')}</span>
+                         <span className="text-lg font-bold text-gray-900 dark:text-gray-50 crypto-symbol block">
                            {formatCurrencyWithSymbol(account.available_limit || 0, account.currency)}
-                         </p>
+                         </span>
                       </div>
                     </div>
                   ) : (
-                    <div className="flex justify-between items-center mb-2">
-                      <div>
-                        <p className="text-sm text-gray-700 dark:text-gray-300 mb-1">{t('accounts.current_balance')}</p>
-                        <p className="text-2xl font-bold crypto-symbol" style={{ color: account.balance >= 0 ? SUCCESS : DANGER }}>
+                    <div className="w-full p-3 bg-gray-50 dark:bg-vindex-bg rounded-lg border border-gray-100 dark:border-vindex-border flex items-center justify-between mt-3">
+                      <div className="text-left">
+                        <span className="text-[10px] text-gray-700 dark:text-gray-300 block">{t('accounts.current_balance')}</span>
+                        <span className="text-lg font-bold crypto-symbol block" style={{ color: account.balance >= 0 ? SUCCESS : DANGER }}>
                           {formatCurrencyWithSymbol(account.balance, account.currency)}
-                        </p>
+                        </span>
                       </div>
                       <div className="text-right">
-                         <p className="text-xs text-gray-500 mb-1">{t('accounts.initial_balance')}</p>
-                         <p className="text-sm text-gray-600 dark:text-gray-400 font-medium crypto-symbol">
+                         <span className="text-[10px] text-gray-700 dark:text-gray-300 block">{t('accounts.initial_balance')}</span>
+                         <span className="text-lg font-bold text-gray-900 dark:text-gray-50 crypto-symbol block">
                            {formatCurrencyWithSymbol(account.initial_balance, account.currency)}
-                         </p>
+                         </span>
                       </div>
                     </div>
                   )}
@@ -237,17 +259,29 @@ const Accounts = () => {
                    <table className="w-full text-sm">
                       <thead className="bg-gray-50 dark:bg-vindex-bg border-b border-gray-200 dark:border-vindex-border">
                          <tr>
+                            <th className="px-6 py-3 w-[5%]">
+                               <Checkbox
+                                  checked={sortedAccounts.length > 0 && selectedIds.length === sortedAccounts.length}
+                                  onCheckedChange={toggleSelectAll}
+                               />
+                            </th>
                             <SortableHeader label={t('accounts.col_account')} column="name" sortConfig={sortConfig} onSort={requestSort} />
                             <SortableHeader label={t('accounts.col_type')} column="type" sortConfig={sortConfig} onSort={requestSort} />
-                            <th className="px-6 py-3 text-left font-medium text-gray-700 dark:text-gray-300">{t('accounts.col_bank')}</th>
-                            <th className="px-6 py-3 text-left font-medium text-gray-700 dark:text-gray-300">{t('accounts.col_balance')}</th>
-                            <th className="px-6 py-3 text-left font-medium text-gray-700 dark:text-gray-300">{t('accounts.col_initial')}</th>
+                            <SortableHeader label={t('accounts.col_bank')} column="bank" sortConfig={sortConfig} onSort={requestSort} />
+                            <SortableHeader label={t('accounts.col_balance')} column="sortBalance" sortConfig={sortConfig} onSort={requestSort} />
+                            <SortableHeader label={t('accounts.col_initial')} column="sortInitial" sortConfig={sortConfig} onSort={requestSort} />
                             <th className="px-6 py-3 text-right font-medium text-gray-700 dark:text-gray-300">{t('accounts.col_actions')}</th>
                          </tr>
                       </thead>
                       <tbody className="divide-y divide-gray-200 dark:divide-vindex-border">
                          {sortedAccounts.map((account) => (
-                            <tr key={account.id} onClick={() => handleCardClick(account)} className="cursor-pointer transition-colors" onMouseEnter={e => e.currentTarget.style.backgroundColor = PRIMARY + '18'} onMouseLeave={e => e.currentTarget.style.backgroundColor = ''}>
+                            <tr key={account.id} onClick={() => handleCardClick(account)} className={`cursor-pointer transition-colors ${selectedIds.includes(account.id) ? 'bg-primary/5 dark:bg-primary/10' : ''}`} onMouseEnter={e => e.currentTarget.style.backgroundColor = PRIMARY + '18'} onMouseLeave={e => e.currentTarget.style.backgroundColor = ''}>
+                               <td className="px-6 py-4" onClick={(e) => e.stopPropagation()}>
+                                  <Checkbox
+                                     checked={selectedIds.includes(account.id)}
+                                     onCheckedChange={() => toggleSelect(account.id)}
+                                  />
+                               </td>
                                <td className="px-6 py-4">
                                   <div className="flex items-center gap-3">
                                      <div className="w-8 h-8 rounded-lg flex items-center justify-center text-sm" 
@@ -291,7 +325,7 @@ const Accounts = () => {
                                         size="sm"
                                         variant="outline"
                                         onClick={(e) => { e.stopPropagation(); handleEdit(account); }}
-                                        className="h-8 w-8 p-0 rounded-lg border transition-colors bg-transparent"
+                                        className="h-8 w-8 p-0 rounded-lg border transition-colors bg-transparent shrink-0"
                                         style={{ borderColor: PRIMARY, color: PRIMARY }}
                                         onMouseEnter={e => { e.currentTarget.style.backgroundColor = PRIMARY; e.currentTarget.style.color = '#000'; }}
                                         onMouseLeave={e => { e.currentTarget.style.backgroundColor = 'transparent'; e.currentTarget.style.color = PRIMARY; }}
@@ -302,7 +336,7 @@ const Accounts = () => {
                                         size="sm"
                                         variant="outline"
                                         onClick={(e) => { e.stopPropagation(); setDeleteId(account.id); }}
-                                        className="h-8 w-8 p-0 rounded-lg border transition-colors bg-transparent"
+                                        className="h-8 w-8 p-0 rounded-lg border transition-colors bg-transparent shrink-0"
                                         style={{ borderColor: DANGER, color: DANGER }}
                                         onMouseEnter={e => { e.currentTarget.style.backgroundColor = DANGER; e.currentTarget.style.color = '#fff'; }}
                                         onMouseLeave={e => { e.currentTarget.style.backgroundColor = 'transparent'; e.currentTarget.style.color = DANGER; }}
@@ -335,6 +369,11 @@ const Accounts = () => {
         onOpenChange={() => setDeleteId(null)}
         description={t('accounts.delete_confirm')}
         onConfirm={() => handleDelete(deleteId)}
+      />
+
+      <AccountSelectionBar
+        selectedIds={selectedIds}
+        onClearSelection={() => setSelectedIds([])}
       />
     </div>
   );

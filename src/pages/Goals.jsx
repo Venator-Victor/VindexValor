@@ -1,4 +1,4 @@
-import { PRIMARY, PRIMARY_HOVER, SUCCESS, DANGER, DANGER_DARK, WARNING, INFO, successAlpha, dangerAlpha, infoAlpha, primaryAlpha, chartGrid, chartTooltipBg, chartTooltipBorder, chartText, chartCursor } from '@/utils/colors';
+import { PRIMARY, PRIMARY_HOVER, DANGER, DANGER_DARK, INFO, successAlpha, dangerAlpha, infoAlpha, primaryAlpha, chartGrid, chartTooltipBg, chartTooltipBorder, chartText, chartCursor } from '@/utils/colors';
 import React, { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Helmet } from 'react-helmet';
@@ -7,6 +7,7 @@ import BxIcon, { Target, Calendar, Plus, Edit as Edit2, TrashAlt as Trash2 } fro
 import { useFinance } from '@/context/FinanceContext';
 import { useTheme } from '@/context/ThemeContext';
 import { Button } from '@/components/ui/button';
+import { Checkbox } from '@/components/ui/checkbox';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import {
   Select,
@@ -19,10 +20,14 @@ import MetaForm from '@/components/MetaForm';
 import MetaProgressCard from '@/components/MetaProgressCard';
 import MetaCategorySelector from '@/components/MetaCategorySelector';
 import GaugeSummaryCard from '@/components/GaugeSummaryCard';
+import CircularProgressBar from '@/components/CircularProgressBar';
 import DeleteConfirmationDialog from '@/components/DeleteConfirmationDialog';
 import EmptyState from '@/components/EmptyState';
 import GoalDetailModal from '@/components/GoalDetailModal';
+import GoalSelectionBar from '@/components/GoalSelectionBar';
 import ViewToggle from '@/components/ui/ViewToggle';
+import SortableHeader from '@/components/SortableHeader';
+import { useSortableList } from '@/hooks/useSortableList';
 import { useToast } from '@/components/ui/use-toast';
 import { formatCurrency } from '@/utils/calculations';
 import { differenceInDays, parseISO, isPast } from 'date-fns';
@@ -36,6 +41,15 @@ const Goals = () => {
   const [editingGoal, setEditingGoal] = useState(null);
   const [deleteId, setDeleteId] = useState(null);
   const [selectedDetailGoal, setSelectedDetailGoal] = useState(null);
+  const [selectedIds, setSelectedIds] = useState([]);
+
+  const toggleSelect = (id) => {
+    setSelectedIds(prev => prev.includes(id) ? prev.filter(i => i !== id) : [...prev, id]);
+  };
+
+  const toggleSelectAll = () => {
+    setSelectedIds(prev => prev.length === filteredGoals.length ? [] : filteredGoals.map(g => g.id));
+  };
 
   // Filter States
   const [selectedPeriod, setSelectedPeriod] = useState('mensal');
@@ -119,47 +133,22 @@ const Goals = () => {
   const CYAN_COLOR = PRIMARY;
   const CYAN_HOVER = PRIMARY_HOVER;
 
-  // --- List View Helper ---
-  const calculateProgress = (goal) => {
-      const accumulated = Number(goal.accumulated_amount) || 0;
-      const isTargetMode = goal.goal_type === 'target_value';
-      const target = Number(isTargetMode ? goal.targetAmount : goal.contributionValue) || 0;
-      if (target > 0) {
-          return Math.min((accumulated / target) * 100, 100);
-      }
-      return 0;
-  };
-  
-  // Helper for small gauge in table
-  const renderSmallGauge = (percentage) => {
-    const radius = 10;
-    const circumference = 2 * Math.PI * radius;
-    const strokeDashoffset = circumference - (Math.min(percentage, 100) / 100) * circumference;
-    
-    let color = DANGER;
-    if (percentage >= 70) color = SUCCESS;
-    else if (percentage >= 30) color = WARNING;
-
-    return (
-      <div className="relative w-8 h-8 flex items-center justify-center">
-        <svg width="32" height="32" className="transform -rotate-90">
-          <circle cx="16" cy="16" r={radius} fill="none" stroke="currentColor" strokeWidth="3" className="text-gray-200 dark:text-gray-700" />
-          <circle 
-            cx="16" cy="16" r={radius} fill="none" stroke={color} strokeWidth="3" 
-            strokeDasharray={circumference} strokeDashoffset={strokeDashoffset} 
-            strokeLinecap="round" 
-          />
-        </svg>
-      </div>
-    );
-  };
-
   // Filter Goals
   const filteredGoals = goals.filter(goal => {
       if (filterType === 'target_value') return goal.goal_type === 'target_value';
       if (filterType === 'monthly_value') return goal.goal_type === 'monthly_value';
       return true;
   });
+
+  const sortableGoals = filteredGoals.map(goal => {
+    const isTarget = goal.goal_type === 'target_value';
+    const progressMax = Number(isTarget ? goal.targetAmount : goal.contributionValue) || 0;
+    return {
+      ...goal,
+      progressPercent: progressMax > 0 ? (Number(goal.accumulated_amount) || 0) / progressMax * 100 : 0,
+    };
+  });
+  const { items: sortedGoals, requestSort, sortConfig } = useSortableList(sortableGoals);
 
   // Calculate totals for the main Gauge Chart
   const totalAccumulated = filteredGoals.reduce((sum, goal) => sum + (Number(goal.accumulated_amount) || 0), 0);
@@ -306,9 +295,9 @@ const Goals = () => {
 
             {goalsViewMode === 'card' ? (
                 // --- GRID VIEW ---
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
                 <AnimatePresence>
-                    {filteredGoals.map((goal, index) => (
+                    {sortedGoals.map((goal, index) => (
                     <MetaProgressCard
                         key={goal.id}
                         goal={goal}
@@ -325,24 +314,36 @@ const Goals = () => {
                         <table className="w-full text-sm">
                             <thead className="bg-gray-50 dark:bg-vindex-bg border-b border-gray-200 dark:border-vindex-border">
                                 <tr>
-                                    <th className="px-6 py-3 text-left font-medium text-gray-700 dark:text-gray-300">{t('goals.col_name')}</th>
-                                    <th className="px-6 py-3 text-left font-medium text-gray-700 dark:text-gray-300">{t('goals.col_type')}</th>
-                                    <th className="px-6 py-3 text-left font-medium text-gray-700 dark:text-gray-300">{t('goals.col_progress')}</th>
-                                    <th className="px-6 py-3 text-left font-medium text-gray-700 dark:text-gray-300">{t('goals.col_accumulated')}</th>
-                                    <th className="px-6 py-3 text-left font-medium text-gray-700 dark:text-gray-300">{t('goals.col_target')}</th>
-                                    <th className="px-6 py-3 text-left font-medium text-gray-700 dark:text-gray-300">{t('goals.col_deadline')}</th>
+                                    <th className="px-6 py-3 w-[5%]">
+                                        <Checkbox
+                                            checked={filteredGoals.length > 0 && selectedIds.length === filteredGoals.length}
+                                            onCheckedChange={toggleSelectAll}
+                                        />
+                                    </th>
+                                    <SortableHeader label={t('goals.col_name')} column="name" sortConfig={sortConfig} onSort={requestSort} />
+                                    <SortableHeader label={t('goals.col_type')} column="goal_type" sortConfig={sortConfig} onSort={requestSort} />
+                                    <SortableHeader label={t('goals.col_progress')} column="progressPercent" sortConfig={sortConfig} onSort={requestSort} />
+                                    <SortableHeader label={t('goals.col_accumulated')} column="accumulated_amount" sortConfig={sortConfig} onSort={requestSort} />
+                                    <SortableHeader label={t('goals.col_target')} column="targetAmount" sortConfig={sortConfig} onSort={requestSort} />
+                                    <SortableHeader label={t('goals.col_deadline')} column="deadline" sortConfig={sortConfig} onSort={requestSort} />
                                     <th className="px-6 py-3 text-right font-medium text-gray-700 dark:text-gray-300">{t('goals.col_actions')}</th>
                                 </tr>
                             </thead>
                             <tbody className="divide-y divide-gray-200 dark:divide-vindex-border">
-                                {filteredGoals.map((goal) => {
-                                    const progress = calculateProgress(goal);
+                                {sortedGoals.map((goal) => {
                                     const isTarget = goal.goal_type === 'target_value';
+                                    const progressMax = Number(isTarget ? goal.targetAmount : goal.contributionValue) || 0;
                                     const daysLeft = goal.deadline ? differenceInDays(parseISO(goal.deadline), new Date()) : null;
                                     const isOverdue = goal.deadline && isPast(parseISO(goal.deadline));
 
                                     return (
-                                        <tr key={goal.id} onClick={() => handleCardClick(goal)} className="cursor-pointer transition-colors" onMouseEnter={e => e.currentTarget.style.backgroundColor = PRIMARY + '18'} onMouseLeave={e => e.currentTarget.style.backgroundColor = ''}>
+                                        <tr key={goal.id} onClick={() => handleCardClick(goal)} className={`cursor-pointer transition-colors ${selectedIds.includes(goal.id) ? 'bg-primary/5 dark:bg-primary/10' : ''}`} onMouseEnter={e => e.currentTarget.style.backgroundColor = PRIMARY + '18'} onMouseLeave={e => e.currentTarget.style.backgroundColor = ''}>
+                                            <td className="px-6 py-4" onClick={(e) => e.stopPropagation()}>
+                                                <Checkbox
+                                                    checked={selectedIds.includes(goal.id)}
+                                                    onCheckedChange={() => toggleSelect(goal.id)}
+                                                />
+                                            </td>
                                             <td className="px-6 py-4">
                                                 <div className="flex items-center gap-3">
                                                     <div
@@ -357,16 +358,11 @@ const Goals = () => {
                                                     <span className="font-medium text-gray-900 dark:text-gray-50">{goal.name}</span>
                                                 </div>
                                             </td>
-                                            <td className="px-6 py-4">
-                                                <span className="text-xs px-2 py-1 rounded bg-gray-100 dark:bg-gray-800 text-gray-600 dark:text-gray-400 border border-gray-200 dark:border-gray-700">
-                                                    {isTarget ? t('goals.type_fixed') : t('goals.type_recurring')}
-                                                </span>
+                                            <td className="px-6 py-4 text-gray-600 dark:text-gray-400">
+                                                {isTarget ? t('goals.type_fixed') : t('goals.type_recurring')}
                                             </td>
                                             <td className="px-6 py-4">
-                                                <div className="flex items-center gap-3">
-                                                    {renderSmallGauge(progress)}
-                                                    <span className="text-xs font-medium text-gray-600 dark:text-gray-400">{progress.toFixed(0)}%</span>
-                                                </div>
+                                                <CircularProgressBar current={goal.accumulated_amount} max={progressMax} size={32} strokeWidth={3} showBudget={false} mode="progress" />
                                             </td>
                                             <td className="px-6 py-4 font-medium text-emerald-600 dark:text-emerald-400">
                                                 {formatCurrency(goal.accumulated_amount)}
@@ -397,7 +393,7 @@ const Goals = () => {
                                                         size="icon"
                                                         variant="outline"
                                                         onClick={(e) => { e.stopPropagation(); openEditModal(goal); }}
-                                                        className="h-8 w-8 rounded-lg border transition-colors bg-transparent"
+                                                        className="h-8 w-8 rounded-lg border transition-colors bg-transparent shrink-0"
                                                         style={{ borderColor: PRIMARY, color: PRIMARY }}
                                                         onMouseEnter={e => { e.currentTarget.style.backgroundColor = PRIMARY; e.currentTarget.style.color = '#000'; }}
                                                         onMouseLeave={e => { e.currentTarget.style.backgroundColor = 'transparent'; e.currentTarget.style.color = PRIMARY; }}
@@ -408,7 +404,7 @@ const Goals = () => {
                                                         size="icon"
                                                         variant="outline"
                                                         onClick={(e) => { e.stopPropagation(); setDeleteId(goal.id); }}
-                                                        className="h-8 w-8 rounded-lg border transition-colors bg-transparent"
+                                                        className="h-8 w-8 rounded-lg border transition-colors bg-transparent shrink-0"
                                                         style={{ borderColor: DANGER, color: DANGER }}
                                                         onMouseEnter={e => { e.currentTarget.style.backgroundColor = DANGER; e.currentTarget.style.color = '#fff'; }}
                                                         onMouseLeave={e => { e.currentTarget.style.backgroundColor = 'transparent'; e.currentTarget.style.color = DANGER; }}
@@ -444,6 +440,11 @@ const Goals = () => {
           deleteGoal(deleteId);
           setDeleteId(null);
         }}
+      />
+
+      <GoalSelectionBar
+        selectedIds={selectedIds}
+        onClearSelection={() => setSelectedIds([])}
       />
     </div>
   );

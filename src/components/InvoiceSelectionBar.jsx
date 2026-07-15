@@ -10,6 +10,7 @@ import { useFinance } from '@/context/FinanceContext';
 import { useAuth } from '@/context/SupabaseAuthContext';
 import { formatCurrency } from '@/utils/calculations';
 import InvoicePaymentLinkModal from '@/components/InvoicePaymentLinkModal';
+import { PRIMARY, SUCCESS, DANGER } from '@/utils/colors';
 
 const InvoiceSelectionBar = ({ selectedIds, invoices, invoiceTotals = {}, onClearSelection, onRefresh }) => {
   const { t } = useTranslation();
@@ -91,7 +92,7 @@ const InvoiceSelectionBar = ({ selectedIds, invoices, invoiceTotals = {}, onClea
               {totalBRL !== 0 && (
                 <div>
                   <span className="text-xs text-muted-foreground">{t('invoices.total_brl')}</span>
-                  <p className={`font-bold text-lg ${totalBRL < 0 ? 'text-red-500' : 'text-green-500'}`}>{formatCurrency(totalBRL)}</p>
+                  <p className="font-bold text-lg" style={{ color: totalBRL < 0 ? DANGER : SUCCESS }}>{formatCurrency(totalBRL)}</p>
                 </div>
               )}
               {totalBTC !== 0 && (
@@ -115,7 +116,10 @@ const InvoiceSelectionBar = ({ selectedIds, invoices, invoiceTotals = {}, onClea
             <Button
               variant="outline"
               size="sm"
-              className="w-full sm:w-auto rounded-lg sm:rounded-full gap-2 border-border"
+              className="w-full sm:w-auto rounded-lg gap-2 border transition-colors bg-transparent"
+              style={{ borderColor: SUCCESS, color: SUCCESS }}
+              onMouseEnter={e => { e.currentTarget.style.backgroundColor = SUCCESS; e.currentTarget.style.color = '#fff'; }}
+              onMouseLeave={e => { e.currentTarget.style.backgroundColor = 'transparent'; e.currentTarget.style.color = SUCCESS; }}
               onClick={handleOpenPaymentModal}
             >
               <CreditCard className="h-4 w-4" />
@@ -127,7 +131,10 @@ const InvoiceSelectionBar = ({ selectedIds, invoices, invoiceTotals = {}, onClea
             <Button
               variant="outline"
               size="sm"
-              className="w-full sm:w-auto rounded-lg sm:rounded-full gap-2 border-border"
+              className="w-full sm:w-auto rounded-lg gap-2 border transition-colors bg-transparent"
+              style={{ borderColor: PRIMARY, color: PRIMARY }}
+              onMouseEnter={e => { e.currentTarget.style.backgroundColor = PRIMARY; e.currentTarget.style.color = '#000'; }}
+              onMouseLeave={e => { e.currentTarget.style.backgroundColor = 'transparent'; e.currentTarget.style.color = PRIMARY; }}
               onClick={handleViewPurchases}
             >
               <Eye className="h-4 w-4" />
@@ -136,9 +143,12 @@ const InvoiceSelectionBar = ({ selectedIds, invoices, invoiceTotals = {}, onClea
           )}
 
           <Button
-            variant="destructive"
+            variant="outline"
             size="sm"
-            className="w-full sm:w-auto rounded-lg sm:rounded-full gap-2"
+            className="w-full sm:w-auto rounded-lg gap-2 border transition-colors bg-transparent"
+            style={{ borderColor: DANGER, color: DANGER }}
+            onMouseEnter={e => { e.currentTarget.style.backgroundColor = DANGER; e.currentTarget.style.color = '#fff'; }}
+            onMouseLeave={e => { e.currentTarget.style.backgroundColor = 'transparent'; e.currentTarget.style.color = DANGER; }}
             onClick={() => setShowConfirmDelete(true)}
           >
             <Trash2 className="h-4 w-4" />
@@ -146,9 +156,12 @@ const InvoiceSelectionBar = ({ selectedIds, invoices, invoiceTotals = {}, onClea
           </Button>
 
           <Button
-            variant="ghost"
+            variant="outline"
             size="sm"
-            className="w-full sm:w-auto rounded-lg sm:rounded-full gap-2"
+            className="w-full sm:w-auto rounded-lg gap-2 border transition-colors bg-transparent"
+            style={{ borderColor: PRIMARY, color: PRIMARY }}
+            onMouseEnter={e => { e.currentTarget.style.backgroundColor = PRIMARY; e.currentTarget.style.color = '#000'; }}
+            onMouseLeave={e => { e.currentTarget.style.backgroundColor = 'transparent'; e.currentTarget.style.color = PRIMARY; }}
             onClick={onClearSelection}
           >
             <X className="h-4 w-4" />

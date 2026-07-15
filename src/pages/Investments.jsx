@@ -6,6 +6,8 @@ import { motion } from 'framer-motion';
 import { AlertTriangle, Plus, Edit as Edit2, TrashAlt as Trash2, TrendingUp, TrendingDown } from '@/components/BxIcon';
 import { useFinance } from '@/context/FinanceContext';
 import { Button } from '@/components/ui/button';
+import { Checkbox } from '@/components/ui/checkbox';
+import InvestmentSelectionBar from '@/components/InvestmentSelectionBar';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
 import { Label } from '@/components/ui/label';
 import SortableHeader from '@/components/SortableHeader';
@@ -23,6 +25,7 @@ import { useSortableList } from '@/hooks/useSortableList';
 import InvestmentTypeSelector from '@/components/InvestmentTypeSelector';
 import InvestmentSubtypeSelector from '@/components/InvestmentSubtypeSelector';
 import InvestimentoCard from '@/components/cards/InvestmentCard';
+import InvestmentDetailModal from '@/components/InvestmentDetailModal';
 import { getDateFilterDefaults, getDateFilterRange } from '@/utils/dateFilter';
 import { formatChartDate } from '@/utils/chartDateFormat';
 import { INVESTMENT_TYPES } from '@/utils/investmentTypes';
@@ -34,9 +37,23 @@ const Investments = () => {
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [editingInvestment, setEditingInvestment] = useState(null);
   const [deleteId, setDeleteId] = useState(null);
+  const [selectedDetailInvestment, setSelectedDetailInvestment] = useState(null);
+  const [selectedIds, setSelectedIds] = useState([]);
+
+  const toggleSelect = (id) => {
+    setSelectedIds(prev => prev.includes(id) ? prev.filter(i => i !== id) : [...prev, id]);
+  };
+
+  const toggleSelectAll = () => {
+    setSelectedIds(prev => prev.length === sortedInvestments.length ? [] : sortedInvestments.map(i => i.id));
+  };
 
   // Sorting Hook
-  const { items: sortedInvestments, requestSort, sortConfig } = useSortableList(investments);
+  const sortableInvestments = investments.map(inv => ({
+    ...inv,
+    returnPercent: calculateInvestmentReturn(inv.investedAmount, inv.currentAmount),
+  }));
+  const { items: sortedInvestments, requestSort, sortConfig } = useSortableList(sortableInvestments);
 
   // Chart Controls
   const dateFilter = settings.investments_date_filter || getDateFilterDefaults();
@@ -176,10 +193,13 @@ const Investments = () => {
   const handleDelete = async (id) => {
     await deleteInvestment(id);
     setDeleteId(null);
+    setSelectedDetailInvestment(null);
     toast({ title: t('investments.deleted_success') });
   };
-  
 
+  const handleCardClick = (investment) => {
+    setSelectedDetailInvestment(investment);
+  };
 
   return (
     <div className="space-y-6 pb-20 md:pb-0">
@@ -349,8 +369,7 @@ const Investments = () => {
                    >
                        <InvestimentoCard
                           investment={investment}
-                          onEdit={handleEdit}
-                          onDelete={() => setDeleteId(investment.id)}
+                          onClick={handleCardClick}
                        />
                    </motion.div>
                ))}
@@ -367,32 +386,50 @@ const Investments = () => {
                 <table className="w-full min-w-[900px] table-fixed">
                   <thead className="bg-gray-50 dark:bg-vindex-bg border-b border-gray-200 dark:border-vindex-border">
                     <tr>
-                      <SortableHeader label={t('investments.col_name')} column="name" sortConfig={sortConfig} onSort={requestSort} className="w-[20%]" />
-                      <SortableHeader label={t('investments.col_type')} column="type" sortConfig={sortConfig} onSort={requestSort} className="w-[11%]" />
-                      <SortableHeader label={t('investments.col_subtype')} column="subtype" sortConfig={sortConfig} onSort={requestSort} className="w-[11%]" />
-                      <SortableHeader label={t('investments.col_invested')} column="investedAmount" sortConfig={sortConfig} onSort={requestSort} className="w-[13%]" />
-                      <SortableHeader label={t('investments.col_current')} column="currentAmount" sortConfig={sortConfig} onSort={requestSort} className="w-[13%]" />
-                      <th className="px-6 py-3 w-[11%] text-left font-medium text-gray-700 dark:text-gray-300">{t('investments.col_return')}</th>
-                      <SortableHeader label={t('investments.col_purchase_date')} column="purchaseDate" sortConfig={sortConfig} onSort={requestSort} className="w-[13%]" />
+                      <th className="px-6 py-3 w-[5%]">
+                        <Checkbox
+                          checked={sortedInvestments.length > 0 && selectedIds.length === sortedInvestments.length}
+                          onCheckedChange={toggleSelectAll}
+                        />
+                      </th>
+                      <SortableHeader label={t('investments.col_name')} column="name" sortConfig={sortConfig} onSort={requestSort} className="w-[18%]" />
+                      <SortableHeader label={t('investments.col_type')} column="type" sortConfig={sortConfig} onSort={requestSort} className="w-[10%]" />
+                      <SortableHeader label={t('investments.col_subtype')} column="subtype" sortConfig={sortConfig} onSort={requestSort} className="w-[10%]" />
+                      <SortableHeader label={t('investments.col_invested')} column="investedAmount" sortConfig={sortConfig} onSort={requestSort} className="w-[12%]" />
+                      <SortableHeader label={t('investments.col_current')} column="currentAmount" sortConfig={sortConfig} onSort={requestSort} className="w-[12%]" />
+                      <SortableHeader label={t('investments.col_return')} column="returnPercent" sortConfig={sortConfig} onSort={requestSort} className="w-[10%]" />
+                      <SortableHeader label={t('investments.col_purchase_date')} column="purchaseDate" sortConfig={sortConfig} onSort={requestSort} className="w-[12%]" />
                       <th className="px-6 py-3 w-[8%] text-right font-medium text-gray-700 dark:text-gray-300">{t('common.actions')}</th>
                     </tr>
                   </thead>
                   <tbody className="divide-y divide-gray-200 dark:divide-vindex-border">
                     {sortedInvestments.map((investment) => {
-                      const returnPercent = calculateInvestmentReturn(investment.investedAmount, investment.currentAmount);
+                      const returnPercent = investment.returnPercent;
                       const isProfit = returnPercent >= 0;
 
                       return (
-                        <tr key={investment.id} className="hover:bg-gray-50 dark:hover:bg-vindex-bg/50 transition-colors">
+                        <tr
+                          key={investment.id}
+                          onClick={() => handleCardClick(investment)}
+                          className={`cursor-pointer transition-colors ${selectedIds.includes(investment.id) ? 'bg-primary/5 dark:bg-primary/10' : ''}`}
+                          onMouseEnter={e => e.currentTarget.style.backgroundColor = PRIMARY + '18'}
+                          onMouseLeave={e => e.currentTarget.style.backgroundColor = ''}
+                        >
+                          <td className="px-6 py-4" onClick={(e) => e.stopPropagation()}>
+                            <Checkbox
+                              checked={selectedIds.includes(investment.id)}
+                              onCheckedChange={() => toggleSelect(investment.id)}
+                            />
+                          </td>
                           <td className="px-6 py-4 text-sm text-gray-900 dark:text-gray-100 font-medium truncate" title={investment.name}>{investment.name}</td>
                           <td className="px-6 py-4 text-sm text-gray-700 dark:text-gray-300 truncate">{investment.type}</td>
                           <td className="px-6 py-4 text-sm text-gray-700 dark:text-gray-300 truncate">{investment.subtype || '-'}</td>
                           <td className="px-6 py-4 text-sm text-gray-700 dark:text-gray-300">{formatCurrency(investment.investedAmount)}</td>
-                          <td className="px-6 py-4 text-sm text-gray-900 dark:text-gray-100 font-medium">{formatCurrency(investment.currentAmount)}</td>
+                          <td className="px-6 py-4 text-sm font-bold" style={{ color: isProfit ? SUCCESS : DANGER }}>{formatCurrency(investment.currentAmount)}</td>
                           <td className="px-6 py-4">
-                            <div className="flex items-center gap-1">
-                              {isProfit ? <TrendingUp size={16} className="text-green-600 dark:text-vindex-success" /> : <TrendingDown size={16} className="text-red-600 dark:text-vindex-danger" />}
-                              <span className={`text-sm font-bold ${isProfit ? 'text-green-600 dark:text-vindex-success' : 'text-red-600 dark:text-vindex-danger'}`}>
+                            <div className="flex items-center gap-1" style={{ color: isProfit ? SUCCESS : DANGER }}>
+                              {isProfit ? <TrendingUp size={16} /> : <TrendingDown size={16} />}
+                              <span className="text-sm font-bold">
                                 {isProfit ? '+' : ''}{returnPercent.toFixed(2)}%
                               </span>
                             </div>
@@ -400,13 +437,13 @@ const Investments = () => {
                           <td className="px-6 py-4 text-sm text-gray-700 dark:text-gray-300">
                             {new Date(investment.purchaseDate).toLocaleDateString(i18n.language)}
                           </td>
-                          <td className="px-6 py-4">
+                          <td className="px-6 py-4" onClick={(e) => e.stopPropagation()}>
                             <div className="flex justify-end gap-2">
                               <Button
                                 size="sm"
                                 variant="outline"
                                 onClick={() => handleEdit(investment)}
-                                className="h-8 w-8 p-0 rounded-lg border transition-colors bg-transparent"
+                                className="h-8 w-8 p-0 rounded-lg border transition-colors bg-transparent shrink-0"
                                 style={{ borderColor: PRIMARY, color: PRIMARY }}
                                 onMouseEnter={e => { e.currentTarget.style.backgroundColor = PRIMARY; e.currentTarget.style.color = '#000'; }}
                                 onMouseLeave={e => { e.currentTarget.style.backgroundColor = 'transparent'; e.currentTarget.style.color = PRIMARY; }}
@@ -417,7 +454,7 @@ const Investments = () => {
                                 size="sm"
                                 variant="outline"
                                 onClick={() => setDeleteId(investment.id)}
-                                className="h-8 w-8 p-0 rounded-lg border transition-colors bg-transparent"
+                                className="h-8 w-8 p-0 rounded-lg border transition-colors bg-transparent shrink-0"
                                 style={{ borderColor: DANGER, color: DANGER }}
                                 onMouseEnter={e => { e.currentTarget.style.backgroundColor = DANGER; e.currentTarget.style.color = '#fff'; }}
                                 onMouseLeave={e => { e.currentTarget.style.backgroundColor = 'transparent'; e.currentTarget.style.color = DANGER; }}
@@ -443,6 +480,20 @@ const Investments = () => {
         onOpenChange={() => setDeleteId(null)}
         description={t('investments.delete_confirm')}
         onConfirm={() => handleDelete(deleteId)}
+      />
+
+      <InvestmentSelectionBar
+        selectedIds={selectedIds}
+        onClearSelection={() => setSelectedIds([])}
+      />
+
+      <InvestmentDetailModal
+        isOpen={!!selectedDetailInvestment}
+        onClose={() => setSelectedDetailInvestment(null)}
+        investment={selectedDetailInvestment}
+        accounts={accounts}
+        onEdit={handleEdit}
+        onDelete={(id) => setDeleteId(id)}
       />
     </div>
   );

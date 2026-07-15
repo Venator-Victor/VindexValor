@@ -1,7 +1,7 @@
 import React, { useState, useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Button } from '@/components/ui/button';
-import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from '@/components/ui/alert-dialog';
+import DeleteConfirmationDialog from '@/components/DeleteConfirmationDialog';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { TrashAlt as Trash2, X, FolderOpen as FolderEdit } from '@/components/BxIcon';
 import { supabase } from '@/lib/customSupabaseClient';
@@ -10,7 +10,7 @@ import { useFinance } from '@/context/FinanceContext';
 import SelectInput from '@/components/ui/SelectInput';
 import { formatCurrency } from '@/utils/calculations';
 import { buildFlatIndentedOptions } from '@/utils/categoryTree';
-import { SUCCESS, PRIMARY } from '@/utils/colors';
+import { SUCCESS, PRIMARY, DANGER } from '@/utils/colors';
 
 const InvoiceItemSelectionBar = ({ selectedIds, items, onClearSelection, onRefresh }) => {
   const { t } = useTranslation();
@@ -29,7 +29,7 @@ const InvoiceItemSelectionBar = ({ selectedIds, items, onClearSelection, onRefre
   if (!selectedIds || selectedIds.length === 0) return null;
 
   const total = selectedItems.reduce((sum, i) => sum + Number(i.amount || 0), 0);
-  const totalColor = total < 0 ? 'text-red-500' : total > 0 ? 'text-green-500' : 'text-foreground';
+  const totalColor = total < 0 ? DANGER : total > 0 ? SUCCESS : undefined;
 
   const handleDelete = async () => {
     setIsDeleting(true);
@@ -96,7 +96,7 @@ const InvoiceItemSelectionBar = ({ selectedIds, items, onClearSelection, onRefre
             <p className="text-sm text-muted-foreground">{t('invoice_detail.bulk_selected_count', { count: selectedIds.length })}</p>
             <div className="mt-1">
               <span className="text-xs text-muted-foreground">{t('invoice_detail.bulk_total')}</span>
-              <p className={`font-bold text-lg ${totalColor}`}>{formatCurrency(total)}</p>
+              <p className="font-bold text-lg" style={{ color: totalColor }}>{formatCurrency(total)}</p>
             </div>
           </div>
         </div>
@@ -105,7 +105,10 @@ const InvoiceItemSelectionBar = ({ selectedIds, items, onClearSelection, onRefre
           <Button
             variant="outline"
             size="sm"
-            className="w-full sm:w-auto rounded-lg sm:rounded-full gap-2 border-border"
+            className="w-full sm:w-auto rounded-lg gap-2 border transition-colors bg-transparent"
+            style={{ borderColor: SUCCESS, color: SUCCESS }}
+            onMouseEnter={e => { e.currentTarget.style.backgroundColor = SUCCESS; e.currentTarget.style.color = '#fff'; }}
+            onMouseLeave={e => { e.currentTarget.style.backgroundColor = 'transparent'; e.currentTarget.style.color = SUCCESS; }}
             onClick={() => {
               setSelectedBulkCategory('');
               setShowCategoryModal(true);
@@ -116,9 +119,12 @@ const InvoiceItemSelectionBar = ({ selectedIds, items, onClearSelection, onRefre
           </Button>
 
           <Button
-            variant="destructive"
+            variant="outline"
             size="sm"
-            className="w-full sm:w-auto rounded-lg sm:rounded-full gap-2"
+            className="w-full sm:w-auto rounded-lg gap-2 border transition-colors bg-transparent"
+            style={{ borderColor: DANGER, color: DANGER }}
+            onMouseEnter={e => { e.currentTarget.style.backgroundColor = DANGER; e.currentTarget.style.color = '#fff'; }}
+            onMouseLeave={e => { e.currentTarget.style.backgroundColor = 'transparent'; e.currentTarget.style.color = DANGER; }}
             onClick={() => setShowConfirmDelete(true)}
           >
             <Trash2 className="h-4 w-4" />
@@ -126,9 +132,12 @@ const InvoiceItemSelectionBar = ({ selectedIds, items, onClearSelection, onRefre
           </Button>
 
           <Button
-            variant="ghost"
+            variant="outline"
             size="sm"
-            className="w-full sm:w-auto rounded-lg sm:rounded-full gap-2"
+            className="w-full sm:w-auto rounded-lg gap-2 border transition-colors bg-transparent"
+            style={{ borderColor: PRIMARY, color: PRIMARY }}
+            onMouseEnter={e => { e.currentTarget.style.backgroundColor = PRIMARY; e.currentTarget.style.color = '#000'; }}
+            onMouseLeave={e => { e.currentTarget.style.backgroundColor = 'transparent'; e.currentTarget.style.color = PRIMARY; }}
             onClick={onClearSelection}
           >
             <X className="h-4 w-4" />
@@ -137,26 +146,14 @@ const InvoiceItemSelectionBar = ({ selectedIds, items, onClearSelection, onRefre
         </div>
       </div>
 
-      <AlertDialog open={showConfirmDelete} onOpenChange={setShowConfirmDelete}>
-        <AlertDialogContent>
-          <AlertDialogHeader>
-            <AlertDialogTitle>{t('invoice_detail.bulk_delete_confirm_title', { count: selectedIds.length })}</AlertDialogTitle>
-            <AlertDialogDescription>
-              {t('invoice_detail.bulk_delete_confirm_desc')}
-            </AlertDialogDescription>
-          </AlertDialogHeader>
-          <AlertDialogFooter>
-            <AlertDialogCancel disabled={isDeleting}>{t('common.cancel')}</AlertDialogCancel>
-            <AlertDialogAction
-              onClick={(e) => { e.preventDefault(); handleDelete(); }}
-              disabled={isDeleting}
-              className="bg-destructive hover:bg-destructive/90 text-destructive-foreground"
-            >
-              {isDeleting ? t('invoice_detail.bulk_deleting') : t('invoice_detail.bulk_confirm_delete')}
-            </AlertDialogAction>
-          </AlertDialogFooter>
-        </AlertDialogContent>
-      </AlertDialog>
+      <DeleteConfirmationDialog
+        open={showConfirmDelete}
+        onOpenChange={setShowConfirmDelete}
+        title={t('invoice_detail.bulk_delete_confirm_title', { count: selectedIds.length })}
+        description={t('invoice_detail.bulk_delete_confirm_desc')}
+        onConfirm={handleDelete}
+        isLoading={isDeleting}
+      />
 
       <Dialog open={showCategoryModal} onOpenChange={setShowCategoryModal}>
         <DialogContent className="sm:max-w-[425px]">

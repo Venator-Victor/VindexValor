@@ -7,11 +7,13 @@ import { Repeat, Search, Plus, Edit as Edit2, TrashAlt as Trash2 } from '@/compo
 import { useFinance } from '@/context/FinanceContext';
 import { useCategories } from '@/hooks/useCategories';
 import { Button } from '@/components/ui/button';
+import { Checkbox } from '@/components/ui/checkbox';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
 import { Label } from '@/components/ui/label';
 import SortableHeader from '@/components/SortableHeader';
 import EmptyState from '@/components/EmptyState';
 import DeleteConfirmationDialog from '@/components/DeleteConfirmationDialog';
+import RecurrenceSelectionBar from '@/components/RecurrenceSelectionBar';
 import { useToast } from '@/components/ui/use-toast';
 import { formatCurrency } from '@/utils/calculations';
 import SelectInput from '@/components/ui/SelectInput';
@@ -21,6 +23,7 @@ import ViewToggle from '@/components/ui/ViewToggle';
 import DateFilterSelect from '@/components/ui/DateFilterSelect';
 import { getDateFilterDefaults, matchesDateFilter } from '@/utils/dateFilter';
 import RecorrenciaCard from '@/components/cards/RecurrenceCard';
+import RecurrenceDetailModal from '@/components/RecurrenceDetailModal';
 import GaugeSummaryCard from '@/components/GaugeSummaryCard';
 import DefaultCategoriesModal from '@/components/DefaultCategoriesModal';
 import { useSortableList } from '@/hooks/useSortableList';
@@ -40,6 +43,8 @@ const Recurrences = () => {
   const [isCategoryDialogOpen, setIsCategoryDialogOpen] = useState(false);
   const [editingRecurring, setEditingRecurring] = useState(null);
   const [deleteId, setDeleteId] = useState(null);
+  const [selectedDetailRecurring, setSelectedDetailRecurring] = useState(null);
+  const [selectedIds, setSelectedIds] = useState([]);
 
   const [formData, setFormData] = useState({
     description: '',
@@ -83,7 +88,9 @@ const Recurrences = () => {
       ...transactionTypes.map(tt => ({ label: tt.name, value: tt.id }))
   ];
 
-  const filteredRecurring = recurring.filter(r => matchesDateFilter(r.date || r.next_date, dateFilter));
+  const filteredRecurring = recurring
+    .filter(r => matchesDateFilter(r.date || r.next_date, dateFilter))
+    .map(r => ({ ...r, categoryName: r.categories?.name || '' }));
   const { items: sortedRecurring, requestSort, sortConfig } = useSortableList(filteredRecurring);
 
   const calculateGaugeData = () => {
@@ -182,7 +189,20 @@ const Recurrences = () => {
   const handleDelete = (id) => {
     deleteRecurring(id);
     setDeleteId(null);
+    setSelectedDetailRecurring(null);
     toast({ title: t('recurrences.deleted_success') });
+  };
+
+  const handleCardClick = (item) => {
+    setSelectedDetailRecurring(item);
+  };
+
+  const toggleSelect = (id) => {
+    setSelectedIds(prev => prev.includes(id) ? prev.filter(i => i !== id) : [...prev, id]);
+  };
+
+  const toggleSelectAll = () => {
+    setSelectedIds(prev => prev.length === sortedRecurring.length ? [] : sortedRecurring.map(r => r.id));
   };
 
   const toggleStatus = (recurringItem) => {
@@ -283,14 +303,12 @@ const Recurrences = () => {
                     <div className="grid grid-cols-2 gap-4">
                        <div>
                          <Label htmlFor="amount" className="min-h-[2.5rem] flex items-end">{t('recurrences.installment_amount')}</Label>
-                         <div className="mt-1">
-                           <NumberInput
-                              id="amount"
-                              value={formData.amount}
-                              onChange={(e) => setFormData({ ...formData, amount: e.target.value })}
-                              currencyCode="BRL"
-                           />
-                         </div>
+                         <NumberInput
+                            id="amount"
+                            value={formData.amount}
+                            onChange={(e) => setFormData({ ...formData, amount: e.target.value })}
+                            currencyCode="BRL"
+                         />
                        </div>
                        <div>
                         <SelectInput
@@ -444,7 +462,7 @@ const Recurrences = () => {
                   animate={{ opacity: 1, y: 0 }}
                   transition={{ delay: index * 0.05 }}
                 >
-                  <RecorrenciaCard item={item} onEdit={handleEdit} onDelete={() => setDeleteId(item.id)} onToggleStatus={toggleStatus} />
+                  <RecorrenciaCard item={item} onClick={handleCardClick} onToggleStatus={toggleStatus} />
                 </motion.div>
               ))}
             </div>
@@ -454,65 +472,82 @@ const Recurrences = () => {
               animate={{ opacity: 1, y: 0 }}
               className="bg-white dark:bg-vindex-card rounded-xl border border-gray-200 dark:border-vindex-border overflow-hidden shadow-sm"
             >
-              <div className="overflow-x-auto">
-                <table className="w-full min-w-[860px] table-fixed">
+              <div className="overflow-x-auto custom-scrollbar">
+                <table className="w-full min-w-[940px] text-sm text-left table-fixed">
                   <thead className="bg-gray-50 dark:bg-vindex-bg border-b border-gray-200 dark:border-vindex-border">
                     <tr>
-                      <SortableHeader label={t('recurrences.col_description')} column="description" sortConfig={sortConfig} onSort={requestSort} className="w-[28%]" />
-                      <SortableHeader label={t('recurrences.col_type')} column="recurrence_type" sortConfig={sortConfig} onSort={requestSort} className="w-[14%]" />
-                      <SortableHeader label={t('recurrences.col_amount')} column="amount" sortConfig={sortConfig} onSort={requestSort} className="w-[14%]" />
-                      <SortableHeader label={t('recurrences.col_frequency')} column="frequency" sortConfig={sortConfig} onSort={requestSort} className="w-[13%]" />
-                      <SortableHeader label={t('recurrences.col_next_billing')} column="date" sortConfig={sortConfig} onSort={requestSort} className="w-[14%]" />
-                      <th className="px-6 py-3 w-[10%] text-left font-medium text-gray-700 dark:text-gray-300">{t('recurrences.col_status')}</th>
+                      <th className="px-6 py-3 w-[5%]">
+                        <Checkbox
+                          checked={sortedRecurring.length > 0 && selectedIds.length === sortedRecurring.length}
+                          onCheckedChange={toggleSelectAll}
+                        />
+                      </th>
+                      <SortableHeader label={t('recurrences.col_description')} column="description" sortConfig={sortConfig} onSort={requestSort} className="w-[17%]" />
+                      <SortableHeader label={t('common.category')} column="categoryName" sortConfig={sortConfig} onSort={requestSort} className="w-[13%]" />
+                      <SortableHeader label={t('recurrences.col_type')} column="recurrence_type" sortConfig={sortConfig} onSort={requestSort} className="w-[11%]" />
+                      <SortableHeader label={t('recurrences.col_amount')} column="amount" sortConfig={sortConfig} onSort={requestSort} className="w-[12%]" align="right" />
+                      <SortableHeader label={t('recurrences.col_frequency')} column="frequency" sortConfig={sortConfig} onSort={requestSort} className="w-[10%]" />
+                      <SortableHeader label={t('recurrences.col_next_billing')} column="date" sortConfig={sortConfig} onSort={requestSort} className="w-[11%]" />
+                      <SortableHeader label={t('recurrences.col_status')} column="status" sortConfig={sortConfig} onSort={requestSort} className="w-[9%]" />
                       <th className="px-6 py-3 w-[7%] text-right font-medium text-gray-700 dark:text-gray-300">{t('recurrences.col_actions')}</th>
                     </tr>
                   </thead>
                   <tbody className="divide-y divide-gray-200 dark:divide-vindex-border">
                     {sortedRecurring.map((item) => (
-                      <tr key={item.id} className="hover:bg-gray-50 dark:hover:bg-vindex-bg/50 transition-colors">
-                        <td className="px-6 py-4 text-sm text-gray-900 dark:text-gray-100 font-medium">
-                            <div className="flex flex-col min-w-0">
-                                <span className="truncate" title={item.description}>{item.description}</span>
-                                <span className="text-xs text-gray-500 truncate">{item.categories?.name || t('common.no_category')}</span>
-                            </div>
+                      <tr
+                        key={item.id}
+                        onClick={() => handleCardClick(item)}
+                        className={`cursor-pointer transition-colors ${selectedIds.includes(item.id) ? 'bg-primary/5 dark:bg-primary/10' : ''}`}
+                        onMouseEnter={e => e.currentTarget.style.backgroundColor = PRIMARY + '18'}
+                        onMouseLeave={e => e.currentTarget.style.backgroundColor = ''}
+                      >
+                        <td className="px-6 py-4" onClick={(e) => e.stopPropagation()}>
+                          <Checkbox
+                            checked={selectedIds.includes(item.id)}
+                            onCheckedChange={() => toggleSelect(item.id)}
+                          />
                         </td>
-                        <td className="px-6 py-4 text-sm text-gray-700 dark:text-gray-300">
-                             <span className={`px-2 py-1 rounded-full text-xs font-medium ${item.recurrence_type === 'installments' ? 'bg-blue-50 text-blue-700 dark:bg-blue-900/30 dark:text-blue-300' : 'bg-purple-50 text-purple-700 dark:bg-purple-900/30 dark:text-purple-300'}`}>
-                                 {t(`recurrences.type_${item.recurrence_type || 'subscription'}`)}
-                             </span>
-                        </td>
-                        <td className={`px-6 py-4 text-sm font-bold ${Number(item.amount) > 0 ? 'text-green-600 dark:text-vindex-success' : 'text-red-600 dark:text-vindex-danger'}`}>
-                          {formatCurrency(item.amount)}
-                        </td>
-                        <td className="px-6 py-4 text-sm text-gray-700 dark:text-gray-300">
-                          <div className="flex items-center gap-2">
-                            <span className="bg-gray-100 text-gray-700 dark:bg-gray-800 dark:text-gray-300 px-2 py-0.5 rounded text-xs font-medium">{t(`period.${item.frequency}`, item.frequency)}</span>
-                          </div>
-                        </td>
-                        <td className="px-6 py-4 text-sm text-gray-700 dark:text-gray-300">
-                          <span className="font-mono bg-gray-100 dark:bg-vindex-bg px-2 py-1 rounded">
-                            {item.date || item.next_date ? new Date(item.date || item.next_date).toLocaleDateString(i18n.language) : 'N/A'}
-                          </span>
+                        <td className="px-6 py-4 font-medium text-gray-900 dark:text-gray-50 truncate" title={item.description}>
+                          {item.description}
                         </td>
                         <td className="px-6 py-4">
+                          {item.categories ? (
+                            <div className="flex items-center gap-2 min-w-0">
+                              <div className="w-2.5 h-2.5 rounded-full shrink-0" style={{ backgroundColor: item.categories.color }} />
+                              <span className="truncate text-gray-700 dark:text-gray-300">{item.categories.name}</span>
+                            </div>
+                          ) : (
+                            <span className="text-gray-500 dark:text-gray-400 text-xs">{t('common.no_category')}</span>
+                          )}
+                        </td>
+                        <td className="px-6 py-4 text-gray-700 dark:text-gray-300">
+                          {t(`recurrences.type_${item.recurrence_type || 'subscription'}`)}
+                        </td>
+                        <td className="px-6 py-4 text-right font-bold whitespace-nowrap" style={{ color: Number(item.amount) > 0 ? SUCCESS : DANGER }}>
+                          {formatCurrency(item.amount)}
+                        </td>
+                        <td className="px-6 py-4 text-gray-700 dark:text-gray-300">
+                          {t(`period.${item.frequency}`, item.frequency)}
+                        </td>
+                        <td className="px-6 py-4 text-gray-700 dark:text-gray-300">
+                          {item.date || item.next_date ? new Date(item.date || item.next_date).toLocaleDateString(i18n.language) : 'N/A'}
+                        </td>
+                        <td className="px-6 py-4" onClick={(e) => e.stopPropagation()}>
                             <button
                                 onClick={() => toggleStatus(item)}
-                                className={`px-3 py-1 text-xs rounded-full transition-colors border ${
-                                item.status === 'active'
-                                    ? 'bg-green-50 border-green-200 dark:bg-vindex-success/10 dark:border-vindex-success/30 text-green-700 dark:text-vindex-success hover:bg-green-100 dark:hover:bg-vindex-success/20'
-                                    : 'bg-gray-50 border-gray-200 dark:bg-vindex-bg/50 dark:border-vindex-border/50 text-gray-500 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-vindex-border'
-                                }`}
+                                className={`transition-colors hover:underline ${item.status === 'active' ? '' : 'text-gray-500 dark:text-gray-400'}`}
+                                style={item.status === 'active' ? { color: SUCCESS } : undefined}
                             >
                                 {item.status === 'active' ? t('recurrences.status_active') : t('recurrences.status_inactive')}
                             </button>
                         </td>
-                        <td className="px-6 py-4">
+                        <td className="px-6 py-4" onClick={(e) => e.stopPropagation()}>
                           <div className="flex justify-end gap-2">
                             <Button
                               size="sm"
                               variant="outline"
                               onClick={() => handleEdit(item)}
-                              className="h-8 w-8 p-0 rounded-lg border transition-colors bg-transparent"
+                              className="h-8 w-8 p-0 rounded-lg border transition-colors bg-transparent shrink-0"
                               style={{ borderColor: PRIMARY, color: PRIMARY }}
                               onMouseEnter={e => { e.currentTarget.style.backgroundColor = PRIMARY; e.currentTarget.style.color = '#000'; }}
                               onMouseLeave={e => { e.currentTarget.style.backgroundColor = 'transparent'; e.currentTarget.style.color = PRIMARY; }}
@@ -523,7 +558,7 @@ const Recurrences = () => {
                               size="sm"
                               variant="outline"
                               onClick={() => setDeleteId(item.id)}
-                              className="h-8 w-8 p-0 rounded-lg border transition-colors bg-transparent"
+                              className="h-8 w-8 p-0 rounded-lg border transition-colors bg-transparent shrink-0"
                               style={{ borderColor: DANGER, color: DANGER }}
                               onMouseEnter={e => { e.currentTarget.style.backgroundColor = DANGER; e.currentTarget.style.color = '#fff'; }}
                               onMouseLeave={e => { e.currentTarget.style.backgroundColor = 'transparent'; e.currentTarget.style.color = DANGER; }}
@@ -547,6 +582,21 @@ const Recurrences = () => {
         onOpenChange={() => setDeleteId(null)}
         description={t('recurrences.delete_confirm')}
         onConfirm={() => handleDelete(deleteId)}
+      />
+
+      <RecurrenceSelectionBar
+        selectedIds={selectedIds}
+        items={sortedRecurring}
+        onClearSelection={() => setSelectedIds([])}
+      />
+
+      <RecurrenceDetailModal
+        isOpen={!!selectedDetailRecurring}
+        onClose={() => setSelectedDetailRecurring(null)}
+        item={selectedDetailRecurring}
+        onEdit={handleEdit}
+        onDelete={(id) => setDeleteId(id)}
+        onToggleStatus={toggleStatus}
       />
     </div>
   );
