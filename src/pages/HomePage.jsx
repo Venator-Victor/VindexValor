@@ -3,7 +3,7 @@ import { useTranslation } from 'react-i18next';
 import { Helmet } from 'react-helmet';
 import { Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
-import { ArrowRight, Wallet, ArrowCross as ArrowRightLeft, Repeat, PieChart, TrendingUp, Target } from '@/components/BxIcon';
+import { ArrowRight, Wallet, ArrowCross as ArrowRightLeft, Repeat, PieChart, TrendingUp, Target, Chip, HardDrive, Mobile } from '@/components/BxIcon';
 import { ViteJs, ReactIcon, Nodejs, Supabase as SupabaseIcon, TailwindCss, Landmark } from '@boxicons/react';
 import Header from '@/components/landing/Header';
 import Footer from '@/components/landing/Footer';
@@ -162,6 +162,27 @@ const HomePage = () => {
                 icon={Landmark}
                 className="bg-slate-50 text-slate-600 border-slate-200 dark:bg-slate-800/40 dark:text-slate-400 dark:border-slate-700"
               />
+            </div>
+          </div>
+        </section>
+
+        {/* ROADMAP SECTION */}
+        <section id="roadmap" className="py-24 bg-background border-t border-border">
+          <div className="container mx-auto px-4 md:px-6">
+            <div className="text-center mb-16">
+              <span className="inline-block px-3 py-1 mb-4 text-xs font-semibold uppercase tracking-wide text-primary bg-primary/10 rounded-full">
+                {t('landing.roadmap_badge')}
+              </span>
+              <h2 className="text-3xl md:text-4xl font-bold mb-4">{t('landing.roadmap_title')}</h2>
+              <p className="text-lg text-muted-foreground max-w-2xl mx-auto">
+                {t('landing.roadmap_subtitle')}
+              </p>
+            </div>
+
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-8 max-w-5xl mx-auto">
+              <FeatureCard icon={HardDrive} title={t('landing.roadmap_local_title')} description={t('landing.roadmap_local_desc')} />
+              <FeatureCard icon={Chip} title={t('landing.roadmap_rust_title')} description={t('landing.roadmap_rust_desc')} />
+              <FeatureCard icon={Mobile} title={t('landing.roadmap_mobile_title')} description={t('landing.roadmap_mobile_desc')} />
             </div>
           </div>
         </section>
