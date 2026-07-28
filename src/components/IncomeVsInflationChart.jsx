@@ -12,14 +12,19 @@ import {
   ResponsiveContainer
 } from 'recharts';
 import { useFinance } from '@/context/FinanceContext';
-import { supabase } from '@/lib/customSupabaseClient';
 import { calculateMonthlyIncome } from '@/utils/calculations';
 import { useTheme } from '@/context/ThemeContext';
-import { RefreshCw, AlertCircle, GridLines, Equal, TrendingUp } from '@/components/BxIcon';
+import { RefreshCw, AlertCircle, GridLines, Equal, TrendingUp, Landmark } from '@/components/BxIcon';
 const Loader2 = RefreshCw;
 import { motion } from 'framer-motion';
 import { Button } from '@/components/ui/button';
 import { Tooltip as UiTooltip, TooltipTrigger, TooltipContent } from '@/components/ui/tooltip';
+import {
+  ECONOMIC_REGIONS,
+  regionForCurrency,
+  ensureBackfilled,
+  fetchSeries,
+} from '@/utils/economicRegions';
 
 const CustomTooltip = ({ active, payload, t }) => {
   if (active && payload && payload.length) {
@@ -54,14 +59,17 @@ const CustomTooltip = ({ active, payload, t }) => {
   return null;
 };
 
-// Candidate replacement for InflationBudgetChart — indexes cumulative IPCA inflation
-// and the user's own monthly income to a common base of 100 at the start of the
-// 12-month window, so the two series (different natural units) share one axis
-// instead of a dual-axis chart. GridLines toggles axis labels, Equal toggles the
-// single "gap" area (income index - inflation index).
+// Indexes cumulative inflation and the user's own monthly income to a common
+// base of 100 at the start of the 12-month window, so the two series
+// (different natural units) share one axis instead of a dual-axis chart.
+// GridLines toggles axis labels, Equal toggles the single "gap" area (income
+// index - inflation index). Region (Brazil/IPCA, Eurozone/HICP, US/CPI) is
+// driven by the user's Preferences currency (see src/utils/economicRegions.js)
+// instead of a toggle here, so it stays in sync with InflationCard and
+// M2VsInflationChart.
 const IncomeVsInflationChart = () => {
   const { t, i18n } = useTranslation();
-  const { transactions, isLoading: isFinanceLoading } = useFinance();
+  const { transactions, isLoading: isFinanceLoading, settings } = useFinance();
   const { theme } = useTheme();
   const isDark = theme === 'dark';
   const [showAxis, setShowAxis] = useState(true);
@@ -72,7 +80,12 @@ const IncomeVsInflationChart = () => {
   const [error, setError] = useState(null);
   const [retryCount, setRetryCount] = useState(0);
 
+  const region = regionForCurrency(settings?.currency);
+  const regionConfig = ECONOMIC_REGIONS[region];
+
   useEffect(() => {
+    if (regionConfig.comingSoon) return;
+
     let isMounted = true;
 
     const fetchHistoricalData = async () => {
@@ -96,36 +109,33 @@ const IncomeVsInflationChart = () => {
       }
 
       try {
-        const startDateObj = new Date(now.getFullYear(), now.getMonth() - 11, 1);
-        const endDateObj = new Date(now.getFullYear(), now.getMonth() + 1, 0);
-
-        const toPeriod = (date) => `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}`;
-
-        const { data: rows, error: dbError } = await supabase
-          .from('inflation_data')
-          .select('period, inflation_value')
-          .gte('period', toPeriod(startDateObj))
-          .lte('period', toPeriod(endDateObj))
-          .order('period', { ascending: true });
-
-        if (dbError) throw new Error(dbError.message || t('inflation.communication_error'));
-
-        const inflationData = rows || [];
+        await ensureBackfilled(regionConfig.inflation);
+        const rows = await fetchSeries(regionConfig.inflation);
+        const inflationByPeriod = new Map(rows.map(r => [r.period, r.value]));
 
         if (!isMounted) return;
 
         const monthlyIncomes = months.map(m => calculateMonthlyIncome(transactions, m.key));
         const baseIncome = monthlyIncomes.find(v => v > 0) || 0;
+        const isRate = regionConfig.inflation.isRate;
 
         let currentInflationIndex = 100;
+        let previousValue = null;
 
         const data = months.map((m, index) => {
-          const match = inflationData.find(item => item.period === m.key);
-          const inflationRate = match ? Number(match.inflation_value) : 0;
-          const isEstimated = !match;
+          const value = inflationByPeriod.get(m.key);
+          const isEstimated = value === undefined;
+
+          let inflationRate;
+          if (isRate) {
+            inflationRate = isEstimated ? 0 : value;
+          } else {
+            inflationRate = (!isEstimated && previousValue) ? ((value / previousValue) - 1) * 100 : null;
+          }
+          if (value !== undefined) previousValue = value;
 
           if (index > 0) {
-            currentInflationIndex = currentInflationIndex * (1 + (inflationRate / 100));
+            currentInflationIndex = currentInflationIndex * (1 + ((isRate ? inflationRate : (inflationRate ?? 0)) / 100));
           }
 
           const income = monthlyIncomes[index];
@@ -160,7 +170,7 @@ const IncomeVsInflationChart = () => {
     return () => {
       isMounted = false;
     };
-  }, [transactions, isFinanceLoading, retryCount, i18n.language, t]);
+  }, [transactions, isFinanceLoading, retryCount, i18n.language, t, region, regionConfig]);
 
   const handleRetry = () => {
     setRetryCount(prev => prev + 1);
@@ -182,6 +192,16 @@ const IncomeVsInflationChart = () => {
   const beatsInflation = currentValues.incomeIndex >= currentValues.inflationIndex;
   const gapColor = beatsInflation ? SUCCESS : DANGER;
   const dangerColor = isDark ? DANGER_DARK : DANGER;
+
+  if (regionConfig.comingSoon) {
+    return (
+      <div className="h-full min-h-[400px] w-full bg-white dark:bg-vindex-card rounded-2xl border border-gray-200 dark:border-vindex-border p-6 flex flex-col items-center justify-center text-center">
+        <Landmark className="w-10 h-10 text-gray-300 dark:text-vindex-text/30 mb-3" />
+        <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-2">{t('inflation.income_vs_inflation_title')}</h3>
+        <p className="text-sm text-gray-500 dark:text-gray-400 max-w-xs">{t('m2.region_us_coming_soon')}</p>
+      </div>
+    );
+  }
 
   if (error) {
     return (

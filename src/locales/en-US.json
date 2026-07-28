@@ -864,6 +864,7 @@
     "currency_brl": "Brazilian Real (BRL)",
     "currency_usd": "US Dollar (USD)",
     "currency_eur": "Euro (EUR)",
+    "currency_usd_coming_soon": "Note: money-supply/inflation charts for USD (FRED) are coming soon and will show a placeholder until then.",
     "language_label": "Language",
     "language_pt": "Português (BR)",
     "language_en": "English (US)",
@@ -1185,7 +1186,6 @@
     "last_period": "Last {{period}}",
     "range_from": "From",
     "range_to": "to",
-    "syncing_bcb": "Syncing historical BCB data…",
     "cumulative_tooltip": "Cumulative Inflation",
     "period_inflation_label": "Inflation in Period",
     "purchasing_power_loss": "Purchasing Power Loss",
@@ -1198,6 +1198,28 @@
     "inflation_index_label": "Inflation Index",
     "gap_label": "Gap (income - inflation)",
     "no_income_data": "No income recorded in the last 12 months."
+  },
+
+  "m2": {
+    "card_title_br": "Money Supply (M2) vs. Inflation — Brazil",
+    "card_subtitle_br": "Money creation is the root cause of inflation: as M2 expands, prices tend to catch up over time. The gap below is how much of that catch-up hasn't shown up in prices yet.",
+    "card_title_us": "Money Supply (M2) vs. Inflation — United States",
+    "card_subtitle_us": "Same idea applied to the US: M2 (Federal Reserve) versus CPI (Bureau of Labor Statistics). The gap below is how much of that catch-up hasn't shown up in prices yet.",
+    "card_title_eu": "Money Supply (M2) vs. Inflation — Eurozone",
+    "card_subtitle_eu": "Same idea applied to the Eurozone: M2 (European Central Bank) versus HICP (Eurostat). The gap below is how much of that catch-up hasn't shown up in prices yet.",
+    "region_us_coming_soon": "Coming soon — requires a FRED API key that hasn't been set up yet.",
+    "source_bcb": "Banco Central",
+    "source_fred": "Federal Reserve (FRED)",
+    "source_ecb": "European Central Bank",
+    "m2_growth_label": "M2 Growth",
+    "inflation_growth_label": "Cumulative Inflation",
+    "implied_gap_label": "Implied Gap",
+    "gap_positive_hint": "Money supply has grown faster than prices in this window — theory suggests prices still have room to rise to close the gap.",
+    "gap_negative_hint": "Prices have already grown as much as or more than the money supply in this window — no catch-up implied.",
+    "chart_show_gap": "Show gap (M2 - inflation)",
+    "chart_hide_gap": "Show both series separately",
+    "syncing": "Fetching M2 data from {{source}}…",
+    "load_error": "Could not load M2 data."
   },
 
   "investment_sim": {

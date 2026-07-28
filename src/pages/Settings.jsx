@@ -377,6 +377,11 @@ const Settings = () => {
                   <option value="USD">{t('settings.currency_usd')}</option>
                   <option value="EUR">{t('settings.currency_eur')}</option>
                 </select>
+                {settings.currency === 'USD' && (
+                  <p className="text-xs text-amber-600 dark:text-amber-400 mt-2">
+                    {t('settings.currency_usd_coming_soon')}
+                  </p>
+                )}
               </div>
               <div>
                 <Label htmlFor="language">{t('settings.language_label')}</Label>

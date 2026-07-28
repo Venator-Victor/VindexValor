@@ -4,10 +4,10 @@ import { useTranslation } from 'react-i18next';
 import { motion } from 'framer-motion';
 import { AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
 import { formatCurrency } from '@/utils/calculations';
+import { useFinance } from '@/context/FinanceContext';
 import { useTheme } from '@/context/ThemeContext';
 import { useIsMobile } from '@/hooks/use-mobile';
-import { AlertCircle, RefreshCw, GridLines, Equal, TrendingDown } from '@/components/BxIcon';
-import { supabase } from '@/lib/customSupabaseClient';
+import { AlertCircle, RefreshCw, GridLines, Equal, TrendingDown, Landmark } from '@/components/BxIcon';
 import { Button } from '@/components/ui/button';
 const Loader2 = RefreshCw;
 import {
@@ -15,6 +15,13 @@ import {
   TooltipContent,
   TooltipTrigger,
 } from "@/components/ui/tooltip";
+import {
+  ECONOMIC_REGIONS,
+  regionForCurrency,
+  ensureBackfilled,
+  fetchSeries,
+  buildCumulativeIndex,
+} from '@/utils/economicRegions';
 
 const REFERENCE_AMOUNT = 1000;
 
@@ -24,7 +31,7 @@ const formatYAxisValue = (v) => {
   return v;
 };
 
-const CustomTooltip = ({ active, payload, label, showValue, t }) => {
+const CustomTooltip = ({ active, payload, label, showValue, currency, t }) => {
   if (active && payload && payload.length) {
     return (
       <div className="bg-white dark:bg-vindex-card p-3 border border-gray-200 dark:border-vindex-border rounded-lg shadow-lg">
@@ -35,7 +42,7 @@ const CustomTooltip = ({ active, payload, label, showValue, t }) => {
               {showValue ? t('inflation.purchasing_power_loss') : t('inflation.cumulative_tooltip')}
             </span>
             <span className="text-sm font-bold font-mono" style={{ color: entry.color }}>
-              {showValue ? formatCurrency(entry.value) : `${entry.value.toFixed(2)}%`}
+              {showValue ? formatCurrency(entry.value, currency) : `${entry.value.toFixed(2)}%`}
             </span>
           </div>
         ))}
@@ -57,19 +64,21 @@ const StyledSelect = ({ className = '', ...props }) => (
   </div>
 );
 
-const FIRST_YEAR = 1995;
 const CURRENT_YEAR = new Date().getFullYear();
-
-const ALL_YEARS = Array.from(
-  { length: CURRENT_YEAR - FIRST_YEAR + 1 },
-  (_, i) => String(FIRST_YEAR + i)
-);
 
 // Same card shell/icon/header pattern as the dashboard charts (AssetLiabilityChart,
 // BudgetConsumptionChart, etc.) — GridLines toggles axis labels, Equal swaps the
-// cumulative-% line for its R$ purchasing-power-loss equivalent.
-const InflationCard = ({ currentBalance }) => {
+// cumulative-% line for its currency purchasing-power-loss equivalent. Region
+// (Brazil/IPCA, Eurozone/HICP, US/CPI) is driven by the user's Preferences
+// currency (see src/utils/economicRegions.js) instead of a toggle on this card,
+// so it stays in sync with M2VsInflationChart and IncomeVsInflationChart.
+const InflationCard = () => {
   const { t } = useTranslation();
+  const { settings } = useFinance();
+  const region = regionForCurrency(settings?.currency);
+  const regionConfig = ECONOMIC_REGIONS[region];
+  const currency = settings?.currency || 'BRL';
+
   const PERIOD_OPTIONS = [
     { label: t('inflation.period_3m'), months: 3 },
     { label: t('inflation.period_6m'), months: 6 },
@@ -89,6 +98,7 @@ const InflationCard = ({ currentBalance }) => {
   const [error, setError] = useState(null);
   const [showAxis, setShowAxis] = useState(true);
   const [showValue, setShowValue] = useState(false);
+  const [retryCount, setRetryCount] = useState(0);
 
   // 'period' | 'range' | 'all'
   const [mode, setMode] = useState('period');
@@ -99,53 +109,44 @@ const InflationCard = ({ currentBalance }) => {
   const textColor = chartText(isDark);
   const gridColor = chartGrid(isDark);
 
+  const firstYear = regionConfig.inflation.firstYear;
+  const ALL_YEARS = useMemo(
+    () => Array.from({ length: CURRENT_YEAR - firstYear + 1 }, (_, i) => String(firstYear + i)),
+    [firstYear]
+  );
+
   useEffect(() => {
+    if (regionConfig.comingSoon) return;
+
+    let isMounted = true;
+
     const loadData = async () => {
       setLoading(true);
       setError(null);
       try {
-        // Check if we already have historical data going back to 1995
-        const { data: probe } = await supabase
-          .from('inflation_data')
-          .select('period')
-          .lte('period', '1995-03')
-          .limit(1);
+        setSyncing(true);
+        await ensureBackfilled(regionConfig.inflation);
+        if (isMounted) setSyncing(false);
 
-        if (!probe?.length) {
-          // Backfill from BCB: Jan 1995 → today (best-effort; non-fatal if function unavailable)
-          setSyncing(true);
-          try {
-            const { data: syncResult, error: syncError } = await supabase.functions.invoke(
-              'fetch-inflation-data',
-              { body: { syncAll: true } }
-            );
-            if (syncError) console.warn('Inflation backfill skipped:', syncError.message);
-            else if (syncResult?.error) console.warn('Inflation backfill error:', syncResult.error);
-          } catch (e) {
-            console.warn('Inflation backfill exception:', e);
-          } finally {
-            setSyncing(false);
-          }
-        }
-
-        const { data, error: dbError } = await supabase
-          .from('inflation_data')
-          .select('period, inflation_value')
-          .gte('period', `${FIRST_YEAR}-01`)
-          .order('period', { ascending: true });
-
-        if (dbError) throw dbError;
-        setAllData(data ?? []);
+        const rows = await fetchSeries(regionConfig.inflation);
+        if (!isMounted) return;
+        setAllData(rows);
       } catch (err) {
-        setError(err.message || t('inflation.load_data_error'));
+        if (isMounted) setError(err.message || t('inflation.load_data_error'));
       } finally {
-        setLoading(false);
-        setSyncing(false);
+        if (isMounted) {
+          setLoading(false);
+          setSyncing(false);
+        }
       }
     };
 
     loadData();
-  }, [t]);
+
+    return () => {
+      isMounted = false;
+    };
+  }, [region, retryCount, t, regionConfig]);
 
   const filteredData = useMemo(() => {
     if (!allData.length) return [];
@@ -160,14 +161,13 @@ const InflationCard = ({ currentBalance }) => {
   const { chartData, totalCumulative } = useMemo(() => {
     if (!filteredData.length) return { chartData: [], totalCumulative: 0 };
 
-    const compounds = filteredData.reduce(
-      (acc, item) => acc.concat(acc[acc.length - 1] * (1 + Number(item.inflation_value) / 100)),
-      [1]
-    ).slice(1);
+    const periods = filteredData.map(r => r.period);
+    const valueByPeriod = new Map(filteredData.map(r => [r.period, r.value]));
+    const indices = buildCumulativeIndex(periods, valueByPeriod, regionConfig.inflation.isRate);
 
     const data = filteredData.map((item, i) => {
       const [year, month] = item.period.split('-');
-      const cumulative = parseFloat(((compounds[i] - 1) * 100).toFixed(2));
+      const cumulative = parseFloat((indices[i] - 100).toFixed(2));
       return {
         name: `${month}/${year}`,
         cumulative,
@@ -179,7 +179,7 @@ const InflationCard = ({ currentBalance }) => {
       chartData: data,
       totalCumulative: data.length ? data[data.length - 1].cumulative : 0,
     };
-  }, [filteredData]);
+  }, [filteredData, regionConfig]);
 
   const currentWorth = REFERENCE_AMOUNT / (1 + totalCumulative / 100);
 
@@ -206,13 +206,25 @@ const InflationCard = ({ currentBalance }) => {
         : 'text-gray-500 dark:text-vindex-text/60 hover:text-gray-800 dark:hover:text-vindex-text'
     }`;
 
+  const handleRetry = () => setRetryCount(prev => prev + 1);
+
+  if (regionConfig.comingSoon) {
+    return (
+      <div className="bg-white dark:bg-vindex-card rounded-2xl p-6 border border-gray-200 dark:border-vindex-border shadow-sm flex flex-col items-center justify-center h-[300px] text-center">
+        <Landmark className="w-10 h-10 text-gray-300 dark:text-vindex-text/30 mb-3" />
+        <h3 className="text-lg font-bold text-gray-900 dark:text-gray-50 mb-2">{t('inflation.card_title')}</h3>
+        <p className="text-sm text-gray-500 dark:text-gray-400 max-w-sm">{t('m2.region_us_coming_soon')}</p>
+      </div>
+    );
+  }
+
   if (error) {
     return (
       <div className="bg-white dark:bg-vindex-card rounded-2xl p-6 border border-gray-200 dark:border-vindex-border shadow-sm flex flex-col items-center justify-center h-[300px]">
         <AlertCircle className="w-10 h-10 text-red-400 mb-3" />
         <p className="text-gray-900 dark:text-white font-medium mb-2">{t('common.error_loading')}</p>
         <p className="text-sm text-gray-500 dark:text-gray-400 text-center mb-4">{error}</p>
-        <Button variant="outline" size="sm" onClick={() => window.location.reload()}>
+        <Button variant="outline" size="sm" onClick={handleRetry}>
           <RefreshCw className="w-4 h-4 mr-2" /> {t('common.retry')}
         </Button>
       </div>
@@ -308,7 +320,7 @@ const InflationCard = ({ currentBalance }) => {
 
         {mode === 'all' && (
           <span className="text-xs text-gray-400 dark:text-vindex-text/40">
-            {FIRST_YEAR} – {CURRENT_YEAR}
+            {firstYear} – {CURRENT_YEAR}
           </span>
         )}
       </div>
@@ -318,7 +330,7 @@ const InflationCard = ({ currentBalance }) => {
           <Loader2 className="w-8 h-8 animate-spin text-red-400" />
           {syncing && (
             <p className="text-sm text-gray-400 dark:text-vindex-text/50">
-              {t('inflation.syncing_bcb')}
+              {t('m2.syncing', { source: t(regionConfig.sourceLabelKey) })}
             </p>
           )}
         </div>
@@ -342,9 +354,9 @@ const InflationCard = ({ currentBalance }) => {
                 <span className="text-gray-500 dark:text-gray-400 font-medium">{t('inflation.purchasing_power_loss')}</span>
               </div>
               <div className="text-3xl font-bold text-gray-900 dark:text-white mb-1 tracking-tight">
-                {formatCurrency(currentWorth)}
+                {formatCurrency(currentWorth, currency)}
               </div>
-              <p className="text-xs text-gray-400 dark:text-vindex-text/50">{t('inflation.per_amount_hint', { amount: formatCurrency(REFERENCE_AMOUNT) })}</p>
+              <p className="text-xs text-gray-400 dark:text-vindex-text/50">{t('inflation.per_amount_hint', { amount: formatCurrency(REFERENCE_AMOUNT, currency) })}</p>
             </div>
           </div>
 
@@ -382,7 +394,7 @@ const InflationCard = ({ currentBalance }) => {
                     width={showAxis ? 40 : 0}
                     tick={showAxis ? { fontSize: 10, fill: textColor } : false}
                   />
-                  <Tooltip content={<CustomTooltip showValue={showValue} t={t} />} cursor={{ stroke: chartCursor(isDark) }} />
+                  <Tooltip content={<CustomTooltip showValue={showValue} currency={currency} t={t} />} cursor={{ stroke: chartCursor(isDark) }} />
                   <Area type="monotone" dataKey={showValue ? 'worth' : 'cumulative'} stroke={DANGER} strokeWidth={2} fillOpacity={1} fill="url(#colorInflation)" />
                 </AreaChart>
               </ResponsiveContainer>

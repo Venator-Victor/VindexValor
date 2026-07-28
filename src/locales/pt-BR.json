@@ -864,6 +864,7 @@
     "currency_brl": "Real (BRL)",
     "currency_usd": "Dólar (USD)",
     "currency_eur": "Euro (EUR)",
+    "currency_usd_coming_soon": "Nota: os gráficos de massa monetária/inflação em USD (FRED) ainda estão em construção e mostrarão um aviso temporário até lá.",
     "language_label": "Idioma",
     "language_pt": "Português (BR)",
     "language_en": "English (US)",
@@ -1185,7 +1186,6 @@
     "last_period": "Últimos {{period}}",
     "range_from": "De",
     "range_to": "até",
-    "syncing_bcb": "Sincronizando dados históricos do BCB…",
     "cumulative_tooltip": "Inflação Acumulada",
     "period_inflation_label": "Inflação no Período",
     "purchasing_power_loss": "Perda de Poder de Compra",
@@ -1198,6 +1198,28 @@
     "inflation_index_label": "Índice de Inflação",
     "gap_label": "Diferença (renda - inflação)",
     "no_income_data": "Sem receitas registradas nos últimos 12 meses."
+  },
+
+  "m2": {
+    "card_title_br": "Massa Monetária (M2) vs. Inflação — Brasil",
+    "card_subtitle_br": "A criação de moeda é a causa raiz da inflação: quando o M2 se expande, os preços tendem a alcançá-lo com o tempo. A diferença abaixo é o quanto desse ajuste ainda não apareceu nos preços.",
+    "card_title_us": "Massa Monetária (M2) vs. Inflação — Estados Unidos",
+    "card_subtitle_us": "Mesma ideia aplicada aos EUA: M2 (Federal Reserve) contra o CPI (Bureau of Labor Statistics). A diferença abaixo é o quanto desse ajuste ainda não apareceu nos preços.",
+    "card_title_eu": "Massa Monetária (M2) vs. Inflação — Zona do Euro",
+    "card_subtitle_eu": "Mesma ideia aplicada à Zona do Euro: M2 (Banco Central Europeu) contra o HICP (Eurostat). A diferença abaixo é o quanto desse ajuste ainda não apareceu nos preços.",
+    "region_us_coming_soon": "Em breve — depende de uma chave de API do FRED ainda não configurada.",
+    "source_bcb": "Banco Central",
+    "source_fred": "Federal Reserve (FRED)",
+    "source_ecb": "Banco Central Europeu",
+    "m2_growth_label": "Crescimento do M2",
+    "inflation_growth_label": "Inflação Acumulada",
+    "implied_gap_label": "Diferença Implícita",
+    "gap_positive_hint": "A massa monetária cresceu mais rápido que os preços nesse período — pela teoria, os preços ainda têm espaço para subir até fechar essa diferença.",
+    "gap_negative_hint": "Os preços já cresceram tanto quanto ou mais que a massa monetária nesse período — não há ajuste implícito pendente.",
+    "chart_show_gap": "Mostrar diferença (M2 - inflação)",
+    "chart_hide_gap": "Mostrar as duas séries separadamente",
+    "syncing": "Buscando dados de M2 em {{source}}…",
+    "load_error": "Não foi possível carregar os dados de M2."
   },
 
   "investment_sim": {

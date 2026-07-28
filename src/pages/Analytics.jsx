@@ -4,6 +4,7 @@ import { useTranslation } from 'react-i18next';
 import InflationSimulator from '@/components/InflationSimulator';
 import InvestmentSimulator from '@/components/InvestmentSimulator';
 import InflationCard from '@/components/InflationCard';
+import M2VsInflationChart from '@/components/M2VsInflationChart';
 
 const Analytics = () => {
   const { t } = useTranslation();
@@ -22,6 +23,10 @@ const Analytics = () => {
 
       <section className="py-2">
         <InflationCard />
+      </section>
+
+      <section className="py-2">
+        <M2VsInflationChart />
       </section>
 
       <section className="py-2">
