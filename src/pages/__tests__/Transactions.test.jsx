@@ -3,6 +3,7 @@ import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { render, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { MemoryRouter } from 'react-router-dom';
+import { TooltipProvider } from '@/components/ui/tooltip';
 import Transactions from '../Transactions';
 import { defaultFinanceValue } from '@/test-utils/renderWithProviders';
 
@@ -64,7 +65,9 @@ function renderTransacoes(transactions = []) {
   financeValue.categories = [{ id: 'cat-1', name: 'Food', color: '#ff0', icon: 'bx bx-food' }];
   return render(
     <MemoryRouter>
-      <Transactions />
+      <TooltipProvider>
+        <Transactions />
+      </TooltipProvider>
     </MemoryRouter>
   );
 }

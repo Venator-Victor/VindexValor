@@ -3,6 +3,7 @@ import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { render, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { MemoryRouter } from 'react-router-dom';
+import { TooltipProvider } from '@/components/ui/tooltip';
 import Accounts from '../Accounts';
 import { defaultFinanceValue } from '@/test-utils/renderWithProviders';
 
@@ -35,7 +36,9 @@ function renderContas(accounts = []) {
   financeValue.accounts = accounts;
   return render(
     <MemoryRouter>
-      <Accounts />
+      <TooltipProvider>
+        <Accounts />
+      </TooltipProvider>
     </MemoryRouter>
   );
 }
