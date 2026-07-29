@@ -39,7 +39,7 @@ const SignupPage = () => {
       return;
     }
 
-    if (formData.password.length < 8 || !/[A-Z]/.test(formData.password) || !/[0-9]/.test(formData.password)) {
+    if (formData.password.length < 8 || !/[A-Z]/.test(formData.password) || !/[0-9]/.test(formData.password) || !/[^A-Za-z0-9]/.test(formData.password)) {
       toast({
         variant: "destructive",
         title: t('auth.weak_password_title'),
@@ -110,6 +110,7 @@ const SignupPage = () => {
                   { label: t('auth.password_req_min_length'), met: formData.password.length >= 8 },
                   { label: t('auth.password_req_uppercase'), met: /[A-Z]/.test(formData.password) },
                   { label: t('auth.password_req_number'), met: /[0-9]/.test(formData.password) },
+                  { label: t('auth.password_req_symbol'), met: /[^A-Za-z0-9]/.test(formData.password) },
                 ].map(({ label, met }) => (
                   <li key={label} className={`flex items-center gap-1.5 text-xs transition-colors ${met ? 'text-green-500' : 'text-muted-foreground'}`}>
                     <span className="text-base leading-none">{met ? '✓' : '·'}</span>

@@ -56,15 +56,16 @@ const CustomTooltip = ({ active, payload, t }) => {
   return null;
 };
 
-// Quantity-theory-of-money framing: money creation (M2) is treated as the root
-// cause of inflation, so cumulative M2 growth and cumulative inflation are
-// indexed to 100 at the start of the selected window and plotted together. The
-// "gap" between them is the price correction the theory implies is still owed
-// (or already overshot) — not a guarantee, just the mechanical readout of the
-// two series. Region (Brazil/BCB, Eurozone/ECB, US/FRED) is driven by the
-// user's Preferences currency (see src/utils/economicRegions.js) rather than
-// a toggle on this chart, so it stays in sync with InflationCard and
-// IncomeVsInflationChart.
+// Quantity-theory-of-money framing: money creation (M2) is treated as the
+// real driver of inflation, and the officially published index (IPCA/CPI/
+// HICP) is treated as an underreporting of it. Cumulative M2 growth and
+// cumulative official inflation are indexed to 100 at the start of the
+// selected window and plotted together; the "gap" between them is read as
+// how much the official number is underreporting real (M2-driven) inflation
+// — not a guarantee, just the mechanical readout of the two series. Region
+// (Brazil/BCB, Eurozone/ECB, US/FRED) is driven by the user's Preferences
+// currency (see src/utils/economicRegions.js) rather than a toggle on this
+// chart, so it stays in sync with InflationCard and IncomeVsInflationChart.
 const M2VsInflationChart = () => {
   const { t } = useTranslation();
   const { settings } = useFinance();
